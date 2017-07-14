@@ -1,3 +1,0 @@
-#File to list all the target SRA transcriptome files I will analyze
-
-
