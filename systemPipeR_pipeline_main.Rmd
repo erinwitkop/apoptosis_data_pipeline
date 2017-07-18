@@ -11,6 +11,17 @@ Used two different scripts in the URI cluster in order to process paired end rea
   
   When using, make sure the working directory has *.txt endings for only the SE read files, and *_paired.text for only the PE read files. These file endings are used as filters in the script.
 
+
+Install bioconductor
+```{r}
+#install bioconductor
+source( "http://www.bioconductor.org/biocLite.R") 
+biocLite("BiocUpgrade") 
+biocLite(c("ShortRead","DESeq", "edgeR") )
+```
+
+
+
 ## Load systemPipeR library and documentation
 ```{r}
 source("http://bioconductor.org/biocLite.R") # Sources the biocLite.R installation script 
@@ -20,7 +31,7 @@ library("systemPipeR") # Loads the package
 #library(help="systemPipeR") # Lists package info
 
 library(systemPipeRdata)
-genWorkenvir(workflow="rnaseq", mydirname = /data3/marine_diseases_lab/erin/Bio_project_SRA) #change to cluster directory 
+genWorkenvir(workflow="rnaseq", mydirname = /data3/marine_diseases_lab/erin/Bio_project_SRA/PE_fastq) #change to cluster directory 
 setwd("rnaseq")
 ```
 
@@ -36,14 +47,13 @@ Access the targets file (SE) samples, Construct SYSargs object from param and ta
 ```
 
 
-## Access the targets file (PE) samples
+## Access the targets file (PE) samples (second time running through script)
 ```{r}
 targetspath <- system.file("extdata", "targets_PE.txt", package="systemPipeR")
-read.delim(targetspath, comment.char = "#")[1:2,1:6]
+read.delim(targetspath2, comment.char = "#")[1:2,1:6]
 ```
 
-
-## Sample Comparisons
+## Sample Comparisons for PE
 Sample comparisons are defined in the header lines of the targets file starting with ‘# <CMP>’.
 
 ```{r }
@@ -63,52 +73,18 @@ args <- systemArgs(sysma="param/trim.param", mytargets="targets_PE.txt")
 ## Read Pre-processing
 The paths to the resulting output FASTQ files are stored in the outpaths slot of the SYSargs object. 
 
-1. Script to trim adapters off the end of reads
+1. bbtools_trim_paired.sh run in cluster to trim adapters off the end of reads, to perform quality trimming at the ends of reads with quality less than Phred score 10, and quality filter out all sequences with a quality below phred score 10. Path to these pre-processed files is used in the targets_PE.txt file.
 
-The preprocessReads function uses the FastqStreamer function from the ShortRead package to stream through large FASTQ files in a memory-efficient manner. 
+This script also produces histogram reports of each run containing information on: base frequency, quality scores, gc content, average quality, and length.
 
-I can use this function if I know the pattern of Adaptors used for all samples, which I don't!
-``` {r}
-#preprocessReads(args=args, Fct="trimLRPatterns(Rpattern='GCCCGGGTAA', subject=fq)", 
-                batchsize=100000, overwrite=TRUE, compress=TRUE) #trimLRPatterns function from the Biostrings package
-#writeTargetsout(x=args, file="targets_PEtrim.txt")
-```
+## Alignment with Tophat2
 
-Can I use FastQC on System PipeR?
+Tophat2 will be used to map reads to the Crassostrea gigas reference genome available from Ensembl. 
+Cufflinks will then be used to perform transcript identification and quantification using the GFF3 file for C. gigas available at Ensembl at the following web address: http://metazoa.ensembl.org/Crassostrea_gigas/Info/Index
 
-Custom script for Filtering PE reads to get rid of low quality reads using the s
-```{r}
-#run in batch mode because this will take some time!
-args <- systemArgs(sysma="param/trimPE.param", mytargets="targets_PE.txt")
-filterFct <- function(fq, cutoff=20, Nexceptions=0) {
-    qcount <- rowSums(as(quality(fq), "matrix") <= cutoff)
-    fq[qcount <= Nexceptions] # Retains reads where Phred scores are >= cutoff with N exceptions
-}
-preprocessReads(args=args, Fct="filterFct(fq, cutoff=20, Nexceptions=0)", batchsize=100000) #using preprocessReads function allows you to run it in batch mode
-writeTargetsout(x=args, file="targets_PEtrim.txt")
-```
-
-## FASTQ Quality Report
-```{r}
-#fqlist <- seeFastq(fastq=infile1(args), batchsize=10000, klength=8)
-#pdf("./results/fastqReport.pdf", height=18, width=4*length(fqlist))
-#seeFastqPlot(fqlist)
-#dev.off()
-```
-
-
-Parallelization of QC report 
-```{r}
-args <- systemArgs(sysma="param/tophat.param", mytargets="targets.txt")
-f <- function(x) seeFastq(fastq=infile1(args)[x], batchsize=100000, klength=8)
-fqlist <- bplapply(seq(along=args), f, BPPARAM = MulticoreParam(workers=8))
-seeFastqPlot(unlist(fqlist, recursive=FALSE))
-```
-
-## Alignment with Bowtie2
 Build Bowtie2 index:
 ```{r}
-args <- systemArgs(sysma="bowtieSE.param", mytargets="targets_PE.txt")
+args <- systemArgs(sysma="bowtiePE.param", mytargets="targets_PE.txt")
 moduleload(modules(args)) # Skip if module system is not available
 bampaths <- runCommandline(args=args)
 ```
@@ -128,35 +104,13 @@ txdb <- makeTxDbFromGFF(file="data/tair10.gff", format="gff", dataSource="TAIR",
 saveDb(txdb, file="./data/tair10.sqlite")
 ```
 
-Read counting with summarize overlaps using multiple nodes of a cluster
+
+## Heatmap analysis
 ``` {r}
-library(BiocParallel)
-f <- function(x) {
-    library(systemPipeR); library(BiocParallel); library(GenomicFeatures)
-    txdb <- loadDb("./data/tair10.sqlite")
-    eByg <- exonsBy(txdb, by="gene")
-    args <- systemArgs(sysma="tophat.param", mytargets="targets.txt")
-    bfl <- BamFileList(outpaths(args), yieldSize=50000, index=character())
-    summarizeOverlaps(eByg, bfl[x], mode="Union", ignore.strand=TRUE, inter.feature=TRUE, singleEnd=TRUE)
-}
-funs <- makeClusterFunctionsTorque("torque.tmpl")
-param <- BatchJobsParam(length(args), resources=list(walltime="20:00:00", nodes="1:ppn=1", memory="6gb"), cluster.functions=funs)
-register(param)
-counteByg <- bplapply(seq(along=args), f) 
-countDFeByg <- sapply(seq(along=counteByg), function(x) assays(counteByg[[x]])$counts)
-rownames(countDFeByg) <- names(rowRanges(counteByg[[1]])); colnames(countDFeByg) <- names(outpaths(args))
+library(pheatmap)
+geneids <- unique(as.character(unlist(DEG_list[[1]])))
+y <- assay(rlog(dds))[geneids, ]
+pdf("heatmap1.pdf")
+pheatmap(y, scale="row", clustering_distance_rows="correlation", clustering_distance_cols="correlation")
+dev.off()
 ```
-
-## Correlation analysis of samples using DESeq2
-Compute the sample-wise Spearman correlation coefficients from the rlog transformed expression values generated with the DESeq2 package
-```{r}
-library(DESeq2, warn.conflicts=FALSE, quietly=TRUE); library(ape, warn.conflicts=FALSE)
-countDFpath <- system.file("extdata", "countDFeByg.xls", package="systemPipeR")
-countDF <- as.matrix(read.table(countDFpath))
-colData <- data.frame(row.names=targetsin(args)$SampleName, condition=targetsin(args)$Factor)
-dds <- DESeqDataSetFromMatrix(countData = countDF, colData = colData, design = ~ condition)
-d <- cor(assay(rlog(dds)), method="spearman")
-hc <- hclust(dist(1-d))
-plot.phylo(as.phylo(hc), type="p", edge.col=4, edge.width=3, show.node.label=TRUE, no.margin=TRUE)
-```
-
