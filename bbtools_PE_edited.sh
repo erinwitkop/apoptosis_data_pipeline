@@ -28,7 +28,6 @@ done
   # stats.txt will then list the names of adapter sequences found, and their frequency
 
 # Trimming of adaptors found in the previous command
-
 for i in ${array1[@]}; do 
 	bbduk.sh in1=${i} out1=${i}.clean in2=$(echo ${i}|sed s/_1/_2/) out2=$(echo ${i}|sed s/_1/_2/).clean ref=adapters.fa ktrim=r k=23 mink=11 hdist=1 tpe tbo
 done
@@ -40,10 +39,10 @@ done
 	#flag -tpe specified to trim both reads to the same length (if the adapter kmer was only detected in one of them and not other)
 
 
-#quality trimming, of both the left and the right sides to get rid of reads that are less than quality 10
+#quality trimming, of both the left and the right sides to get rid of reads that are less than quality 20
 	
  for i in ${array1[@]}; do 
-	bbduk.sh in1=${i}.clean out1=${i}.trim in2=$(echo ${i}|sed s/_1/_2/).clean out2=$(echo ${i}|sed s/_1/_2/).trim  qtrim=rl trimq=10
+	bbduk.sh in1=${i}.clean out1=${i}.trim in2=$(echo ${i}|sed s/_1/_2/).clean out2=$(echo ${i}|sed s/_1/_2/).trim  qtrim=rl trimq=20
  done
 
 
@@ -58,8 +57,3 @@ for i in ${array1[@]}; do
 	bbduk.sh in1=${i}.trim.filter in2=$(echo ${i}|sed s/_1/_2/).trim.filter bhist=bhist.txt qhist=qhist.txt gchist=gchist.txt aqhist=aqhist.txt lhist=lhist.txt gcbins=auto
 done
 
-# 06 tophat2 and bowtie2-build in 05_C_gigas_RNA_pipeline.sh
-
-# 07 Salmon to perform quantification
-
-#RSEM
