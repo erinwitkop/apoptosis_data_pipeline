@@ -21,21 +21,23 @@ array2=($(ls $F/*_2.fq.trim.filter))
 #Assume that transcripts.fa contains the set of transcripts you wish to quantify. First, you run the Salmon indexer:
 
 #First create an index out of a normal control file that seems normal and use that to create and index to compare to
+#Choose reference from normal pooled adult tissue samples under no stress, needs to be SE for this analysis, and needs to be long enough
+#so that lots can be compared to it
 
-salmon index -t transcripts.fa -i transcripts_index --type quasi -k 31
+#Sample info:
 
+	#C gigas Adult, mixture tissues, no stress BioProject Accession: PRJNA194084  SRA ID: SRR796589
+	#Read type: SE, PCR Length: 3.1G, Sequencer Illumina HiSeq 2000
 
-salmon index -t transcript.fa -i C/C_gigas_GTF_index --type quasi -k 31
+salmon index -t SRR796589.fastq  -i C/C_gigas_GTF_index --type quasi -k 31
 
 #Salmon command to quantify paired end reads
-salmon quant -i transcripts_index -l <LIBTYPE> -1 reads1.fq -2 reads2.fq -o transcripts_quant
-
-#Salmon command to quantify multiple reads (if I want to put replicates of runs in here. For statistical power purposes I choose not to aggregate reads)
-
-salmon quant -i C/C_gigas_GTF_index -l A -1 lib_1_1.fq lib_2_1.fq -2 lib_1_2.fq lib_2_2.fq -o out
+for i in ${array1[@]}; do
+	salmon quant -i C/C_gigas_GTF_index -l A -1 ${i} -2 $(echo ${i}|sed s/_1/_2/) -o ${i}.transcripts_quant
+done 
 
 # -l A means salmon will infer the library
--Can quantify Multiple reads together as if there are in one run
+
 
 
 #References:
