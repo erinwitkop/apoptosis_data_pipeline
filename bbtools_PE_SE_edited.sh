@@ -43,25 +43,25 @@ S=/data3/marine_diseases_lab/erin/Bio_project_SRA
 
 #Quality trimming, of both the left and the right sides to get rid of reads that are less than quality 20
 	
- for i in ${array1[@]}; do 
-	bbduk.sh in1=${i} out1=${i}.trim in2=$(echo ${i}|sed s/_1/_2/) out2=$(echo ${i}|sed s/_1/_2/).trim qtrim=rl trimq=20
- 	echo "STOP" $(date)
- done
+ #for i in ${array1[@]}; do 
+#	bbduk.sh in1=${i} out1=${i}.trim in2=$(echo ${i}|sed s/_1/_2/) out2=$(echo ${i}|sed s/_1/_2/).trim qtrim=rl trimq=20
+ #	echo "STOP" $(date)
+ #done
 
 #Quality filtering to get rid of entire low quality reads. maq=10 will trim reads that have average quality of less than 10
 
-for i in ${array1[@]}; do 
-	bbduk.sh in1=${i}.trim out1=${i}.trim.filter in2=$(echo ${i}|sed s/_1/_2/).trim out2=$(echo ${i}|sed s/_1/_2/).trim.filter maq=10
-	echo "STOP" $(date)
-done
+#for i in ${array1[@]}; do 
+#	bbduk.sh in1=${i}.trim out1=${i}.trim.filter in2=$(echo ${i}|sed s/_1/_2/).trim out2=$(echo ${i}|sed s/_1/_2/).trim.filter maq=10
+#	echo "STOP" $(date)
+#done
 
 #Histogram generation, only generating for one of the pair (assuming that similar stats will be present). 
 #All histogram output contents are combined into one file
- for i in ${array1[@]}; do 
-	bbduk.sh in1=${i}.trim.filter in2=$(echo ${i}|sed s/_1/_2/).trim.filter bhist=${i}.b.hist qhist=${i}.q.hist gchist=${i}.gc.hist lhist=${i}.l.hist gcbins=auto
- 	cat *${i}*.hist > ${i}.hist.all
- 	echo "STOP" $(date)
- done
+ #for i in ${array1[@]}; do 
+#	bbduk.sh in1=${i}.trim.filter in2=$(echo ${i}|sed s/_1/_2/).trim.filter bhist=${i}.b.hist qhist=${i}.q.hist gchist=${i}.gc.hist lhist=${i}.l.hist gcbins=auto
+ #	cat *${i}*.hist > ${i}.hist.all
+ #	echo "STOP" $(date)
+ #done
 	#lhist = output a read length histogram
 	#qhist = per base average quality
 	#bhist = output a per-base composition histogram 
@@ -69,7 +69,7 @@ done
 
 # Commands for Single End Read PreProcessing
 
-array3=($(ls $S/.fastq))
+array3=($(ls $S/*.fastq))
  
 for i in ${array3[@]}; do  # @ symbol tells it to go through each item in the array  
    bbduk.sh in1=${i} k=23 ref=/opt/software/BBMap/37.36-foss-2016b-Java-1.8.0_131/resources/adapters.fa stats=${i}.stat out=${i}.out
@@ -93,7 +93,7 @@ done
 #Quality Trimming, of both the left and the right sides to get rid of reads that are less than quality 20
 	
  for i in ${array3[@]}; do 
-	bbduk.sh in1=${i}.clean out1=${i}.trim qtrim=rl trimq=20
+	bbduk.sh in1=${i}.clean out1=${i}.clean.trim qtrim=rl trimq=20
  	echo "STOP" $(date)
  done
 
@@ -101,16 +101,16 @@ done
 #Quality Filtering to get rid of entire low quality reads. maq=10 will trim reads that have average quality of less than 10
 
 for i in ${array3[@]}; do 
-	bbduk.sh in1=${i}.trim out1=${i}.trim.filter maq=10
+	bbduk.sh in1=${i}.clean.trim out1=${i}.clean.trim.filter maq=10
 	echo "STOP" $(date)
 done
 
 #histogram generation
  for i in ${array3[@]}; do 
-	bbduk.sh in1=${i}.trim.filter bhist=bhist.txt qhist=qhist.txt gchist=gchist.txt aqhist=aqhist.txt lhist=lhist.txt gcbins=auto
- 	cat *${i}*.hist > ${i}.hist.all
+	bbduk.sh in1=${i}.trim.filter bhist=bhist.txt qhist=qhist.txt gchist=gchist.txt aqhist=aqhist.txt lhist=lhist.txt gcbins=auto out=${i}.clean.trim.filter.out
  	echo "STOP" $(date)
  done
 
 echo "STOP" $(date)
+
 
