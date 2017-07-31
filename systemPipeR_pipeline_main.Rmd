@@ -84,10 +84,23 @@ Cufflinks will then be used to perform transcript identification and quantificat
 
 Build Bowtie2 index:
 ```{r}
-args <- systemArgs(sysma="bowtiePE.param", mytargets="targets_PE.txt")
-moduleload(modules(args)) # Skip if module system is not available
+args <- systemArgs(sysma="param/tophat.param", mytargets="targets_PE.txt")
+#moduleload(modules(args)) # Skip if module system is not available
+system("bowtie2-build /data3/marine_diseases_lab/erin/Bio_project_SRA/PE_fastq/GCA_000297895.1.fasta /data3/marine_diseases_lab/erin/Bio_project_SRA/PE_fastq/GCA_000297895.1.fasta")
+
 bampaths <- runCommandline(args=args)
+
 ```
+
+Run tophat2 ? 
+``` {r}
+
+```
+
+Run Cufflinks
+```{r}
+```
+
 
 ## Read and Alignment Count stats
 Table of Read and Alignment Count stats
@@ -97,15 +110,42 @@ write.table(read_statsDF, "results/alignStats.xls", row.names=FALSE, quote=FALSE
 ```
 
 ## Read counting for mRNA profiling experiments
+
 Need to create a txdb 
 ```{r}
 library(GenomicFeatures)
-txdb <- makeTxDbFromGFF(file="data/tair10.gff", format="gff", dataSource="TAIR", organism="C. gigas")
-saveDb(txdb, file="./data/tair10.sqlite")
+txdb <- makeTxDbFromGFF(file="/data3/marine_diseases_lab/erin/Bio_project_SRA/PE_fastq/GCA_000297895.1.gff3", format="gff3", dataSource="Ensembl", organism="C. gigas")
+saveDb(txdb, file="/data3/marine_diseases_lab/erin/Bio_project_SRA/PE_fastq/GCA_000297895.1.sqlite")
 ```
 
+## Differential Gene Expression Analysis using DESeq2
+1. Correlation analysis of samples
+```{r}
+library(DESeq2, warn.conflicts=FALSE, quietly=TRUE); library(ape, warn.conflicts=FALSE)
+countDFpath <- system.file("extdata", "countDFeByg.xls", package="systemPipeR")
+countDF <- as.matrix(read.table(countDFpath))
+colData <- data.frame(row.names=targetsin(args)$SampleName, condition=targetsin(args)$Factor)
+dds <- DESeqDataSetFromMatrix(countData = countDF, colData = colData, design = ~ condition)
+d <- cor(assay(rlog(dds)), method="spearman")
+hc <- hclust(dist(1-d))
+plot.phylo(as.phylo(hc), type="p", edge.col=4, edge.width=3, show.node.label=TRUE, no.margin=TRUE)
+```
+
+2. DEG analysis with DESeq2
+The following run_DESeq2 function is a convenience wrapper for identifying DEGs in batch mode with DESeq2 (Love, Huber, and Anders 2014) for any number of pairwise sample comparisons specified under the cmp argument. 
+
+```{r}
+degseqDF <- run_DESeq2(countDF=countDFeByg, targets=targets, cmp=cmp[[1]], independent=FALSE)
+```
+
+Code to filter and plot DEG results
+```{r}
+DEG_list2 <- filterDEGs(degDF=degseqDF, filter=c(Fold=2, FDR=10))
+```
 
 ## Heatmap analysis
+"The following example performs hierarchical clustering on the rlog transformed expression matrix subsetted by the DEGs identified in the above differential expression analysis. It uses a Pearson correlation-based distance measure and complete linkage for cluster joining."
+
 ``` {r}
 library(pheatmap)
 geneids <- unique(as.character(unlist(DEG_list[[1]])))
