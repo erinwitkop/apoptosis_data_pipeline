@@ -8,9 +8,9 @@
 #Script to perform read alignments with tophat2 utilizing both bowtie index and GTF file. Discards unmapped reads
 # and counts the percentage of mapped reads
 
-Module load  bowtie2/2.2.9-foss-2016b
-Module load TopHat/2.1.1-foss-2016b
-Module load SAMtools/1.3.1-foss-2016b
+module load  bowtie2/2.2.9-foss-2016b
+module load TopHat/2.1.1-foss-2016b
+module load SAMtools/1.3.1-foss-2016b
 
 F=/data3/marine_diseases_lab/erin/Bio_project_SRA/PE_fastq
 S=/data3/marine_diseases_lab/erin/Bio_project_SRA
@@ -27,18 +27,29 @@ GFF_file=$C/Crassostrea_gigas.GCA_000297895.1.36.gff3
 # Please note that the values in the first column of the provided GTF/GFF file 
 # (column which indicates the chromosome or contig on which the feature is located), 
 # must match the name of the reference sequence in the Bowtie index you are using with TopHat. 
-Before using a known annotation file with this option make sure that the 
+# Before using a known annotation file with this option make sure that the 
 # check with bowtie-inspect command.
  
 bowtie2-build $C/Crassostrea_gigas_genome.fa Crassostrea_gigas_bowtie_index
-bowtie-inspect --names $C/Crassostrea_gigas_bowtie_index
+bowtie2-inspect --names $C/Crassostrea_gigas_bowtie_index
 	# compare to the GFF3 file first column annotations
+	#They don't match!
 Bowtie2Index= $C/Crassostrea_gigas_bowtie_index
+	
+# Must rearrange the file entries to match, then can use the .GFF file
+	#extract name from genome file index
+	grep '^>' Crassostrea_gigas_genome.fa > Crassostrea_gigas_genome_headers
+	sed 's/\s.*$//' Crassostrea_gigas_genome_headers > Crassostrea_gigas_genome_ID #to remove everything after first space
+	sed 's/>//' Crassostrea_gigas_genome_ID > Crassostrea_gigas_genome_ID_string #to remove all the ">" characters
+	
+	#Reorder GFF 3 file by second column based on matching Crassostrea_gigas_genome_ID_string
+	
+	
 
-#Prepare transcriptome index file 1 and then exit before running any reads, saves time later
+#Prepare transcriptome index file and then exit before running any reads, saves time later
 
-cd $C
-tophat --GTF $GFF_file --transcriptome-index $C/C_gigas_transcriptome_index/transcriptome $Bowtie2Index
+
+tophat --GTF $GFF_file --transcriptome-index=$C/C_gigas_transcriptome_index/transcriptome $Bowtie2Index
 	# this will create a C_gigas_transcriptome folder in the current directory with files known known.gff, known.fa, known.fa.tlst, 
 	# known.fa.ver and the known.* Bowtie index files
 
@@ -57,14 +68,13 @@ tophat --GTF $GFF_file --transcriptome-index $C/C_gigas_transcriptome_index/tran
 
 #Because -G  was run once above to create own transcriptome index to map against for those reads that don't map to the Bowtie index
 
-cd $F
 for i in ${array1[@]}; do
-	tophat --max-intron-length 25000 --min-intron-length 50 -o $F $C/Crassostrea_gigas_bowtie_index --transcriptome-index=$C/C_gigas_GTF_index ${i} $(echo ${i}|sed s/_1/_2/) 
+	tophat --max-intron-length 25000 --min-intron-length 50 -o $F --GTF $GFF_file $Bowtie2Index --transcriptome-index=$C/C_gigas_transcriptome_index/transcriptome ${i} $(echo ${i}|sed s/_1/_2/) 
 	echo "STOP" $(date)
 done
 
 for i in ${array3[@]}; do
-	tophat --max-intron-length 25000 --min-intron-length 50 -o $S $C/Crassostrea_gigas_bowtie_index --transcriptome-index=$C/C_gigas_GTF_index ${i}
+	tophat --max-intron-length 25000 --min-intron-length 50 -o $S $Bowtie2Index --transcriptome-index=$C/C_gigas_GTF_index ${i}
 	echo "STOP" $(date)
 done
 
@@ -77,15 +87,18 @@ for for i in ${array1[@]}; do
 	samtools view -b -F 4 ${i}.bam > ${i}mapped.bam
 	echo "STOP" $(date)
 done
+	# -F 4 excludes unmapped reads
 
 for for i in ${array3[@]}; do 
 	samtools view -f 4 ${i}.bam > ${i}.unmapped.sam
 	samtools view -b -F 4 ${i}.bam > ${i}mapped.bam
 	echo "STOP" $(date)
 done
-
+	
+	#-F 4 excludes unmapped reads
 
 #Count mapped reads percentage
+	# look at alignment summary file in any output folder
 
 
 
