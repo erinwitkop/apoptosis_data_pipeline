@@ -3,9 +3,10 @@
 #PBS-l walltime=1000:00:00
 #PBS -j oe
 
-#7_19_17
+#7_31_17
 
-#Script to process reads with tophat2
+#Script to perform read alignments with tophat2 utilizing both bowtie index and GTF file. Discards unmapped reads
+# and counts the percentage of mapped reads
 
 Module load  bowtie2/2.2.9-foss-2016b
 Module load TopHat/2.1.1-foss-2016b
@@ -14,25 +15,30 @@ Module load SAMtools/1.3.1-foss-2016b
 F=/data3/marine_diseases_lab/erin/Bio_project_SRA/PE_fastq
 S=/data3/marine_diseases_lab/erin/Bio_project_SRA
 C=/data3/marine_diseases_lab/erin/Crassostrea_gigas_reference_genome/
+C_gigas_genome=$C/Crassostrea_gigas_genome.fa
+GFF_file=$C/Crassostrea_gigas.GCA_000297895.1.36.gff3
 
  array1=($(ls $F/*_1.fq.clean.trim.filter))
  array2=($(ls $F/*_2.fq.clean.trim.filter))
- array3=(4(ls $S/*.fastq.clean.trim.filter))
+ array3=($(ls $S/*.fastq.clean.trim.filter))
  
 
 # First need to create an index from the reference genome using Bowtie2
-# Before using a known annotation file with this option make sure that the 
-# 1st column in the annotation file uses the exact same chromosome/contig names (case sensitive) 
-# as shown by the bowtie-inspect command.
+# Please note that the values in the first column of the provided GTF/GFF file 
+# (column which indicates the chromosome or contig on which the feature is located), 
+# must match the name of the reference sequence in the Bowtie index you are using with TopHat. 
+Before using a known annotation file with this option make sure that the 
+# check with bowtie-inspect command.
  
-bowtie2-build /data3/marine_diseases_lab/erin/Crassostrea_gigas_reference_genome/Crassostrea_gigas_genome.fa Crassostrea_gigas_bowtie_index
-bowtie-inspect --names Crassostrea_gigas_bowtie_index
+bowtie2-build $C/Crassostrea_gigas_genome.fa Crassostrea_gigas_bowtie_index
+bowtie-inspect --names $C/Crassostrea_gigas_bowtie_index
+	# compare to the GFF3 file first column annotations
+Bowtie2Index= $C/Crassostrea_gigas_bowtie_index
 
-#Command to just prepare the transcriptome index files and then exit before running any reads
-#Using this new usage no additional computational time is spent rebuilding the index in the future
+#Prepare transcriptome index file 1 and then exit before running any reads, saves time later
 
-cd /data3/marine_diseases_lab/erin/Crassostrea_gigas_reference_genome/
-tophat -G Crassostrea_gigas.GCA_000297895.1.36.gff3 --transcriptome-index=C_gigas_transcriptome_index/known Crassostrea_gigas_bowtie_index
+cd $C
+tophat --GTF $GFF_file --transcriptome-index $C/C_gigas_transcriptome_index/transcriptome $Bowtie2Index
 	# this will create a C_gigas_transcriptome folder in the current directory with files known known.gff, known.fa, known.fa.tlst, 
 	# known.fa.ver and the known.* Bowtie index files
 
@@ -49,14 +55,16 @@ tophat -G Crassostrea_gigas.GCA_000297895.1.36.gff3 --transcriptome-index=C_giga
 # TopHat allows the use of additional unpaired reads to be provided after the paired reads. 
 # These unpaired reads can be either given at the end of the paired read files on one side (as reads that can no longer be paired with reads from the other side), or they can be given in separate file(s) which are appended (comma delimited) to the list of paired input files on either side e.g.:
 
+#Because -G  was run once above to create own transcriptome index to map against for those reads that don't map to the Bowtie index
+
 cd $F
 for i in ${array1[@]}; do
-	tophat --max-intron-length 25000 --min-intron-length 50 -o F  --transcriptome-index=C/C_gigas_GTF_index ${i} $(echo ${i}|sed s/_1/_2/) 
+	tophat --max-intron-length 25000 --min-intron-length 50 -o $F $C/Crassostrea_gigas_bowtie_index --transcriptome-index=$C/C_gigas_GTF_index ${i} $(echo ${i}|sed s/_1/_2/) 
 	echo "STOP" $(date)
 done
 
 for i in ${array3[@]}; do
-	tophat --max-intron-length 25000 --min-intron-length 50 -o F C/Crassostrea_gigas_bowtie_index --transcriptome-index=C/C_gigas_GTF_index ${i}
+	tophat --max-intron-length 25000 --min-intron-length 50 -o $S $C/Crassostrea_gigas_bowtie_index --transcriptome-index=$C/C_gigas_GTF_index ${i}
 	echo "STOP" $(date)
 done
 
@@ -77,7 +85,7 @@ for for i in ${array3[@]}; do
 done
 
 
-	
+#Count mapped reads percentage
 
 
 
@@ -86,6 +94,13 @@ done
 	# http://wiki.bits.vib.be/index.php/Parameters_of_TopHat
 	# Trapnell et al. 2013. Differential gene and transcript expression analysis of RNA-seq experiments with TopHat and Cufflinks.
 	# https://ccb.jhu.edu/software/tophat/manual.shtml
-	# https://ccb.jhu.edu/software/tophat/manual.shtml
 	# https://ccb.jhu.edu/software/tophat/tutorial.shtml
+	# http://khmer-protocols-reftrans.readthedocs.io/en/latest/refTrans/m-tophat.html
 
+
+# Additional reasoning:
+	# Supply TopHat with a set of gene model annotations and/or known transcripts, as a GTF 2.2 or GFF3 formatted file. 
+	# If this option is provided, TopHat will first extract the transcript sequences and use Bowtie to align reads to this virtual transcriptome first.
+	# Only the reads that do not fully map to the transcriptome will then be mapped on the genome. 
+	# The reads that did map on the transcriptome will be converted to genomic mappings (spliced as needed) and
+	# merged with the novel mappings and junctions in the final tophat output.
