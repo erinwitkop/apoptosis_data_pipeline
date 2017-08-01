@@ -42,10 +42,9 @@ Bowtie2Index= $C/Crassostrea_gigas_bowtie_index
 	sed 's/\s.*$//' Crassostrea_gigas_genome_headers > Crassostrea_gigas_genome_ID #to remove everything after first space
 	sed 's/>//' Crassostrea_gigas_genome_ID > Crassostrea_gigas_genome_ID_string #to remove all the ">" characters
 	
-	#Reorder GFF 3 file by second column based on matching Crassostrea_gigas_genome_ID_string
+	#Reorder both the GFF3 file and the bowtie index
 	
 	
-
 #Prepare transcriptome index file and then exit before running any reads, saves time later
 
 
@@ -58,6 +57,8 @@ tophat --GTF $GFF_file --transcriptome-index=$C/C_gigas_transcriptome_index/tran
 		#default good enough in Rondon et al. 2016
 	#max intron length (Trapnell et al. 2013)
 	#min intron length; (Rondon et al. 2016)
+	#read mismatches =3 ( 1 higher than Rondon et al. 2016 to still be stringent but potentially 
+		#account for greater polymorphism) 
 
 # Running tophat with PE and SE reads
 
@@ -69,12 +70,12 @@ tophat --GTF $GFF_file --transcriptome-index=$C/C_gigas_transcriptome_index/tran
 #Because -G  was run once above to create own transcriptome index to map against for those reads that don't map to the Bowtie index
 
 for i in ${array1[@]}; do
-	tophat --max-intron-length 25000 --min-intron-length 50 -o $F --GTF $GFF_file $Bowtie2Index --transcriptome-index=$C/C_gigas_transcriptome_index/transcriptome ${i} $(echo ${i}|sed s/_1/_2/) 
+	tophat --max-intron-length 25000 --read-mismatches 3 --min-intron-length 50 -o $F --GTF $GFF_file $Bowtie2Index --transcriptome-index=$C/C_gigas_transcriptome_index/transcriptome ${i} $(echo ${i}|sed s/_1/_2/) 
 	echo "STOP" $(date)
 done
 
 for i in ${array3[@]}; do
-	tophat --max-intron-length 25000 --min-intron-length 50 -o $S $Bowtie2Index --transcriptome-index=$C/C_gigas_GTF_index ${i}
+	tophat --max-intron-length 25000 --read-mismatches 3 --min-intron-length 50 -o $F --GTF $GFF_file $Bowtie2Index --transcriptome-index=$C/C_gigas_transcriptome_index/transcriptome ${i}
 	echo "STOP" $(date)
 done
 

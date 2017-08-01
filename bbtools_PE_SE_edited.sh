@@ -57,15 +57,23 @@ S=/data3/marine_diseases_lab/erin/Bio_project_SRA
 
 #Histogram generation, only generating for one of the pair (assuming that similar stats will be present). 
 #All histogram output contents are combined into one file
- #for i in ${array1[@]}; do 
-#	bbduk.sh in1=${i}.trim.filter in2=$(echo ${i}|sed s/_1/_2/).trim.filter bhist=${i}.b.hist qhist=${i}.q.hist gchist=${i}.gc.hist lhist=${i}.l.hist gcbins=auto
- #	cat *${i}*.hist > ${i}.hist.all
- #	echo "STOP" $(date)
- #done
-	#lhist = output a read length histogram
-	#qhist = per base average quality
-	#bhist = output a per-base composition histogram 
-	#gchist = output a gc content histogram
+for i in ${array1[@]}; do
+ 	 bbduk.sh in1=${i}.trim.filter in2=$(echo ${i}|sed s/_1/_2/).trim.filter  bhist=${i}.b.hist qhist=${i}.q.hist gchist=${i}.gc.hist lhis$
+	 echo "STOP" $(date)
+     echo ${i} > ${i}.hist.all
+     echo "bhist" >> ${i}.hist.all
+     cat ${i}.b.hist >> ${i}.hist.all
+     echo "qhist" >> ${i}.hist.all
+     cat ${i}.q.hist >> ${i}.hist.all
+     echo "gchist" >> ${i}.hist.all
+     cat ${i}.gc.hist >> ${i}.hist.all
+     echo "lhist" >> ${i}.hist.all
+     cat ${i}.l.hist >> ${i}.hist.alltogram 
+
+		#lhist = output a read length histogram
+        #qhist = per base average quality
+        #bhist = output a per-base composition histogram
+        #gchist = output a gc content histogram
 
 # Commands for Single End Read PreProcessing
 
@@ -106,10 +114,21 @@ for i in ${array3[@]}; do
 done
 
 #histogram generation
- for i in ${array3[@]}; do 
-	bbduk.sh in1=${i}.trim.filter bhist=bhist.txt qhist=qhist.txt gchist=gchist.txt aqhist=aqhist.txt lhist=lhist.txt gcbins=auto out=${i}.clean.trim.filter.out
- 	echo "STOP" $(date)
- done
+ #Histogram generation
+for i in ${array3[@]}; do
+        bbduk.sh in1=${i}.trim.filter bhist=bhist.txt qhist=qhist.txt gchist=gchist.txt aqhist=aqhist.txt lhist=lhist.txt gcbins=auto
+        echo "STOP" $(date)
+        echo ${i} > ${i}.hist.all
+        echo "bhist" >> ${i}.hist.all
+        cat ${i}.b.hist >> ${i}.hist.all
+        echo "qhist" >> ${i}.hist.all
+        cat ${i}.q.hist >> ${i}.hist.all
+        echo "gchist" >> ${i}.hist.all
+        cat ${i}.gc.hist >> ${i}.hist.all
+        echo "lhist" >> ${i}.hist.all
+        cat ${i}.l.hist >> ${i}.hist.all
+        echo "STOP" $(date)
+done
 
 echo "STOP" $(date)
 
