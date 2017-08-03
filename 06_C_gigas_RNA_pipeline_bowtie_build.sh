@@ -28,9 +28,9 @@ GFF_file=$C/Crassostrea_gigas.GCA_000297895.1.36.gff3
 #Before using a known annotation file with this option make sure that the 
 # check with bowtie-inspect command.
  
-bowtie2-build $C/Crassostrea_gigas_genome.fa $C/Crassostrea_gigas_bowtie_index
+bowtie2-build $C/Crassostrea_gigas_genome.fa $C/Cg_bowtie_index/index
 
-#bowtie-inspect --names $C/Crassostrea_gigas_bowtie_index
+#bowtie-inspect --names $C/Cg_bowtie_index/index
 	# compare to the GFF3 file first column annotations
 #Bowtie2Index= $C/Crassostrea_gigas_bowtie_index
 

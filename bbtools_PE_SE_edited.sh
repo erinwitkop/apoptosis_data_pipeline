@@ -97,6 +97,7 @@ done
 	#which does not require known adapter sequences)
 	#flag -tpe specified to trim both reads to the same length (if the adapter kmer was only detected in one of them and not other)
 
+#Process ABSolid Data so that it can be quality trimmed
 
 #Quality Trimming, of both the left and the right sides to get rid of reads that are less than quality 20
 	

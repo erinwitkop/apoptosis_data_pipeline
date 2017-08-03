@@ -8,15 +8,18 @@
 #Script to perform read alignments with tophat2 utilizing both bowtie index and GTF file. Discards unmapped reads
 # and counts the percentage of mapped reads
 
+set -e
+echo "START" $(date)
+
 module load  bowtie2/2.2.9-foss-2016b
 module load TopHat/2.1.1-foss-2016b
 module load SAMtools/1.3.1-foss-2016b
 
 F=/data3/marine_diseases_lab/erin/Bio_project_SRA/PE_fastq
 S=/data3/marine_diseases_lab/erin/Bio_project_SRA
-C=/data3/marine_diseases_lab/erin/Crassostrea_gigas_reference_genome/
-C_gigas_genome=$C/Crassostrea_gigas_genome.fa
-GFF_file=$C/Crassostrea_gigas.GCA_000297895.1.36.gff3
+C=/data3/marine_diseases_lab/erin/Crassostrea_gigas_reference_genome
+C_gigas_genome=$F/Cg_bowtie_index/index.fa
+GFF_file=$F/C_gigas_transcriptome_index/transcriptome
 
  array1=($(ls $F/*_1.fq.clean.trim.filter))
  array2=($(ls $F/*_2.fq.clean.trim.filter))
@@ -30,25 +33,16 @@ GFF_file=$C/Crassostrea_gigas.GCA_000297895.1.36.gff3
 # Before using a known annotation file with this option make sure that the 
 # check with bowtie-inspect command.
  
-bowtie2-build $C/Crassostrea_gigas_genome.fa Crassostrea_gigas_bowtie_index
-bowtie2-inspect --names $C/Crassostrea_gigas_bowtie_index
+#bowtie2-build $C/Crassostrea_gigas_genome.fa Crassostrea_gigas_bowtie_index
+#bowtie2-inspect --names $C/Crassostrea_gigas_bowtie_index
 	# compare to the GFF3 file first column annotations
-	#They don't match!
-Bowtie2Index= $C/Crassostrea_gigas_bowtie_index
+	# They match but are not in the correct order
 	
-# Must rearrange the file entries to match, then can use the .GFF file
-	#extract name from genome file index
-	grep '^>' Crassostrea_gigas_genome.fa > Crassostrea_gigas_genome_headers
-	sed 's/\s.*$//' Crassostrea_gigas_genome_headers > Crassostrea_gigas_genome_ID #to remove everything after first space
-	sed 's/>//' Crassostrea_gigas_genome_ID > Crassostrea_gigas_genome_ID_string #to remove all the ">" characters
-	
-	#Reorder both the GFF3 file and the bowtie index
-	
-	
+
 #Prepare transcriptome index file and then exit before running any reads, saves time later
 
-
-tophat --GTF $GFF_file --transcriptome-index=$C/C_gigas_transcriptome_index/transcriptome $Bowtie2Index
+cd /data3/marine_diseases_lab/erin/Crassostrea_gigas_reference_genome/Cg_bowtie_index/
+tophat --GTF $GFF_file --transcriptome-index=$C/C_gigas_transcriptome_index/transcriptome index
 	# this will create a C_gigas_transcriptome folder in the current directory with files known known.gff, known.fa, known.fa.tlst, 
 	# known.fa.ver and the known.* Bowtie index files
 
@@ -57,7 +51,8 @@ tophat --GTF $GFF_file --transcriptome-index=$C/C_gigas_transcriptome_index/tran
 		#default good enough in Rondon et al. 2016
 	#max intron length (Trapnell et al. 2013)
 	#min intron length; (Rondon et al. 2016)
-	#read mismatches =3 ( 1 higher than Rondon et al. 2016 to still be stringent but potentially 
+	#read mismatches =3 ( 1 higher than Rondon et al. 2016 to still be stringent but potentially, 
+		#2 were used in Olsen et al. 2014, 3 in Zhang et al. 2014, 3 in McDowell et al. 2014) 
 		#account for greater polymorphism) 
 
 # Running tophat with PE and SE reads
@@ -69,13 +64,17 @@ tophat --GTF $GFF_file --transcriptome-index=$C/C_gigas_transcriptome_index/tran
 
 #Because -G  was run once above to create own transcriptome index to map against for those reads that don't map to the Bowtie index
 
+cd /data3/marine_diseases_lab/erin/Crassostrea_gigas_reference_genome/Cg_bowtie_index/
+
 for i in ${array1[@]}; do
-	tophat --max-intron-length 25000 --read-mismatches 3 --min-intron-length 50 -o $F --GTF $GFF_file $Bowtie2Index --transcriptome-index=$C/C_gigas_transcriptome_index/transcriptome ${i} $(echo ${i}|sed s/_1/_2/) 
+	echo "${i}"
+	tophat --max-intron-length 25000 --read-mismatches 3 --read-edit-dist 3 --min-intron-length 50 --o $F/${i}.tophat_output --GTF $GFF_file  --transcriptome-index=$F/C_gigas_transcriptome_index/transcriptome $F/index ${i} $(echo ${i}|sed s/_1/_2/) 
 	echo "STOP" $(date)
 done
 
 for i in ${array3[@]}; do
-	tophat --max-intron-length 25000 --read-mismatches 3 --min-intron-length 50 -o $F --GTF $GFF_file $Bowtie2Index --transcriptome-index=$C/C_gigas_transcriptome_index/transcriptome ${i}
+	echo "${i}"
+	tophat --max-intron-length 25000 --read-mismatches 3 --read-edit-dist 3 --min-intron-length 50 --o $F/${i}.tophat_output --GTF $GFF_file  --transcriptome-index=$F/C_gigas_transcriptome_index/transcriptome $F/index ${i}
 	echo "STOP" $(date)
 done
 
@@ -85,7 +84,7 @@ done
 
 for for i in ${array1[@]}; do 
 	samtools view -f 4 ${i}.bam > ${i}.unmapped.sam
-	samtools view -b -F 4 ${i}.bam > ${i}mapped.bam
+	samtools view -b -F 4 ${i}.bam > ${i}.mapped.bam
 	echo "STOP" $(date)
 done
 	# -F 4 excludes unmapped reads
@@ -97,15 +96,19 @@ for for i in ${array3[@]}; do
 done
 	
 	#-F 4 excludes unmapped reads
+	
+array4=($(ls $C/*.unmapped.sam))
+for i in ${array4[@]}; do
+        rm
 
 #Count mapped reads percentage
 	# look at alignment summary file in any output folder
 
 
-
 #References:
 	#Rondon, R., F. Akcha, P. Alonso, D. Menard, J. Rouxel, C. Montagnani, G. Mitta, C. Cosseau, and C. Grunau. 2016. Transcriptional changes in Crassostrea gigas oyster spat following a parental exposure to the herbicide diuron. Aquat. Toxicol. 175:47–55. Available from: http://dx.doi.org/10.1016/j.aquatox.2016.03.007
 	# http://wiki.bits.vib.be/index.php/Parameters_of_TopHat
+	# Olson, C. E., and S. B. Roberts. 2014. Genome-wide profiling of DNA methylation and gene expression in Crassostrea gigas male gametes. Front. Physiol. 5 JUN:1–7.
 	# Trapnell et al. 2013. Differential gene and transcript expression analysis of RNA-seq experiments with TopHat and Cufflinks.
 	# https://ccb.jhu.edu/software/tophat/manual.shtml
 	# https://ccb.jhu.edu/software/tophat/tutorial.shtml
