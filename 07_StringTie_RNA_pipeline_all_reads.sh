@@ -7,27 +7,26 @@ set -e
 echo "START" $(date)
 
 #8_8_17
-#This script takes bam files from HISAT (processed by SAMtools) and performs StringTie assembly and quantification
+#This script takes bam files from HISAT (processed by SAMtools) and performs StringTie assembly and quantification and converts
+# data into a format that is readable as count tables for DESeq2 usage
 
 
 module load StringTie/1.3.3b-foss-2016b
-cd /data3/marine_diseases_lab/erin/Bio_project_SRA/pipeline_files/
-
+cd /data3/marine_diseases_lab/erin/Bio_project_SRA/pipeline_files
+F= /data3/marine_diseases_lab/erin/Bio_project_SRA/pipeline_files
 
 # StringTie to assemble transcripts for each sample with the GFF3 annotation file
-
 array1=($(ls $F/*.bam))
+
 for i in ${array1[@]}; do
-	stringtie -G /data3/marine_diseases_lab/erin/Bio_project_SRA/pipeline_files/Crassostrea_gigas.gff -o ${i}.gtf –l $(echo ${i}|sed "s/\..*//")) ${i}
+	stringtie -G /data3/marine_diseases_lab/erin/Bio_project_SRA/pipeline_files/Crassostrea_gigas.gff -o ${i}.gtf -l $(echo ${i}|sed "s/\..*//") ${i}
 	echo "${i}"
 done 
 	# command structure: $ stringtie <options> -G <reference.gtf or .gff> -o outputname.gtf -l prefix_for_transcripts input_filename.bam
 	# -o specifies the output name
 	# -G specifies you are aligning with an option GFF or GTF file as well to perform novel transcript discovery 
 	# -l Sets <label> as the prefix for the name of the output transcripts. Default: STRG
-	# -B this enables the output to be in the format of Ballgown input files, and StringTie can be used as as direct replacement for the tablemaker program in Ballgown
-	# don't use -e here if you want it to not assemble any novel transcripts
-	
+	# don't use -e here if you want it to assemble any novel transcripts
 	
 #StringTie Merge, will merge all GFF files and assemble transcripts into a non-redundant set of transcripts, after which re-run StringTie with -e
 	#create mergelist.txt in nano, names of all the GTF files created in the last step with each on its own line
@@ -43,7 +42,7 @@ done
 
 #gffcompare to compare how transcripts compare to reference annotation
 
- 	gffcompare –r /data3/marine_diseases_lab/erin/Bio_project_SRA/pipeline_files/Crassostrea_gigas.gff –G –o merged stringtie_merged.gtf
+ 	gffcompare -r /data3/marine_diseases_lab/erin/Bio_project_SRA/pipeline_files/Crassostrea_gigas.gff -G -o merged stringtie_merged.gtf
 	# -o specifies prefix to use for output files
 	# -r followed by the annotation file to use as a reference
  	# merged.annotation.gtf tells you how well the predicted transcripts track to the reference annotation file
@@ -51,7 +50,7 @@ done
 
 #Re-estimate transcript abundance after merge step
 	for i in ${array1[@]}; do
-		stringtie -e -G /data3/marine_diseases_lab/erin/Bio_project_SRA/pipeline_files/stringtie_merged.gtf -o $(echo ${i}|sed "s/\..*//"))merge.gtf ${i}
+		stringtie -e -G /data3/marine_diseases_lab/erin/Bio_project_SRA/pipeline_files/stringtie_merged.gtf -o $(echo ${i}|sed "s/\..*//") merge.gtf ${i}
 		echo "${i}"
 	done 
 	# input here is the original set of alignment files

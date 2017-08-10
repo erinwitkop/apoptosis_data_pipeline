@@ -1,0 +1,66 @@
+#08_DESeq2_RNA_pipeline.R
+#Finish formating data from StringTie to get correct count matrices
+	#call the DESeq2 library 
+	
+biocLite("DESeq2")
+library("DESeq2")
+library("dplyr")
+
+# Construct PHENO_DATA.csv that contains phenotype information, such as which contrast, tissue, etc
+	-Check that sample IDs in colData are in CountData and match their orders
+
+###OsHV-1 challenge DEG analysis###	
+# load gene(/transcript) count matrix and labels for OsHV-1 SRA data sets = 
+# (SRR2002962, SRR2002961, SRR2002959, SRR2002958, SRR2002957, SRR2002956, SRR2002955, SRR2002954,
+#   SRR2002953, SRR2002952, SRR2002951, SRR2002950, SRR2002949, SRR2002948, SRR2002947, SRR2002945, SRR2002944,
+#   SRR2002943, SRR2002942, SRR2002941, SRR2002940, SRR2002939, SRR2002938, SRR2002936, SRR2002935, SRR2002934,
+#   SRR2002864, SRR2002846, SRR2002845, SRR2002844)
+
+countData <- as.matrix(read.csv("gene_count_matrix.csv", row.names="gene_id"))
+colData <- read.csv(osHV1_PHENO_DATA, sep="\t", row.names=1)
+
+Note: The PHENO_DATA file contains metadata on the count table's columns on each sample, e.g., sex or population.
+
+ The exact way to import this depends on the format of the file.
+ 
+# Check all sample IDs in colData are also in CountData and match their orders
+all(rownames(colData) %in% colnames(countData))  #Should return TRUE
+countData <- countData[, rownames(colData)]
+all(rownames(colData) == colnames(countData))    # should return TRUE
+
+#Need a different column for each PHENODATA, and 
+
+
+# Create a DESeqDataSet from count matrix and labels for just OsHV-1
+dds <- DESeqDataSetFromMatrix(countData = countData, 
+        colData = colData, design = ~ CHOOSE_FEATURE)
+
+# review how the data set looks
+head(dds)
+
+
+#assign factors
+osHV1 <- factor( c("FOUR","THOUS") )
+
+# create a new data set
+cds_osHV1 <- newCountDataSet( CountData, osHV1 )
+
+# Estimate effective library size
+LibrarySize <- estimateSizeFactors( cds_osHV1 )
+sizeFactors( LibrarySize )
+
+#estimate Dispersons without replication
+Dispersons <- estimateDispersions( LibrarySize, method="blind", sharingMode="fit-only" )
+
+# calculate differential gene expression 
+DE <- nbinomTest( Dispersons, "FOUR", "THOUS" )
+
+###BACTERIAL CHALLENGE DATA
+
+
+#references: 
+#https://github.com/sr320/LabDocs/tree/master/code/DESeq
+#Code adapted from Stephen Roberts DESeq2 Github script called "SCRIPT_DESeq_CLAM_no replication.R" 
+# StringTie manual : http://ccb.jhu.edu/software/stringtie/index.shtml?t=manual
+
+SCRIPT_DESeq_SeaFan_replication.R also consulted, https://github.com/sr320/LabDocs/blob/master/code/DESeq/SCRIPT_DESeq_SeaFan_replication.R
