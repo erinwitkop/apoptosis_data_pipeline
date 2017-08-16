@@ -4,7 +4,7 @@
 #PBS -j oe
 
 #Processing steps for SE reads. This script just performs Quality trimming and then stops
-
+# not currently up to date
 set -e
 echo "START" $(date)
 module load BBMap/37.36-foss-2016b-Java-1.8.0_131
