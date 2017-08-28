@@ -1,6 +1,6 @@
 #08_DESeq2_RNA_pipeline.R
 
-#This script takes as input the ouput gene_count_matrix.csv data prepared from prepDE.py
+#This script takes as input the output transcript_count_matrix.csv data prepared from prepDE.py
 
 #call the DESeq2 library 
 source("https://bioconductor.org/biocLite.R")
@@ -38,16 +38,16 @@ levels(oshv1ColData$time.h.) #check to see that it has levels
 
 # Check all sample IDs in oshv1ColData are also in oshv1CountData and match their orders
 all(rownames(oshv1ColData) %in% colnames(oshv1CountData))  #Should return TRUE
-  # returns TRUE
+# returns TRUE
 all(rownames(oshv1ColData) == colnames(oshv1CountData))    # should return TRUE
-  #returns TRUE
+#returns TRUE
 
 #### Create OsHV-1 DESeq Data Set from Matrix ####
 # DESeqDataSet from count matrix and labels 
 #design purposefully doesn't account for time, not looking at time interaction, just condition
 ddsOshv1 <- DESeqDataSetFromMatrix(countData = oshv1CountData, 
-  colData = oshv1ColData, 
-  design = ~condition)
+                                   colData = oshv1ColData, 
+                                   design = ~condition)
 
 #if design was design = ~time.h. + condition, #this design will gather the effect of condition, accounting for the sample pairing by time
 # review how the data set looks
@@ -75,7 +75,7 @@ sum(resoshv1_05$padj < 0.05, na.rm=TRUE) #3502
 
 #metadata on meaning of the columns
 mcols(resoshvl_05, use.names = TRUE)
-  #shows treatment vs. control with baseMean as the mean of normalized counts for all samples
+#shows treatment vs. control with baseMean as the mean of normalized counts for all samples
 
 ####p-value correction#### adapted from "Differential expression analysis of RNA-Seq data using DESeq2" Klaus 2014
 #First Visualize histograms
@@ -157,8 +157,8 @@ levels(BacColData$level) #check to see that it has levels
 #### Create Bacterial Challenge DESeq Data Set from Matrix ####
 # DESeqDataSet from count matrix and labels 
 ddsBac <- DESeqDataSetFromMatrix(countData = BacCountData, 
-                                   colData = BacColData, 
-                                   design = ~condition)
+                                 colData = BacColData, 
+                                 design = ~condition)
 
 #this design will gather the effect of condition between control and each treatment
 # review how the data set looks
