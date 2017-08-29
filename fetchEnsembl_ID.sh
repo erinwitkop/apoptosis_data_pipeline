@@ -60,18 +60,23 @@ tail -n +4 resoshv1_05_dfSig_MSTRG_Accession.txt > resoshv1_05_dfSig_MSTRG_Acces
 head resoshv1_05_dfSig_MSTRG_Accession_edited.txt
 head stringtie.merge.resoshv1Sig_lines.txt
 
-#Find line in GFF with the same accession
-cd /data3/marine_diseases_lab/erin/Bio_project_SRA/pipeline_files
-readarray a < /data3/marine_diseases_lab/erin/Bio_project_SRA/pipeline_files/resoshv1_05_dfSig_MSTRG_Accession_edited.txt
-#create resoshv1_05_dfSig_matching_gff_lines.txt file
+#Remove duplicate Accession entries
+awk '!seen[$0]++' resoshv1_05_dfSig_MSTRG_Accession_edited.txt > resoshv1_05_dfSig_MSTRG_Accession_edited_unique.txt
 
-for i in "${a[@]}"; do
-	grep "$i" Crassostrea_gigas.gff >> resoshv1_05_dfSig_matching_gff_lines.txt
-	echo "STOP" $(date)
-done
+#Check the number of lines
+cat stringtie.merge.resoshv1Sig_lines.txt | wc -l #671973313
+cat resoshv1_05_dfSig_MSTRG_Accession_edited.txt | wc -l # 671973310
+cat resoshv1_05_dfSig_matching_gff_lines.txt | wc -l #498076 
+cat resoshv1_05_dfSig_MSTRG_Accession_edited_unique.txt | wc -l #5433
+#after removing duplicate Accessions 
+cat resoshv1_05_dfSig_matching_gff_lines.txt | wc -l #498076
+
+#Find line in GFF with the same accession
+#grep -F -f file1 file2
+grep -F -f resoshv1_05_dfSig_MSTRG_Accession_edited_unique.txt Crassostrea_gigas.gff > resoshv1_05_dfSig_matching_gff_lines.txt
 
 #Extract attributes from GFF3 file using python after pulling out lines based on matching accessions using python parser
-extract_attributes.py < resoshv1_05_dfSig_matching_gff_lines.txt > oshv1_05_dfSig_parsed_attributes.txt
+run extract_attributes.py < resoshv1_05_dfSig_matching_gff_lines.txt > oshv1_05_dfSig_parsed_attributes.txt
 
 #Can Use a grep or find command to pull out the correct Accession line, then pull out the correct Ensembl ID from original GFF3
 echo "STOP" $(date)
