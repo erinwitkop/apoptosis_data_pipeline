@@ -10,6 +10,9 @@ biocLite("DESeq2")
 library("DESeq2")
 install.packages("fdrtool")
 library(fdrtool)
+source("https://bioconductor.org/biocLite.R")
+biocLite("genefilter")
+library(genefilter)
 # Construct Full_PHENO_DATA.csv that contains SRA run information, such as which contrast, tissue, etc
 
 #load gene(/transcript) count matrix and labels
@@ -203,6 +206,11 @@ write.csv( as.data.frame(resoshv1_48_dfSig), file="resoshv1_48_dfSig.csv")
 write.csv( as.data.frame(resoshv1_120_df), file="resoshv1_120_df.csv")
 write.csv( as.data.frame(resoshv1_120_dfSig), file="resoshv1_120_dfSig.csv")
 
+####OsHV1 Gene Set Enrichment Analysis ####
+#Matching the background set
+#Get average expressions 
+oshv1_6_BaseMean <- as.matrix(resoshv1_6_df[, "baseMean", drop=F])
+oshv1_6_backG <- genefinder(oshv1_6_BaseMean, anSig$ensembl_gene_id, 10, method= "manhattan")
 
 ####Bacterial Challenge Differential Gene Expression Analysis ####
 #Gram negative SRA's (including control): (SRR796597, SRR796596, SRR796595, SRR796594, SRR796593, SRR796592, SRR796589)
