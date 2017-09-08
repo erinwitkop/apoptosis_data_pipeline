@@ -1,0 +1,68 @@
+#08_DESeq2_RNA_pipeline.R
+#Finish formating data from StringTie to get correct count matrices
+	#call the DESeq2 library 
+
+#I need to inspect how the data matrices are created from the prepDE.py script before continuing forward
+
+#Download Full Count Matrices locally? I'm not sure I will be able to debug my code from within the cluster
+
+biocLite("DESeq2")
+library("DESeq2")
+library("dplyr")
+
+# Construct Full_PHENO_DATA.csv that contains phenotype information, such as which contrast, tissue, etc
+	-Check that sample IDs in colData are in CountData and match their orders
+
+FullCountData <- as.matrix(read.csv("gene_count_matrix.csv", row.names="gene_id"))
+FullColData <- read.csv(Full_PHENO_DATA, sep="\t", row.names=1)
+
+Note: The Full_PHENO_DATA file contains metadata on the count table's columns on each sample, e.g., sex or population.
+# Check all sample IDs in colData are also in CountData and match their orders
+all(rownames(colData) %in% colnames(countData))  #Should return TRUE
+countData <- countData[, rownames(colData)]
+all(rownames(colData) == colnames(countData))    # should return TRUE
+
+# Create one Full DESeqDataSet from count matrix and labels 
+
+ddsFullCountTable <- DESeqDataSetFromMatrix(countData = countData, 
+        colData = colData, design = ~ Sample_ID + Contrast_ID)
+ddsFullCountTable
+
+# review how the data set looks
+head(dds)
+
+###OsHV-1 DEG Analysis###
+
+#subset relevant columns from full dataset
+osHV1Full <- ddsFullCountTable %>%
+	groupby(Sample_ID, Constrast_ID, Exp_Cat) %>%
+	filter(Exp_Cat == "OsHV1")
+
+#Relevel to make sure that control is the first level in the treatment factor and not control
+
+#assign factors
+osHV1 <- factor( c("FOUR","THOUS") )
+
+# create a new data set
+cds_osHV1 <- newCountDataSet( CountData, osHV1 )
+
+# Estimate effective library size
+LibrarySize <- estimateSizeFactors( cds_osHV1 )
+sizeFactors( LibrarySize )
+
+#estimate Dispersons without replication
+Dispersons <- estimateDispersions( LibrarySize, method="blind", sharingMode="fit-only" )
+
+# calculate differential gene expression 
+DE <- nbinomTest( Dispersons, "FOUR", "THOUS" )
+
+###BACTERIAL CHALLENGE DATA###
+#Gram negative SRA's (including control): (SRR796597, SRR796596, SRR796595, SRR796594, SRR796593, SRR796592, SRR796589)
+# Gram positive (including control): (SRR796598,  SRR796589)
+
+#references: 
+#https://github.com/sr320/LabDocs/tree/master/code/DESeq
+#Code adapted from Stephen Roberts DESeq2 Github script called "SCRIPT_DESeq_CLAM_no replication.R" 
+# StringTie manual : http://ccb.jhu.edu/software/stringtie/index.shtml?t=manual
+
+SCRIPT_DESeq_SeaFan_replication.R also consulted, https://github.com/sr320/LabDocs/blob/master/code/DESeq/SCRIPT_DESeq_SeaFan_replication.R
