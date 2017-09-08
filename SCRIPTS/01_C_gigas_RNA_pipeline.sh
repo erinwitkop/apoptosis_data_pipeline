@@ -42,11 +42,11 @@ array3=($(ls $S/*.fastq))
  
 for i in ${array3[@]}; do  # @ symbol tells it to go through each item in the array  
    bbduk.sh in1=${i} k=23 ref=/opt/software/BBMap/37.36-foss-2016b-Java-1.8.0_131/resources/adapters.fa stats=${i}.stat out=${i}.out
-   echo "STOP" $(date)
+   echo "STOP $(date)"
 done
 
   # k=23, “k” specifies the kmer size to use (must be at most the length of the adapters)
   # ref= sets the reference
   # stats= sets output name of the stats files
   
-echo "STOP" $(date)
+echo "DONE $(date)"
