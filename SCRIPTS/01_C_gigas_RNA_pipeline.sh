@@ -13,16 +13,14 @@ module load BBMap/37.36-foss-2016b-Java-1.8.0_131
 F=/data3/marine_diseases_lab/erin/Bio_project_SRA/PE_fastq
 S=/data3/marine_diseases_lab/erin/Bio_project_SRA
 
-#all files are in the home directory and either have ending 
-# _1.fq or _2.fq
-#going to make two array variables and then iterate through them as an index
-
 
 ##### USE BBDUK.SH TO GET STATS.TXT FILE TELLING YOU WHICH ADAPTERS AND THEIR FREQUENCY ####
 
 # Commands for Paired End read processing
 
 #All paired end reads in my working directory have the following suffix : either _1.fq or _2.fq
+#Theory: make two array variables and then iterate through them as an index
+
 array1=($(ls $F/*_1.fq))
 array2=($(ls $F/*_2.fq))
 
@@ -39,6 +37,7 @@ done
 # Commands for Single End Read Processing
 
 #All single end reads in my directory have the following suffix: *.fastq
+#Theory: make one array variables and then iterate through it as an index
 array3=($(ls $S/*.fastq))
  
 for i in ${array3[@]}; do  # @ symbol tells it to go through each item in the array  
