@@ -33,9 +33,19 @@ done
 #All histogram output contents are combined into one file
  for i in ${array1[@]}; do 
 	bbduk.sh in1=${i}.trim.filter in2=$(echo ${i}|sed s/_1/_2/).trim.filter bhist=${i}.b.hist qhist=${i}.q.hist gchist=${i}.gc.hist lhist=${i}.l.hist gcbins=auto
- 	cat *${i}*.hist > ${i}.hist.all
- 	echo "histo $(date)"
+ 	#All histogram output contents are combined into one file
+ 	echo "STOP" $(date)
+	echo ${i} > ${i}.hist.all 
+	echo "bhist" >> ${i}.hist.all
+	cat ${i}.b.hist >> ${i}.hist.all
+	echo "qhist" >> ${i}.hist.all
+    cat ${i}.q.hist	>> ${i}.hist.all
+	echo "gchist" >> ${i}.hist.all
+    cat ${i}.gc.hist >> ${i}.hist.all
+	echo "lhist" >> ${i}.hist.all
+	cat ${i}.l.hist >> ${i}.hist.all
  done
+
 	#lhist = output a read length histogram
 	#qhist = per base average quality
 	#bhist = output a per-base composition histogram 
@@ -61,8 +71,17 @@ done
 
 #histogram generation
  for i in ${array3[@]}; do 
-	bbduk.sh in1=${i}.trim.filter bhist=bhist.txt qhist=qhist.txt gchist=gchist.txt aqhist=aqhist.txt lhist=lhist.txt gcbins=auto
- 	cat *${i}*.hist > ${i}.hist.all
+	bbduk.sh in1=${i}.trim.filter bhist=${i}.b.hist qhist=${i}.q.hist gchist=${i}.gc.hist lhist=${i}.l.hist gcbins=auto
+ 	echo "STOP" $(date)
+	echo ${i} > ${i}.hist.all 
+	echo "bhist" >> ${i}.hist.all
+	cat ${i}.b.hist >> ${i}.hist.all
+	echo "qhist" >> ${i}.hist.all
+    cat ${i}.q.hist	>> ${i}.hist.all
+	echo "gchist" >> ${i}.hist.all
+    cat ${i}.gc.hist >> ${i}.hist.all
+	echo "lhist" >> ${i}.hist.all
+	cat ${i}.l.hist >> ${i}.hist.all
  	echo "histo $(date)"
  done
 
