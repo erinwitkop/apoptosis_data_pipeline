@@ -18,9 +18,7 @@ module load HISAT2/2.0.4-foss-2016b
 module load SAMtools/1.3.1-foss-2016b
 
 #HISAT2 code
-#Indexing a reference genome and no annotation file
-	#create new directory for the HISAT index called genome, and put the genome inside it
-	# copy all reads files into this directory as well to ensure easy access by commands
+#Indexing a reference genome and no annotation file, make sure everything stays in the same directory
 cd /data3/marine_diseases_lab/erin/Bio_project_SRA/pipeline_files/Bac_Viral_subset
 F=/data3/marine_diseases_lab/erin/Bio_project_SRA/pipeline_files/Bac_Viral_subset
 
