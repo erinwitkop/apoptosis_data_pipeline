@@ -49,7 +49,7 @@ done
 
 #gffcompare to compare how transcripts compare to reference annotation
 
- 	#gffcompare -r $F/Crassostrea_gigas.gff -G -o merged stringtie_merged.gtf
+ 	#gffcompare -r $F/Crassostrea_gigas.gff -G -o merged Bac_viral_stringtie_merged.gtf
 	# -o specifies prefix to use for output files
 	# -r followed by the annotation file to use as a reference
  	# merged.annotation.gtf tells you how well the predicted transcripts track to the reference annotation file
@@ -59,7 +59,7 @@ done
 array2=($(ls $F/*.gtf))
 
 	for i in ${array2[@]}; do
-		stringtie -e -G /data3/marine_diseases_lab/erin/Bio_project_SRA/pipeline_files/stringtie_merged.gtf -o $(echo ${i}|sed "s/\..*//").merge.gtf ${i}
+		stringtie -e -G $F/Bac_viral_stringtie_merged.gtf -o ${i}.merge.gtf ${i}
 		echo "${i}"
 	done 
 	# input here is the original set of alignment files
