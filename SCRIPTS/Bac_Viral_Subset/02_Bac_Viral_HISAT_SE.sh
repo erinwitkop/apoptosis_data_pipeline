@@ -3,8 +3,8 @@
 #PBS-l walltime=1000:00:00
 #PBS -j oe
 #PBS -q default
-#PBS -o out_Bac_Viral_HISAT
-#PBS -e err_Bac_Viral_HISAT
+#PBS -o out_Bac_Viral_HISAT_withfiltering
+#PBS -e err_Bac_Viral_HISAT_withfiltering
 #PBS -m ae -M erin_roberts@my.uri.edu
 
 #02_Bac_Viral_HISAT_SE.sh, 09_07_17 Script to re-do the HISAT alignment steps with just the SRAs
@@ -22,7 +22,7 @@ module load SAMtools/1.3.1-foss-2016b
 cd /data3/marine_diseases_lab/erin/Bio_project_SRA/pipeline_files/Bac_Viral_subset
 F=/data3/marine_diseases_lab/erin/Bio_project_SRA/pipeline_files/Bac_Viral_subset
 
-hisat2-build -f /data3/marine_diseases_lab/erin/Bio_project_SRA/pipeline_files/Crassostrea_gigas_genome.fa  genome_index
+#hisat2-build -f /data3/marine_diseases_lab/erin/Bio_project_SRA/pipeline_files/Crassostrea_gigas_genome.fa  genome_index
 
 # -f indicates that the reference input files are FASTA files
 
@@ -30,12 +30,12 @@ hisat2-build -f /data3/marine_diseases_lab/erin/Bio_project_SRA/pipeline_files/C
 
 #Aligning single end reads
 
-array1=($(ls $F/*.filter))
+#array1=($(ls $F/*.filter))
 
-for i in ${array1[@]}; do
-        hisat2 --dta -x /data3/marine_diseases_lab/erin/Bio_project_SRA/pipeline_files/genome_index -U ${i} -S ${i}.sam
-        echo "${i}_DONE"
-done
+#for i in ${array1[@]}; do
+#        hisat2 --dta -x /data3/marine_diseases_lab/erin/Bio_project_SRA/pipeline_files/genome_index -U ${i} -S ${i}.sam
+#        echo "${i}_DONE"
+#done
 	
 #This runs the HISAT2 aligner, which aligns a set of unpaired reads to the genome region using the index generated in the 
 
@@ -45,11 +45,17 @@ done
 	 #With this option, HISAT2 requires longer anchor lengths for de novo discovery of splice sites. 
 	 #This leads to fewer alignments with short-anchors, which helps transcript assemblers improve significantly in computation and memory usage.
 
-
-
-#SAMTOOLS filter out for only uniquely mapped reads from bam results
+#SAMTOOLS sort to convert the SAM file into a BAM file to be used with StringTie
 array2=($(ls $F/*.sam))
-	for i in ${array2[@]}; do
+
+for i in ${array2[@]}; do
+	samtools sort -o ${i}.bam ${i}
+	echo "${i}_convert"
+done
+
+#SAMTOOLS filter out low quality mapping results from bam file
+array3=($(ls $F/*.bam))
+	for i in ${array3[@]}; do
 		samtools view -q 40 ${i} > ${i}.mapqfilter
 		echo "${i}_filtered"
 	done
@@ -57,17 +63,13 @@ array2=($(ls $F/*.sam))
 #finding the best, most uniquely mapped reads
 
 
-#SAMTOOLS sort to convert the SAM file into a BAM file to be used with StringTie
-array3=($(ls $F/*.mapqfilter))
 
-for i in ${array2[@]}; do
-	samtools sort -o ${i}.bam ${i}
-	echo "${i}_convert"
-done
 
 #put -o before the out.bam and
 
 
 #reference: Transcript-level expression analysis of RNA-seq experiments with HISAT, StringTie, and Ballgown
 #https://sequencing.qcfail.com/articles/mapq-values-are-really-useful-but-their-implementation-is-a-mess/
+
+echo "DONE $(date)"
 
