@@ -52,7 +52,9 @@ done
  	# merged.stats file shows the sensitivity and precision statistics and total number for different features (genes, exons, transcripts)
 
 #Re-estimate transcript abundance after merge step
-	for i in ${array1[@]}; do
+array2=($(ls $F/*.gtf))
+
+	for i in ${array2[@]}; do
 		stringtie -e -G /data3/marine_diseases_lab/erin/Bio_project_SRA/pipeline_files/stringtie_merged.gtf -o $(echo ${i}|sed "s/\..*//").merge.gtf ${i}
 		echo "${i}"
 	done 
@@ -65,9 +67,9 @@ done
 
 #Generate count matrices using prepDE.py, prep_DE.py accepts a .txt file listing sample IDs and GTFs paths 
 #create sample_list.txt
-array2=($(ls $F/*.merge.gtf))
+array3=($(ls $F/*.merge.gtf))
 	
-for i in ${array2[@]}; do
+for i in ${array3[@]}; do
 	echo "$(echo ${i}|sed "s/\..*//") ${i}" >> sample_list.txt #this almost does what I want it to, but it prints the first path too
 done
 	
