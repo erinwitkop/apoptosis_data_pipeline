@@ -2,11 +2,15 @@
 #PBS-l nodes=2
 #PBS-l walltime=1000:00:00
 #PBS -j oe
+#PBS -q default
+#PBS -o out_Bac_Viral_Stringtie
+#PBS -e err_Bac_Viral_Stringtie
+#PBS -m ae -M erin_roberts@my.uri.edu
 
 set -e
 echo "START" $(date)
 
-#8_8_17
+#9_11_17
 #This script takes bam files from HISAT (processed by SAMtools) and performs StringTie assembly and quantification and converts
 # data into a format that is readable as count tables for DESeq2 usage
 
@@ -15,10 +19,10 @@ module load StringTie/1.3.3b-foss-2016b
 module load gffcompare/0.10.1-foss-2016b
 
 cd /data3/marine_diseases_lab/erin/Bio_project_SRA/pipeline_files/Bac_Viral_subset
-F= /data3/marine_diseases_lab/erin/Bio_project_SRA/pipeline_files/Bac_Viral_subset
+F=/data3/marine_diseases_lab/erin/Bio_project_SRA/pipeline_files/Bac_Viral_subset
 
 # StringTie to assemble transcripts for each sample with the GFF3 annotation file
-array1=($(ls $F/*.mapqfilter))
+array1=($(ls $F/*.bamfinal))
 
 for i in ${array1[@]}; do
 	stringtie -G $F/Crassostrea_gigas.gff -o ${i}.gtf -l $(echo ${i}|sed "s/\..*//") ${i}
