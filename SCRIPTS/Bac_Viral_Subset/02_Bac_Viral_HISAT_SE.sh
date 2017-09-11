@@ -45,8 +45,20 @@ done
 	 #With this option, HISAT2 requires longer anchor lengths for de novo discovery of splice sites. 
 	 #This leads to fewer alignments with short-anchors, which helps transcript assemblers improve significantly in computation and memory usage.
 
-#SAMTOOLS sort to convert the SAM file into a BAM file to be used with StringTie
+
+
+#SAMTOOLS filter out for only uniquely mapped reads from bam results
 array2=($(ls $F/*.sam))
+	for i in ${array2[@]}; do
+		samtools view -q 40 ${i} > ${i}.mapqfilter
+		echo "${i}_filtered"
+	done
+#FILTER OUT ANYTHING THAT DOES NOT HAVE A TMapq score of over 40, will give you reasonable stringency for 
+#finding the best, most uniquely mapped reads
+
+
+#SAMTOOLS sort to convert the SAM file into a BAM file to be used with StringTie
+array3=($(ls $F/*.mapqfilter))
 
 for i in ${array2[@]}; do
 	samtools sort -o ${i}.bam ${i}
@@ -55,11 +67,6 @@ done
 
 #put -o before the out.bam and
 
-#SAMTOOLS filter out for only uniquely mapped reads from bam results
-#"samtools view -q 10 input > filtered_output
-
-#FILTER OUT ANYTHING THAT DOES NOT HAVE A TMapq score of over 40, will give you reasonable stringency for 
-#finding the best, most uniquely mapped reads
 
 #reference: Transcript-level expression analysis of RNA-seq experiments with HISAT, StringTie, and Ballgown
 #https://sequencing.qcfail.com/articles/mapq-values-are-really-useful-but-their-implementation-is-a-mess/
