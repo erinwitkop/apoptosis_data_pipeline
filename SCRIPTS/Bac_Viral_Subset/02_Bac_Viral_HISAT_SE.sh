@@ -58,8 +58,8 @@ array3=($(ls $F/*.sam))
 	# -h to include header in the sam output
 	# -q is to Skip alignments with MAPQ smaller than INT [0]
 	# -b is to output in bam format, doing this first leaves the headers in the file, and sorts it by map quality
-#FILTER OUT ANYTHING THAT DOES NOT HAVE A TMapq score of over 40, will give you reasonable stringency for 
-#finding the best, most uniquely mapped reads
+	#FILTER OUT ANYTHING THAT DOES NOT HAVE A TMapq score of over 40, will give you reasonable stringency for 
+	#finding the best, most uniquely mapped reads
 
 
 
