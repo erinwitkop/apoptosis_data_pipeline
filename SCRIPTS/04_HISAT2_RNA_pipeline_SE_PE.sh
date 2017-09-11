@@ -40,7 +40,6 @@ done
 #Aligning single end reads
 array2=($(ls $F/*.fq))
 
-
 for i in ${array2[@]}; do
         hisat2 --dta -x /data3/marine_diseases_lab/erin/Bio_project_SRA/pipeline_files/genome_index -U ${i} -S ${i}.sam
         echo "${i}_DONE"
@@ -57,8 +56,13 @@ for i in ${array3[@]}; do
 	echo "${i}_convert"
 done
 
-#SAMTOOLS filter out for only uniquely mapped reads from bam results
-"samtools view -q 10 input > filtered_output
+#put -o before the out.bam and
 
-	#put -o before the out.bam and
+#SAMTOOLS filter out for only uniquely mapped reads from bam results
+#"samtools view -q 10 input > filtered_output
+
+or sam/bam | fgrep -w NH:i:1
+
+
+	
 #reference: Transcript-level expression analysis of RNA-seq experiments with HISAT, StringTie, and Ballgown
