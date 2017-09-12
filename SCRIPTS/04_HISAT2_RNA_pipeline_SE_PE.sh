@@ -48,14 +48,27 @@ done
 This runs the HISAT2 aligner, which aligns a set of unpaired reads to the genome region using the index generated in the 
 
 
+
 #SAMTOOLS sort to convert the SAM file into a BAM file to be used with StringTie
-#SAMTOOLS filter out low quality mapping results from bam file, and keep SAM header (while converting to bam)
+#SHOULD NOT PERFORM FILTERING ON HISAT2 OUTPUT
 array3=($(ls $F/*.sam))
 	for i in ${array3[@]}; do
 		samtools sort ${i} > ${i}.bam #Stringtie takes as input only sorted bam files
 		echo "${i}_bam"
 	done
+
+#Get bam file statistics for percentage aligned with flagstat
+# to get more detailed statistics use $ samtools stats ${i}
+array4=($(ls $F/*.bam))
+	for i in ${array4[@]}; do
+		samtools flagstat ${i} > ${i}.bam.stats #get % mapped
+	#to extract more detailed summary numbers
+		samtools stats {i} | grep ^SN | cut -f 2- > ${i}.bam.fullstat
+		echo "STATS DONE" $(date)
+	done
 	
+	 
+
 	# -h to include header in the sam output
 	# -q is to Skip alignments with MAPQ smaller than INT [0]
 	# -b is to output in bam format, doing this first leaves the headers in the file, and sorts it by map quality
