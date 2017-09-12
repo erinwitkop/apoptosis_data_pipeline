@@ -28,6 +28,7 @@ head(FullCountData)
 #Extract columns 1:30 from the FullCountData, these are the SRA's from the OsHV-1 experiment
 oshv1CountData <- as.matrix(FullCountData[ , c(1:30)])
 oshv1ColData <- read.csv("OsHV1_PHENO_DATA.csv", header=TRUE, sep=",")
+head(osHv1ColData)
 rownames(oshv1ColData) <- oshv1ColData$sampleID
 colnames(oshv1CountData) <- oshv1ColData$sampleID
 head(oshv1CountData)
@@ -57,7 +58,7 @@ head(ddsOshv1)
 ddsOshv1$condition <- relevel( ddsOshv1$condition, "control")
 
 #Check we're looking at the right samples
-as.data.frame( colData(ddsOshv1) )
+as.data.frame( ColDatacolData(ddsOshv1) )
 
 #Running the DEG pipeline
 ddsOshv1<- DESeq(ddsOshv1) #for designs with interactions, recommends setting betaPrior=FALSE

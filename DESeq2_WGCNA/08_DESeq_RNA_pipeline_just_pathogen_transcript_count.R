@@ -103,7 +103,7 @@ hist(FDR.resoshv1Tran_05_df$pval, col = "royalblue4",
      main = "Correct null model OsHv1 Transcript Count", xlab = "CORRECTED p-values")
 
 #Check how many genes have BH adjusted p values of less than 0.01 after P-value correction?
-sum( resoshv1Tran_05_df$padj < 0.05, na.rm=TRUE ) #663 (before p-value correction it was )
+sum( resoshv1Tran_05_df$padj < 0.05, na.rm=TRUE ) #1715 (before p-value correction it was )
 
 #Subset the results table to the differentially expressed genes under FDR 0.01, order the Log2FC table first by strongest down regulation
 resoshv1Tran_05_dfSig <- resoshv1Tran_05_df[ which(resoshv1Tran_05_df$padj < 0.05 ), ]
@@ -239,8 +239,8 @@ write.csv( as.data.frame(resBacTran_05_dfSig), file="resBacTran_05_dfSig.csv")
 ####Bacterial Challenge Gene Set Enrichment Analysis ####
 #Matching the background set
 #Get average expressions 
-oshv1_6_BaseMean <- as.matrix(resoshv1_6_df[, "baseMean", drop=F])
-oshv1_6_backG <- genefinder(oshv1_6_BaseMean, anSig$ensembl_gene_id, 10, method= "manhattan")
+#Bac_BaseMean <- as.matrix(resoshv1_6_df[, "baseMean", drop=F])
+#Bac_backG <- genefinder(oshv1_6_BaseMean, anSig$ensembl_gene_id, 10, method= "manhattan")
 
 #### Look at Differential Expression of Transcript Isoforms using Transcript Count Matrix ####
 
@@ -251,4 +251,4 @@ oshv1_6_backG <- genefinder(oshv1_6_BaseMean, anSig$ensembl_gene_id, 10, method=
 #Code adapted from Stephen Roberts DESeq2 Github script called "SCRIPT_DESeq_CLAM_no replication.R" 
 # StringTie manual : http://ccb.jhu.edu/software/stringtie/index.shtml?t=manual
 
-SCRIPT_DESeq_SeaFan_replication.R also consulted, https://github.com/sr320/LabDocs/blob/master/code/DESeq/SCRIPT_DESeq_SeaFan_replication.R
+#SCRIPT_DESeq_SeaFan_replication.R also consulted, https://github.com/sr320/LabDocs/blob/master/code/DESeq/SCRIPT_DESeq_SeaFan_replication.R

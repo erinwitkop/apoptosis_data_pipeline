@@ -1,8 +1,8 @@
 #05_Bac_viral_DESeq2_OsHV1_Bac_challenge
 
-#This script takes as input the output transcript_count_matrix.csv data prepared from prepDE.py and performs
+#This script takes as input the output Bac_Viral_gff3HIT_subset_transcript_count_matrix.csv data prepared from prepDE.py and performs
 #differential Gene expression analysis, and subsets out isoforms of GIMAPs and CgIAPs and graphs their
-#relative abundance
+#relative abundance.
 
 #call the DESeq2 library 
 #source("https://bioconductor.org/biocLite.R")
@@ -18,24 +18,28 @@ library(genefilter)
 
 ####DEG Analysis with TRANSCRIPT Count Matrix ####
 #load transcript count matrix and labels
-#Full_PHENO_DATA file contains metadata on the count table's samples
-###Make sure excel Full_PHENO_DATA is in the same order or these commands will change data to be wrong!!!!###
+#Bac_Viral_PHENO_DATA.csv file contains metadata on the count table's samples
+###Make sure excel PHENODATA is in the same order or these commands will change data to be wrong!!!!###
 
-FullTranscriptCountData <- as.matrix(read.csv("transcript_count_matrix.csv", row.names="transcript_id"))
-head(FullTranscriptCountData)
+TranscriptCountData <- as.matrix(read.csv("Bac_Viral_gff3HIT_subset_transcript_count_matrix.csv", row.names="transcript_id"))
+head(TranscriptCountData)
 
 ####Subset Data for OsHV1 ####
-#Extract columns you want from the FullTranscriptCountData, based on which column the correct SRA data is in for the
+#Extract columns you want from the TranscriptCountData, based on which column the correct SRA data is in for the
 #Extract columns 1:30 from the FullTranscriptCountData, these are the SRA's from the OsHV-1 experiment
-oshv1TranCountData <- as.matrix(FullTranscriptCountData[ , c(1:30)])
-oshv1TranColData <- read.csv("OsHV1_PHENO_DATA.csv", header=TRUE, sep=",")
+oshv1TranCountData <- as.matrix(TranscriptCountData[ , c(1:30)])
+head(oshv1TranCountData)
+TranColData <- read.csv("Bac_Viral_PHENO_DATA.csv", header=TRUE, sep=",")
+oshv1TranColData <- TranColData[c(1:30),]
+oshv1TranColData <- oshv1TranColData[, c("sampleID", "condition", "stressorLevel")]
+print(oshv1TranColData)
 rownames(oshv1TranColData) <- oshv1TranColData$sampleID
 colnames(oshv1TranCountData) <- oshv1TranColData$sampleID
 head(oshv1TranCountData)
 head(oshv1TranColData)
-#Give the time.h. column levels
-oshv1TranColData$time.h. <- factor(oshv1TranColData$time.h.)
-levels(oshv1TranColData$time.h.) #check to see that it has levels 
+#Give the stressorLevel column levels
+oshv1TranColData$stressorLevel <- factor(oshv1TranColData$stressorLevel)
+levels(oshv1TranColData$stressorLevel) #check to see that it has levels 
 
 # Check all sample IDs in oshv1ColData are also in oshv1CountData and match their orders
 all(rownames(oshv1TranColData) %in% colnames(oshv1TranCountData))  #Should return TRUE
@@ -48,9 +52,9 @@ all(rownames(oshv1TranColData) == colnames(oshv1TranCountData))    # should retu
 #design purposefully doesn't account for time, not looking at time interaction, just condition
 ddsOshv1Tran <- DESeqDataSetFromMatrix(countData = oshv1TranCountData, 
                                        colData = oshv1TranColData, 
-                                       design = ~condition)
+                                       design = ~ condition)
 
-#if design was design = ~time.h. + condition, #this design will gather the effect of condition, accounting for the sample pairing by time
+#if design was design = ~stressorLevel + condition, #this design will gather the effect of condition, accounting for the sample pairing by time
 # review how the data set looks
 head(ddsOshv1Tran)
 
@@ -69,7 +73,7 @@ resoshv1Tran<- results(ddsOshv1Tran, contrast = c("condition", "control", "treat
 #to extract log2fold change and p values under 0.1 and 0.05
 head(resoshv1Tran)
 summary(resoshv1Tran)
-sum(resoshv1Tran$padj < 0.1, na.rm=TRUE) #3501
+#sum(resoshv1Tran$padj < 0.1, na.rm=TRUE) #3501
 resoshv1Tran_05 <- results(ddsOshv1Tran,alpha=0.05)
 summary(resoshv1Tran_05)
 sum(resoshv1Tran_05$padj < 0.05, na.rm=TRUE) #2590
@@ -104,7 +108,7 @@ hist(FDR.resoshv1Tran_05_df$pval, col = "royalblue4",
      main = "Correct null model OsHv1 Transcript Count", xlab = "CORRECTED p-values")
 
 #Check how many genes have BH adjusted p values of less than 0.01 after P-value correction?
-sum( resoshv1Tran_05_df$padj < 0.05, na.rm=TRUE ) #1715 (before p-value correction it was )
+sum( resoshv1Tran_05_df$padj < 0.05, na.rm=TRUE ) #1715 (before p-value correction it was )... now its 2
 
 #Subset the results table to the differentially expressed genes under FDR 0.01, order the Log2FC table first by strongest down regulation
 resoshv1Tran_05_dfSig <- resoshv1Tran_05_df[ which(resoshv1Tran_05_df$padj < 0.05 ), ]
