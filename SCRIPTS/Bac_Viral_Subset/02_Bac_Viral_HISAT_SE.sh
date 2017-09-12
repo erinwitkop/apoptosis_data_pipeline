@@ -50,12 +50,13 @@ F=/data3/marine_diseases_lab/erin/Bio_project_SRA/pipeline_files/Bac_Viral_subse
 array3=($(ls $F/*.sam))
 	for i in ${array3[@]}; do
 	 #This keeps the @SQ etc headers Stringtie requires
-		samtools view -q 40 -b ${i} > ${i}.mapqfilter
+		#samtools view -q 40 -b ${i} > ${i}.mapqfilter
 		samtools sort ${i}.mapqfilter > ${i}.finalsorted #Stringtie takes as input only sorted bam files
 		echo "${i}_filtered"
 	done
 	
 	# -h to include header in the sam output
+	#-H to just get the headers
 	# -q is to Skip alignments with MAPQ smaller than INT [0]
 	# -b is to output in bam format, doing this first leaves the headers in the file, and sorts it by map quality
 	#FILTER OUT ANYTHING THAT DOES NOT HAVE A TMapq score of over 40, will give you reasonable stringency for 

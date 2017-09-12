@@ -52,10 +52,8 @@ This runs the HISAT2 aligner, which aligns a set of unpaired reads to the genome
 #SAMTOOLS filter out low quality mapping results from bam file, and keep SAM header (while converting to bam)
 array3=($(ls $F/*.sam))
 	for i in ${array3[@]}; do
-	 #This keeps the @SQ etc headers Stringtie requires
-		samtools view -q 40 -b ${i} > ${i}.mapqfilter
-		samtools sort ${i}.mapqfilter > ${i}.finalsorted #Stringtie takes as input only sorted bam files
-		echo "${i}_filtered"
+		samtools sort ${i} > ${i}.bam #Stringtie takes as input only sorted bam files
+		echo "${i}_bam"
 	done
 	
 	# -h to include header in the sam output
