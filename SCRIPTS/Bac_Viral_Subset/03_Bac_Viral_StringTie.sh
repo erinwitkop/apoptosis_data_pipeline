@@ -22,7 +22,7 @@ cd /data3/marine_diseases_lab/erin/Bio_project_SRA/pipeline_files/Bac_Viral_subs
 F=/data3/marine_diseases_lab/erin/Bio_project_SRA/pipeline_files/Bac_Viral_subset
 
 # StringTie to assemble transcripts for each sample with the GFF3 annotation file
-array1=($(ls $F/*.bamfinal))
+array1=($(ls $F/*.bam))
 
 for i in ${array1[@]}; do
 	stringtie -G $F/Crassostrea_gigas.gff -o ${i}.gtf -l $(echo ${i}|sed "s/\..*//") ${i}
@@ -37,29 +37,28 @@ done
 #StringTie Merge, will merge all GFF files and assemble transcripts into a non-redundant set of transcripts, after which re-run StringTie with -e
 	
 	#create mergelist.txt in nano, names of all the GTF files created in the last step with each on its own line
-	#ls *.gtf > mergelist.txt
+	#ls *.gtf > Bac_Viral_mergelist.txt
 
 	#check to sure one file per line
 	#cat mergelist.txt
 
 #Run StringTie merge, merge transcripts from all samples (across all experiments, not just for a single experiment)
 
- 	#stringtie --merge -G $F/Crassostrea_gigas.gff -o stringtie_merged.gtf mergelist.txt
-
+ 	#stringtie --merge -G $F/Crassostrea_gigas.gff -o stringtie_merged.gtf Bac_Viral_mergelist.txt
+	#echo "merge file created" $(date)
 
 #gffcompare to compare how transcripts compare to reference annotation
 
  	#gffcompare -r $F/Crassostrea_gigas.gff -G -o merged Bac_viral_stringtie_merged.gtf
+	# echo "gffcompare complete" $(date)
 	# -o specifies prefix to use for output files
 	# -r followed by the annotation file to use as a reference
  	# merged.annotation.gtf tells you how well the predicted transcripts track to the reference annotation file
  	# merged.stats file shows the sensitivity and precision statistics and total number for different features (genes, exons, transcripts)
 
 #Re-estimate transcript abundance after merge step
-array2=($(ls $F/*.gtf))
-
-	for i in ${array2[@]}; do
-		stringtie -e -G $F/Bac_viral_stringtie_merged.gtf -o ${i}.merge.gtf ${i}
+	for i in ${array1[@]}; do
+		stringtie -e -G $F/Bac_viral_stringtie_merged.gtf -o ${i}.merged.gtf ${i}
 		echo "${i}"
 	done 
 	# input here is the original set of alignment files
@@ -71,7 +70,8 @@ array2=($(ls $F/*.gtf))
 
 #Generate count matrices using prepDE.py, prep_DE.py accepts a .txt file listing sample IDs and GTFs paths 
 #create sample_list.txt
-array3=($(ls $F/*.merge.gtf))
+#template: SRR334318 /data3/marine_diseases_lab/erin/Bio_project_SRA/pipeline_files/SRR334318.merge.gtf
+array3=($(ls *.merged.gtf))
 	
 for i in ${array3[@]}; do
 	echo "$(echo ${i}|sed "s/\..*//") ${i}" >> sample_list.txt #this almost does what I want it to, but it prints the first path too
