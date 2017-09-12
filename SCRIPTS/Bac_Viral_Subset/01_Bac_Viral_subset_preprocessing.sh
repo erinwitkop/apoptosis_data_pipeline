@@ -7,7 +7,7 @@
 #PBS -e err_Bac_Viral_HISAT
 #PBS -m ae -M erin_roberts@my.uri.edu
 
-#02_BAc_Viral_Subset_Preprocessing. This script runs the preprocessing steps on raw SRA reads just for the 
+#01_BAc_Viral_Subset_Preprocessing. This script runs the preprocessing steps on raw SRA reads just for the 
 # OsHV-1 pathogen challenge and the Gram positive and Gram negative Bac challenges. This script skips
 # the step to use BBMerge to obtain the stats file about which adapters are present. All SRAs are single end.
 
@@ -20,9 +20,9 @@ F=/data3/marine_diseases_lab/erin/Bio_project_SRA/pipeline_files/Bac_Viral_subse
 # Commands for Single End Read PreProcessing
 
 #Trimming of adaptors from SE reads 
-array3=($(ls $S/*.fastq))
+array1=($(ls $F/*.fastq))
 
-for i in ${array3[@]}; do 
+for i in ${array1[@]}; do 
 	bbduk.sh in1=${i} out1=${i}.clean ref=/opt/software/BBMap/37.36-foss-2016b-Java-1.8.0_131/resources/adapters.fa ktrim=r k=23 mink=11 hdist=1 tpe tbo
 	echo "STOP SE $(date)"
 done
@@ -38,10 +38,10 @@ done
 echo "DONE $(date)"
 
 #Quality Trimming, of both the left and the right sides to get rid of reads that are less than quality 20
-array3=($(ls $S/*.fastq))
+array3=($(ls $F/*.clean))
 
  for i in ${array3[@]}; do 
-	bbduk.sh in1=${i}.clean out1=${i}.trim qtrim=rl trimq=20
+	bbduk.sh in1=${i} out1=${i}.trim qtrim=rl trimq=20
  	echo "STOP qual trim $(date)"
  done
 
