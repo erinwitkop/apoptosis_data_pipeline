@@ -46,30 +46,28 @@ F=/data3/marine_diseases_lab/erin/Bio_project_SRA/pipeline_files/Bac_Viral_subse
 	 #This leads to fewer alignments with short-anchors, which helps transcript assemblers improve significantly in computation and memory usage.
 
 #SAMTOOLS sort to convert the SAM file into a BAM file to be used with StringTie
-#SAMTOOLS filter out low quality mapping results from bam file, and keep SAM header (while converting to bam)
+#SHOULD NOT PERFORM FILTERING ON HISAT2 OUTPUT
 array3=($(ls $F/*.sam))
 	for i in ${array3[@]}; do
-	 #This keeps the @SQ etc headers Stringtie requires
-		#samtools view -q 40 -b ${i} > ${i}.mapqfilter
-		samtools sort ${i}.mapqfilter > ${i}.finalsorted #Stringtie takes as input only sorted bam files
-		echo "${i}_filtered"
+		samtools sort ${i} > ${i}.bam #Stringtie takes as input only sorted bam files
+		echo "${i}_bam"
+	done
+
+#Get bam file statistics for percentage aligned with flagstat
+# to get more detailed statistics use $ samtools stats ${i}
+array4=($(ls $F/*.bam))
+	for i in ${array4[@]}; do
+		samtools flagstat ${i} > ${i}.bam.stats #get % mapped
+	#to extract more detailed summary numbers
+		samtools stats {i} | grep ^SN | cut -f 2- > ${i}.bam.fullstat
+		echo "STATS DONE" $(date)
 	done
 	
-	# -h to include header in the sam output
-	#-H to just get the headers
-	# -q is to Skip alignments with MAPQ smaller than INT [0]
-	# -b is to output in bam format, doing this first leaves the headers in the file, and sorts it by map quality
-	#FILTER OUT ANYTHING THAT DOES NOT HAVE A TMapq score of over 40, will give you reasonable stringency for 
-	#finding the best, most uniquely mapped reads
-
-
-
-
-#put -o before the out.bam and
 
 
 #reference: Transcript-level expression analysis of RNA-seq experiments with HISAT, StringTie, and Ballgown
 #https://sequencing.qcfail.com/articles/mapq-values-are-really-useful-but-their-implementation-is-a-mess/
+#http://www.htslib.org/doc/samtools.html
 
 echo "DONE $(date)"
 
