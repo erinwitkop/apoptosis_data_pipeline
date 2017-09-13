@@ -13,7 +13,7 @@ cd /data3/marine_diseases_lab/erin/Bio_project_SRA/pipeline_files/Bac_Viral_subs
 F=/data3/marine_diseases_lab/erin/Bio_project_SRA/pipeline_files/Bac_Viral_subset
 
 #array1=($(ls $F/*.merged.gtf))
-
+#NOTE: IF GOAL IS DEG ANALYSIS, DO NOT PERFORM THIS STEP...
 #for i in ${array1[@]}; do 
 #	grep "gene:" ${i} > $(echo ${i}|sed "s/\..*//").subset.gff3HIT #this greps all lines with genes and transcripts
 #	grep "MSTRG" ${i}  > $(echo ${i}|sed "s/\..*//").subset.MSTRGs #Use these later for BLAST2GO analysis
@@ -28,12 +28,12 @@ F=/data3/marine_diseases_lab/erin/Bio_project_SRA/pipeline_files/Bac_Viral_subse
 #create sample_list.txt
 #template: SRR334318 /data3/marine_diseases_lab/erin/Bio_project_SRA/pipeline_files/SRR334318.merge.gtf
 
-array2=($(ls *.subset.gff3HIT))
+array2=($(ls *.merged.gtf))
 
 for i in ${array2[@]}; do
-	echo "$(echo ${i}|sed "s/\..*//") $F/${i}" >> gff3HIT_sample_list.txt
+	echo "$(echo ${i}|sed "s/\..*//") $F/${i}" >> Bac_Viral_sample_list.txt
 done
 
-python prepDE.py -i gff3HIT_sample_list.txt
+python prepDE.py -i Bac_Viral_sample_list.txt
 			
 echo "STOP" $(date)
