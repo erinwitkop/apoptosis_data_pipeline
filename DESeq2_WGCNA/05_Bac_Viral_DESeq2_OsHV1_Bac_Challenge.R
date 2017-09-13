@@ -14,6 +14,9 @@ library(fdrtool)
 #source("https://bioconductor.org/biocLite.R")
 #biocLite("genefilter")
 library(genefilter)
+install.packages("dplyr")
+library(dplyr)
+library(tidyr)
 # Construct Bac_Viral_PHENO_DATA.csv that contains SRA run information, such as which contrast, tissue, etc.
 
 ####DEG Analysis with TRANSCRIPT Count Matrix ####
@@ -53,6 +56,8 @@ all(rownames(oshv1TranColData) == colnames(oshv1TranCountData))    # should retu
 ddsOshv1Tran <- DESeqDataSetFromMatrix(countData = oshv1TranCountData, 
                                        colData = oshv1TranColData, 
                                        design = ~ condition)
+#
+ddsOshv1Tran <- ddsOshv1Tran[ rowSums(counts(ddsOshv1Tran)) > 1, ]
 
 #if design was design = ~stressorLevel + condition, #this design will gather the effect of condition, accounting for the sample pairing by time
 # review how the data set looks
@@ -85,6 +90,8 @@ sum(resoshv1Tran_05$padj < 0.05, na.rm=TRUE) #3282
 
 #metadata on meaning of the columns
 mcols(resoshv1Tran_05, use.names = TRUE)
+#Get more detailed description
+mcols(resoshv1Tran_05_df)$description
 #shows treatment vs. control with baseMean as the mean of normalized counts for all samples
 
 ####p-value correction#### adapted from "Differential expression analysis of RNA-Seq data using DESeq2" Klaus 2014
@@ -108,7 +115,7 @@ FDR.resoshv1Tran_05_df <- fdrtool(resoshv1Tran_05_df$stat, statistic= "normal", 
 #add values to the results data frame, also ad new BH- adjusted p-values
 resoshv1Tran_05_df[,"padj"] <- p.adjust(FDR.resoshv1Tran_05_df$pval, method = "BH")
 
-#replot corrected p-values
+#replot corrected p-values 
 hist(FDR.resoshv1Tran_05_df$pval, col = "royalblue4",
      main = "Correct null model OsHv1 Transcript Count", xlab = "CORRECTED p-values")
 
@@ -128,10 +135,13 @@ plotMA(resoshv1Tran_05_dfSig)
 
 #Export Results to CSV
 write.csv( as.data.frame(resoshv1Tran_05_df), file="OsHV1_resoshv1Tran_05_df.csv")
-write.csv( as.data.frame(resoshv1Tran_05_dfSig), file="Bac_resoshv1Tran_05_dfSig.csv")
+write.csv( as.data.frame(resoshv1Tran_05_dfSig), file="OsHV1_resoshv1Tran_05_dfSig.csv")
 
-####Use Bash script fetchEnsembl_ID.sh to get the Ensembl IDs ####
+####Subset files for only those that have Transcript IDs####
 #Extract gene titles of all the significantly differentially expressed genes
+OsHV1_withID_subset_resoshv1Tran_05_dfSig <- 
+  resoshv1Tran_05_dfSig[grep("transcript:", rownames(resoshv1Tran_05_dfSig)), ]
+head(OsHV1_withID_subset_resoshv1Tran_05_dfSig)
 
 ####OsHV1 Gene Set Enrichment Analysis ####
 #Matching the background set
