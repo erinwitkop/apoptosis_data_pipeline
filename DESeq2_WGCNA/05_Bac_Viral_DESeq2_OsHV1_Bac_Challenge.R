@@ -1,6 +1,6 @@
 #05_Bac_viral_DESeq2_OsHV1_Bac_challenge
 
-#This script takes as input the output Bac_Viral_gff3HIT_subset_transcript_count_matrix.csv data prepared from prepDE.py and performs
+#This script takes as input the output Bac_Viral_transcript_count_matrix.csv data prepared from prepDE.py and performs
 #differential Gene expression analysis, and subsets out isoforms of GIMAPs and CgIAPs and graphs their
 #relative abundance.
 
@@ -21,7 +21,7 @@ library(genefilter)
 #Bac_Viral_PHENO_DATA.csv file contains metadata on the count table's samples
 ###Make sure excel PHENODATA is in the same order or these commands will change data to be wrong!!!!###
 
-TranscriptCountData <- as.matrix(read.csv("Bac_Viral_gff3HIT_subset_transcript_count_matrix.csv", row.names="transcript_id"))
+TranscriptCountData <- as.matrix(read.csv("Bac_Viral_transcript_count_matrix.csv", row.names="transcript_id"))
 head(TranscriptCountData)
 
 ####Subset Data for OsHV1 ####
@@ -72,11 +72,16 @@ ddsOshv1Tran<- DESeq(ddsOshv1Tran) #for designs with interactions, recommends se
 resoshv1Tran<- results(ddsOshv1Tran, contrast = c("condition", "control", "treatment"))
 #to extract log2fold change and p values under 0.1 and 0.05
 head(resoshv1Tran)
+
+#Order by Log2FC
+head( resoshv1Tran[ order( resoshv1Tran$log2FoldChange ), ] ) #head for strongest downregulation
+tail( resoshv1Tran[ order( resoshv1Tran$log2FoldChange ), ] ) #tail for strongest up regulation
+
 summary(resoshv1Tran)
-#sum(resoshv1Tran$padj < 0.1, na.rm=TRUE) #3501
+sum(resoshv1Tran$padj < 0.1, na.rm=TRUE) #4409
 resoshv1Tran_05 <- results(ddsOshv1Tran,alpha=0.05)
 summary(resoshv1Tran_05)
-sum(resoshv1Tran_05$padj < 0.05, na.rm=TRUE) #2590
+sum(resoshv1Tran_05$padj < 0.05, na.rm=TRUE) #3282
 
 #metadata on meaning of the columns
 mcols(resoshv1Tran_05, use.names = TRUE)
@@ -108,7 +113,7 @@ hist(FDR.resoshv1Tran_05_df$pval, col = "royalblue4",
      main = "Correct null model OsHv1 Transcript Count", xlab = "CORRECTED p-values")
 
 #Check how many genes have BH adjusted p values of less than 0.01 after P-value correction?
-sum( resoshv1Tran_05_df$padj < 0.05, na.rm=TRUE ) #1715 (before p-value correction it was )... now its 2
+sum( resoshv1Tran_05_df$padj < 0.05, na.rm=TRUE ) #1462 (before p-value correction it was )... now its 2
 
 #Subset the results table to the differentially expressed genes under FDR 0.01, order the Log2FC table first by strongest down regulation
 resoshv1Tran_05_dfSig <- resoshv1Tran_05_df[ which(resoshv1Tran_05_df$padj < 0.05 ), ]
@@ -122,8 +127,8 @@ plotMA(resoshv1Tran_05_df)
 plotMA(resoshv1Tran_05_dfSig)
 
 #Export Results to CSV
-write.csv( as.data.frame(resoshv1Tran_05_df), file="resoshv1Tran_05_df.csv")
-write.csv( as.data.frame(resoshv1Tran_05_dfSig), file="resoshv1Tran_05_dfSig.csv")
+write.csv( as.data.frame(resoshv1Tran_05_df), file="OsHV1_resoshv1Tran_05_df.csv")
+write.csv( as.data.frame(resoshv1Tran_05_dfSig), file="Bac_resoshv1Tran_05_dfSig.csv")
 
 ####Use Bash script fetchEnsembl_ID.sh to get the Ensembl IDs ####
 #Extract gene titles of all the significantly differentially expressed genes
