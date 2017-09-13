@@ -13,7 +13,7 @@ cd /data3/marine_diseases_lab/erin/Bio_project_SRA/pipeline_files/Bac_Viral_subs
 F=/data3/marine_diseases_lab/erin/Bio_project_SRA/pipeline_files/Bac_Viral_subset
 
 #array1=($(ls $F/*.merged.gtf))
-#NOTE: IF GOAL IS DEG ANALYSIS, DO NOT PERFORM THIS STEP...
+#NOTE: IF GOAL IS DEG ANALYSIS, DO NOT PERFORM THIS STEP... Should subset in R, after calculations complete
 #for i in ${array1[@]}; do 
 #	grep "gene:" ${i} > $(echo ${i}|sed "s/\..*//").subset.gff3HIT #this greps all lines with genes and transcripts
 #	grep "MSTRG" ${i}  > $(echo ${i}|sed "s/\..*//").subset.MSTRGs #Use these later for BLAST2GO analysis
