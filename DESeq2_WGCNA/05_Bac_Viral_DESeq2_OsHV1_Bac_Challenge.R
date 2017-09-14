@@ -150,7 +150,10 @@ transcriptID1thru5 <- rownames(head(OsHV1_withID_subset_resoshv1Tran_05_dfSig[1:
 transcriptIDdf= transform(transcriptIDdf, 
         ID = colsplit(rownames(OsHV1_withID_subset_resoshv1Tran_05_dfSig), 
                       split = "\\:", names = c('transcript:', 'EKC33371')))
-transcriptIDdf[,3]
+transcriptIDstring <- toString(transcriptIDdf[,3], sep=',')
+transcriptIDstring
+transcriptIDparen <- sapply(strsplit(transcriptIDstring, '[, ]+'), 
+                           function(x) toString(dQuote(x)))
 
 #Load C. gigas UniProt ID information for C. gigas
 source("https://bioconductor.org/biocLite.R")
@@ -166,15 +169,21 @@ columns(CgigasUp)
 keytypes(CgigasUp)
 showMethods("keys")
 #structure: res <- select(UniProtName, keys, columns, keytype)
-#select(up, keys=c("P31946","P62258"), columns=c("PDB","SEQUENCE"), keytype="UNIPROTKB")
+#select(up, keys=c("P31946","P62258"), columns=c("PDB","SEQUENCE"), keytype="ENSEMBL_GENOMES TRANSCRIPT)
 
 #Create object to look up UNIPROTKB entries and retreive other gene info
-columns <- c("UNIPROTKB", "PROTEIN NAMES","GO", "GO-ID", "ENSEMBL", "ENSEMBL_TRANSCRIPT")
-keytype <- "UNIPROTKB"
-keys <- transcriptIDdf[,3] #set key to be  vector of all of your transcriptIDs from previous
+columns <- c("ENSEMBL_PROTEIN","HGNC","SEQUENCE", "GENES","ENTREZ_GENE", "ID", "GO", "GO-ID", "KEGG")
+keytype <- "ENSEMBL_GENOMES TRANSCRIPT"
+#keys <- transcriptIDdf[,3] #set key to be  vector of all of your transcriptIDs from previous
+keys <- transcriptIDparen #test to see how this works
 res <- select(CgigasUp, keys, columns, keytype)
+res
 
-####OsHV1 Gene Set Enrichment Analysis ####
+####Extract GIMAP/IAN proteins and CgIAPs ####
+#Strategy: Based on which ones BLAST to GIMAP proteins?
+
+
+####OsHV1 Gene Set Enrichment Analysis topGO ####
 #Matching the background set
 #Get average expressions 
 oshv1Tran_BaseMean <- as.matrix(resoshv1Tran_df[, "baseMean", drop=F])
@@ -297,11 +306,6 @@ write.csv( as.data.frame(resBacTran_05_dfSig), file="resBacTran_05_dfSig.csv")
 
 #### Look at Differential Expression of Transcript Isoforms using Transcript Count Matrix ####
 
-####Use Bash script fetchEnsembl_ID.sh to get the Ensembl IDs ####
-
 #references: 
 #https://github.com/sr320/LabDocs/tree/master/code/DESeq
-#Code adapted from Stephen Roberts DESeq2 Github script called "SCRIPT_DESeq_CLAM_no replication.R" 
-# StringTie manual : http://ccb.jhu.edu/software/stringtie/index.shtml?t=manual
-
-#SCRIPT_DESeq_SeaFan_replication.R also consulted, https://github.com/sr320/LabDocs/blob/master/code/DESeq/SCRIPT_DESeq_SeaFan_replication.R
+#StringTie manual : http://ccb.jhu.edu/software/stringtie/index.shtml?t=manual
