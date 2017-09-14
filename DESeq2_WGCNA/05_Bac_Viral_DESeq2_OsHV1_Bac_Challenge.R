@@ -16,7 +16,10 @@ library(fdrtool)
 library(genefilter)
 install.packages("dplyr")
 library(dplyr)
+install.packages("tidyr")
 library(tidyr)
+install.packages("reshape")
+library(reshape)
 # Construct Bac_Viral_PHENO_DATA.csv that contains SRA run information, such as which contrast, tissue, etc.
 
 ####DEG Analysis with TRANSCRIPT Count Matrix ####
@@ -81,7 +84,6 @@ head(resoshv1Tran)
 #Order by Log2FC
 head( resoshv1Tran[ order( resoshv1Tran$log2FoldChange ), ] ) #head for strongest downregulation
 tail( resoshv1Tran[ order( resoshv1Tran$log2FoldChange ), ] ) #tail for strongest up regulation
-
 summary(resoshv1Tran)
 sum(resoshv1Tran$padj < 0.1, na.rm=TRUE) #4409
 resoshv1Tran_05 <- results(ddsOshv1Tran,alpha=0.05)
@@ -142,12 +144,43 @@ write.csv( as.data.frame(resoshv1Tran_05_dfSig), file="OsHV1_resoshv1Tran_05_dfS
 OsHV1_withID_subset_resoshv1Tran_05_dfSig <- 
   resoshv1Tran_05_dfSig[grep("transcript:", rownames(resoshv1Tran_05_dfSig)), ]
 head(OsHV1_withID_subset_resoshv1Tran_05_dfSig)
+transcriptIDdf <- as.data.frame(rownames(OsHV1_withID_subset_resoshv1Tran_05_dfSig))
+head(transcriptIDdf)
+transcriptID1thru5 <- rownames(head(OsHV1_withID_subset_resoshv1Tran_05_dfSig[1:5,]))
+transcriptIDdf= transform(transcriptIDdf, 
+        ID = colsplit(rownames(OsHV1_withID_subset_resoshv1Tran_05_dfSig), 
+                      split = "\\:", names = c('transcript:', 'EKC33371')))
+transcriptIDdf[,3]
+
+#Load C. gigas UniProt ID information for C. gigas
+source("https://bioconductor.org/biocLite.R")
+biocLite("UniProt.ws")
+library(UniProt.ws)
+browseVignettes("UniProt.ws")
+#Taxonomy ID for C. virginica: 29159
+availableUniprotSpecies(pattern = "gigas")
+CgigasUp <- UniProt.ws(29159)
+CgigasUp
+keytypes(CgigasUp)
+columns(CgigasUp)
+keytypes(CgigasUp)
+showMethods("keys")
+#structure: res <- select(UniProtName, keys, columns, keytype)
+#select(up, keys=c("P31946","P62258"), columns=c("PDB","SEQUENCE"), keytype="UNIPROTKB")
+
+#Create object to look up UNIPROTKB entries and retreive other gene info
+columns <- c("UNIPROTKB", "PROTEIN NAMES","GO", "GO-ID", "ENSEMBL", "ENSEMBL_TRANSCRIPT")
+keytype <- "UNIPROTKB"
+keys <- transcriptIDdf[,3] #set key to be  vector of all of your transcriptIDs from previous
+res <- select(CgigasUp, keys, columns, keytype)
 
 ####OsHV1 Gene Set Enrichment Analysis ####
 #Matching the background set
 #Get average expressions 
 oshv1Tran_BaseMean <- as.matrix(resoshv1Tran_df[, "baseMean", drop=F])
 oshv1Tran_backG <- genefinder(oshv1_6_BaseMean, anSig$ensembl_gene_id, 10, method= "manhattan")
+
+
 
 ####BLAST2GO after subsetting genes####
 
