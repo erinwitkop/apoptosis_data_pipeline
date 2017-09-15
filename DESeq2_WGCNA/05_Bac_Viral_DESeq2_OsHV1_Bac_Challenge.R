@@ -5,9 +5,9 @@
 #relative abundance.
 
 #call the DESeq2 library 
-#source("https://bioconductor.org/biocLite.R")
+source("https://bioconductor.org/biocLite.R")
 #biocLite("BiocUpgrade") 
-#biocLite("DESeq2")
+biocLite("DESeq2")
 library("DESeq2")
 #install.packages("fdrtool")
 library(fdrtool)
@@ -20,6 +20,9 @@ install.packages("tidyr")
 library(tidyr)
 install.packages("reshape")
 library(reshape)
+source("http://bioconductor.org/biocLite.R")
+biocLite("biomaRt")
+library(biomaRt)
 # Construct Bac_Viral_PHENO_DATA.csv that contains SRA run information, such as which contrast, tissue, etc.
 
 ####DEG Analysis with TRANSCRIPT Count Matrix ####
@@ -152,9 +155,14 @@ transcriptIDdf= transform(transcriptIDdf,
                       split = "\\:", names = c('transcript:', 'EKC33371')))
 transcriptIDstring <- toString(transcriptIDdf[,3], sep=',')
 transcriptIDstring
-transcriptIDparen <- sapply(strsplit(transcriptIDstring, '[, ]+'), 
-                           function(x) toString(dQuote(x)))
+write(transcriptIDstring, "transcriptIDstring", sep = ",")
+#write this to a file and then perform look up on the UniProt website
 
+#Add quotes around this 
+#transcriptIDparen <- sapply(strsplit(transcriptIDstring, '[, ]+'), function(x) toString(dQuote(x)))
+#str(transcriptIDparen)
+
+####For situations only looking at the gene name of a few genes, can look it up locally ####
 #Load C. gigas UniProt ID information for C. gigas
 source("https://bioconductor.org/biocLite.R")
 biocLite("UniProt.ws")
@@ -175,9 +183,13 @@ showMethods("keys")
 columns <- c("ENSEMBL_PROTEIN","HGNC","SEQUENCE", "GENES","ENTREZ_GENE", "ID", "GO", "GO-ID", "KEGG")
 keytype <- "ENSEMBL_GENOMES TRANSCRIPT"
 #keys <- transcriptIDdf[,3] #set key to be  vector of all of your transcriptIDs from previous
-keys <- transcriptIDparen #test to see how this works
+keys <- transcriptIDparen[1:50] #test to see how this works
 res <- select(CgigasUp, keys, columns, keytype)
 res
+
+####Uploaded transcripts from the UniProt.ws website ####
+oshv1_transcriptIDs_UniProt <- read.csv("oshv1_transcriptIDstring_UniProtKB.tab", sep = "\t")
+head(oshv1_transcriptIDs_UniProt)
 
 ####Extract GIMAP/IAN proteins and CgIAPs ####
 #Strategy: Based on which ones BLAST to GIMAP proteins?
