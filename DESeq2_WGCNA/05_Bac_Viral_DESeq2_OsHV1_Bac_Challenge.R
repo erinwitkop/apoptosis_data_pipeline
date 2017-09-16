@@ -99,63 +99,82 @@ mcols(resoshv1Tran_05, use.names = TRUE)
 mcols(resoshv1Tran_05_df)$description
 #shows treatment vs. control with baseMean as the mean of normalized counts for all samples
 
-####p-value correction#### adapted from "Differential expression analysis of RNA-Seq data using DESeq2" Klaus 2014
+####p-value correction for all genes in resoshv1Tran ####
 #First Visualize histograms
 #histogram of P- values to visualize any "hills" or "U shape"
 # hill means variance of the null distribution too high, U shape means variance assumed too low
-hist(resoshv1Tran_05$pvalue, breaks = 20, col = "grey") #hill
+hist(resoshv1Tran$pvalue, breaks = 20, col = "grey") #hill
 
 #remove filtered out genes by independent filtering, they have NA adj. pvals
-resoshv1Tran_05_df <- resoshv1Tran_05[ !is.na(resoshv1Tran_05$padj), ]
+resoshv1Tran_df <- resoshv1Tran[ !is.na(resoshv1Tran$padj), ]
 
 #remove genes with NA pvals (outliers)
-resoshv1Tran_05_df <- resoshv1Tran_05_df[ !is.na(resoshv1Tran_05_df$pvalue), ]
+resoshv1Tran_df <- resoshv1Tran_df[ !is.na(resoshv1Tran_df$pvalue), ]
 
 #remove adjsuted pvalues, since we add the fdrtool results later on (based on the correct p-values)
-resoshv1Tran_05_df <- resoshv1Tran_05_df[, -which(names(resoshv1Tran_05_df) == "padj")]
+resoshv1Tran_df <- resoshv1Tran_df[, -which(names(resoshv1Tran_df) == "padj")]
 
 #use z-scores as input to FDRtool to re-estimate the p-value
-FDR.resoshv1Tran_05_df <- fdrtool(resoshv1Tran_05_df$stat, statistic= "normal", plot = T)
+FDR.resoshv1Tran_df <- fdrtool(resoshv1Tran_df$stat, statistic= "normal", plot = T)
 
 #add values to the results data frame, also ad new BH- adjusted p-values
-resoshv1Tran_05_df[,"padj"] <- p.adjust(FDR.resoshv1Tran_05_df$pval, method = "BH")
+resoshv1Tran_df[,"padj"] <- p.adjust(FDR.resoshv1Tran_df$pval, method = "BH")
 
 #replot corrected p-values 
-hist(FDR.resoshv1Tran_05_df$pval, col = "royalblue4",
+hist(FDR.resoshv1Tran_df$pval, col = "royalblue4",
      main = "Correct null model OsHv1 Transcript Count", xlab = "CORRECTED p-values")
 
-#Check how many genes have BH adjusted p values of less than 0.01 after P-value correction?
-sum( resoshv1Tran_05_df$padj < 0.05, na.rm=TRUE ) #1462 (before p-value correction it was )... now its 2
+#Check how many genes have BH adjusted p values of less than 0.05 after P-value correction?
+sum( resoshv1Tran_df$padj < 0.05, na.rm=TRUE ) #1453
 
-#Subset the results table to the differentially expressed genes under FDR 0.01, order the Log2FC table first by strongest down regulation
-resoshv1Tran_05_dfSig <- resoshv1Tran_05_df[ which(resoshv1Tran_05_df$padj < 0.05 ), ]
-head( resoshv1Tran_05_dfSig[ order( resoshv1Tran_05_dfSig$log2FoldChange ), ] ) #head for strongest downregulation
-tail( resoshv1Tran_05_dfSig[ order( resoshv1Tran_05_dfSig$log2FoldChange ), ] ) #tail for strongest up regulation
+#Subset the results table to the differentially expressed genes under FDR 0.1, order the Log2FC table first by strongest down regulation
+resoshv1Tran_dfSig <- resoshv1Tran_df[ which(resoshv1Tran_df$padj < 0.05 ), ]
+head( resoshv1Tran_dfSig[ order( resoshv1Tran_dfSig$log2FoldChange ), ] ) #head for strongest downregulation
+tail( resoshv1Tran_dfSig[ order( resoshv1Tran_dfSig$log2FoldChange ), ] ) #tail for strongest up regulation
+summary(resoshv1Tran_dfSig)
+resoshv1Tran_df_non_Sig <- resoshv1Tran_df[ which(resoshv1Tran_df$padj > 0.05 ), ]
+summary(resoshv1Tran_df_non_Sig)
 
-####Visualize Results with Diagnostic Plots####
+#Visualize Results with Diagnostic Plots#
 #MA plot, useful overview for experiment with two-group comparison. Plots log2FC over mean of normalized counts
 #genes with adjusted p value 
-plotMA(resoshv1Tran_05_df)
-plotMA(resoshv1Tran_05_dfSig)
+plotMA(resoshv1Tran_dfSig)
+plotMA(resoshv1Tran_df_non_Sig)
 
 #Export Results to CSV
-write.csv( as.data.frame(resoshv1Tran_05_df), file="OsHV1_resoshv1Tran_05_df.csv")
-write.csv( as.data.frame(resoshv1Tran_05_dfSig), file="OsHV1_resoshv1Tran_05_dfSig.csv")
+write.csv( as.data.frame(resoshv1Tran_df), file="OsHV1_resoshv1Tran_df.csv")
+write.csv( as.data.frame(resoshv1Tran_dfSig), file="OsHV1_resoshv1Tran_dfSig.csv")
+write.csv( as.data.frame(resoshv1Tran_df_non_Sig), file = "OsHV1_resoshv1Tran_df_non_Sig.csv")
+
 
 ####Subset files for only those that have Transcript IDs####
 #Extract gene titles of all the significantly differentially expressed genes
-OsHV1_withID_subset_resoshv1Tran_05_dfSig <- 
-  resoshv1Tran_05_dfSig[grep("transcript:", rownames(resoshv1Tran_05_dfSig)), ]
-head(OsHV1_withID_subset_resoshv1Tran_05_dfSig)
-transcriptIDdf <- as.data.frame(rownames(OsHV1_withID_subset_resoshv1Tran_05_dfSig))
+OsHV1_withID_subset_resoshv1Tran_dfSig <- 
+  resoshv1Tran_dfSig[grep("transcript:", rownames(resoshv1Tran_dfSig)), ]
+head(OsHV1_withID_subset_resoshv1Tran_dfSig)
+transcriptIDdf <- as.data.frame(rownames(OsHV1_withID_subset_resoshv1Tran_dfSig))
 head(transcriptIDdf)
-transcriptID1thru5 <- rownames(head(OsHV1_withID_subset_resoshv1Tran_05_dfSig[1:5,]))
+transcriptID1thru5 <- rownames(head(OsHV1_withID_subset_resoshv1Tran_dfSig[1:5,]))
 transcriptIDdf= transform(transcriptIDdf, 
-        ID = colsplit(rownames(OsHV1_withID_subset_resoshv1Tran_05_dfSig), 
+        ID = colsplit(rownames(OsHV1_withID_subset_resoshv1Tran_dfSig), 
                       split = "\\:", names = c('transcript:', 'EKC33371')))
 transcriptIDstring <- toString(transcriptIDdf[,3], sep=',')
 transcriptIDstring
 write(transcriptIDstring, "transcriptIDstring", sep = ",")
+#write this to a file and then perform look up on the UniProt website
+
+#Extract gene titles from non Sig genes
+OsHV1_withID_subset_resoshv1Tran_df_non_Sig <- 
+  resoshv1Tran_df_non_Sig[grep("transcript:", rownames(resoshv1Tran_df_non_Sig)), ]
+head(OsHV1_withID_subset_resoshv1Tran_df_non_Sig)
+transcriptIDdf_nonSig <- as.data.frame(rownames(OsHV1_withID_subset_resoshv1Tran_df_non_Sig))
+head(transcriptIDdf_nonSig)
+transcriptIDdf_nonSig= transform(transcriptIDdf_nonSig, 
+                          ID = colsplit(rownames(OsHV1_withID_subset_resoshv1Tran_df_non_Sig), 
+                                        split = "\\:", names = c('transcript:', 'EKC37466')))
+transcriptIDstring_nonSig <- toString(transcriptIDdf_nonSig[,3], sep=',')
+transcriptIDstring_nonSig
+write(transcriptIDstring_nonSig, "transcriptIDstring_nonSig", sep = ",")
 #write this to a file and then perform look up on the UniProt website
 
 #Add quotes around this 
@@ -187,12 +206,59 @@ keys <- transcriptIDparen[1:50] #test to see how this works
 res <- select(CgigasUp, keys, columns, keytype)
 res
 
-####Uploaded transcripts from the UniProt.ws website ####
-oshv1_transcriptIDs_UniProt <- read.csv("oshv1_transcriptIDstring_UniProtKB.tab", sep = "\t")
-head(oshv1_transcriptIDs_UniProt)
+####Otherwise, Uploaded Sig Differentially Expressed transcripts from the UniProt.ws website ####
+oshv1_transcriptIDs_UniProt_SIG <- read.csv("OsHV1_resoshv1Tran_dfSig_transcriptIDstring.csv", header=TRUE)
+#make sure to upload as csv version so that the protein names load correctly
+head(oshv1_transcriptIDs_UniProt_SIG)
 
-####Extract GIMAP/IAN proteins and CgIAPs ####
-#Strategy: Based on which ones BLAST to GIMAP proteins?
+####Extract GIMAP/IAN proteins and CgIAPs from Significantly Differentially Expressed Genes####
+#Significantly differentially Expressed IAPs
+#use grepl to find text strings 
+oshv1_transcriptIDs_UniProt_SIG_ProtNames <- oshv1_transcriptIDs_UniProt_SIG$Protein.names
+oshv1_IAPs_SIG <- grepl("IAP", oshv1_transcriptIDs_UniProt_SIG$Protein.names, ignore.case = TRUE) 
+grep("TRUE", oshv1_IAPs_SIG) #3, 353
+oshv1_IAPs_SIG_info <- oshv1_transcriptIDs_UniProt_SIG[c(3,353),]
+oshv1_IAPs_SIG_info
+
+#Significant GIMAP Genes
+oshv1_GTP_SIG <- grepl("GTP", oshv1_transcriptIDs_UniProt_SIG$Protein.names, ignore.case = TRUE) 
+grep("TRUE", oshv1_GIMAP_SIG)
+oshv1_transcriptIDs_UniProt_SIG[c(53,54,65,85,125),] #53 and 65 are GIMAP! called GTPase IMAP
+oshv1_GIMAP_Sig_info <- oshv1_transcriptIDs_UniProt_SIG[c(53,65),]
+oshv1_GIMAP_Sig_info
+oshv1_IAN_Sig <- grepl("IAN", oshv1_transcriptIDs_UniProt_SIG$Protein.names, ignore.case = TRUE) 
+grep("TRUE", oshv1_IAN_Sig) #0 TRUE
+
+
+#Uploaded NON Sig Differentially Expressed transcripts from the UniProt.ws website ####
+oshv1_transcriptIDs_UniProt_non_Sig <- read.csv("OsHV1_resoshv1_Tran_df_non_Sig_transcript_ID_string.csv", header=TRUE)
+#make sure to upload as csv version so that the protein names load correctly
+head(oshv1_transcriptIDs_UniProt_non_Sig)
+
+####Extract GIMAP and IAP genes from NON significant genes, for comparison ####
+#Expressed IAPs
+#use grepl to find text strings 
+oshv1_transcriptIDs_UniProt_non_Sig_ProtNames <- oshv1_transcriptIDs_UniProt_non_Sig$Protein.names
+oshv1_IAPs_non_Sig <- grepl("IAP", oshv1_transcriptIDs_UniProt_non_Sig$Protein.names, ignore.case = TRUE) 
+grep("TRUE", oshv1_IAPs_non_Sig) 
+  #69   575  1584  3107  6112  6316  7355  8579  8592  8784 10334 10736 11378
+oshv1_IAPs_non_sig_info <- oshv1_transcriptIDs_UniProt_non_Sig[c(69,575,1584,3107,
+        6112,6316,7355,8579,8592,8784,10334,10736,11378),]
+oshv1_IAPs_non_sig_info
+
+#Expressed GIMAP Genes
+oshv1_GTP_non_Sig <- grepl("GTP", oshv1_transcriptIDs_UniProt_non_Sig$Protein.names, ignore.case = TRUE) 
+grep("TRUE", oshv1_GTP_non_Sig)
+oshv1_GIMAP_non_sig <- grepl("IMAP",oshv1_transcriptIDs_UniProt_non_Sig$Protein.names, ignore.case = TRUE)
+grep("TRUE", oshv1_GIMAP_non_sig)
+#151   551   617  2134  2576  6264  6377  6487  7233  8658  9122  9214 11457
+oshv1_GIMAP_non_sig_info <- oshv1_transcriptIDs_UniProt_non_Sig[c(151,551,617,2134,
+      2576,  6264,  6377,  6487,  7233,  8658,  9122,  9214, 11457),] 
+oshv1_GIMAP_non_sig_info
+oshv1_IAN_non_Sig <- grepl("IAN", oshv1_transcriptIDs_UniProt_non_Sig$Protein.names) 
+grep("TRUE", oshv1_IAN_non_Sig) #0
+
+####Link GIMAP and IAN genes, significant and non significant, with Expression Values####
 
 
 ####OsHV1 Gene Set Enrichment Analysis topGO ####
@@ -200,8 +266,6 @@ head(oshv1_transcriptIDs_UniProt)
 #Get average expressions 
 oshv1Tran_BaseMean <- as.matrix(resoshv1Tran_df[, "baseMean", drop=F])
 oshv1Tran_backG <- genefinder(oshv1_6_BaseMean, anSig$ensembl_gene_id, 10, method= "manhattan")
-
-
 
 ####BLAST2GO after subsetting genes####
 
