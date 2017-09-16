@@ -158,6 +158,8 @@ transcriptID1thru5 <- rownames(head(OsHV1_withID_subset_resoshv1Tran_dfSig[1:5,]
 transcriptIDdf= transform(transcriptIDdf, 
         ID = colsplit(rownames(OsHV1_withID_subset_resoshv1Tran_dfSig), 
                       split = "\\:", names = c('transcript:', 'EKC33371')))
+  #this line splitsup the word transcript and the transcript name
+
 transcriptIDstring <- toString(transcriptIDdf[,3], sep=',')
 transcriptIDstring
 write(transcriptIDstring, "transcriptIDstring", sep = ",")
@@ -213,7 +215,6 @@ head(oshv1_transcriptIDs_UniProt_SIG)
 
 ####Extract GIMAP/IAN proteins and CgIAPs from Significantly Differentially Expressed Genes####
 #Significantly differentially Expressed IAPs
-#use grepl to find text strings 
 oshv1_transcriptIDs_UniProt_SIG_ProtNames <- oshv1_transcriptIDs_UniProt_SIG$Protein.names
 oshv1_IAPs_SIG <- grepl("IAP", oshv1_transcriptIDs_UniProt_SIG$Protein.names, ignore.case = TRUE) 
 grep("TRUE", oshv1_IAPs_SIG) #3, 353
@@ -259,6 +260,72 @@ oshv1_IAN_non_Sig <- grepl("IAN", oshv1_transcriptIDs_UniProt_non_Sig$Protein.na
 grep("TRUE", oshv1_IAN_non_Sig) #0
 
 ####Link GIMAP and IAN genes, significant and non significant, with Expression Values####
+#Sig IAPS
+subset_oshv1_IAPs_SIG_info <- oshv1_IAPs_SIG_info[,c(4,8,9)]
+oshv1_IAP_SIG_info_resoshv1Tran_dfSig <- grep("EKC24074", rownames(resoshv1Tran_dfSig), ignore.case = TRUE) 
+oshv1_IAP_SIG_info_resoshv1Tran_dfSig <- resoshv1Tran_dfSig[4,] #line 4 is what the first grep gave
+oshv1_IAP_SIG_info_resoshv1Tran_dfSig2 <- grep("EKC42449", rownames(resoshv1Tran_dfSig), ignore.case = TRUE) #line 1112
+oshv1_IAP_SIG_info_resoshv1Tran_dfSig2 <- resoshv1Tran_dfSig[1112,]
+oshv1_IAP_SIG_combined_EXP <- rbind(oshv1_IAP_SIG_info_resoshv1Tran_dfSig, oshv1_IAP_SIG_info_resoshv1Tran_dfSig2)
+oshv1_IAP_SIG_combined_FULL <- cbind(oshv1_IAP_SIG_combined_EXP$log2FoldChange,subset_oshv1_IAPs_SIG_info)
+
+#Sig GIMAPs
+subset_oshv1_GIMAP_SIG_info <- oshv1_GIMAP_Sig_info[,c(4,8,9)]
+subset_oshv1_GIMAP_SIG_info #EKC41832, EKC30713
+oshv1_GIMAP_SIG_info_resoshv1Tran_dfSig <- grep("EKC41832", rownames(resoshv1Tran_dfSig), ignore.case = TRUE) 
+oshv1_GIMAP_SIG_info_resoshv1Tran_dfSig <- resoshv1Tran_dfSig[147,]
+oshv1_GIMAP_SIG_info_resoshv1Tran_dfSig2 <- grep("EKC30713", rownames(resoshv1Tran_dfSig), ignore.case = TRUE) #170
+oshv1_GIMAP_SIG_info_resoshv1Tran_dfSig2 <- resoshv1Tran_dfSig[170,]
+oshv1_GIMAP_SIG_combined_EXP <- rbind(oshv1_GIMAP_SIG_info_resoshv1Tran_dfSig, oshv1_GIMAP_SIG_info_resoshv1Tran_dfSig2)
+oshv1_IAP_SIG_combined_FULL <- cbind(oshv1_GIMAP_SIG_combined_EXP$log2FoldChange, subset_oshv1_GIMAP_SIG_info)
+
+
+#Non Sig IAP
+oshv1_IAPs_non_sig_info$Ensembl_Genome_Transcript 
+#EKC27810 EKC32934 EKC38724 EKC34718 EKC30031 EKC24792 EKC20773 EKC18369 EKC20239 EKC42441 EKC37539 EKC25493 EKC42443
+subset_oshv1_IAPs_non_sig_info <- oshv1_IAPs_non_sig_info[,c(4,8,9)]
+oshv1_IAP_non_sig_info_resoshv1Tran_df <- grep("EKC27810", rownames(resoshv1Tran_df), ignore.case = TRUE) #208
+oshv1_IAP_non_sig_info_resoshv1Tran_df <- resoshv1Tran_df[208,]
+oshv1_IAP_non_sig_info_resoshv1Tran_df2 <- grep("EKC32934", rownames(resoshv1Tran_df), ignore.case = TRUE) #2157
+oshv1_IAP_non_sig_info_resoshv1Tran_df2 <- resoshv1Tran_df[2157,]
+oshv1_IAP_non_sig_info_resoshv1Tran_df3 <- grep("EKC38724", rownames(resoshv1Tran_df), ignore.case = TRUE) #6044
+oshv1_IAP_non_sig_info_resoshv1Tran_df3 <- resoshv1Tran_df[6044,]
+oshv1_IAP_non_sig_info_resoshv1Tran_df4 <- grep("EKC34718", rownames(resoshv1Tran_df), ignore.case = TRUE) #11980
+oshv1_IAP_non_sig_info_resoshv1Tran_df4 <- resoshv1Tran_df[11980,]
+oshv1_IAP_non_sig_info_resoshv1Tran_df5 <- grep("EKC30031", rownames(resoshv1Tran_df), ignore.case = TRUE) #23757
+oshv1_IAP_non_sig_info_resoshv1Tran_df5 <- resoshv1Tran_df[23757,]
+oshv1_IAP_non_sig_info_resoshv1Tran_df6 <- grep("EKC24792", rownames(resoshv1Tran_df), ignore.case = TRUE) #24508
+oshv1_IAP_non_sig_info_resoshv1Tran_df6 <- resoshv1Tran_df[24508,]
+oshv1_IAP_non_sig_info_resoshv1Tran_df7 <- grep("EKC20773", rownames(resoshv1Tran_df), ignore.case = TRUE) #28522
+oshv1_IAP_non_sig_info_resoshv1Tran_df7 <- resoshv1Tran_df[28522,]
+oshv1_IAP_non_sig_info_resoshv1Tran_df8 <- grep("EKC18369", rownames(resoshv1Tran_df), ignore.case = TRUE) #33083
+oshv1_IAP_non_sig_info_resoshv1Tran_df8 <- resoshv1Tran_df[33083,]
+oshv1_IAP_non_sig_info_resoshv1Tran_df9 <- grep("EKC20239", rownames(resoshv1Tran_df), ignore.case = TRUE) #33137
+oshv1_IAP_non_sig_info_resoshv1Tran_df9 <- resoshv1Tran_df[33137,]
+oshv1_IAP_non_sig_info_resoshv1Tran_df10 <- grep("EKC42441", rownames(resoshv1Tran_df), ignore.case = TRUE) #33888
+oshv1_IAP_non_sig_info_resoshv1Tran_df10 <- resoshv1Tran_df[33888,]
+oshv1_IAP_non_sig_info_resoshv1Tran_df11 <- grep("EKC37539", rownames(resoshv1Tran_df), ignore.case = TRUE) #39530
+oshv1_IAP_non_sig_info_resoshv1Tran_df11 <- resoshv1Tran_df[39530,]
+oshv1_IAP_non_sig_info_resoshv1Tran_df12 <- grep("EKC25493", rownames(resoshv1Tran_df), ignore.case = TRUE) #40931
+oshv1_IAP_non_sig_info_resoshv1Tran_df12 <- resoshv1Tran_df[40931,]
+oshv1_IAP_non_sig_info_resoshv1Tran_df13 <- grep("EKC42443", rownames(resoshv1Tran_df), ignore.case = TRUE) #43642
+oshv1_IAP_non_sig_info_resoshv1Tran_df13 <- resoshv1Tran_df[43642,]
+
+
+oshv1_IAP_non_sig_combined_EXP <- rbind(oshv1_IAP_non_sig_info_resoshv1Tran_df, oshv1_IAP_non_sig_info_resoshv1Tran_df2, 
+                                        oshv1_IAP_non_sig_info_resoshv1Tran_df3, oshv1_IAP_non_sig_info_resoshv1Tran_df4,
+                                        oshv1_IAP_non_sig_info_resoshv1Tran_df5, oshv1_IAP_non_sig_info_resoshv1Tran_df6, 
+                                        oshv1_IAP_non_sig_info_resoshv1Tran_df7, oshv1_IAP_non_sig_info_resoshv1Tran_df8,
+                                        oshv1_IAP_non_sig_info_resoshv1Tran_df9, oshv1_IAP_non_sig_info_resoshv1Tran_df10,
+                                        oshv1_IAP_non_sig_info_resoshv1Tran_df11, oshv1_IAP_non_sig_info_resoshv1Tran_df12,
+                                        oshv1_IAP_non_sig_info_resoshv1Tran_df13)
+oshv1_IAP_non_sig_combined_FULL <- cbind(oshv1_IAP_non_sig_combined_EXP$log2FoldChange, subset_oshv1_IAPs_non_sig_info)
+oshv1_IAP_non_sig_combined_FULL
+
+
+#Non Sig GIMAP
+oshv1_GIMAP_non_sig_info$Ensembl_Genome_Transcript
+
 
 
 ####OsHV1 Gene Set Enrichment Analysis topGO ####
