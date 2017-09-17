@@ -214,21 +214,36 @@ oshv1_transcriptIDs_UniProt_SIG <- read.csv("OsHV1_resoshv1Tran_dfSig_transcript
 head(oshv1_transcriptIDs_UniProt_SIG)
 
 ####Extract GIMAP/IAN proteins and CgIAPs from Significantly Differentially Expressed Genes####
-#Significantly differentially Expressed IAPs
+#Significantly differentially Expressed IAPs, using several names
 oshv1_transcriptIDs_UniProt_SIG_ProtNames <- oshv1_transcriptIDs_UniProt_SIG$Protein.names
 oshv1_IAPs_SIG <- grepl("IAP", oshv1_transcriptIDs_UniProt_SIG$Protein.names, ignore.case = TRUE) 
 grep("TRUE", oshv1_IAPs_SIG) #3, 353
-oshv1_IAPs_SIG_info <- oshv1_transcriptIDs_UniProt_SIG[c(3,353),]
+
+oshv1_apoptosis_SIG <- grepl("apoptosis", oshv1_transcriptIDs_UniProt_SIG$Protein.names, ignore.case = TRUE) 
+grep("TRUE", oshv1_apoptosis_SIG) #3, 353
+oshv1_apoptosis_SIG_info <- oshv1_transcriptIDs_UniProt_SIG[294,]
+
+oshv1_inhibitor_SIG <-  grepl("inhibitor", oshv1_transcriptIDs_UniProt_SIG$Protein.names, ignore.case = TRUE) 
+grep("TRUE", oshv1_inhibitor_SIG) # 24 149 294 349
+oshv1_inhibitor_SIG_info <- oshv1_transcriptIDs_UniProt_SIG[c(24, 149, 294, 349),] #only 294!
+
+oshv1_IAPs_SIG_info <- oshv1_transcriptIDs_UniProt_SIG[c(3,353, 294),]
 oshv1_IAPs_SIG_info
 
+
 #Significant GIMAP Genes
+oshv1_IAN_Sig <- grepl("IAN", oshv1_transcriptIDs_UniProt_SIG$Protein.names, ignore.case = TRUE) 
+grep("TRUE", oshv1_IAN_Sig) #0 TRUE
+oshv1_AIG_Sig <- grepl("AIG", oshv1_transcriptIDs_UniProt_SIG$Protein.names, ignore.case = TRUE) 
+grep("TRUE", oshv1_AIG_Sig) #0 TRUE
+oshv1_IMAP_Sig <- grepl("IMAP", oshv1_transcriptIDs_UniProt_SIG$Protein.names, ignore.case = TRUE) 
+grep("TRUE", oshv1_IMAP_Sig) #0 TRUE
+
 oshv1_GTP_SIG <- grepl("GTP", oshv1_transcriptIDs_UniProt_SIG$Protein.names, ignore.case = TRUE) 
 grep("TRUE", oshv1_GIMAP_SIG)
 oshv1_transcriptIDs_UniProt_SIG[c(53,54,65,85,125),] #53 and 65 are GIMAP! called GTPase IMAP
 oshv1_GIMAP_Sig_info <- oshv1_transcriptIDs_UniProt_SIG[c(53,65),]
 oshv1_GIMAP_Sig_info
-oshv1_IAN_Sig <- grepl("IAN", oshv1_transcriptIDs_UniProt_SIG$Protein.names, ignore.case = TRUE) 
-grep("TRUE", oshv1_IAN_Sig) #0 TRUE
 
 
 #Uploaded NON Sig Differentially Expressed transcripts from the UniProt.ws website ####
@@ -237,17 +252,49 @@ oshv1_transcriptIDs_UniProt_non_Sig <- read.csv("OsHV1_resoshv1_Tran_df_non_Sig_
 head(oshv1_transcriptIDs_UniProt_non_Sig)
 
 ####Extract GIMAP and IAP genes from NON significant genes, for comparison ####
-#Expressed IAPs
+##Expressed IAPs
 #use grepl to find text strings 
 oshv1_transcriptIDs_UniProt_non_Sig_ProtNames <- oshv1_transcriptIDs_UniProt_non_Sig$Protein.names
 oshv1_IAPs_non_Sig <- grepl("IAP", oshv1_transcriptIDs_UniProt_non_Sig$Protein.names, ignore.case = TRUE) 
 grep("TRUE", oshv1_IAPs_non_Sig) 
   #69   575  1584  3107  6112  6316  7355  8579  8592  8784 10334 10736 11378
+oshv1_apoptosis_non_Sig <- grepl("apoptosis", oshv1_transcriptIDs_UniProt_non_Sig$Protein.names, ignore.case = TRUE) 
+grep("TRUE", oshv1_apoptosis_non_Sig) #318  1092  1934  2350  2351  2897  5229  6381  6508  6607  6626  7407  7834  8333  8738  9043
+#[17]  9178  9308  9939 10273 10941
+oshv1_apoptosis_non_Sig_info <- oshv1_transcriptIDs_UniProt_non_Sig[c(318,  1092,  1934,  2350, 
+      2351,  2897,  5229,  6381,  6508,  6607,  6626,  7407,  7834,  8333,  8738,  9043,
+                                                  9178,  9308,  9939, 10273, 10941),]
+oshv1_apoptosis_non_Sig_info 
+#ACTUAL IAP PROTEINS FROM oshv1_apoptosis_non_Sig_info
+#318, 1934,2350,2351, 2897, 6508, 6607, 7407, 8333, 9043, 9178, 9308
+
+oshv1_inhibitor_nonSig <-  grepl("inhibitor", oshv1_transcriptIDs_UniProt_non_Sig$Protein.names, ignore.case = TRUE) 
+grep("TRUE", oshv1_inhibitor_nonSig) 
+#  318   435   473   637   782  1143  1527  1594  1608  1696  1831  1845  1934  2350  2351  2401
+# 2453  2889  2897  3493  3539  3549  3688  3760  4309  4698  4715  4772  4925  5309  5358  5415
+# 5537  6124  6125  6253  6363  6424  6469  6508  6607  6894  6933  7075  7105  7407  7522  7718
+# 8333  8887  8903  8953  9043  9157  9178  9308  9317  9556  9820 10643 10700 10735 11192 11228
+# 11261 11488 11568 11577 11729
+
+oshv1_inhibitor_non_Sig_info <- oshv1_transcriptIDs_UniProt_non_Sig[c(
+  318,   435,   473,   637,   782 , 1143 , 1527,  1594,  1608,  1696,  1831,  1845,1934,2350,  2351,  2401,
+  2453,  2889,  2897,  3493,  3539,  3549,  3688,  3760,  4309,  4698,  4715,  4772,  4925,  5309,  5358,  5415,
+  5537,  6124,  6125,  6253,  6363,  6424,  6469,  6508 , 6607,  6894,  6933 , 7075,  7105,  7407,  7522,  7718,
+  8333,  8887 , 8903,  8953,  9043,  9157,  9178,  9308,  9317,  9556,  9820, 10643, 10700, 10735, 11192, 11228,
+  11261, 11488, 11568, 11577, 11729),]
+oshv1_inhibitor_non_Sig_info
+#Rows that are actual Apoptosis inhibitor proteins IAP: 318, 1934, 2350,2351,2897,6508,6607,
+  #7407, 8333, 9043, 9178, 9308, SAME AS ABOVE
+
+
+#Compiled list from IAP searches above
 oshv1_IAPs_non_sig_info <- oshv1_transcriptIDs_UniProt_non_Sig[c(575,1584,3107,
-        6112,6316,7355,8579,8592,8784,10334,10736,11378),]
+        6112,6316,7355,8579,8592,8784,10334,10736,11378, 318, 1934, 2350,2351,2897,6508,6607,
+        7407, 8333, 9043, 9178, 9308),]
 oshv1_IAPs_non_sig_info
 
-#Expressed GIMAP Genes
+
+##Expressed GIMAP Genes, non significant
 oshv1_GTP_non_Sig <- grepl("GTP", oshv1_transcriptIDs_UniProt_non_Sig$Protein.names, ignore.case = TRUE) 
 grep("TRUE", oshv1_GTP_non_Sig)
 oshv1_GIMAP_non_sig <- grepl("IMAP",oshv1_transcriptIDs_UniProt_non_Sig$Protein.names, ignore.case = TRUE)
@@ -266,7 +313,9 @@ oshv1_IAP_SIG_info_resoshv1Tran_dfSig <- grep("EKC24074", rownames(resoshv1Tran_
 oshv1_IAP_SIG_info_resoshv1Tran_dfSig <- resoshv1Tran_dfSig[4,] #line 4 is what the first grep gave
 oshv1_IAP_SIG_info_resoshv1Tran_dfSig2 <- grep("EKC42449", rownames(resoshv1Tran_dfSig), ignore.case = TRUE) #line 1112
 oshv1_IAP_SIG_info_resoshv1Tran_dfSig2 <- resoshv1Tran_dfSig[1112,]
-oshv1_IAP_SIG_combined_EXP <- rbind(oshv1_IAP_SIG_info_resoshv1Tran_dfSig, oshv1_IAP_SIG_info_resoshv1Tran_dfSig2)
+oshv1_IAP_SIG_info_resoshv1Tran_dfSig3 <- grep("EKC20774", rownames(resoshv1Tran_dfSig), ignore.case = TRUE) #926
+oshv1_IAP_SIG_info_resoshv1Tran_dfSig3 <- resoshv1Tran_dfSig[926,]
+oshv1_IAP_SIG_combined_EXP <- rbind(oshv1_IAP_SIG_info_resoshv1Tran_dfSig, oshv1_IAP_SIG_info_resoshv1Tran_dfSig2, oshv1_IAP_SIG_info_resoshv1Tran_dfSig3)
 oshv1_IAP_SIG_combined_FULL <- cbind(oshv1_IAP_SIG_combined_EXP,subset_oshv1_IAPs_SIG_info)
 
 #Sig GIMAPs
@@ -282,7 +331,10 @@ oshv1_GIMAP_SIG_combined_FULL <- cbind(oshv1_GIMAP_SIG_combined_EXP, subset_oshv
 
 #Non Sig IAP
 oshv1_IAPs_non_sig_info$Ensembl_Genome_Transcript 
-#EKC32934 EKC38724 EKC34718 EKC30031 EKC24792 EKC20773 EKC18369 EKC20239 EKC42441 EKC37539 EKC25493 EKC42443
+#EKC32934 EKC38724 EKC34718 EKC30031 EKC24792 EKC20773 EKC18369 EKC20239 EKC42441 EKC37539
+#EKC25493 EKC42443
+#EKC18368 EKC25955 EKC41180 EKC41181 EKC33184 EKC29824 EKC17690 EKC34720
+#EKC34022 EKC26454 EKC26950 EKC42442
 subset_oshv1_IAPs_non_sig_info <- oshv1_IAPs_non_sig_info[,c(4,8,9)]
 #deleted the first row (69)
 oshv1_IAP_non_sig_info_resoshv1Tran_df2 <- grep("EKC32934", rownames(resoshv1Tran_df), ignore.case = TRUE) #2157
@@ -309,6 +361,32 @@ oshv1_IAP_non_sig_info_resoshv1Tran_df12 <- grep("EKC25493", rownames(resoshv1Tr
 oshv1_IAP_non_sig_info_resoshv1Tran_df12 <- resoshv1Tran_df[40931,]
 oshv1_IAP_non_sig_info_resoshv1Tran_df13 <- grep("EKC42443", rownames(resoshv1Tran_df), ignore.case = TRUE) #43642
 oshv1_IAP_non_sig_info_resoshv1Tran_df13 <- resoshv1Tran_df[43642,]
+oshv1_IAP_non_sig_info_resoshv1Tran_df14 <- grep("EKC18368", rownames(resoshv1Tran_df), ignore.case = TRUE) #1136
+oshv1_IAP_non_sig_info_resoshv1Tran_df14 <- resoshv1Tran_df[1136,]
+oshv1_IAP_non_sig_info_resoshv1Tran_df15 <- grep("EKC25955", rownames(resoshv1Tran_df), ignore.case = TRUE) #7418
+oshv1_IAP_non_sig_info_resoshv1Tran_df15 <- resoshv1Tran_df[7418,]
+oshv1_IAP_non_sig_info_resoshv1Tran_df16 <- grep("EKC41180", rownames(resoshv1Tran_df), ignore.case = TRUE) #8987
+oshv1_IAP_non_sig_info_resoshv1Tran_df16 <- resoshv1Tran_df[8987,]
+oshv1_IAP_non_sig_info_resoshv1Tran_df17 <- grep("EKC41181", rownames(resoshv1Tran_df), ignore.case = TRUE) #8988
+oshv1_IAP_non_sig_info_resoshv1Tran_df17 <- resoshv1Tran_df[8988,]
+oshv1_IAP_non_sig_info_resoshv1Tran_df18 <- grep("EKC33184", rownames(resoshv1Tran_df), ignore.case = TRUE) #11127
+oshv1_IAP_non_sig_info_resoshv1Tran_df18 <- resoshv1Tran_df[11127,]
+oshv1_IAP_non_sig_info_resoshv1Tran_df19 <- grep("EKC29824", rownames(resoshv1Tran_df), ignore.case = TRUE) #25305
+oshv1_IAP_non_sig_info_resoshv1Tran_df19 <- resoshv1Tran_df[25305,]
+oshv1_IAP_non_sig_info_resoshv1Tran_df20 <- grep("EKC17690", rownames(resoshv1Tran_df), ignore.case = TRUE) #25645
+oshv1_IAP_non_sig_info_resoshv1Tran_df20 <- resoshv1Tran_df[25645,]
+oshv1_IAP_non_sig_info_resoshv1Tran_df21 <- grep("EKC34720", rownames(resoshv1Tran_df), ignore.case = TRUE) #28700
+oshv1_IAP_non_sig_info_resoshv1Tran_df21 <- resoshv1Tran_df[28700,]
+oshv1_IAP_non_sig_info_resoshv1Tran_df22 <- grep("EKC34022", rownames(resoshv1Tran_df), ignore.case = TRUE) #32211
+oshv1_IAP_non_sig_info_resoshv1Tran_df22 <- resoshv1Tran_df[32211,]
+oshv1_IAP_non_sig_info_resoshv1Tran_df23 <- grep("EKC26454", rownames(resoshv1Tran_df), ignore.case = TRUE) #34851
+oshv1_IAP_non_sig_info_resoshv1Tran_df23 <- resoshv1Tran_df[34851,]
+oshv1_IAP_non_sig_info_resoshv1Tran_df24 <- grep("EKC26950", rownames(resoshv1Tran_df), ignore.case = TRUE) #35402
+oshv1_IAP_non_sig_info_resoshv1Tran_df24 <- resoshv1Tran_df[35402,]
+oshv1_IAP_non_sig_info_resoshv1Tran_df25 <- grep("EKC42442", rownames(resoshv1Tran_df), ignore.case = TRUE) #35792
+oshv1_IAP_non_sig_info_resoshv1Tran_df25 <- resoshv1Tran_df[35792,]
+
+
 
 oshv1_IAP_non_sig_combined_EXP <- rbind(oshv1_IAP_non_sig_info_resoshv1Tran_df2, 
                                         oshv1_IAP_non_sig_info_resoshv1Tran_df3, oshv1_IAP_non_sig_info_resoshv1Tran_df4,
@@ -316,7 +394,13 @@ oshv1_IAP_non_sig_combined_EXP <- rbind(oshv1_IAP_non_sig_info_resoshv1Tran_df2,
                                         oshv1_IAP_non_sig_info_resoshv1Tran_df7, oshv1_IAP_non_sig_info_resoshv1Tran_df8,
                                         oshv1_IAP_non_sig_info_resoshv1Tran_df9, oshv1_IAP_non_sig_info_resoshv1Tran_df10,
                                         oshv1_IAP_non_sig_info_resoshv1Tran_df11, oshv1_IAP_non_sig_info_resoshv1Tran_df12,
-                                        oshv1_IAP_non_sig_info_resoshv1Tran_df13)
+                                        oshv1_IAP_non_sig_info_resoshv1Tran_df13, oshv1_IAP_non_sig_info_resoshv1Tran_df14,
+                                        oshv1_IAP_non_sig_info_resoshv1Tran_df15, oshv1_IAP_non_sig_info_resoshv1Tran_df16,
+                                        oshv1_IAP_non_sig_info_resoshv1Tran_df17, oshv1_IAP_non_sig_info_resoshv1Tran_df18,
+                                        oshv1_IAP_non_sig_info_resoshv1Tran_df19, oshv1_IAP_non_sig_info_resoshv1Tran_df20,
+                                        oshv1_IAP_non_sig_info_resoshv1Tran_df21, oshv1_IAP_non_sig_info_resoshv1Tran_df22,
+                                        oshv1_IAP_non_sig_info_resoshv1Tran_df23, oshv1_IAP_non_sig_info_resoshv1Tran_df24,
+                                        oshv1_IAP_non_sig_info_resoshv1Tran_df25)
 oshv1_IAP_non_sig_combined_FULL <- cbind(oshv1_IAP_non_sig_combined_EXP, subset_oshv1_IAPs_non_sig_info)
 
 
@@ -368,13 +452,11 @@ oshv1_GIMAP_IAP_combined_FULL <- rbind(oshv1_GIMAP_non_sig_combined_FULL, oshv1_
 
 ####OsHV1 Gene Set Enrichment Analysis topGO ####
 
-
 #Matching the background set
 #Get average expressions 
 oshv1Tran_BaseMean <- as.matrix(resoshv1Tran_df[, "baseMean", drop=F])
 oshv1Tran_backG <- genefinder(oshv1_6_BaseMean, anSig$ensembl_gene_id, 10, method= "manhattan")
 
-####BLAST2GO after subsetting genes####
 
 ####Bacterial Challenge Differential Gene Expression Analysis ####
 #Gram negative SRA's (including control): (SRR796597, SRR796596, SRR796595, SRR796594, SRR796593, SRR796592, SRR796589)
@@ -427,59 +509,293 @@ resBacTran <- results(ddsBacTran, contrast = c("condition", "control", "treatmen
 head(resBacTran)
 summary(resBacTran)
 sum(resBacTran$padj < 0.1, na.rm=TRUE) #2322
-resBacTran_05 <- results(ddsBacTran, contrast = c("condition", "control", "treatment"), alpha=0.05)
-summary(resBacTran_05)
+#going to subset for 0.05 after the p value correction!
 sum(resBacTran_05$padj < 0.05, na.rm=TRUE) #1889
 
 #metadata on meaning of the columns
-mcols(resBacTran_05, use.names = TRUE)
+mcols(resBacTran, use.names = TRUE)
 #shows treatment vs. control with baseMean as the mean of normalized counts for all samples
 
 ####p-value correction#### adapted from "Differential expression analysis of RNA-Seq data using DESeq2" Klaus 2014
 #First Visualize histograms
 #histogram of P- values to visualize any "hills" or "U shape"
 # hill means variance of the null distribution too high, U shape means variance assumed too low
-hist(resBacTran_05$pvalue, breaks = 20, col = "grey") #hill
+hist(resBacTran$pvalue, breaks = 20, col = "grey") #hill
 
 #remove filtered out genes by independent filtering, they have NA adj. pvals
-resBacTran_05_df <- resBacTran_05[ !is.na(resBacTran_05$padj), ]
+resBacTran_df <- resBacTran[ !is.na(resBacTran$padj), ]
 
 #remove genes with NA pvals (outliers)
-resBacTran_05_df <- resBacTran_05_df[ !is.na(resBacTran_05_df$pvalue), ]
+resBacTran_df <- resBacTran_df[ !is.na(resBacTran_df$pvalue), ]
 
 #remove adjsuted pvalues, since we add the fdrtool results later on (based on the correct p-values)
-resBacTran_05_df <- resBacTran_05_df[, -which(names(resBacTran_05_df) == "padj")]
+resBacTran_df <- resBacTran_df[, -which(names(resBacTran_df) == "padj")]
 
 #use z-scores as input to FDRtool to re-estimate the p-value
-FDR.resBacTran_05_df <- fdrtool(resBacTran_05_df$stat, statistic= "normal", plot = T)
+FDR.resBacTran_df <- fdrtool(resBacTran_df$stat, statistic= "normal", plot = T)
 
 #add values to the results data frame, also ad new BH- adjusted p-values
-resBacTran_05_df[,"padj"] <- p.adjust(FDR.resBacTran_05_df$pval, method = "BH")
+resBacTran_df[,"padj"] <- p.adjust(FDR.resBacTran_df$pval, method = "BH")
 
 #replot corrected p-values
-hist(FDR.resBacTran_05_df$pval, col = "royalblue4",
+hist(FDR.resBacTran_df$pval, col = "royalblue4",
      main = "Correct null model Bacterial Challenge Transcript Counts", xlab = "CORRECTED p-values")
 
-#Check how many genes have BH adjusted p values of less than 0.01 after P-value correction?
-sum( resBacTran_05_df$padj < 0.05, na.rm=TRUE ) #1398 (before p-value correction it was )
+#Check how many genes have BH adjusted p values of less than 0.05 after P-value correction?
+sum( resBacTran_df$padj < 0.05, na.rm=TRUE ) #1398 (before p-value correction it was )
 
 #Subset the results table to the differentially expressed genes under FDR 0.01, order the Log2FC table first by strongest down regulation
-resBacTran_05_dfSig <- resBacTran_05_df[ which(resBacTran_05_df$padj < 0.05 ), ]
-head( resBacTran_05_dfSig[ order( resBacTran_05_dfSig$log2FoldChange ), ] ) #head for strongest downregulation
-tail( resBacTran_05_dfSig[ order( resBacTran_05_dfSig$log2FoldChange ), ] ) #tail for strongest up regulation
+resBacTran_dfSig <- resBacTran_df[ which(resBacTran_df$padj < 0.05 ), ]
+head( resBacTran_dfSig[ order( resBacTran_dfSig$log2FoldChange ), ] ) #head for strongest downregulation
+tail( resBacTran_dfSig[ order( resBacTran_dfSig$log2FoldChange ), ] ) #tail for strongest up regulation
+resBacTran_df_non_Sig <- resBacTran_df[ which(resBacTran_df$padj > 0.05 ), ]
+summary(resBacTran_df_non_Sig)
 
 ####Visualize Results with Diagnostic Plots####
 #MA plot, useful overview for experiment with two-group comparison. Plots log2FC over mean of normalized counts
 #genes with adjusted p value 
-plotMA(resBacTran_05_df)
-plotMA(resBacTran_05_dfSig)
+plotMA(resBacTran_df)
+plotMA(resBacTran_dfSig)
+plotMA(resBacTran_df_non_Sig)
 
 #Export Results to CSV
-write.csv( as.data.frame(resBacTran_05_df), file="resBacTran_05_df.csv")
-write.csv( as.data.frame(resBacTran_05_dfSig), file="resBacTran_05_dfSig.csv")
+write.csv( as.data.frame(resBacTran_df), file="resBacTran_df.csv")
+write.csv( as.data.frame(resBacTran_dfSig), file="resBacTran_dfSig.csv")
+write.csv( as.data.frame(resBacTran_df_non_Sig), file="resBacTran_df_non_Sig.csv")
 
-####Use Bash script fetchEnsembl_ID.sh to get the Ensembl IDs ####
+####Subset files for only those that have Transcript IDs####
 #Extract gene titles of all the significantly differentially expressed genes
+Bac_withID_subset_resBacTran_dfSig <- 
+  resBacTran_dfSig[grep("transcript:", rownames(resBacTran_dfSig)), ]
+Bac_withID_subset_resBacTran_dfSig #193 rows
+BacTranscriptIDdf <- as.data.frame(rownames(Bac_withID_subset_resBacTran_dfSig))
+head(BacTranscriptIDdf)
+BacTranscriptIDdf= transform(BacTranscriptIDdf, 
+                          ID = colsplit(rownames(Bac_withID_subset_resBacTran_dfSig), 
+                                        split = "\\:", names = c('transcript:', 'EKC36484')))
+#this line splitsup the word transcript and the transcript name
+
+BacTranscriptIDstring <- toString(BacTranscriptIDdf[,3], sep=',')
+write(BacTranscriptIDstring, "BacTranscriptIDstring_sig", sep = ",")
+#write this to a file and then perform look up on the UniProt website
+
+#Extract gene titles from non Sig genes
+Bac_withID_subset_resBacTran_df_non_Sig <- 
+  resBacTran_df_non_Sig[grep("transcript:", rownames(resBacTran_df_non_Sig)), ]
+head(Bac_withID_subset_resBacTran_df_non_Sig)
+BacTranscriptIDdf_nonSig <- as.data.frame(rownames(Bac_withID_subset_resBacTran_df_non_Sig))
+head(BacTranscriptIDdf_nonSig)
+BacTranscriptIDdf_nonSig= transform(BacTranscriptIDdf_nonSig, 
+                                 ID = colsplit(rownames(Bac_withID_subset_resBacTran_df_non_Sig), 
+                                               split = "\\:", names = c('transcript:', 'EKC36261')))
+BacTranscriptIDstring_nonSig <- toString(BacTranscriptIDdf_nonSig[,3], sep=',')
+BacTranscriptIDstring_nonSig
+write(BacTranscriptIDstring_nonSig, "BacTranscriptIDstring_nonSig", sep = ",")
+#write this to a file and then perform look up on the UniProt website
+
+#Add quotes around this 
+#transcriptIDparen <- sapply(strsplit(transcriptIDstring, '[, ]+'), function(x) toString(dQuote(x)))
+#str(transcriptIDparen)
+
+####For situations only looking at the gene name of a few genes, can look it up locally ####
+#Load C. gigas UniProt ID information for C. gigas
+source("https://bioconductor.org/biocLite.R")
+biocLite("UniProt.ws")
+library(UniProt.ws)
+browseVignettes("UniProt.ws")
+#Taxonomy ID for C. virginica: 29159
+availableUniprotSpecies(pattern = "gigas")
+CgigasUp <- UniProt.ws(29159)
+CgigasUp
+keytypes(CgigasUp)
+columns(CgigasUp)
+keytypes(CgigasUp)
+showMethods("keys")
+#structure: res <- select(UniProtName, keys, columns, keytype)
+#select(up, keys=c("P31946","P62258"), columns=c("PDB","SEQUENCE"), keytype="ENSEMBL_GENOMES TRANSCRIPT)
+
+#Create object to look up UNIPROTKB entries and retreive other gene info
+columns <- c("ENSEMBL_PROTEIN","HGNC","SEQUENCE", "GENES","ENTREZ_GENE", "ID", "GO", "GO-ID", "KEGG")
+keytype <- "ENSEMBL_GENOMES TRANSCRIPT"
+#keys <- transcriptIDdf[,3] #set key to be  vector of all of your transcriptIDs from previous
+keys <- transcriptIDparen[1:50] #test to see how this works
+res <- select(CgigasUp, keys, columns, keytype)
+res
+
+####Otherwise, Uploaded Sig Differentially Expressed transcripts from the UniProt.ws website ####
+Bac_transcriptIDs_UniProt_SIG <- read.csv("BacTran_resBacTran_df_Sig_transcriptIDstring.csv", header=TRUE)
+#make sure to upload as csv version so that the protein names load correctly
+head(Bac_transcriptIDs_UniProt_SIG)
+
+####Extract GIMAP/IAN proteins and CgIAPs from Significantly Differentially Expressed Genes####
+#Significantly differentially Expressed IAPs
+Bac_transcriptIDs_UniProt_SIG_ProtNames <- Bac_transcriptIDs_UniProt_SIG$Protein.names
+Bac_IAPs_SIG <- grepl("IAP", Bac_transcriptIDs_UniProt_SIG$Protein.names, ignore.case = TRUE) 
+grep("TRUE", Bac_IAPs_SIG) #32...but 32 doesn't have anything 
+Bac_apoptosis_SIG <- grepl("apoptosis", Bac_transcriptIDs_UniProt_SIG$Protein.names, ignore.case = TRUE) 
+grep("TRUE", Bac_apoptosis_SIG) #126 
+Bac_inhibitor_SIG <- grepl("inhibitor", Bac_transcriptIDs_UniProt_SIG$Protein.names, ignore.case = TRUE) 
+grep("TRUE", Bac_inhibitor_SIG) #84, 126 , 84 is the BAX inhibitor
+
+Bac_IAP_SIG_info <- Bac_transcriptIDs_UniProt_SIG[126,]
+
+
+#Significant GIMAP Genes
+Bac_GTP_SIG <- grepl("GTP", Bac_transcriptIDs_UniProt_SIG$Protein.names, ignore.case = TRUE) 
+grep("TRUE", Bac_GTP_SIG) #67 134 157 167, none are GIMAP
+Bac_IMAP_SIG <- grepl("IMAP", Bac_transcriptIDs_UniProt_SIG$Protein.names, ignore.case = TRUE) 
+grep("TRUE", Bac_IMAP_SIG) #0 
+Bac_IAN_Sig <- grepl("IAN", Bac_transcriptIDs_UniProt_SIG$Protein.names, ignore.case = TRUE) 
+grep("TRUE", Bac_IAN_Sig) #0 TRUE
+Bac_immune_Sig <- grepl("immune", Bac_transcriptIDs_UniProt_SIG$Protein.names, ignore.case = TRUE) 
+grep("TRUE", Bac_immune_Sig) #0 TRUE
+Bac_AIG_Sig <- grepl("AIG", Bac_transcriptIDs_UniProt_SIG$Protein.names, ignore.case = TRUE) 
+grep("TRUE", Bac_AIG_Sig) #0 TRUE
+#NO SIG GIMAPS HERE
+
+#Uploaded NON Sig Differentially Expressed transcripts from the UniProt.ws website ####
+Bac_transcriptIDs_UniProt_non_Sig <- read.csv("BacTran_resBacTran_df_non_Sig_transcript_ID_string.csv", header=TRUE)
+#make sure to upload as csv version so that the protein names load correctly
+Bac_transcriptIDs_UniProt_non_Sig
+
+####Extract GIMAP and IAP genes from NON significant genes, for comparison ####
+#Expressed IAPs non sig
+#use grepl to find text strings 
+Bac_transcriptIDs_UniProt_non_Sig_ProtNames <- Bac_transcriptIDs_UniProt_non_Sig$Protein.names
+Bac_IAPs_non_Sig <- grepl("IAP", Bac_transcriptIDs_UniProt_non_Sig$Protein.names, ignore.case = TRUE) 
+grep("TRUE", Bac_IAPs_non_Sig) 
+#22  367 2484 2528 2707 4848 4850
+Bac_IAP_non_Sig_info <- Bac_transcriptIDs_UniProt_non_Sig[c(22,  367, 2484, 2528, 2707, 4848, 4850),]
+
+Bac_apoptosis_non_Sig <- grepl("apoptosis", Bac_transcriptIDs_UniProt_non_Sig$Protein.names, ignore.case = TRUE) 
+grep("TRUE", Bac_apoptosis_non_Sig) #270 1887 1950 2099 2177 2868 3292 3393 3650 4324 4655
+Bac_apoptosis_non_Sig_info <- Bac_transcriptIDs_UniProt_non_Sig[c(270,1887, 1950, 2099, 2177, 2868, 3292, 3393, 3650, 4324, 4655),]
+#Actual Apoptosis Inhibitors: 1887, 1950, 2099, 2177, 2868, 3292, 3650 
+Bac_inhibitor_non_Sig <- grepl("inhibitor", Bac_transcriptIDs_UniProt_non_Sig$Protein.names, ignore.case = TRUE) 
+grep("TRUE", Bac_inhibitor_non_Sig) #190  372  568  656  816 1029 1134 1246 1600 1813 1887 1950 2099 2177 2307 2519 2868 3154 3174
+# 3210 3292 3358 3378 3650 3694 3705 3915 3921 4057 4067 4348 4487 4570 4924 5341
+Bac_inhibitor_non_Sig_info <- Bac_transcriptIDs_UniProt_non_Sig[c(190,  372,  568,  656,  816, 1029, 1134, 
+1246, 1600, 1813, 1887, 1950, 2099, 2177, 2307, 2519, 2868, 3154, 3174, 3210, 3292, 3358, 3378, 3650, 3694,
+3705, 3915, 3921 ,4057, 4067, 4348, 4487, 4570, 4924, 5341),] 
+#Actual Apoptosis Inhibitors: 1887, 1950, 2099, 2177, 2868, 3292, 3650, same as above!
+
+Bac_IAPs_non_sig_info <- Bac_transcriptIDs_UniProt_non_Sig[c(22,  367, 2484, 2528, 2707, 4848, 4850,
+                                                             1887, 1950, 2099, 2177, 2868, 3292, 3650),]
+
+#Expressed GIMAP Genes, non significant
+Bac_GTP_non_Sig <- grepl("GTP", Bac_transcriptIDs_UniProt_non_Sig$Protein.names, ignore.case = TRUE) 
+grep("TRUE", Bac_GTP_non_Sig)
+#141  310  318  600  841  924  939  985 1009 1325 1338 1535 1596 1626 1685 1702 1704 1879 2020
+#2131 2377 2429 2669 2805 3132 3221 3461 3580 4049 4169 4197 4199 4273 4353 4383 4599 4710 4767
+#4816 4969 5009 5023 5201 5474
+Bac_GTP_non_Sig_info <- Bac_transcriptIDs_UniProt_non_Sig[c(141,  310,  318,  600,  841,  924 , 939,  985, 1009, 1325 ,
+                                                            1338, 1535, 1596, 1626, 1685, 1702, 1704, 1879, 2020,
+                                                            2131, 2377, 2429, 2669, 2805, 3132, 3221, 3461, 3580,
+                                                            4049, 4169, 4197, 4199, 4273, 4353, 4383, 4599, 4710, 4767,
+                                                            4816, 4969, 5009, 5023, 5201, 5474),]
+#Actual GIMAPS: 141, 318, 1338, 1685, 1879, 3132, 4199, 4969, 5474
+Bac_IAN_non_Sig <- grepl("IAN", Bac_transcriptIDs_UniProt_non_Sig$Protein.names) 
+grep("TRUE", Bac_IAN_non_Sig) #0
+Bac_immune_non_Sig <- grepl("immune", Bac_transcriptIDs_UniProt_non_Sig$Protein.names, ignore.case = TRUE) 
+grep("TRUE", Bac_immune_non_Sig) #0 TRUE
+Bac_AIG_non_Sig <- grepl("AIG", Bac_transcriptIDs_UniProt_non_Sig$Protein.names, ignore.case = TRUE) 
+grep("TRUE", Bac_AIG_non_Sig) #0 TRUE
+Bac_IMAP_non_sig <- grepl("IMAP",Bac_transcriptIDs_UniProt_non_Sig$Protein.names, ignore.case = TRUE)
+grep("TRUE", Bac_IMAP_non_sig)
+#GIMAPS: 141  318 1338 1685 1879 3132 4199 4969 5474
+
+Bac_GIMAP_non_sig_info <- Bac_transcriptIDs_UniProt_non_Sig[c(141,  318, 1338, 1685, 1879, 3132, 4199, 4969, 5474),]
+
+
+####Link GIMAP and IAN genes, significant and non significant, with Expression Values####
+#Sig IAPS
+subset_Bac_IAPs_SIG_info <- Bac_IAP_SIG_info[,c(4,8,9)]
+Bac_IAP_SIG_info_resBacTran_dfSig <- grep("EKC41180", rownames(resBacTran_dfSig), ignore.case = TRUE) # 848
+Bac_IAP_SIG_info_resBacTran_dfSig <- resBacTran_dfSig[848,] 
+Bac_IAP_SIG_combined_FULL <- cbind(Bac_IAP_SIG_info_resBacTran_dfSig,subset_Bac_IAPs_SIG_info)
+
+#Sig GIMAPs
+  #NO SIG GIMAPs
+
+#Non Sig IAP
+Bac_IAPs_non_sig_info$Ensembl_Genome_Transcript 
+#EKC24074 EKC38724 EKC42441 EKC25493 EKC42449 EKC18369 EKC20239 EKC17690 EKC34022 EKC26454 EKC42442
+#EKC18368 EKC41181 EKC26950
+subset_Bac_IAPs_non_sig_info <- Bac_IAPs_non_sig_info[,c(4,8,9)]
+Bac_IAP_non_sig_info_resBacTran_df <- grep("EKC24074", rownames(resBacTran_df_non_Sig), ignore.case = TRUE) #48
+Bac_IAP_non_sig_info_resBacTran_df <- resBacTran_df_non_Sig[48,]
+Bac_IAP_non_sig_info_resBacTran_df2 <- grep("EKC38724", rownames(resBacTran_df_non_Sig), ignore.case = TRUE) #2294
+Bac_IAP_non_sig_info_resBacTran_df2 <- resBacTran_df_non_Sig[2294,]
+Bac_IAP_non_sig_info_resBacTran_df3 <- grep("EKC42441", rownames(resBacTran_df_non_Sig), ignore.case = TRUE) #14607
+Bac_IAP_non_sig_info_resBacTran_df3 <- resBacTran_df_non_Sig[14607,]
+Bac_IAP_non_sig_info_resBacTran_df4 <- grep("EKC25493", rownames(resBacTran_df_non_Sig), ignore.case = TRUE) #14856
+Bac_IAP_non_sig_info_resBacTran_df4 <- resBacTran_df_non_Sig[14856,]
+Bac_IAP_non_sig_info_resBacTran_df5 <- grep("EKC42449", rownames(resBacTran_df_non_Sig), ignore.case = TRUE) #15901
+Bac_IAP_non_sig_info_resBacTran_df5 <- resBacTran_df_non_Sig[15901,]
+Bac_IAP_non_sig_info_resBacTran_df6 <- grep("EKC18369", rownames(resBacTran_df_non_Sig), ignore.case = TRUE) #28537
+Bac_IAP_non_sig_info_resBacTran_df6 <- resBacTran_df_non_Sig[28537,]
+Bac_IAP_non_sig_info_resBacTran_df7 <- grep("EKC20239", rownames(resBacTran_df_non_Sig), ignore.case = TRUE) #28555
+Bac_IAP_non_sig_info_resBacTran_df7 <- resBacTran_df_non_Sig[28555,]
+Bac_IAP_non_sig_info_resBacTran_df8 <- grep("EKC17690", rownames(resBacTran_df_non_Sig), ignore.case = TRUE) #11190
+Bac_IAP_non_sig_info_resBacTran_df8 <- resBacTran_df_non_Sig[11190,]
+Bac_IAP_non_sig_info_resBacTran_df9 <- grep("EKC34022", rownames(resBacTran_df_non_Sig), ignore.case = TRUE) #11641
+Bac_IAP_non_sig_info_resBacTran_df9 <- resBacTran_df_non_Sig[11641,]
+Bac_IAP_non_sig_info_resBacTran_df10 <- grep("EKC26454", rownames(resBacTran_df_non_Sig), ignore.case = TRUE) #12597
+Bac_IAP_non_sig_info_resBacTran_df10 <- resBacTran_df_non_Sig[12597,]
+Bac_IAP_non_sig_info_resBacTran_df11 <- grep("EKC42442", rownames(resBacTran_df_non_Sig), ignore.case = TRUE) #12949
+Bac_IAP_non_sig_info_resBacTran_df11 <- resBacTran_df_non_Sig[12949,]
+Bac_IAP_non_sig_info_resBacTran_df12 <- grep("EKC18368", rownames(resBacTran_df_non_Sig), ignore.case = TRUE) #16861
+Bac_IAP_non_sig_info_resBacTran_df12 <- resBacTran_df_non_Sig[16861,]
+Bac_IAP_non_sig_info_resBacTran_df13 <- grep("EKC41181", rownames(resBacTran_df_non_Sig), ignore.case = TRUE) #19258
+Bac_IAP_non_sig_info_resBacTran_df13 <- resBacTran_df_non_Sig[19258,]
+Bac_IAP_non_sig_info_resBacTran_df14 <- grep("EKC26950", rownames(resBacTran_df_non_Sig), ignore.case = TRUE) #21340
+Bac_IAP_non_sig_info_resBacTran_df14 <- resBacTran_df_non_Sig[21340,]
+Bac_IAP_non_sig_combined_EXP <- rbind(Bac_IAP_non_sig_info_resBacTran_df, Bac_IAP_non_sig_info_resBacTran_df2,
+                                      Bac_IAP_non_sig_info_resBacTran_df3, Bac_IAP_non_sig_info_resBacTran_df4,
+                                      Bac_IAP_non_sig_info_resBacTran_df5,Bac_IAP_non_sig_info_resBacTran_df6,
+                                      Bac_IAP_non_sig_info_resBacTran_df7,Bac_IAP_non_sig_info_resBacTran_df8,
+                                      Bac_IAP_non_sig_info_resBacTran_df9, Bac_IAP_non_sig_info_resBacTran_df10,
+                                      Bac_IAP_non_sig_info_resBacTran_df11,Bac_IAP_non_sig_info_resBacTran_df12,
+                                      Bac_IAP_non_sig_info_resBacTran_df13,Bac_IAP_non_sig_info_resBacTran_df14)
+Bac_IAP_non_sig_combined_FULL <- cbind(Bac_IAP_non_sig_combined_EXP,subset_Bac_IAPs_non_sig_info)
+
+#Non Sig GIMAP
+Bac_GIMAP_non_sig_info$Ensembl_Genome_Transcript
+#EKC40820 EKC41832 EKC41613 EKC35292 EKC36405 EKC30713 EKC40465 EKC42724 EKC38639
+subset_Bac_GIMAP_non_sig_info <- Bac_GIMAP_non_sig_info[,c(4,8,9)]
+Bac_GIMAP_non_sig_info_resBacTran_df <- grep("EKC40820", rownames(resBacTran_df_non_Sig), ignore.case = TRUE) #825
+Bac_GIMAP_non_sig_info_resBacTran_df <- resBacTran_df_non_Sig[825,]
+Bac_GIMAP_non_sig_info_resBacTran_df2 <- grep("EKC41832", rownames(resBacTran_df_non_Sig), ignore.case = TRUE) 
+Bac_GIMAP_non_sig_info_resBacTran_df2 <- resBacTran_df_non_Sig[1896,]
+Bac_GIMAP_non_sig_info_resBacTran_df3 <- grep("EKC41613", rownames(resBacTran_df_non_Sig), ignore.case = TRUE)
+Bac_GIMAP_non_sig_info_resBacTran_df3 <- resBacTran_df_non_Sig[7998,]
+Bac_GIMAP_non_sig_info_resBacTran_df4 <- grep("EKC35292", rownames(resBacTran_df_non_Sig), ignore.case = TRUE) 
+Bac_GIMAP_non_sig_info_resBacTran_df4 <- resBacTran_df_non_Sig[10221,]
+Bac_GIMAP_non_sig_info_resBacTran_df5 <- grep("EKC36405", rownames(resBacTran_df_non_Sig), ignore.case = TRUE) 
+Bac_GIMAP_non_sig_info_resBacTran_df5 <- resBacTran_df_non_Sig[11154,]
+Bac_GIMAP_non_sig_info_resBacTran_df6 <- grep("EKC30713", rownames(resBacTran_df_non_Sig), ignore.case = TRUE) 
+Bac_GIMAP_non_sig_info_resBacTran_df6 <- resBacTran_df_non_Sig[18385,]
+Bac_GIMAP_non_sig_info_resBacTran_df7 <- grep("EKC40465", rownames(resBacTran_df_non_Sig), ignore.case = TRUE) 
+Bac_GIMAP_non_sig_info_resBacTran_df7 <- resBacTran_df_non_Sig[24720,]
+Bac_GIMAP_non_sig_info_resBacTran_df8 <- grep("EKC42724", rownames(resBacTran_df_non_Sig), ignore.case = TRUE) 
+Bac_GIMAP_non_sig_info_resBacTran_df8 <- resBacTran_df_non_Sig[29415,]
+Bac_GIMAP_non_sig_info_resBacTran_df9 <- grep("EKC38639", rownames(resBacTran_df_non_Sig), ignore.case = TRUE) 
+Bac_GIMAP_non_sig_info_resBacTran_df9 <- resBacTran_df_non_Sig[32500,]
+
+Bac_GIMAP_non_sig_combined_EXP <- rbind(Bac_GIMAP_non_sig_info_resBacTran_df, Bac_GIMAP_non_sig_info_resBacTran_df2,
+                                        Bac_GIMAP_non_sig_info_resBacTran_df3, Bac_GIMAP_non_sig_info_resBacTran_df4,
+                                        Bac_GIMAP_non_sig_info_resBacTran_df5, Bac_GIMAP_non_sig_info_resBacTran_df6,
+                                        Bac_GIMAP_non_sig_info_resBacTran_df7,Bac_GIMAP_non_sig_info_resBacTran_df8,
+                                        Bac_GIMAP_non_sig_info_resBacTran_df9)
+
+Bac_GIMAP_non_sig_combined_FULL <- cbind(Bac_GIMAP_non_sig_combined_EXP,subset_Bac_GIMAP_non_sig_info)
+
+####Combine all Bac IAP and GIMAP data #####
+#to rbind the names of all the columns need to be the same, change first column name
+#Fix column name error for column 9 in SIG set
+colnames(Bac_IAP_SIG_combined_FULL)[9] <- "Ensembl_Genome_Transcript"
+Bac_GIMAP_IAP_combined_FULL <- rbind(Bac_IAP_SIG_combined_FULL, Bac_IAP_non_sig_combined_FULL,
+                                     Bac_GIMAP_non_sig_combined_FULL)
 
 ####Bacterial Challenge Gene Set Enrichment Analysis ####
 #Matching the background set
@@ -487,7 +803,15 @@ write.csv( as.data.frame(resBacTran_05_dfSig), file="resBacTran_05_dfSig.csv")
 #Bac_BaseMean <- as.matrix(resoshv1_6_df[, "baseMean", drop=F])
 #Bac_backG <- genefinder(oshv1_6_BaseMean, anSig$ensembl_gene_id, 10, method= "manhattan")
 
-#### Look at Differential Expression of Transcript Isoforms using Transcript Count Matrix ####
+
+#### COMPILE GIMAP AND IAP DATA FROM BOTH OSHV1 AND BAC TRIAL ####
+Bac_GIMAP_IAP_combined_FULL["Challenge"] <- "Bacteria"
+#Add column indicating trial
+oshv1_GIMAP_IAP_combined_FULL["Challenge"] <- "OsHV1"
+colnames(oshv1_GIMAP_IAP_combined_FULL)
+colnames(Bac_GIMAP_IAP_combined_FULL)
+
+COMBINED_GIMAP_IAP <- rbind(Bac_GIMAP_IAP_combined_FULL, oshv1_GIMAP_IAP_combined_FULL)
 
 #references: 
 #https://github.com/sr320/LabDocs/tree/master/code/DESeq
