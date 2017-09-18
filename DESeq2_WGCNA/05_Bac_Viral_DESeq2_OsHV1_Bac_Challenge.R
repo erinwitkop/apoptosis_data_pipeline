@@ -23,6 +23,7 @@ library(reshape)
 source("http://bioconductor.org/biocLite.R")
 biocLite("biomaRt")
 library(biomaRt)
+library(ggplot2)
 # Construct Bac_Viral_PHENO_DATA.csv that contains SRA run information, such as which contrast, tissue, etc.
 
 ####DEG Analysis with TRANSCRIPT Count Matrix ####
@@ -812,6 +813,23 @@ colnames(oshv1_GIMAP_IAP_combined_FULL)
 colnames(Bac_GIMAP_IAP_combined_FULL)
 
 COMBINED_GIMAP_IAP <- rbind(Bac_GIMAP_IAP_combined_FULL, oshv1_GIMAP_IAP_combined_FULL)
+
+####Plotting the combined Significance values ####
+COMBINED_GIMAP_IAP_cols <- COMBINED_GIMAP_IAP[,c(2,7,10)]
+
+#Download data to simplify Protein Names for Viewing 
+write.csv( as.data.frame(COMBINED_GIMAP_IAP_cols), file="COMBINED_GIMAP_IAP_cols.csv")
+COMBINED_GIMAP_IAP_cols <- read.csv("COMBINED_GIMAP_IAP_cols_edited.csv", header = TRUE)
+COMBINED_GIMAP_IAP_cols_Bac <- COMBINED_GIMAP_IAP_cols[1:24,]
+COMBINED_GIMAP_IAP_cols_Oshv1 <- COMBINED_GIMAP_IAP_cols[25:66,] 
+
+#Plot the combined data set altogether for comparison
+plot(log2FoldChange~factor(Protein.names), COMBINED_GIMAP_IAP_cols, las=2,
+     xlab="GIMAP and IAP Transcripts", main="Differentially Expressed GIMAP and IAP Transcripts")
+
+#Plot GIMAP between OsHV1 and Bac
+
+#Plot IAP between OsHV1 and Bac
 
 #references: 
 #https://github.com/sr320/LabDocs/tree/master/code/DESeq
