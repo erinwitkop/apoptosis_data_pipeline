@@ -717,6 +717,7 @@ Bac_IAP_SIG_info_resBacTran_dfSig <- grep("EKC41180", rownames(resBacTran_dfSig)
 Bac_IAP_SIG_info_resBacTran_dfSig <- resBacTran_dfSig[848,] 
 Bac_IAP_SIG_combined_FULL <- cbind(Bac_IAP_SIG_info_resBacTran_dfSig,subset_Bac_IAPs_SIG_info)
 Bac_IAP_SIG_combined_FULL["Significance"] <- "Significant" #add column about significance
+#only 1 sig IAP
 
 #Sig GIMAPs
   #NO SIG GIMAPs
@@ -835,6 +836,8 @@ colnames(COMBINED_GIMAP_IAP_cols_Bac)
 
 cbbPalette <- c("#000000", "#E69F00", "#56B4E9", "#009E73", "#F0E442", "#0072B2", "#D55E00", "#CC79A7")
 
+#Pot GIMAP and IAP genes for the Bacterial Challenge Data
+label.Bac.df <- data.frame(Transcript= c("transcript:EKC41180"), log2FoldChange=c(-23.0))
 COMBINED_GIMAP_IAP_BAC_PLOT <- ggplot(COMBINED_GIMAP_IAP_cols_Bac) + 
   geom_col(aes(x=Transcript, y=log2FoldChange, fill=as.factor(Type))) + 
   theme(axis.text.x = element_text(angle = 45, hjust = 1)) + 
@@ -843,7 +846,7 @@ COMBINED_GIMAP_IAP_BAC_PLOT <- ggplot(COMBINED_GIMAP_IAP_cols_Bac) +
   scale_fill_manual("Gene Family", values=(c("GIMAP"="#56B4E9", "IAP"="#009E73"))) +
   theme(plot.title = element_text(size=10)) + theme(plot.title = element_text(hjust = 0.5))
 
-COMBINED_GIMAP_IAP_BAC_PLOT + geom_hline(yintercept=0) +
+COMBINED_GIMAP_IAP_BAC_PLOT2 <- COMBINED_GIMAP_IAP_BAC_PLOT + geom_text(data=label.Bac.df, aes(x=Transcript, y=log2FoldChange), label = c("*")) + geom_hline(yintercept=0) +
   theme(axis.line = element_line(colour = "black", size = 0.5, linetype = "solid")) +
   scale_x_discrete(name="Transcript Names (ENSEMBL Transcript ID)", limits=c("transcript:EKC24074","transcript:EKC38724","transcript:EKC42441", "transcript:EKC25493", "transcript:EKC42449", "transcript:EKC18369", "transcript:EKC20239", "transcript:EKC17690",
   "transcript:EKC34022", "transcript:EKC26454", "transcript:EKC42442", "transcript:EKC18368", "transcript:EKC41181", "transcript:EKC26950",
@@ -901,13 +904,13 @@ COMBINED_GIMAP_IAP_OsHV1_PLOT_2 <- COMBINED_GIMAP_IAP_OsHV1_PLOT + geom_text(dat
 "transcript:EKC352921"="GIMAP 4 (EKC352921)", "transcript:EKC29604"="GIMAP 8 (EKC29604)",
 "transcript:EKC416131"="GIMAP 4 (EKC416131)","transcript:EKC427241"="GIMAP 7 (EKC427241)","transcript:EKC386391"="GIMAP 4 (EKC386391)"))
   
- 
-
-#COMBINED_GIMAP_IAP_OsHV1_PLOT + COMBINED_GIMAP_IAP_OsHV1_PLOT_2 + geom_text(data=label.oshv1Sig.df, x=Transcript, y=log2FoldChange, label = "***")
-
-  
 #Plot IAP between OsHV1 and Bac
-IAP_OsHV1_Bac <-COMBINED_GIMAP_IAP_cols %>% filter(Type == "IAP")
+IAP_Bac <- COMBINED_GIMAP_IAP_cols_Bac %>% filter(Type== "IAP")
+IAP_OsHV1 <- COMBINED_GIMAP_IAP_cols_Oshv1 %>% filter(Type=="IAP")
+IAP_OsHV1_Bac <- rbind(IAP_Bac,IAP_OsHV1)
+label.IAP.df <- data.frame(Transcript= c("transcript:EKC240741","transcript:EKC424491", "transcript:EKC20774",
+                                              "transcript:EKC418321", "transcript:EKC307131"), log2FoldChange=c(-3.0, -3.0, -24.0, -4.0, -3.0))
+
 IAP_OsHV1_Bac_PLOT <- ggplot(IAP_OsHV1_Bac) + 
   geom_col(aes(x=Transcript, y=log2FoldChange, fill=as.factor(Type))) + 
   theme(axis.text.x = element_text(angle = 45, hjust = 1)) + 
