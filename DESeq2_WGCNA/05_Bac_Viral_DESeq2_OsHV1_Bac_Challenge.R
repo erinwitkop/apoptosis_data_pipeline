@@ -318,6 +318,7 @@ oshv1_IAP_SIG_info_resoshv1Tran_dfSig3 <- grep("EKC20774", rownames(resoshv1Tran
 oshv1_IAP_SIG_info_resoshv1Tran_dfSig3 <- resoshv1Tran_dfSig[926,]
 oshv1_IAP_SIG_combined_EXP <- rbind(oshv1_IAP_SIG_info_resoshv1Tran_dfSig, oshv1_IAP_SIG_info_resoshv1Tran_dfSig2, oshv1_IAP_SIG_info_resoshv1Tran_dfSig3)
 oshv1_IAP_SIG_combined_FULL <- cbind(oshv1_IAP_SIG_combined_EXP,subset_oshv1_IAPs_SIG_info)
+oshv1_IAP_SIG_combined_FULL["Significance"] <- "Significant"
 
 #Sig GIMAPs
 subset_oshv1_GIMAP_SIG_info <- oshv1_GIMAP_Sig_info[,c(4,8,9)]
@@ -328,7 +329,7 @@ oshv1_GIMAP_SIG_info_resoshv1Tran_dfSig2 <- grep("EKC30713", rownames(resoshv1Tr
 oshv1_GIMAP_SIG_info_resoshv1Tran_dfSig2 <- resoshv1Tran_dfSig[170,]
 oshv1_GIMAP_SIG_combined_EXP <- rbind(oshv1_GIMAP_SIG_info_resoshv1Tran_dfSig, oshv1_GIMAP_SIG_info_resoshv1Tran_dfSig2)
 oshv1_GIMAP_SIG_combined_FULL <- cbind(oshv1_GIMAP_SIG_combined_EXP, subset_oshv1_GIMAP_SIG_info)
-
+oshv1_GIMAP_SIG_combined_FULL["Significance"] <- "Significant"
 
 #Non Sig IAP
 oshv1_IAPs_non_sig_info$Ensembl_Genome_Transcript 
@@ -403,7 +404,7 @@ oshv1_IAP_non_sig_combined_EXP <- rbind(oshv1_IAP_non_sig_info_resoshv1Tran_df2,
                                         oshv1_IAP_non_sig_info_resoshv1Tran_df23, oshv1_IAP_non_sig_info_resoshv1Tran_df24,
                                         oshv1_IAP_non_sig_info_resoshv1Tran_df25)
 oshv1_IAP_non_sig_combined_FULL <- cbind(oshv1_IAP_non_sig_combined_EXP, subset_oshv1_IAPs_non_sig_info)
-
+oshv1_IAP_non_sig_combined_FULL["Significance"] <- "Non_significant"
 
 #Non Sig GIMAP
 oshv1_GIMAP_non_sig_info$Ensembl_Genome_Transcript
@@ -445,6 +446,7 @@ oshv1_GIMAP_non_sig_combined_EXP <- rbind(oshv1_GIMAP_non_sig_info_resoshv1Tran_
                                           oshv1_GIMAP_non_sig_info_resoshv1Tran_df13)
 
 oshv1_GIMAP_non_sig_combined_FULL <- cbind(oshv1_GIMAP_non_sig_combined_EXP, subset_GIMAP_non_sig_info)
+oshv1_GIMAP_non_sig_combined_FULL["Significance"] <- "Non significant"
 
 ####Combine all Oshv1 IAP and GIMAP data #####
 #to rbind the names of all the columns need to be the same, change first column name
@@ -714,6 +716,7 @@ subset_Bac_IAPs_SIG_info <- Bac_IAP_SIG_info[,c(4,8,9)]
 Bac_IAP_SIG_info_resBacTran_dfSig <- grep("EKC41180", rownames(resBacTran_dfSig), ignore.case = TRUE) # 848
 Bac_IAP_SIG_info_resBacTran_dfSig <- resBacTran_dfSig[848,] 
 Bac_IAP_SIG_combined_FULL <- cbind(Bac_IAP_SIG_info_resBacTran_dfSig,subset_Bac_IAPs_SIG_info)
+Bac_IAP_SIG_combined_FULL["Significance"] <- "Significant" #add column about significance
 
 #Sig GIMAPs
   #NO SIG GIMAPs
@@ -759,6 +762,7 @@ Bac_IAP_non_sig_combined_EXP <- rbind(Bac_IAP_non_sig_info_resBacTran_df, Bac_IA
                                       Bac_IAP_non_sig_info_resBacTran_df11,Bac_IAP_non_sig_info_resBacTran_df12,
                                       Bac_IAP_non_sig_info_resBacTran_df13,Bac_IAP_non_sig_info_resBacTran_df14)
 Bac_IAP_non_sig_combined_FULL <- cbind(Bac_IAP_non_sig_combined_EXP,subset_Bac_IAPs_non_sig_info)
+Bac_IAP_non_sig_combined_FULL["Significance"] <- "Non_significant" # add column about Significance
 
 #Non Sig GIMAP
 Bac_GIMAP_non_sig_info$Ensembl_Genome_Transcript
@@ -790,6 +794,7 @@ Bac_GIMAP_non_sig_combined_EXP <- rbind(Bac_GIMAP_non_sig_info_resBacTran_df, Ba
                                         Bac_GIMAP_non_sig_info_resBacTran_df9)
 
 Bac_GIMAP_non_sig_combined_FULL <- cbind(Bac_GIMAP_non_sig_combined_EXP,subset_Bac_GIMAP_non_sig_info)
+Bac_GIMAP_non_sig_combined_FULL["Significance"] <- "Non_significant" #add column about significance
 
 ####Combine all Bac IAP and GIMAP data #####
 #to rbind the names of all the columns need to be the same, change first column name
@@ -815,10 +820,11 @@ colnames(Bac_GIMAP_IAP_combined_FULL)
 COMBINED_GIMAP_IAP <- rbind(Bac_GIMAP_IAP_combined_FULL, oshv1_GIMAP_IAP_combined_FULL)
 
 ####Plotting the combined Significance values ####
-COMBINED_GIMAP_IAP_cols <- COMBINED_GIMAP_IAP[,c(2,7,10)]
+COMBINED_GIMAP_IAP_cols <- COMBINED_GIMAP_IAP[,c(2,6,7,10,11)]
 
 #Download data to simplify Protein Names for Viewing 
 write.csv( as.data.frame(COMBINED_GIMAP_IAP_cols), file="COMBINED_GIMAP_IAP_cols.csv")
+#Added rows for Gene Type, and edited rows for protein 
 COMBINED_GIMAP_IAP_cols <- read.csv("COMBINED_GIMAP_IAP_cols_edited.csv", header = TRUE)
 COMBINED_GIMAP_IAP_cols_Bac <- read.csv("COMBINED_GIMAP_IAP_cols_Bac.csv", header = TRUE)
 COMBINED_GIMAP_IAP_cols_Oshv1 <- read.csv("COMBINED_GIMAP_IAP_cols_OsHV1.csv", header = TRUE)
@@ -834,7 +840,8 @@ COMBINED_GIMAP_IAP_BAC_PLOT <- ggplot(COMBINED_GIMAP_IAP_cols_Bac) +
   theme(axis.text.x = element_text(angle = 45, hjust = 1)) + 
   scale_y_continuous(name ="log2 Fold Change", breaks = scales::pretty_breaks(n = 20)) + 
   ggtitle("GIMAP and IAP Transcript Differential Expression under Bacterial Challenge") + 
-  scale_fill_manual("Gene Family", values=(c("GIMAP"="red", "IAP"="blue")))
+  scale_fill_manual("Gene Family", values=(c("GIMAP"="#56B4E9", "IAP"="#009E73"))) +
+  theme(plot.title = element_text(size=10)) + theme(plot.title = element_text(hjust = 0.5))
 
 COMBINED_GIMAP_IAP_BAC_PLOT + geom_hline(yintercept=0) +
   theme(axis.line = element_line(colour = "black", size = 0.5, linetype = "solid")) +
@@ -851,16 +858,70 @@ COMBINED_GIMAP_IAP_BAC_PLOT + geom_hline(yintercept=0) +
  "transcript:EKC30713"="GIMAP 7 (EKC30713)", "transcript:EKC40465"="GIMAP 4 (EKC40465)","transcript:EKC42724"="GIMAP 7 (EKC42724)",
  "transcript:EKC38639"="GIMAP 4 (EKC38639)"))
 
+#Plot GIMAP and IAP from OsHV1
+#Create vector for the significance values! 
+label.oshv1Sig.df <- data.frame(Transcript= c("transcript:EKC240741","transcript:EKC424491", "transcript:EKC20774",
+   "transcript:EKC418321", "transcript:EKC307131"), log2FoldChange=c(-3.0, -3.0, -24.0, -4.0, -3.0))
 
-COMBINED_GIMAP_IAP_BAC_PLOT + 
-  scale_x_discrete(limits=c("transcript:EKC24074","y"), labels= c("x"=)
+COMBINED_GIMAP_IAP_OsHV1_PLOT <- ggplot(COMBINED_GIMAP_IAP_cols_Oshv1) + 
+  geom_col(aes(x=Transcript, y=log2FoldChange, fill=as.factor(Type))) +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) + 
+  scale_y_continuous(name ="log2 Fold Change", breaks = scales::pretty_breaks(n = 20)) + 
+  ggtitle("GIMAP and IAP Transcript Differential Expression under OsHV1 Challenge") + 
+  scale_fill_manual("Gene Family", values=(c("GIMAP"="#56B4E9", "IAP"="#009E73"))) +
+  theme(plot.title = element_text(size=10)) + theme(plot.title = element_text(hjust = 0.5))
 
-#plot(log2FoldChange~factor(Protein.names), COMBINED_GIMAP_IAP_cols, las=2,
-     xlab="GIMAP and IAP Transcripts", main="Differentially Expressed GIMAP and IAP Transcripts")
+COMBINED_GIMAP_IAP_OsHV1_PLOT_2 <- COMBINED_GIMAP_IAP_OsHV1_PLOT + geom_text(data=label.oshv1Sig.df, aes(x=Transcript, y=log2FoldChange), label = c("*")) + geom_hline(yintercept=0) +
+  theme(axis.line = element_line(colour = "black", size = 0.5, linetype = "solid")) +
+  scale_x_discrete(name="Transcript Names (ENSEMBL Transcript ID)", 
+  limits=c("transcript:EKC240741", "transcript:EKC424491", "transcript:EKC42443","transcript:EKC32934",
+  "transcript:EKC387241","transcript:EKC34718","transcript:EKC30031","transcript:EKC24792","transcript:EKC20773",
+  "transcript:EKC183691", "transcript:EKC202391", "transcript:EKC424411", "transcript:EKC37539","transcript:EKC254931",
+  "transcript:EKC183681","transcript:EKC25955","transcript:EKC411801","transcript:EKC411811","transcript:EKC33184",
+  "transcript:EKC29824","transcript:EKC176901","transcript:EKC34720","transcript:EKC340221","transcript:EKC264541",
+  "transcript:EKC269501","transcript:EKC424421","transcript:EKC20774","transcript:EKC418321","transcript:EKC307131",
+  "transcript:EKC39736","transcript:EKC404651","transcript:EKC408201", "transcript:EKC32489","transcript:EKC364051",
+  "transcript:EKC39748", "transcript:EKC27363","transcript:EKC31739","transcript:EKC352921", "transcript:EKC29604",
+  "transcript:EKC416131","transcript:EKC427241","transcript:EKC386391"),
+  labels=c("transcript:EKC240741"="BIR-containing protein 2 (EKC240741)", "transcript:EKC424491"="BIR-containing protein 7-A (EKC424491)",
+  "transcript:EKC42443"="BIR-containing protein 3 (Fragment) (EKC42443)","transcript:EKC32934"="BIR-containing protein 7-B (EKC32934)",
+ "transcript:EKC387241"="BIR-containing protein 7 (EKC387241)","transcript:EKC34718"="BIR-containing protein 7-B (EKC34718)","transcript:EKC30031"="BIR-containing protein 3 (EKC30031)",
+ "transcript:EKC24792"="BIR-containing protein 5 (EKC24792)","transcript:EKC20773"="BIR-containing protein 3 (Fragment) (EKC20773)",
+"transcript:EKC183691"="BIR-containing protein 3 (EKC183691)", "transcript:EKC202391"="BIR-containing protein 6 (EKC202391)", "transcript:EKC424411"="BIR-containing protein 7-B (EKC424411)", 
+"transcript:EKC37539"="BIR-containing protein 2 (EKC37539)","transcript:EKC254931"="BIR-containing protein 7-B (EKC254931)",
+ "transcript:EKC183681"="IAP 2 (EKC183681)","transcript:EKC25955"="TP53-regulated IAP 1 (EKC25955)","transcript:EKC411801"="IAP 2 (EKC411801)",
+"transcript:EKC411811"="IAP 1 (EKC411811)","transcript:EKC33184"="IAP 3 (EKC33184)",
+  "transcript:EKC29824"="IAP 1 (EKC29824)","transcript:EKC176901"="Putative IAP (EKC176901)",
+"transcript:EKC34720"="Putative IAP (EKC34720)","transcript:EKC340221"="IAP 1 (EKC340221)","transcript:EKC264541"="Putative IAP ORF42 (EKC264541)",
+"transcript:EKC269501"="Putative IAP (EKC269501)","transcript:EKC424421"="IAP 2 (EKC424421)","transcript:EKC20774"="IAP (EKC20774)",
+"transcript:EKC418321"="GIMAP 4 (EKC418321)","transcript:EKC307131"="GIMAP 7 (EKC307131)",
+ "transcript:EKC39736"="GIMAP 4 (EKC39736)","transcript:EKC404651"="GIMAP 4 (EKC404651)","transcript:EKC408201"="GIMAP 4 (EKC408201)", 
+"transcript:EKC32489"="GIMAP 4 (EKC32489)","transcript:EKC364051"="GIMAP 4 (EKC364051)",
+"transcript:EKC39748"="GIMAP 4 (EKC39748)", "transcript:EKC27363"="GIMAP 4 (EKC27363)","transcript:EKC31739"="GIMAP 1 (EKC31739)",
+"transcript:EKC352921"="GIMAP 4 (EKC352921)", "transcript:EKC29604"="GIMAP 8 (EKC29604)",
+"transcript:EKC416131"="GIMAP 4 (EKC416131)","transcript:EKC427241"="GIMAP 7 (EKC427241)","transcript:EKC386391"="GIMAP 4 (EKC386391)"))
+  
+ 
 
-#Plot GIMAP between OsHV1 and Bac
+#COMBINED_GIMAP_IAP_OsHV1_PLOT + COMBINED_GIMAP_IAP_OsHV1_PLOT_2 + geom_text(data=label.oshv1Sig.df, x=Transcript, y=log2FoldChange, label = "***")
 
+  
 #Plot IAP between OsHV1 and Bac
+IAP_OsHV1_Bac <-COMBINED_GIMAP_IAP_cols %>% filter(Type == "IAP")
+IAP_OsHV1_Bac_PLOT <- ggplot(IAP_OsHV1_Bac) + 
+  geom_col(aes(x=Transcript, y=log2FoldChange, fill=as.factor(Type))) + 
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) + 
+  scale_y_continuous(name ="log2 Fold Change", breaks = scales::pretty_breaks(n = 20)) + 
+  ggtitle("IAP Transcript Differential Expression under OsHV1 and Bacterial Challenge") + 
+  scale_fill_manual("Gene Family", values=c("IAP"="#009E73")) +
+  theme(plot.title = element_text(size=10)) + theme(plot.title = element_text(hjust = 0.5))
+
+IAP_OsHV1_Bac_PLOT + geom_hline(yintercept=0) +
+  theme(axis.line = element_line(colour = "black", size = 0.5, linetype = "solid")) +
+  scale_x_discrete(name="Transcript Names (ENSEMBL Transcript ID)", limits=c()
+
+
+#plot GIMAP between OsHV1 and Bac
 
 #references: 
 #https://github.com/sr320/LabDocs/tree/master/code/DESeq
