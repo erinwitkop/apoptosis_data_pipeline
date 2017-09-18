@@ -820,10 +820,24 @@ COMBINED_GIMAP_IAP_cols <- COMBINED_GIMAP_IAP[,c(2,7,10)]
 #Download data to simplify Protein Names for Viewing 
 write.csv( as.data.frame(COMBINED_GIMAP_IAP_cols), file="COMBINED_GIMAP_IAP_cols.csv")
 COMBINED_GIMAP_IAP_cols <- read.csv("COMBINED_GIMAP_IAP_cols_edited.csv", header = TRUE)
-COMBINED_GIMAP_IAP_cols_Bac <- COMBINED_GIMAP_IAP_cols[1:24,]
-COMBINED_GIMAP_IAP_cols_Oshv1 <- COMBINED_GIMAP_IAP_cols[25:66,] 
+COMBINED_GIMAP_IAP_cols_Bac <- read.csv("COMBINED_GIMAP_IAP_cols_Bac.csv", header = TRUE)
+COMBINED_GIMAP_IAP_cols_Oshv1 <- read.csv("COMBINED_GIMAP_IAP_cols_OsHV1.csv", header = TRUE)
+colnames(COMBINED_GIMAP_IAP_cols_Bac)
+#Plot the combined data set altogether for comparison per Challenge
+  #use geom_col and not geom_bar...geom bar makes the height of the bar proportional to the number
+    #of cases in each group
 
-#Plot the combined data set altogether for comparison
+COMBINED_GIMAP_IAP_BAC_PLOT <- ggplot(COMBINED_GIMAP_IAP_cols_Bac) + geom_col(aes(x=Protein.Transcript.Names, y=log2FoldChange)) + theme(axis.text.x = element_text(angle = 45, hjust = 1)) + scale_y_continuous(name ="log2 Fold Change", breaks = scales::pretty_breaks(n = 20)) + scale_x_discrete(name="Transcript Names (ENSEMBL Transcript ID)") + ggtitle("GIMAP and IAP Transcript Differential Expression")
+       
+COMBINED_GIMAP_IAP_BAC_PLOT + geom_hline(yintercept=0)
+
+
+    "BIR-containing protein 2 (EKC24074)","BIR-containing protein 7 (EKC38724)", "BIR-containing protein 7-B(EKC42441)", "BIR-containing protein 7-B (EKC25493)", "BIR-containing protein 7-A (EKC42449)",
+  "BIR-containing protein 3 (EKC18369)", "BIR-containing protein 6 (EKC20239)", "Putative IAP (EKC17690)", "IAP 1 (EKC34022)", "Putative IAP ORF42 (EKC26454)",
+  "IAP 2 (transcript:EKC42442)", "IAP 2 (EKC18368)", "IAP 2 (EKC41181)", "Putative IAP (EKC26950)", "IAP 2 (EKC41180)", "GIMAP 4 (EKC40820)", 
+  "GIMAP 4 (EKC41832)", "GIMAP 4 (EKC41613)", "GIMAP 4 (EKC35292)", "GIMAP 4 (EKC36405)","GIMAP 7 (EKC30713)", "GIMAP 4 (EKC40465)", "GIMAP 7 (EKC42724)", "GIMAP 4 (EKC38639)")       
+
+
 plot(log2FoldChange~factor(Protein.names), COMBINED_GIMAP_IAP_cols, las=2,
      xlab="GIMAP and IAP Transcripts", main="Differentially Expressed GIMAP and IAP Transcripts")
 
