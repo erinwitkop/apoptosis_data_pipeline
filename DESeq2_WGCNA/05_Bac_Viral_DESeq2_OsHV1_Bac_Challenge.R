@@ -827,18 +827,35 @@ colnames(COMBINED_GIMAP_IAP_cols_Bac)
   #use geom_col and not geom_bar...geom bar makes the height of the bar proportional to the number
     #of cases in each group
 
-COMBINED_GIMAP_IAP_BAC_PLOT <- ggplot(COMBINED_GIMAP_IAP_cols_Bac) + geom_col(aes(x=Protein.Transcript.Names, y=log2FoldChange)) + theme(axis.text.x = element_text(angle = 45, hjust = 1)) + scale_y_continuous(name ="log2 Fold Change", breaks = scales::pretty_breaks(n = 20)) + scale_x_discrete(name="Transcript Names (ENSEMBL Transcript ID)") + ggtitle("GIMAP and IAP Transcript Differential Expression")
-       
-COMBINED_GIMAP_IAP_BAC_PLOT + geom_hline(yintercept=0)
+cbbPalette <- c("#000000", "#E69F00", "#56B4E9", "#009E73", "#F0E442", "#0072B2", "#D55E00", "#CC79A7")
+
+COMBINED_GIMAP_IAP_BAC_PLOT <- ggplot(COMBINED_GIMAP_IAP_cols_Bac) + 
+  geom_col(aes(x=Transcript, y=log2FoldChange, fill=as.factor(Type))) + 
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) + 
+  scale_y_continuous(name ="log2 Fold Change", breaks = scales::pretty_breaks(n = 20)) + 
+  ggtitle("GIMAP and IAP Transcript Differential Expression under Bacterial Challenge") + 
+  scale_fill_manual("Gene Family", values=(c("GIMAP"="red", "IAP"="blue")))
+
+COMBINED_GIMAP_IAP_BAC_PLOT + geom_hline(yintercept=0) +
+  theme(axis.line = element_line(colour = "black", size = 0.5, linetype = "solid")) +
+  scale_x_discrete(name="Transcript Names (ENSEMBL Transcript ID)", limits=c("transcript:EKC24074","transcript:EKC38724","transcript:EKC42441", "transcript:EKC25493", "transcript:EKC42449", "transcript:EKC18369", "transcript:EKC20239", "transcript:EKC17690",
+  "transcript:EKC34022", "transcript:EKC26454", "transcript:EKC42442", "transcript:EKC18368", "transcript:EKC41181", "transcript:EKC26950",
+  "transcript:EKC41180", "transcript:EKC40820", "transcript:EKC41832", "transcript:EKC41613", "transcript:EKC35292",
+  "transcript:EKC36405", "transcript:EKC30713", "transcript:EKC40465", "transcript:EKC42724", "transcript:EKC38639"), labels= c("transcript:EKC24074"="BIR-containing protein 2 (EKC24074)",
+  "transcript:EKC38724"="BIR-containing protein 7 (EKC38724)", "transcript:EKC42441"="BIR-containing protein 7-B(EKC42441)","transcript:EKC25493"="BIR-containing protein 7-B (EKC25493)",
+  "transcript:EKC42449"="BIR-containing protein 7-A (EKC42449)","transcript:EKC18369"="BIR-containing protein 3 (EKC18369)", "transcript:EKC20239"="BIR-containing protein 6 (EKC20239)",
+  "transcript:EKC17690"="Putative IAP (EKC17690)","transcript:EKC34022"="IAP 1 (EKC34022)", "transcript:EKC26454"="Putative IAP ORF42 (EKC26454)","transcript:EKC42442"="IAP 2 (EKC42442)",
+ "transcript:EKC18368"="IAP 2 (EKC18368)","transcript:EKC41181"="IAP 2 (EKC41181)", "transcript:EKC26950"="Putative IAP (EKC26950)",
+ "transcript:EKC41180"="IAP 2 (EKC41180)", "transcript:EKC40820"="GIMAP 4 (EKC40820)", "transcript:EKC41832"="GIMAP 4 (EKC41832)", 
+ "transcript:EKC41613"="GIMAP 4 (EKC41613)","transcript:EKC35292"="GIMAP 4 (EKC35292)", "transcript:EKC36405"="transcript:EKC36405",
+ "transcript:EKC30713"="GIMAP 7 (EKC30713)", "transcript:EKC40465"="GIMAP 4 (EKC40465)","transcript:EKC42724"="GIMAP 7 (EKC42724)",
+ "transcript:EKC38639"="GIMAP 4 (EKC38639)"))
 
 
-    "BIR-containing protein 2 (EKC24074)","BIR-containing protein 7 (EKC38724)", "BIR-containing protein 7-B(EKC42441)", "BIR-containing protein 7-B (EKC25493)", "BIR-containing protein 7-A (EKC42449)",
-  "BIR-containing protein 3 (EKC18369)", "BIR-containing protein 6 (EKC20239)", "Putative IAP (EKC17690)", "IAP 1 (EKC34022)", "Putative IAP ORF42 (EKC26454)",
-  "IAP 2 (transcript:EKC42442)", "IAP 2 (EKC18368)", "IAP 2 (EKC41181)", "Putative IAP (EKC26950)", "IAP 2 (EKC41180)", "GIMAP 4 (EKC40820)", 
-  "GIMAP 4 (EKC41832)", "GIMAP 4 (EKC41613)", "GIMAP 4 (EKC35292)", "GIMAP 4 (EKC36405)","GIMAP 7 (EKC30713)", "GIMAP 4 (EKC40465)", "GIMAP 7 (EKC42724)", "GIMAP 4 (EKC38639)")       
+COMBINED_GIMAP_IAP_BAC_PLOT + 
+  scale_x_discrete(limits=c("transcript:EKC24074","y"), labels= c("x"=)
 
-
-plot(log2FoldChange~factor(Protein.names), COMBINED_GIMAP_IAP_cols, las=2,
+#plot(log2FoldChange~factor(Protein.names), COMBINED_GIMAP_IAP_cols, las=2,
      xlab="GIMAP and IAP Transcripts", main="Differentially Expressed GIMAP and IAP Transcripts")
 
 #Plot GIMAP between OsHV1 and Bac
