@@ -910,14 +910,14 @@ COMBINED_GIMAP_IAP_OsHV1_PLOT_2 <- COMBINED_GIMAP_IAP_OsHV1_PLOT + geom_text(dat
 IAP_Bac <- COMBINED_GIMAP_IAP_cols_Bac %>% filter(Type== "IAP")
 IAP_OsHV1 <- COMBINED_GIMAP_IAP_cols_Oshv1 %>% filter(Type=="IAP")
 IAP_OsHV1_Bac <- rbind(IAP_Bac,IAP_OsHV1)
-label.IAP.df <- data.frame(Transcript= c("transcript:EKC41180", "transcript:EKC240741", "transcript:EKC424491", "transcript:EKC20774"), log2FoldChange=c(-22.0, -3.0,-3.0, -24.0))
+label.IAP.df <- data.frame(Transcript= c("transcript:EKC41180", "transcript:EKC240741", "transcript:EKC424491", "transcript:EKC20774"), log2FoldChange=c(-22.0, -3.0,-3.0, -24.5))
 
 IAP_OsHV1_Bac_PLOT <- ggplot(IAP_OsHV1_Bac) + 
-  geom_col(aes(x=Transcript, y=log2FoldChange, fill=as.factor(Type))) + 
+  geom_col(aes(x=Transcript, y=log2FoldChange, fill=as.factor(Challenge))) + 
   theme(axis.text.x = element_text(angle = 45, hjust = 1)) + 
   scale_y_continuous(name ="log2 Fold Change", breaks = scales::pretty_breaks(n = 20)) + 
   ggtitle("IAP Transcript Differential Expression under OsHV1 and Bacterial Challenge") + 
-  scale_fill_manual("Gene Family", values=c("IAP"="#009E73")) +
+  scale_fill_manual("Challenge", values=c("OsHV1"="#0072B2", "Bacteria"= "#D55E00")) +
   theme(plot.title = element_text(size=10)) + theme(plot.title = element_text(hjust = 0.5))
 
 IAP_OsHV1_Bac_PLOT + geom_text(data=label.IAP.df, aes(x=Transcript, y=log2FoldChange), label = c("*")) + geom_hline(yintercept=0) +
@@ -944,10 +944,46 @@ IAP_OsHV1_Bac_PLOT + geom_text(data=label.IAP.df, aes(x=Transcript, y=log2FoldCh
 
 #plot IAPs with the same transcript side by side
 #Establish which transcripts are shared and which are different
+duplicated(IAP_OsHV1_Bac$Transcript) #none are duplicated!
 
 #plot GIMAP between OsHV1 and Bac
+GIMAP_Bac <- COMBINED_GIMAP_IAP_cols_Bac %>% filter(Type== "GIMAP")
+GIMAP_OsHV1 <- COMBINED_GIMAP_IAP_cols_Oshv1 %>% filter(Type=="GIMAP")
+GIMAP_OsHV1_Bac <- rbind(GIMAP_Bac,GIMAP_OsHV1)
+label.GIMAP.df <- data.frame(Transcript= c("transcript:EKC418321","transcript:EKC307131"), log2FoldChange=c(-3.5, -2.5))
 
-#plot IAPs and GIMAPs side by side
+GIMAP_OsHV1_Bac_PLOT <- ggplot(GIMAP_OsHV1_Bac) + 
+  geom_col(aes(x=Transcript, y=log2FoldChange, fill=as.factor(Challenge))) + 
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) + 
+  scale_y_continuous(name ="log2 Fold Change", breaks = scales::pretty_breaks(n = 20)) + 
+  ggtitle("GIMAP Transcript Differential Expression under OsHV1 and Bacterial Challenge") + 
+  scale_fill_manual("Challenge", values=c("Bacteria"="#0072B2", "OsHV1"= "#D55E00")) +
+  theme(plot.title = element_text(size=10)) + theme(plot.title = element_text(hjust = 0.5)) 
+
+GIMAP_OsHV1_Bac_PLOT + geom_text(data=label.GIMAP.df, aes(x=Transcript, y=log2FoldChange), label = c("*")) + geom_hline(yintercept=0) +
+  theme(axis.line = element_line(colour = "black", size = 0.5, linetype = "solid")) +
+  scale_x_discrete(name="Transcript Names (ENSEMBL Transcript ID)", limits=c(
+    "transcript:EKC31739", "transcript:EKC40820", "transcript:EKC41832","transcript:EKC41613", 
+    "transcript:EKC35292", "transcript:EKC36405", "transcript:EKC40465", "transcript:EKC38639",
+    "transcript:EKC39736", "transcript:EKC404651", "transcript:EKC408201","transcript:EKC32489",
+    "transcript:EKC364051","transcript:EKC39748","transcript:EKC27363","transcript:EKC352921",
+    "transcript:EKC416131","transcript:EKC386391","transcript:EKC418321","transcript:EKC30713",
+    "transcript:EKC42724", "transcript:EKC427241","transcript:EKC307131","transcript:EKC29604"), 
+  labels=c("transcript:EKC31739"="GIMAP 1 (EKC31739)", "transcript:EKC40820"="GIMAP 4 (EKC40820)",
+           "transcript:EKC41832"="GIMAP 4 (EKC41832)", "transcript:EKC41613"="GIMAP 4 (EKC41613)",
+          "transcript:EKC35292"="GIMAP 4 (EKC35292)","transcript:EKC36405"="GIMAP 4 (EKC36405)",
+          "transcript:EKC40465"="GIMAP 4 (EKC40465)","transcript:EKC38639"="GIMAP 4 (EKC38639)",
+          "transcript:EKC39736"="GIMAP 4 (EKC39736)", "transcript:EKC404651"="GIMAP 4 (EKC404651)",
+          "transcript:EKC408201"="GIMAP 4 (EKC408201)", "transcript:EKC32489"="GIMAP 4 (EKC32489)",
+          "transcript:EKC364051"="GIMAP 4 (EKC364051)", "transcript:EKC39748"="GIMAP 4 (EKC39748)",
+          "transcript:EKC27363"="GIMAP 4 (EKC27363)", "transcript:EKC352921"="GIMAP 4 (EKC352921)",
+          "transcript:EKC416131"="GIMAP 4 (EKC416131)", "transcript:EKC386391"="GIMAP 4 (EKC386391)",
+          "transcript:EKC418321"="GIMAP 4 (EKC418321)","transcript:EKC30713"="GIMAP 7 (EKC30713)",
+          "transcript:EKC42724"="GIMAP 7 (EKC42724)","transcript:EKC427241"="GIMAP 7 (EKC427241)",
+          "transcript:EKC307131"="GIMAP 7 (EKC307131)","transcript:EKC29604"="GIMAP 8 (EKC29604)"))
+      
+#plot GIMAPs with same accession 
+duplicated(GIMAP_OsHV1_Bac$Transcript) #none of them have been duplicated from trial to trial
 
 #references: 
 #https://github.com/sr320/LabDocs/tree/master/code/DESeq
