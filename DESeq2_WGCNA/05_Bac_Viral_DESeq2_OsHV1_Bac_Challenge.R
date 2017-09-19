@@ -1,5 +1,7 @@
 #05_Bac_viral_DESeq2_OsHV1_Bac_challenge
 
+####INPUT DATA GATHERED FROM CRASSOSTREA GIGAS ####
+
 #This script takes as input the output Bac_Viral_transcript_count_matrix.csv data prepared from prepDE.py and performs
 #differential Gene expression analysis, and subsets out isoforms of GIMAPs and CgIAPs and graphs their
 #relative abundance.
@@ -908,8 +910,7 @@ COMBINED_GIMAP_IAP_OsHV1_PLOT_2 <- COMBINED_GIMAP_IAP_OsHV1_PLOT + geom_text(dat
 IAP_Bac <- COMBINED_GIMAP_IAP_cols_Bac %>% filter(Type== "IAP")
 IAP_OsHV1 <- COMBINED_GIMAP_IAP_cols_Oshv1 %>% filter(Type=="IAP")
 IAP_OsHV1_Bac <- rbind(IAP_Bac,IAP_OsHV1)
-label.IAP.df <- data.frame(Transcript= c("transcript:EKC240741","transcript:EKC424491", "transcript:EKC20774",
-                                              "transcript:EKC418321", "transcript:EKC307131"), log2FoldChange=c(-3.0, -3.0, -24.0, -4.0, -3.0))
+label.IAP.df <- data.frame(Transcript= c("transcript:EKC41180", "transcript:EKC240741", "transcript:EKC424491", "transcript:EKC20774"), log2FoldChange=c(-22.0, -3.0,-3.0, -24.0))
 
 IAP_OsHV1_Bac_PLOT <- ggplot(IAP_OsHV1_Bac) + 
   geom_col(aes(x=Transcript, y=log2FoldChange, fill=as.factor(Type))) + 
@@ -919,12 +920,34 @@ IAP_OsHV1_Bac_PLOT <- ggplot(IAP_OsHV1_Bac) +
   scale_fill_manual("Gene Family", values=c("IAP"="#009E73")) +
   theme(plot.title = element_text(size=10)) + theme(plot.title = element_text(hjust = 0.5))
 
-IAP_OsHV1_Bac_PLOT + geom_hline(yintercept=0) +
+IAP_OsHV1_Bac_PLOT + geom_text(data=label.IAP.df, aes(x=Transcript, y=log2FoldChange), label = c("*")) + geom_hline(yintercept=0) +
   theme(axis.line = element_line(colour = "black", size = 0.5, linetype = "solid")) +
-  scale_x_discrete(name="Transcript Names (ENSEMBL Transcript ID)", limits=c()
+  scale_x_discrete(name="Transcript Names (ENSEMBL Transcript ID)", limits=c(
+    "transcript:EKC24074", "transcript:EKC240741","transcript:EKC37539", "transcript:EKC18369",
+ "transcript:EKC183691", "transcript:EKC30031","transcript:EKC20773","transcript:EKC42443", "transcript:EKC24792",
+"transcript:EKC20239","transcript:EKC202391","transcript:EKC38724","transcript:EKC387241","transcript:EKC42449",
+"transcript:EKC424491","transcript:EKC25493","transcript:EKC254931","transcript:EKC32934","transcript:EKC34718",
+"transcript:EKC424411","transcript:EKC42441","transcript:EKC20774","transcript:EKC29824","transcript:EKC34022",
+"transcript:EKC340221","transcript:EKC411811","transcript:EKC18368","transcript:EKC183681","transcript:EKC41180",
+"transcript:EKC411801","transcript:EKC41181","transcript:EKC424421","transcript:EKC42442","transcript:EKC33184",
+"transcript:EKC17690","transcript:EKC176901","transcript:EKC26950","transcript:EKC269501","transcript:EKC34720",
+"transcript:EKC26454","transcript:EKC264541","transcript:EKC25955"), labels=c(
+  "transcript:EKC24074" = "BIR-containing protein 2 (EKC24074)", "transcript:EKC240741"="BIR-containing protein 2 (EKC240741)","transcript:EKC37539"="BIR-containing protein 2 (EKC37539)", "transcript:EKC18369"="BIR-containing protein 3 (EKC18369)",
+  "transcript:EKC183691"="BIR-containing protein 3 (EKC183691)", "transcript:EKC30031"="BIR-containing protein 3 (EKC30031)","transcript:EKC20773"="BIR-containing protein 3 (Fragment) (EKC20773)","transcript:EKC42443"="BIR-containing protein 3 (Fragment) (EKC42443)", "transcript:EKC24792"="BIR-containing protein 5 (EKC24792)",
+  "transcript:EKC20239"="BIR-containing protein 6 (EKC20239)","transcript:EKC202391"="BIR-containing protein 6 (EKC202391)","transcript:EKC38724"="BIR-containing protein 7 (EKC38724)","transcript:EKC387241"="BIR-containing protein 7 (EKC387241)","transcript:EKC42449"="BIR-containing protein 7-A (EKC42449)",
+  "transcript:EKC424491"="BIR-containing protein 7-A (EKC424491)","transcript:EKC25493"="BIR-containing protein 7-B (EKC25493)","transcript:EKC254931"="BIR-containing protein 7-B (EKC254931)","transcript:EKC32934"="BIR-containing protein 7-B (EKC32934)","transcript:EKC34718"="BIR-containing protein 7-B (EKC34718)",
+  "transcript:EKC424411"="BIR-containing protein 7-B (EKC424411)","transcript:EKC42441"="BIR-containing protein 7-B(EKC42441)","transcript:EKC20774"="IAP (EKC20774)","transcript:EKC29824"="IAP 1 (EKC29824)","transcript:EKC34022"="IAP 1 (EKC34022)",
+  "transcript:EKC340221"="IAP 1 (EKC340221)","transcript:EKC411811"="IAP 1 (EKC411811)","transcript:EKC18368"="IAP 2 (EKC18368)","transcript:EKC183681"="IAP 2 (EKC183681)","transcript:EKC41180"="IAP 2 (EKC41180)",
+  "transcript:EKC411801"="IAP 2 (EKC411801)","transcript:EKC41181"="IAP 2 (EKC41181)","transcript:EKC424421"="IAP 2 (EKC424421)","transcript:EKC42442"="IAP 2 (EKC42442)","transcript:EKC33184"="IAP 3 (EKC33184)",
+  "transcript:EKC17690"="Putative IAP (EKC17690)","transcript:EKC176901"="Putative IAP (EKC176901)","transcript:EKC26950"="Putative IAP (EKC26950)","transcript:EKC269501"="Putative IAP (EKC269501)","transcript:EKC34720"="Putative IAP (EKC34720)",
+  "transcript:EKC26454"="Putative IAP ORF42 (EKC26454)","transcript:EKC264541"="Putative IAP ORF42 (EKC264541)","transcript:EKC25955"="TP53-regulated IAP 1 (EKC25955)"))
 
+#plot IAPs with the same transcript side by side
+#Establish which transcripts are shared and which are different
 
 #plot GIMAP between OsHV1 and Bac
+
+#plot IAPs and GIMAPs side by side
 
 #references: 
 #https://github.com/sr320/LabDocs/tree/master/code/DESeq
