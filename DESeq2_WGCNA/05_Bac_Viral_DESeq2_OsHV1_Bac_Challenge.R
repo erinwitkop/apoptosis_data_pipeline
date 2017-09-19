@@ -839,29 +839,29 @@ colnames(COMBINED_GIMAP_IAP_cols_Bac)
 cbbPalette <- c("#000000", "#E69F00", "#56B4E9", "#009E73", "#F0E442", "#0072B2", "#D55E00", "#CC79A7")
 
 #Pot GIMAP and IAP genes for the Bacterial Challenge Data
-label.Bac.df <- data.frame(Transcript= c("transcript:EKC41180"), log2FoldChange=c(-23.0))
+label.Bac.df <- data.frame(Transcript= c("transcript:EKC41180"), log2FoldChange=c(-22.0))
 COMBINED_GIMAP_IAP_BAC_PLOT <- ggplot(COMBINED_GIMAP_IAP_cols_Bac) + 
   geom_col(aes(x=Transcript, y=log2FoldChange, fill=as.factor(Type))) + 
-  theme(axis.text.x = element_text(angle = 45, hjust = 1)) + 
+  theme(axis.text.x = element_text(angle = 60, hjust = 1)) + 
   scale_y_continuous(name ="log2 Fold Change", breaks = scales::pretty_breaks(n = 20)) + 
-  ggtitle("GIMAP and IAP Transcript Differential Expression under Bacterial Challenge") + 
+  ggtitle("GIMAP and IAP Transcript Differential Expression in C. gigas under Bacterial Challenge") + 
   scale_fill_manual("Gene Family", values=(c("GIMAP"="#56B4E9", "IAP"="#009E73"))) +
   theme(plot.title = element_text(size=10)) + theme(plot.title = element_text(hjust = 0.5))
 
 COMBINED_GIMAP_IAP_BAC_PLOT2 <- COMBINED_GIMAP_IAP_BAC_PLOT + geom_text(data=label.Bac.df, aes(x=Transcript, y=log2FoldChange), label = c("*")) + geom_hline(yintercept=0) +
   theme(axis.line = element_line(colour = "black", size = 0.5, linetype = "solid")) +
-  scale_x_discrete(name="Transcript Names (ENSEMBL Transcript ID)", limits=c("transcript:EKC24074","transcript:EKC38724","transcript:EKC42441", "transcript:EKC25493", "transcript:EKC42449", "transcript:EKC18369", "transcript:EKC20239", "transcript:EKC17690",
-  "transcript:EKC34022", "transcript:EKC26454", "transcript:EKC42442", "transcript:EKC18368", "transcript:EKC41181", "transcript:EKC26950",
-  "transcript:EKC41180", "transcript:EKC40820", "transcript:EKC41832", "transcript:EKC41613", "transcript:EKC35292",
-  "transcript:EKC36405", "transcript:EKC30713", "transcript:EKC40465", "transcript:EKC42724", "transcript:EKC38639"), labels= c("transcript:EKC24074"="BIR-containing protein 2 (EKC24074)",
-  "transcript:EKC38724"="BIR-containing protein 7 (EKC38724)", "transcript:EKC42441"="BIR-containing protein 7-B(EKC42441)","transcript:EKC25493"="BIR-containing protein 7-B (EKC25493)",
-  "transcript:EKC42449"="BIR-containing protein 7-A (EKC42449)","transcript:EKC18369"="BIR-containing protein 3 (EKC18369)", "transcript:EKC20239"="BIR-containing protein 6 (EKC20239)",
-  "transcript:EKC17690"="Putative IAP (EKC17690)","transcript:EKC34022"="IAP 1 (EKC34022)", "transcript:EKC26454"="Putative IAP ORF42 (EKC26454)","transcript:EKC42442"="IAP 2 (EKC42442)",
- "transcript:EKC18368"="IAP 2 (EKC18368)","transcript:EKC41181"="IAP 2 (EKC41181)", "transcript:EKC26950"="Putative IAP (EKC26950)",
- "transcript:EKC41180"="IAP 2 (EKC41180)", "transcript:EKC40820"="GIMAP 4 (EKC40820)", "transcript:EKC41832"="GIMAP 4 (EKC41832)", 
- "transcript:EKC41613"="GIMAP 4 (EKC41613)","transcript:EKC35292"="GIMAP 4 (EKC35292)", "transcript:EKC36405"="transcript:EKC36405",
- "transcript:EKC30713"="GIMAP 7 (EKC30713)", "transcript:EKC40465"="GIMAP 4 (EKC40465)","transcript:EKC42724"="GIMAP 7 (EKC42724)",
- "transcript:EKC38639"="GIMAP 4 (EKC38639)"))
+  scale_x_discrete(name="Transcript Names (ENSEMBL Transcript ID)", limits=c("transcript:EKC24074", "transcript:EKC18369", "transcript:EKC20239", "transcript:EKC38724", "transcript:EKC42449",
+ "transcript:EKC42441", "transcript:EKC25493", "transcript:EKC34022", "transcript:EKC42442", "transcript:EKC18368", "transcript:EKC41181",
+ "transcript:EKC41180",  "transcript:EKC17690",  "transcript:EKC26950", "transcript:EKC26454", "transcript:EKC40820", "transcript:EKC41832",
+"transcript:EKC41613", "transcript:EKC35292", "transcript:EKC36405", "transcript:EKC40465", "transcript:EKC38639", "transcript:EKC30713", "transcript:EKC42724"),
+labels=c("transcript:EKC24074"="BIR protein 2 (EKC24074)","transcript:EKC18369"="BIR protein 3 (EKC18369)","transcript:EKC20239"="BIRprotein 6 (EKC20239)",
+"transcript:EKC38724"="BIR protein 7 (EKC38724)","transcript:EKC42449"="BIR protein 7-A (EKC42449)","transcript:EKC42441"="BIR protein 7-B(EKC42441)",
+"transcript:EKC25493"="BIR protein 7-B (EKC25493)","transcript:EKC34022"="IAP 1 (EKC34022)", "transcript:EKC42442"="IAP 2 (EKC42442)",
+"transcript:EKC18368"="IAP 2 (EKC18368)","transcript:EKC41181"="IAP 2 (EKC41181)", "transcript:EKC41180"="IAP 2 (EKC41180)", 
+"transcript:EKC17690"="Putative IAP (EKC17690)","transcript:EKC26950"="Putative IAP (EKC26950)","transcript:EKC26454"="Putative IAP ORF42 (EKC26454)",
+  "transcript:EKC40820"="GIMAP 4 (EKC40820)", "transcript:EKC41832"="GIMAP 4 (EKC41832)", "transcript:EKC41613"="GIMAP 4 (EKC41613)",
+"transcript:EKC35292"="GIMAP 4 (EKC35292)","transcript:EKC36405"="GIMAP 4 (EKC36405)","transcript:EKC40465"="GIMAP 4 (EKC40465)",
+"transcript:EKC38639"="GIMAP 4 (EKC38639)", "transcript:EKC30713"="GIMAP 7 (EKC30713)","transcript:EKC42724"="GIMAP 7 (EKC42724)"))
 
 #Plot GIMAP and IAP from OsHV1
 #Create vector for the significance values! 
@@ -870,41 +870,43 @@ label.oshv1Sig.df <- data.frame(Transcript= c("transcript:EKC240741","transcript
 
 COMBINED_GIMAP_IAP_OsHV1_PLOT <- ggplot(COMBINED_GIMAP_IAP_cols_Oshv1) + 
   geom_col(aes(x=Transcript, y=log2FoldChange, fill=as.factor(Type))) +
-  theme(axis.text.x = element_text(angle = 45, hjust = 1)) + 
+  theme(axis.text.x = element_text(angle = 60, hjust = 1)) + 
   scale_y_continuous(name ="log2 Fold Change", breaks = scales::pretty_breaks(n = 20)) + 
-  ggtitle("GIMAP and IAP Transcript Differential Expression under OsHV1 Challenge") + 
+  ggtitle("GIMAP and IAP Transcript Differential Expression in C. gigas under OsHV1 Challenge") + 
   scale_fill_manual("Gene Family", values=(c("GIMAP"="#56B4E9", "IAP"="#009E73"))) +
   theme(plot.title = element_text(size=10)) + theme(plot.title = element_text(hjust = 0.5))
 
 COMBINED_GIMAP_IAP_OsHV1_PLOT_2 <- COMBINED_GIMAP_IAP_OsHV1_PLOT + geom_text(data=label.oshv1Sig.df, aes(x=Transcript, y=log2FoldChange), label = c("*")) + geom_hline(yintercept=0) +
   theme(axis.line = element_line(colour = "black", size = 0.5, linetype = "solid")) +
-  scale_x_discrete(name="Transcript Names (ENSEMBL Transcript ID)", 
-  limits=c("transcript:EKC240741", "transcript:EKC424491", "transcript:EKC42443","transcript:EKC32934",
-  "transcript:EKC387241","transcript:EKC34718","transcript:EKC30031","transcript:EKC24792","transcript:EKC20773",
-  "transcript:EKC183691", "transcript:EKC202391", "transcript:EKC424411", "transcript:EKC37539","transcript:EKC254931",
-  "transcript:EKC183681","transcript:EKC25955","transcript:EKC411801","transcript:EKC411811","transcript:EKC33184",
-  "transcript:EKC29824","transcript:EKC176901","transcript:EKC34720","transcript:EKC340221","transcript:EKC264541",
-  "transcript:EKC269501","transcript:EKC424421","transcript:EKC20774","transcript:EKC418321","transcript:EKC307131",
-  "transcript:EKC39736","transcript:EKC404651","transcript:EKC408201", "transcript:EKC32489","transcript:EKC364051",
-  "transcript:EKC39748", "transcript:EKC27363","transcript:EKC31739","transcript:EKC352921", "transcript:EKC29604",
-  "transcript:EKC416131","transcript:EKC427241","transcript:EKC386391"),
-  labels=c("transcript:EKC240741"="BIR-containing protein 2 (EKC240741)", "transcript:EKC424491"="BIR-containing protein 7-A (EKC424491)",
-  "transcript:EKC42443"="BIR-containing protein 3 (Fragment) (EKC42443)","transcript:EKC32934"="BIR-containing protein 7-B (EKC32934)",
- "transcript:EKC387241"="BIR-containing protein 7 (EKC387241)","transcript:EKC34718"="BIR-containing protein 7-B (EKC34718)","transcript:EKC30031"="BIR-containing protein 3 (EKC30031)",
- "transcript:EKC24792"="BIR-containing protein 5 (EKC24792)","transcript:EKC20773"="BIR-containing protein 3 (Fragment) (EKC20773)",
-"transcript:EKC183691"="BIR-containing protein 3 (EKC183691)", "transcript:EKC202391"="BIR-containing protein 6 (EKC202391)", "transcript:EKC424411"="BIR-containing protein 7-B (EKC424411)", 
-"transcript:EKC37539"="BIR-containing protein 2 (EKC37539)","transcript:EKC254931"="BIR-containing protein 7-B (EKC254931)",
- "transcript:EKC183681"="IAP 2 (EKC183681)","transcript:EKC25955"="TP53-regulated IAP 1 (EKC25955)","transcript:EKC411801"="IAP 2 (EKC411801)",
-"transcript:EKC411811"="IAP 1 (EKC411811)","transcript:EKC33184"="IAP 3 (EKC33184)",
-  "transcript:EKC29824"="IAP 1 (EKC29824)","transcript:EKC176901"="Putative IAP (EKC176901)",
-"transcript:EKC34720"="Putative IAP (EKC34720)","transcript:EKC340221"="IAP 1 (EKC340221)","transcript:EKC264541"="Putative IAP ORF42 (EKC264541)",
-"transcript:EKC269501"="Putative IAP (EKC269501)","transcript:EKC424421"="IAP 2 (EKC424421)","transcript:EKC20774"="IAP (EKC20774)",
-"transcript:EKC418321"="GIMAP 4 (EKC418321)","transcript:EKC307131"="GIMAP 7 (EKC307131)",
- "transcript:EKC39736"="GIMAP 4 (EKC39736)","transcript:EKC404651"="GIMAP 4 (EKC404651)","transcript:EKC408201"="GIMAP 4 (EKC408201)", 
-"transcript:EKC32489"="GIMAP 4 (EKC32489)","transcript:EKC364051"="GIMAP 4 (EKC364051)",
-"transcript:EKC39748"="GIMAP 4 (EKC39748)", "transcript:EKC27363"="GIMAP 4 (EKC27363)","transcript:EKC31739"="GIMAP 1 (EKC31739)",
-"transcript:EKC352921"="GIMAP 4 (EKC352921)", "transcript:EKC29604"="GIMAP 8 (EKC29604)",
-"transcript:EKC416131"="GIMAP 4 (EKC416131)","transcript:EKC427241"="GIMAP 7 (EKC427241)","transcript:EKC386391"="GIMAP 4 (EKC386391)"))
+  scale_x_discrete(name="Transcript Names (ENSEMBL Transcript ID)", limits=c("transcript:EKC240741","transcript:EKC37539", "transcript:EKC42443", "transcript:EKC30031","transcript:EKC20773", 
+  "transcript:EKC183691","transcript:EKC24792", "transcript:EKC202391","transcript:EKC387241","transcript:EKC424491", "transcript:EKC32934","transcript:EKC34718", 
+"transcript:EKC424411", "transcript:EKC254931", "transcript:EKC20774", "transcript:EKC411811", "transcript:EKC29824", "transcript:EKC340221",
+"transcript:EKC25955",  "transcript:EKC183681", "transcript:EKC411801", "transcript:EKC424421","transcript:EKC33184", "transcript:EKC34720", 
+"transcript:EKC264541", "transcript:EKC269501", "transcript:EKC176901","transcript:EKC31739", "transcript:EKC418321",  "transcript:EKC39736",
+"transcript:EKC404651","transcript:EKC408201", "transcript:EKC32489", "transcript:EKC364051", "transcript:EKC39748", "transcript:EKC27363" ,
+"transcript:EKC386391", "transcript:EKC416131", "transcript:EKC352921","transcript:EKC307131", "transcript:EKC427241", "transcript:EKC29604"), 
+labels=c( "transcript:EKC240741"="BIR protein 2 (EKC240741)", "transcript:EKC37539"="BIR protein 2 (EKC37539)",
+  "transcript:EKC42443"="BIR protein 3 (Fragment) (EKC42443)","transcript:EKC30031"="BIR protein 3 (EKC30031)",
+  "transcript:EKC20773"="BIR protein 3 (Fragment) (EKC20773)","transcript:EKC183691"="BIR protein 3 (EKC183691)",
+  "transcript:EKC24792"="BIR protein 5 (EKC24792)","transcript:EKC202391"="BIR protein 6 (EKC202391)",
+  "transcript:EKC387241"="BIR protein 7 (EKC387241)","transcript:EKC424491"="BIR protein 7-A (EKC424491)",
+  "transcript:EKC32934"="BIR protein 7-B (EKC32934)","transcript:EKC34718"="BIR protein 7-B (EKC34718)",
+  "transcript:EKC424411"="BIR protein 7-B (EKC424411)", "transcript:EKC254931"="BIR protein 7-B (EKC254931)",
+  "transcript:EKC20774"="IAP(EKC20774)","transcript:EKC411811"="IAP 1 (EKC411811)",
+  "transcript:EKC29824"="IAP 1 (EKC29824)", "transcript:EKC340221"="IAP 1 (EKC340221)",
+  "transcript:EKC25955"="TP53-regulated IAP 1 (EKC25955)","transcript:EKC183681"="IAP 2 (EKC183681)",  
+  "transcript:EKC411801"="IAP 2 (EKC411801)", "transcript:EKC424421"="IAP 2 (EKC424421)",
+  "transcript:EKC33184"="IAP 3 (EKC33184)", "transcript:EKC34720"="Putative IAP (EKC34720)",
+  "transcript:EKC264541"="Putative IAP ORF42 (EKC264541)","transcript:EKC269501"="Putative IAP (EKC269501)",
+  "transcript:EKC176901"="Putative IAP (EKC176901)", "transcript:EKC31739"="GIMAP 1 (EKC31739)",
+  "transcript:EKC418321"="GIMAP 4 (EKC418321)","transcript:EKC39736"="GIMAP 4 (EKC39736)",
+  "transcript:EKC404651"="GIMAP 4 (EKC404651)","transcript:EKC408201"="GIMAP 4 (EKC408201)", 
+  "transcript:EKC32489"="GIMAP 4 (EKC32489)","transcript:EKC364051"="GIMAP 4 (EKC364051)",
+  "transcript:EKC39748"="GIMAP 4 (EKC39748)", "transcript:EKC27363"="GIMAP 4 (EKC27363)",
+  "transcript:EKC386391"="GIMAP 4 (EKC386391)","transcript:EKC416131"="GIMAP 4 (EKC416131)",
+  "transcript:EKC352921"="GIMAP 4 (EKC352921)","transcript:EKC307131"="GIMAP 7 (EKC307131)", "transcript:EKC427241"="GIMAP 7 (EKC427241)",
+  "transcript:EKC29604"="GIMAP 8 (EKC29604)"))
+  
   
 #Plot IAP between OsHV1 and Bac
 IAP_Bac <- COMBINED_GIMAP_IAP_cols_Bac %>% filter(Type== "IAP")
@@ -914,9 +916,9 @@ label.IAP.df <- data.frame(Transcript= c("transcript:EKC41180", "transcript:EKC2
 
 IAP_OsHV1_Bac_PLOT <- ggplot(IAP_OsHV1_Bac) + 
   geom_col(aes(x=Transcript, y=log2FoldChange, fill=as.factor(Challenge))) + 
-  theme(axis.text.x = element_text(angle = 45, hjust = 1)) + 
+  theme(axis.text.x = element_text(angle = 60, hjust = 1)) + 
   scale_y_continuous(name ="log2 Fold Change", breaks = scales::pretty_breaks(n = 20)) + 
-  ggtitle("IAP Transcript Differential Expression under OsHV1 and Bacterial Challenge") + 
+  ggtitle("IAP Transcript Differential Expression in C. gigas under OsHV1 and Bacterial Challenge") + 
   scale_fill_manual("Challenge", values=c("OsHV1"="#0072B2", "Bacteria"= "#D55E00")) +
   theme(plot.title = element_text(size=10)) + theme(plot.title = element_text(hjust = 0.5))
 
@@ -932,11 +934,11 @@ IAP_OsHV1_Bac_PLOT + geom_text(data=label.IAP.df, aes(x=Transcript, y=log2FoldCh
 "transcript:EKC411801","transcript:EKC41181","transcript:EKC424421","transcript:EKC42442","transcript:EKC33184",
 "transcript:EKC17690","transcript:EKC176901","transcript:EKC26950","transcript:EKC269501","transcript:EKC34720",
 "transcript:EKC26454","transcript:EKC264541","transcript:EKC25955"), labels=c(
-  "transcript:EKC24074" = "BIR-containing protein 2 (EKC24074)", "transcript:EKC240741"="BIR-containing protein 2 (EKC240741)","transcript:EKC37539"="BIR-containing protein 2 (EKC37539)", "transcript:EKC18369"="BIR-containing protein 3 (EKC18369)",
-  "transcript:EKC183691"="BIR-containing protein 3 (EKC183691)", "transcript:EKC30031"="BIR-containing protein 3 (EKC30031)","transcript:EKC20773"="BIR-containing protein 3 (Fragment) (EKC20773)","transcript:EKC42443"="BIR-containing protein 3 (Fragment) (EKC42443)", "transcript:EKC24792"="BIR-containing protein 5 (EKC24792)",
-  "transcript:EKC20239"="BIR-containing protein 6 (EKC20239)","transcript:EKC202391"="BIR-containing protein 6 (EKC202391)","transcript:EKC38724"="BIR-containing protein 7 (EKC38724)","transcript:EKC387241"="BIR-containing protein 7 (EKC387241)","transcript:EKC42449"="BIR-containing protein 7-A (EKC42449)",
-  "transcript:EKC424491"="BIR-containing protein 7-A (EKC424491)","transcript:EKC25493"="BIR-containing protein 7-B (EKC25493)","transcript:EKC254931"="BIR-containing protein 7-B (EKC254931)","transcript:EKC32934"="BIR-containing protein 7-B (EKC32934)","transcript:EKC34718"="BIR-containing protein 7-B (EKC34718)",
-  "transcript:EKC424411"="BIR-containing protein 7-B (EKC424411)","transcript:EKC42441"="BIR-containing protein 7-B(EKC42441)","transcript:EKC20774"="IAP (EKC20774)","transcript:EKC29824"="IAP 1 (EKC29824)","transcript:EKC34022"="IAP 1 (EKC34022)",
+  "transcript:EKC24074" = "BIR protein 2 (EKC24074)", "transcript:EKC240741"="BIR protein 2 (EKC240741)","transcript:EKC37539"="BIR protein 2 (EKC37539)", "transcript:EKC18369"="BIR protein 3 (EKC18369)",
+  "transcript:EKC183691"="BIR protein 3 (EKC183691)", "transcript:EKC30031"="BIR protein 3 (EKC30031)","transcript:EKC20773"="BIR protein 3 (Fragment) (EKC20773)","transcript:EKC42443"="BIR protein 3 (Fragment) (EKC42443)", "transcript:EKC24792"="BIR protein 5 (EKC24792)",
+  "transcript:EKC20239"="BIR protein 6 (EKC20239)","transcript:EKC202391"="BIR protein 6 (EKC202391)","transcript:EKC38724"="BIR protein 7 (EKC38724)","transcript:EKC387241"="BIR protein 7 (EKC387241)","transcript:EKC42449"="BIR protein 7-A (EKC42449)",
+  "transcript:EKC424491"="BIR protein 7-A (EKC424491)","transcript:EKC25493"="BIR protein 7-B (EKC25493)","transcript:EKC254931"="BIR protein 7-B (EKC254931)","transcript:EKC32934"="BIR protein 7-B (EKC32934)","transcript:EKC34718"="BIR protein 7-B (EKC34718)",
+  "transcript:EKC424411"="BIR protein 7-B (EKC424411)","transcript:EKC42441"="BIR protein 7-B(EKC42441)","transcript:EKC20774"="IAP (EKC20774)","transcript:EKC29824"="IAP 1 (EKC29824)","transcript:EKC34022"="IAP 1 (EKC34022)",
   "transcript:EKC340221"="IAP 1 (EKC340221)","transcript:EKC411811"="IAP 1 (EKC411811)","transcript:EKC18368"="IAP 2 (EKC18368)","transcript:EKC183681"="IAP 2 (EKC183681)","transcript:EKC41180"="IAP 2 (EKC41180)",
   "transcript:EKC411801"="IAP 2 (EKC411801)","transcript:EKC41181"="IAP 2 (EKC41181)","transcript:EKC424421"="IAP 2 (EKC424421)","transcript:EKC42442"="IAP 2 (EKC42442)","transcript:EKC33184"="IAP 3 (EKC33184)",
   "transcript:EKC17690"="Putative IAP (EKC17690)","transcript:EKC176901"="Putative IAP (EKC176901)","transcript:EKC26950"="Putative IAP (EKC26950)","transcript:EKC269501"="Putative IAP (EKC269501)","transcript:EKC34720"="Putative IAP (EKC34720)",
@@ -954,13 +956,13 @@ label.GIMAP.df <- data.frame(Transcript= c("transcript:EKC418321","transcript:EK
 
 GIMAP_OsHV1_Bac_PLOT <- ggplot(GIMAP_OsHV1_Bac) + 
   geom_col(aes(x=Transcript, y=log2FoldChange, fill=as.factor(Challenge))) + 
-  theme(axis.text.x = element_text(angle = 45, hjust = 1)) + 
+  theme(axis.text.x = element_text(angle = 60, hjust = 1)) + 
   scale_y_continuous(name ="log2 Fold Change", breaks = scales::pretty_breaks(n = 20)) + 
-  ggtitle("GIMAP Transcript Differential Expression under OsHV1 and Bacterial Challenge") + 
+  ggtitle("GIMAP Transcript Differential Expression in C. gigas under OsHV1 and Bacterial Challenge") + 
   scale_fill_manual("Challenge", values=c("Bacteria"="#0072B2", "OsHV1"= "#D55E00")) +
   theme(plot.title = element_text(size=10)) + theme(plot.title = element_text(hjust = 0.5)) 
 
-GIMAP_OsHV1_Bac_PLOT + geom_text(data=label.GIMAP.df, aes(x=Transcript, y=log2FoldChange), label = c("*")) + geom_hline(yintercept=0) +
+GIMAP_OsHV1_Bac_PLOT2 <- GIMAP_OsHV1_Bac_PLOT + geom_text(data=label.GIMAP.df, aes(x=Transcript, y=log2FoldChange), label = c("*")) + geom_hline(yintercept=0) +
   theme(axis.line = element_line(colour = "black", size = 0.5, linetype = "solid")) +
   scale_x_discrete(name="Transcript Names (ENSEMBL Transcript ID)", limits=c(
     "transcript:EKC31739", "transcript:EKC40820", "transcript:EKC41832","transcript:EKC41613", 
@@ -981,9 +983,10 @@ GIMAP_OsHV1_Bac_PLOT + geom_text(data=label.GIMAP.df, aes(x=Transcript, y=log2Fo
           "transcript:EKC418321"="GIMAP 4 (EKC418321)","transcript:EKC30713"="GIMAP 7 (EKC30713)",
           "transcript:EKC42724"="GIMAP 7 (EKC42724)","transcript:EKC427241"="GIMAP 7 (EKC427241)",
           "transcript:EKC307131"="GIMAP 7 (EKC307131)","transcript:EKC29604"="GIMAP 8 (EKC29604)"))
-      
+
 #plot GIMAPs with same accession 
-duplicated(GIMAP_OsHV1_Bac$Transcript) #none of them have been duplicated from trial to trial
+duplicated(GIMAP_OsHV1_Bac$Transcript) 
+#none of them have been duplicated from trial to trial
 
 #references: 
 #https://github.com/sr320/LabDocs/tree/master/code/DESeq
