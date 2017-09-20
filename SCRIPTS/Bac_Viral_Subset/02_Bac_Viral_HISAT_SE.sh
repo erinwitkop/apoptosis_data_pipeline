@@ -22,7 +22,7 @@ module load SAMtools/1.3.1-foss-2016b
 cd /data3/marine_diseases_lab/erin/Bio_project_SRA/pipeline_files/Bac_Viral_subset
 F=/data3/marine_diseases_lab/erin/Bio_project_SRA/pipeline_files/Bac_Viral_subset
 
-#hisat2-build -f /data3/marine_diseases_lab/erin/Bio_project_SRA/pipeline_files/Crassostrea_gigas_genome.fa  genome_index
+hisat2-build -f $F/Crassostrea_gigas_genome.fa  genome_index
 
 # -f indicates that the reference input files are FASTA files
 
@@ -33,7 +33,7 @@ F=/data3/marine_diseases_lab/erin/Bio_project_SRA/pipeline_files/Bac_Viral_subse
 #array1=($(ls $F/*.filter))
 
 #for i in ${array1[@]}; do
-#        hisat2 --dta -x /data3/marine_diseases_lab/erin/Bio_project_SRA/pipeline_files/genome_index -U ${i} -S ${i}.sam
+#        hisat2 --dta -x $F/genome_index -U ${i} -S ${i}.sam
 #        echo "${i}_DONE"
 #done
 	
