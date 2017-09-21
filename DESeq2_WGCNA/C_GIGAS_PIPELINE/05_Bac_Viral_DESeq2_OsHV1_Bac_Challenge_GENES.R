@@ -321,6 +321,12 @@ oshv1_GIMAP_gene_non_sig_combined_FULL["Type"] <- "GIMAP"
 oshv1_GIMAP_IAP_gene_combined_FULL <- rbind(oshv1_GIMAP_gene_non_sig_combined_FULL, oshv1_IAP_gene_non_sig_combined_FULL)
 
 ####OsHV1 Gene Set Enrichment Analysis topGO ####
+#subset out only the genes that have "MSTRG ID"
+#lookup these lines in the stringtie.merge file to find the sequence for them, then put them into BLAST2GO
+resoshv1Gene_dfSig_MSTRG <- resoshv1Gene_dfSig[grep("MSTRG", rownames(resoshv1Gene_dfSig)), ]
+MSTRGID_gene_Sig <- as.data.frame(rownames(resoshv1Gene_dfSig_MSTRG))
+head(MSTRGID_gene_Sig)
+write.table(MSTRGID_gene_Sig[,1], file="MSTRGID_gene_Sig", sep= "\t")
 
 
 ####Bacterial Challenge Differential Gene Expression Analysis ####
@@ -433,11 +439,11 @@ write.csv( as.data.frame(resBacGene_non_Sig), file="resBacGene_non_Sig.csv")
 Bac_withID_subset_resBacGene_Sig <- 
   resBacGene_Sig[grep("gene:", rownames(resBacGene_Sig)), ]
 Bac_withID_subset_resBacGene_Sig #0 significant ones! 
-BacGeneIDdf <- as.data.frame(rownames(Bac_withID_subset_resBacGene_Sig))
-head(BacGeneIDdf)
+#BacGeneIDdf <- as.data.frame(rownames(Bac_withID_subset_resBacGene_Sig))
+#head(BacGeneIDdf)
 #BacGeneIDdf= transform(BacGeneIDdf, 
-                             ID = colsplit(rownames(Bac_withID_subset_resBacGene_Sig), 
-                                           split = "\\:", names = c('')))
+                             #ID = colsplit(rownames(Bac_withID_subset_resBacGene_Sig), 
+                              #             split = "\\:", names = c('')))
 #this line splitsup the word transcript and the transcript name
 
 #BacTranscriptIDstring <- toString(BacTranscriptIDdf[,3], sep=',')
@@ -464,213 +470,108 @@ write(BacGeneID_nonSig, "BacGeneID_nonSig", sep = ",")
 
 ####For situations only looking at the gene name of a few genes, can look it up locally ####
 #Load C. gigas UniProt ID information for C. gigas
-source("https://bioconductor.org/biocLite.R")
-biocLite("UniProt.ws")
-library(UniProt.ws)
-browseVignettes("UniProt.ws")
+#source("https://bioconductor.org/biocLite.R")
+#biocLite("UniProt.ws")
+#library(UniProt.ws)
+#browseVignettes("UniProt.ws")
 #Taxonomy ID for C. virginica: 29159
-availableUniprotSpecies(pattern = "gigas")
-CgigasUp <- UniProt.ws(29159)
-CgigasUp
-keytypes(CgigasUp)
-columns(CgigasUp)
-keytypes(CgigasUp)
-showMethods("keys")
+#availableUniprotSpecies(pattern = "gigas")
+#CgigasUp <- UniProt.ws(29159)
+#CgigasUp
+#keytypes(CgigasUp)
+#columns(CgigasUp)
+#keytypes(CgigasUp)
+#showMethods("keys")
 #structure: res <- select(UniProtName, keys, columns, keytype)
 #select(up, keys=c("P31946","P62258"), columns=c("PDB","SEQUENCE"), keytype="ENSEMBL_GENOMES TRANSCRIPT)
 
 #Create object to look up UNIPROTKB entries and retreive other gene info
-columns <- c("ENSEMBL_PROTEIN","HGNC","SEQUENCE", "GENES","ENTREZ_GENE", "ID", "GO", "GO-ID", "KEGG")
-keytype <- "ENSEMBL_GENOMES TRANSCRIPT"
+#columns <- c("ENSEMBL_PROTEIN","HGNC","SEQUENCE", "GENES","ENTREZ_GENE", "ID", "GO", "GO-ID", "KEGG")
+#keytype <- "ENSEMBL_GENOMES TRANSCRIPT"
 #keys <- transcriptIDdf[,3] #set key to be  vector of all of your transcriptIDs from previous
-keys <- transcriptIDparen[1:50] #test to see how this works
-res <- select(CgigasUp, keys, columns, keytype)
-res
+#keys <- transcriptIDparen[1:50] #test to see how this works
+#res <- select(CgigasUp, keys, columns, keytype)
+#res
 
 ####Otherwise, Uploaded Sig Differentially Expressed transcripts from the UniProt.ws website ####
-Bac_transcriptIDs_UniProt_SIG <- read.csv("BacTran_resBacTran_df_Sig_transcriptIDstring.csv", header=TRUE)
+#Bac_GeneIDs_UniProt_SIG <- read.csv("BacTran_resBacTran_df_Sig_transcriptIDstring.csv", header=TRUE)
 #make sure to upload as csv version so that the protein names load correctly
-head(Bac_transcriptIDs_UniProt_SIG)
+#head(Bac_transcriptIDs_UniProt_SIG)
 
 ####Extract GIMAP/IAN proteins and CgIAPs from Significantly Differentially Expressed Genes####
-#Significantly differentially Expressed IAPs
-Bac_transcriptIDs_UniProt_SIG_ProtNames <- Bac_transcriptIDs_UniProt_SIG$Protein.names
-Bac_IAPs_SIG <- grepl("IAP", Bac_transcriptIDs_UniProt_SIG$Protein.names, ignore.case = TRUE) 
-grep("TRUE", Bac_IAPs_SIG) #32...but 32 doesn't have anything 
-Bac_apoptosis_SIG <- grepl("apoptosis", Bac_transcriptIDs_UniProt_SIG$Protein.names, ignore.case = TRUE) 
-grep("TRUE", Bac_apoptosis_SIG) #126 
-Bac_inhibitor_SIG <- grepl("inhibitor", Bac_transcriptIDs_UniProt_SIG$Protein.names, ignore.case = TRUE) 
-grep("TRUE", Bac_inhibitor_SIG) #84, 126 , 84 is the BAX inhibitor
-
-Bac_IAP_SIG_info <- Bac_transcriptIDs_UniProt_SIG[126,]
-
-
-#Significant GIMAP Genes
-Bac_GTP_SIG <- grepl("GTP", Bac_transcriptIDs_UniProt_SIG$Protein.names, ignore.case = TRUE) 
-grep("TRUE", Bac_GTP_SIG) #67 134 157 167, none are GIMAP
-Bac_IMAP_SIG <- grepl("IMAP", Bac_transcriptIDs_UniProt_SIG$Protein.names, ignore.case = TRUE) 
-grep("TRUE", Bac_IMAP_SIG) #0 
-Bac_IAN_Sig <- grepl("IAN", Bac_transcriptIDs_UniProt_SIG$Protein.names, ignore.case = TRUE) 
-grep("TRUE", Bac_IAN_Sig) #0 TRUE
-Bac_immune_Sig <- grepl("immune", Bac_transcriptIDs_UniProt_SIG$Protein.names, ignore.case = TRUE) 
-grep("TRUE", Bac_immune_Sig) #0 TRUE
-Bac_AIG_Sig <- grepl("AIG", Bac_transcriptIDs_UniProt_SIG$Protein.names, ignore.case = TRUE) 
-grep("TRUE", Bac_AIG_Sig) #0 TRUE
-#NO SIG GIMAPS HERE
+#No sig genes with already identified genes
 
 #Uploaded NON Sig Differentially Expressed transcripts from the UniProt.ws website ####
-Bac_transcriptIDs_UniProt_non_Sig <- read.csv("BacTran_resBacTran_df_non_Sig_transcript_ID_string.csv", header=TRUE)
+Bac_GeneIDs_UniProt_non_Sig <- read.csv("BacGeneID_non_Sig_resoshv1_Uniprot.csv", header=TRUE)
 #make sure to upload as csv version so that the protein names load correctly
-Bac_transcriptIDs_UniProt_non_Sig
 
 ####Extract GIMAP and IAP genes from NON significant genes, for comparison ####
 #Expressed IAPs non sig
 #use grepl to find text strings 
-Bac_transcriptIDs_UniProt_non_Sig_ProtNames <- Bac_transcriptIDs_UniProt_non_Sig$Protein.names
-Bac_IAPs_non_Sig <- grepl("IAP", Bac_transcriptIDs_UniProt_non_Sig$Protein.names, ignore.case = TRUE) 
-grep("TRUE", Bac_IAPs_non_Sig) 
-#22  367 2484 2528 2707 4848 4850
-Bac_IAP_non_Sig_info <- Bac_transcriptIDs_UniProt_non_Sig[c(22,  367, 2484, 2528, 2707, 4848, 4850),]
+Bac_GeneIDs_UniProt_non_Sig_ProtNames <- Bac_GeneIDs_UniProt_non_Sig$Protein.names
+Bac_IAP_gene_non_Sig <- grepl("IAP", Bac_GeneIDs_UniProt_non_Sig$Protein.names, ignore.case = TRUE) 
+grep("TRUE", Bac_IAP_gene_non_Sig) #0
 
-Bac_apoptosis_non_Sig <- grepl("apoptosis", Bac_transcriptIDs_UniProt_non_Sig$Protein.names, ignore.case = TRUE) 
-grep("TRUE", Bac_apoptosis_non_Sig) #270 1887 1950 2099 2177 2868 3292 3393 3650 4324 4655
-Bac_apoptosis_non_Sig_info <- Bac_transcriptIDs_UniProt_non_Sig[c(270,1887, 1950, 2099, 2177, 2868, 3292, 3393, 3650, 4324, 4655),]
-#Actual Apoptosis Inhibitors: 1887, 1950, 2099, 2177, 2868, 3292, 3650 
-Bac_inhibitor_non_Sig <- grepl("inhibitor", Bac_transcriptIDs_UniProt_non_Sig$Protein.names, ignore.case = TRUE) 
-grep("TRUE", Bac_inhibitor_non_Sig) #190  372  568  656  816 1029 1134 1246 1600 1813 1887 1950 2099 2177 2307 2519 2868 3154 3174
-# 3210 3292 3358 3378 3650 3694 3705 3915 3921 4057 4067 4348 4487 4570 4924 5341
-Bac_inhibitor_non_Sig_info <- Bac_transcriptIDs_UniProt_non_Sig[c(190,  372,  568,  656,  816, 1029, 1134, 
-                                                                  1246, 1600, 1813, 1887, 1950, 2099, 2177, 2307, 2519, 2868, 3154, 3174, 3210, 3292, 3358, 3378, 3650, 3694,
-                                                                  3705, 3915, 3921 ,4057, 4067, 4348, 4487, 4570, 4924, 5341),] 
-#Actual Apoptosis Inhibitors: 1887, 1950, 2099, 2177, 2868, 3292, 3650, same as above!
-
-Bac_IAPs_non_sig_info <- Bac_transcriptIDs_UniProt_non_Sig[c(22,  367, 2484, 2528, 2707, 4848, 4850,
-                                                             1887, 1950, 2099, 2177, 2868, 3292, 3650),]
+Bac_apoptosis_gene_non_Sig <- grepl("apoptosis",Bac_GeneIDs_UniProt_non_Sig$Protein.names, ignore.case = TRUE) 
+grep("TRUE", Bac_apoptosis_gene_non_Sig) #0
+Bac_inhibitor_gene_non_Sig <- grepl("inhibitor", Bac_GeneIDs_UniProt_non_Sig$Protein.names, ignore.case = TRUE) 
+grep("TRUE", Bac_inhibitor_gene_non_Sig) #0
 
 #Expressed GIMAP Genes, non significant
-Bac_GTP_non_Sig <- grepl("GTP", Bac_transcriptIDs_UniProt_non_Sig$Protein.names, ignore.case = TRUE) 
-grep("TRUE", Bac_GTP_non_Sig)
-#141  310  318  600  841  924  939  985 1009 1325 1338 1535 1596 1626 1685 1702 1704 1879 2020
-#2131 2377 2429 2669 2805 3132 3221 3461 3580 4049 4169 4197 4199 4273 4353 4383 4599 4710 4767
-#4816 4969 5009 5023 5201 5474
-Bac_GTP_non_Sig_info <- Bac_transcriptIDs_UniProt_non_Sig[c(141,  310,  318,  600,  841,  924 , 939,  985, 1009, 1325 ,
-                                                            1338, 1535, 1596, 1626, 1685, 1702, 1704, 1879, 2020,
-                                                            2131, 2377, 2429, 2669, 2805, 3132, 3221, 3461, 3580,
-                                                            4049, 4169, 4197, 4199, 4273, 4353, 4383, 4599, 4710, 4767,
-                                                            4816, 4969, 5009, 5023, 5201, 5474),]
-#Actual GIMAPS: 141, 318, 1338, 1685, 1879, 3132, 4199, 4969, 5474
-Bac_IAN_non_Sig <- grepl("IAN", Bac_transcriptIDs_UniProt_non_Sig$Protein.names) 
-grep("TRUE", Bac_IAN_non_Sig) #0
-Bac_immune_non_Sig <- grepl("immune", Bac_transcriptIDs_UniProt_non_Sig$Protein.names, ignore.case = TRUE) 
-grep("TRUE", Bac_immune_non_Sig) #0 TRUE
-Bac_AIG_non_Sig <- grepl("AIG", Bac_transcriptIDs_UniProt_non_Sig$Protein.names, ignore.case = TRUE) 
-grep("TRUE", Bac_AIG_non_Sig) #0 TRUE
-Bac_IMAP_non_sig <- grepl("IMAP",Bac_transcriptIDs_UniProt_non_Sig$Protein.names, ignore.case = TRUE)
-grep("TRUE", Bac_IMAP_non_sig)
-#GIMAPS: 141  318 1338 1685 1879 3132 4199 4969 5474
+Bac_GTP_gene_non_Sig <- grepl("GTP", Bac_GeneIDs_UniProt_non_Sig$Protein.names, ignore.case = TRUE) 
+grep("TRUE", Bac_GTP_gene_non_Sig)
+#69
+Bac_GTP_gene_non_Sig_info <- Bac_GeneIDs_UniProt_non_Sig[69,] #this is a real GIMAP
 
-Bac_GIMAP_non_sig_info <- Bac_transcriptIDs_UniProt_non_Sig[c(141,  318, 1338, 1685, 1879, 3132, 4199, 4969, 5474),]
 
+Bac_IAN_gene_non_Sig <- grepl("IAN", Bac_GeneIDs_UniProt_non_Sig$Protein.names, ignore.case = TRUE) 
+grep("TRUE", Bac_IAN_gene_non_Sig) #72...not what I want!
+Bac_immune_gene_non_Sig <- grepl("immune", Bac_GeneIDs_UniProt_non_Sig$Protein.names, ignore.case = TRUE) 
+grep("TRUE", Bac_immune_gene_non_Sig) #0 
+Bac_AIG_gene_non_Sig <- grepl("AIG", Bac_GeneIDs_UniProt_non_Sig$Protein.names, ignore.case = TRUE) 
+grep("TRUE", Bac_AIG_gene_non_Sig) #0 TRUE
+
+Bac_IMAP_gene_non_sig <- grepl("IMAP", Bac_GeneIDs_UniProt_non_Sig$Protein.names, ignore.case = TRUE)
+grep("TRUE", Bac_IMAP_gene_non_sig) #69
+
+
+Bac_GIMAP_gene_non_sig_info <- Bac_GeneIDs_UniProt_non_Sig[69,]
 
 ####Link GIMAP and IAN genes, significant and non significant, with Expression Values####
 #Sig IAPS
-subset_Bac_IAPs_SIG_info <- Bac_IAP_SIG_info[,c(4,8,9)]
-Bac_IAP_SIG_info_resBacTran_dfSig <- grep("EKC41180", rownames(resBacTran_dfSig), ignore.case = TRUE) # 848
-Bac_IAP_SIG_info_resBacTran_dfSig <- resBacTran_dfSig[848,] 
-Bac_IAP_SIG_combined_FULL <- cbind(Bac_IAP_SIG_info_resBacTran_dfSig,subset_Bac_IAPs_SIG_info)
-Bac_IAP_SIG_combined_FULL["Significance"] <- "Significant" #add column about significance
-#only 1 sig IAP
+#NO SIG IAPS
 
 #Sig GIMAPs
 #NO SIG GIMAPs
 
 #Non Sig IAP
-Bac_IAPs_non_sig_info$Ensembl_Genome_Transcript 
-#EKC24074 EKC38724 EKC42441 EKC25493 EKC42449 EKC18369 EKC20239 EKC17690 EKC34022 EKC26454 EKC42442
-#EKC18368 EKC41181 EKC26950
-subset_Bac_IAPs_non_sig_info <- Bac_IAPs_non_sig_info[,c(4,8,9)]
-Bac_IAP_non_sig_info_resBacTran_df <- grep("EKC24074", rownames(resBacTran_df_non_Sig), ignore.case = TRUE) #48
-Bac_IAP_non_sig_info_resBacTran_df <- resBacTran_df_non_Sig[48,]
-Bac_IAP_non_sig_info_resBacTran_df2 <- grep("EKC38724", rownames(resBacTran_df_non_Sig), ignore.case = TRUE) #2294
-Bac_IAP_non_sig_info_resBacTran_df2 <- resBacTran_df_non_Sig[2294,]
-Bac_IAP_non_sig_info_resBacTran_df3 <- grep("EKC42441", rownames(resBacTran_df_non_Sig), ignore.case = TRUE) #14607
-Bac_IAP_non_sig_info_resBacTran_df3 <- resBacTran_df_non_Sig[14607,]
-Bac_IAP_non_sig_info_resBacTran_df4 <- grep("EKC25493", rownames(resBacTran_df_non_Sig), ignore.case = TRUE) #14856
-Bac_IAP_non_sig_info_resBacTran_df4 <- resBacTran_df_non_Sig[14856,]
-Bac_IAP_non_sig_info_resBacTran_df5 <- grep("EKC42449", rownames(resBacTran_df_non_Sig), ignore.case = TRUE) #15901
-Bac_IAP_non_sig_info_resBacTran_df5 <- resBacTran_df_non_Sig[15901,]
-Bac_IAP_non_sig_info_resBacTran_df6 <- grep("EKC18369", rownames(resBacTran_df_non_Sig), ignore.case = TRUE) #28537
-Bac_IAP_non_sig_info_resBacTran_df6 <- resBacTran_df_non_Sig[28537,]
-Bac_IAP_non_sig_info_resBacTran_df7 <- grep("EKC20239", rownames(resBacTran_df_non_Sig), ignore.case = TRUE) #28555
-Bac_IAP_non_sig_info_resBacTran_df7 <- resBacTran_df_non_Sig[28555,]
-Bac_IAP_non_sig_info_resBacTran_df8 <- grep("EKC17690", rownames(resBacTran_df_non_Sig), ignore.case = TRUE) #11190
-Bac_IAP_non_sig_info_resBacTran_df8 <- resBacTran_df_non_Sig[11190,]
-Bac_IAP_non_sig_info_resBacTran_df9 <- grep("EKC34022", rownames(resBacTran_df_non_Sig), ignore.case = TRUE) #11641
-Bac_IAP_non_sig_info_resBacTran_df9 <- resBacTran_df_non_Sig[11641,]
-Bac_IAP_non_sig_info_resBacTran_df10 <- grep("EKC26454", rownames(resBacTran_df_non_Sig), ignore.case = TRUE) #12597
-Bac_IAP_non_sig_info_resBacTran_df10 <- resBacTran_df_non_Sig[12597,]
-Bac_IAP_non_sig_info_resBacTran_df11 <- grep("EKC42442", rownames(resBacTran_df_non_Sig), ignore.case = TRUE) #12949
-Bac_IAP_non_sig_info_resBacTran_df11 <- resBacTran_df_non_Sig[12949,]
-Bac_IAP_non_sig_info_resBacTran_df12 <- grep("EKC18368", rownames(resBacTran_df_non_Sig), ignore.case = TRUE) #16861
-Bac_IAP_non_sig_info_resBacTran_df12 <- resBacTran_df_non_Sig[16861,]
-Bac_IAP_non_sig_info_resBacTran_df13 <- grep("EKC41181", rownames(resBacTran_df_non_Sig), ignore.case = TRUE) #19258
-Bac_IAP_non_sig_info_resBacTran_df13 <- resBacTran_df_non_Sig[19258,]
-Bac_IAP_non_sig_info_resBacTran_df14 <- grep("EKC26950", rownames(resBacTran_df_non_Sig), ignore.case = TRUE) #21340
-Bac_IAP_non_sig_info_resBacTran_df14 <- resBacTran_df_non_Sig[21340,]
-Bac_IAP_non_sig_combined_EXP <- rbind(Bac_IAP_non_sig_info_resBacTran_df, Bac_IAP_non_sig_info_resBacTran_df2,
-                                      Bac_IAP_non_sig_info_resBacTran_df3, Bac_IAP_non_sig_info_resBacTran_df4,
-                                      Bac_IAP_non_sig_info_resBacTran_df5,Bac_IAP_non_sig_info_resBacTran_df6,
-                                      Bac_IAP_non_sig_info_resBacTran_df7,Bac_IAP_non_sig_info_resBacTran_df8,
-                                      Bac_IAP_non_sig_info_resBacTran_df9, Bac_IAP_non_sig_info_resBacTran_df10,
-                                      Bac_IAP_non_sig_info_resBacTran_df11,Bac_IAP_non_sig_info_resBacTran_df12,
-                                      Bac_IAP_non_sig_info_resBacTran_df13,Bac_IAP_non_sig_info_resBacTran_df14)
-Bac_IAP_non_sig_combined_FULL <- cbind(Bac_IAP_non_sig_combined_EXP,subset_Bac_IAPs_non_sig_info)
-Bac_IAP_non_sig_combined_FULL["Significance"] <- "Non_significant" # add column about Significance
+#No non-sig IAPs
 
 #Non Sig GIMAP
-Bac_GIMAP_non_sig_info$Ensembl_Genome_Transcript
-#EKC40820 EKC41832 EKC41613 EKC35292 EKC36405 EKC30713 EKC40465 EKC42724 EKC38639
-subset_Bac_GIMAP_non_sig_info <- Bac_GIMAP_non_sig_info[,c(4,8,9)]
-Bac_GIMAP_non_sig_info_resBacTran_df <- grep("EKC40820", rownames(resBacTran_df_non_Sig), ignore.case = TRUE) #825
-Bac_GIMAP_non_sig_info_resBacTran_df <- resBacTran_df_non_Sig[825,]
-Bac_GIMAP_non_sig_info_resBacTran_df2 <- grep("EKC41832", rownames(resBacTran_df_non_Sig), ignore.case = TRUE) 
-Bac_GIMAP_non_sig_info_resBacTran_df2 <- resBacTran_df_non_Sig[1896,]
-Bac_GIMAP_non_sig_info_resBacTran_df3 <- grep("EKC41613", rownames(resBacTran_df_non_Sig), ignore.case = TRUE)
-Bac_GIMAP_non_sig_info_resBacTran_df3 <- resBacTran_df_non_Sig[7998,]
-Bac_GIMAP_non_sig_info_resBacTran_df4 <- grep("EKC35292", rownames(resBacTran_df_non_Sig), ignore.case = TRUE) 
-Bac_GIMAP_non_sig_info_resBacTran_df4 <- resBacTran_df_non_Sig[10221,]
-Bac_GIMAP_non_sig_info_resBacTran_df5 <- grep("EKC36405", rownames(resBacTran_df_non_Sig), ignore.case = TRUE) 
-Bac_GIMAP_non_sig_info_resBacTran_df5 <- resBacTran_df_non_Sig[11154,]
-Bac_GIMAP_non_sig_info_resBacTran_df6 <- grep("EKC30713", rownames(resBacTran_df_non_Sig), ignore.case = TRUE) 
-Bac_GIMAP_non_sig_info_resBacTran_df6 <- resBacTran_df_non_Sig[18385,]
-Bac_GIMAP_non_sig_info_resBacTran_df7 <- grep("EKC40465", rownames(resBacTran_df_non_Sig), ignore.case = TRUE) 
-Bac_GIMAP_non_sig_info_resBacTran_df7 <- resBacTran_df_non_Sig[24720,]
-Bac_GIMAP_non_sig_info_resBacTran_df8 <- grep("EKC42724", rownames(resBacTran_df_non_Sig), ignore.case = TRUE) 
-Bac_GIMAP_non_sig_info_resBacTran_df8 <- resBacTran_df_non_Sig[29415,]
-Bac_GIMAP_non_sig_info_resBacTran_df9 <- grep("EKC38639", rownames(resBacTran_df_non_Sig), ignore.case = TRUE) 
-Bac_GIMAP_non_sig_info_resBacTran_df9 <- resBacTran_df_non_Sig[32500,]
+Bac_GIMAP_gene_non_sig_info$Gene.name
+#CGI_10026503
+subset_Bac_GIMAP_gene_non_sig_info <- Bac_GIMAP_gene_non_sig_info[,c(4,5,7)]
+Bac_GIMAP_gene_non_sig_info_resBacTran_df <- grep("CGI_10026503", rownames(resBacGene_non_Sig), ignore.case = TRUE) #13468
+Bac_GIMAP_gene_non_sig_info_resBacTran_df <- resBacGene_non_Sig[13468,]
 
-Bac_GIMAP_non_sig_combined_EXP <- rbind(Bac_GIMAP_non_sig_info_resBacTran_df, Bac_GIMAP_non_sig_info_resBacTran_df2,
-                                        Bac_GIMAP_non_sig_info_resBacTran_df3, Bac_GIMAP_non_sig_info_resBacTran_df4,
-                                        Bac_GIMAP_non_sig_info_resBacTran_df5, Bac_GIMAP_non_sig_info_resBacTran_df6,
-                                        Bac_GIMAP_non_sig_info_resBacTran_df7,Bac_GIMAP_non_sig_info_resBacTran_df8,
-                                        Bac_GIMAP_non_sig_info_resBacTran_df9)
 
-Bac_GIMAP_non_sig_combined_FULL <- cbind(Bac_GIMAP_non_sig_combined_EXP,subset_Bac_GIMAP_non_sig_info)
-Bac_GIMAP_non_sig_combined_FULL["Significance"] <- "Non_significant" #add column about significance
+Bac_GIMAP_gene_non_sig_combined_FULL <- cbind(subset_Bac_GIMAP_gene_non_sig_info, Bac_GIMAP_gene_non_sig_info_resBacTran_df)
+Bac_GIMAP_gene_non_sig_combined_FULL["Significance"] <- "Non_significant" #add column about significance
+Bac_GIMAP_gene_non_sig_combined_FULL["Challenge"] <- "Bacteria"
+Bac_GIMAP_gene_non_sig_combined_FULL["Type"] <- "GIMAP"
+
 
 ####Combine all Bac IAP and GIMAP data #####
 #to rbind the names of all the columns need to be the same, change first column name
 #Fix column name error for column 9 in SIG set
-colnames(Bac_IAP_SIG_combined_FULL)[9] <- "Ensembl_Genome_Transcript"
+
+#NOTHING TO COMBINE!
 Bac_GIMAP_IAP_combined_FULL <- rbind(Bac_IAP_SIG_combined_FULL, Bac_IAP_non_sig_combined_FULL,
                                      Bac_GIMAP_non_sig_combined_FULL)
 
 ####Bacterial Challenge Gene Set Enrichment Analysis ####
-#Matching the background set
-#Get average expressions 
-#Bac_BaseMean <- as.matrix(resoshv1_6_df[, "baseMean", drop=F])
-#Bac_backG <- genefinder(oshv1_6_BaseMean, anSig$ensembl_gene_id, 10, method= "manhattan")
+
+
 
 
 #### COMPILE GIMAP AND IAP DATA FROM BOTH OSHV1 AND BAC TRIAL ####
