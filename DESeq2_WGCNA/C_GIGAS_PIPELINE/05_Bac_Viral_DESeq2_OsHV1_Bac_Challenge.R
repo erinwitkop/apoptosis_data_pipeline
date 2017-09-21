@@ -1,9 +1,9 @@
 #05_Bac_viral_DESeq2_OsHV1_Bac_challenge
 
-####INPUT DATA GATHERED FROM CRASSOSTREA GIGAS ####
+####INPUT DATA GATHERED FROM CRASSOSTREA GIGAS####
 
 #This script takes as input the output Bac_Viral_transcript_count_matrix.csv data prepared from prepDE.py and performs
-#differential Gene expression analysis, and subsets out isoforms of GIMAPs and CgIAPs and graphs their
+#differential transcript expression analysis, and subsets out isoforms of GIMAPs and CgIAPs and graphs their
 #relative abundance.
 
 #call the DESeq2 library 
@@ -180,7 +180,7 @@ transcriptIDdf_nonSig= transform(transcriptIDdf_nonSig,
 transcriptIDstring_nonSig <- toString(transcriptIDdf_nonSig[,3], sep=',')
 transcriptIDstring_nonSig
 write(transcriptIDstring_nonSig, "transcriptIDstring_nonSig", sep = ",")
-#write this to a file and then perform look up on the UniProt website
+#write this to a file and then perform look up on the UniProt website, using Ensembl Genomes Transcript as look up
 
 #Add quotes around this 
 #transcriptIDparen <- sapply(strsplit(transcriptIDstring, '[, ]+'), function(x) toString(dQuote(x)))
@@ -468,7 +468,7 @@ oshv1Tran_backG <- genefinder(oshv1_6_BaseMean, anSig$ensembl_gene_id, 10, metho
 # Gram positive (including control): (SRR796598,  SRR796589)
 
 #Subset Bacterial Challenge Data
-BacTranCountData <- as.matrix(FullTranscriptCountData[ , c(124:131)])
+BacTranCountData <- as.matrix(TranscriptCountData[ , c()])
 head(BacTranCountData)
 BacTranColData <- read.csv("bac_PHENO_DATA.csv", header=TRUE, sep=",")
 rownames(BacTranColData) <- BacTranColData$sampleID

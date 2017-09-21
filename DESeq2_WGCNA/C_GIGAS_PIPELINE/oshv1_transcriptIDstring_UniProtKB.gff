@@ -1,0 +1,1654 @@
+##gff-version 3
+##sequence-region K1RGV7 1 918
+K1RGV7	UniProtKB	Domain	635	680	.	.	.	Note=GHMP_kinases_N;Ontology_term=ECO:0000259;evidence=ECO:0000259|Pfam:PF00288	
+##sequence-region K1QI81 1 515
+K1QI81	UniProtKB	Coiled coil	243	277	.	.	.	Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Coils	
+K1QI81	UniProtKB	Coiled coil	314	358	.	.	.	Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Coils	
+##sequence-region K1PYE1 1 361
+K1PYE1	UniProtKB	Domain	314	349	.	.	.	Note=RING-type;Ontology_term=ECO:0000259;evidence=ECO:0000259|PROSITE:PS50089	
+##sequence-region K1QBK1 1 152
+##sequence-region K1PVS9 1 279
+K1PVS9	UniProtKB	Transmembrane	87	111	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+K1PVS9	UniProtKB	Transmembrane	203	227	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+K1PVS9	UniProtKB	Transmembrane	248	272	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+##sequence-region K1RI39 1 220
+##sequence-region K1QAN8 1 318
+K1QAN8	UniProtKB	Domain	1	236	.	.	.	Note=Alpha-type protein kinase;Ontology_term=ECO:0000259;evidence=ECO:0000259|PROSITE:PS51158	
+##sequence-region K1REC7 1 633
+K1REC7	UniProtKB	Domain	18	65	.	.	.	Note=RING-type;Ontology_term=ECO:0000259;evidence=ECO:0000259|PROSITE:PS50089	
+K1REC7	UniProtKB	Domain	106	148	.	.	.	Note=B box-type;Ontology_term=ECO:0000259;evidence=ECO:0000259|PROSITE:PS50119	
+K1REC7	UniProtKB	Domain	159	193	.	.	.	Note=B box-type;Ontology_term=ECO:0000259;evidence=ECO:0000259|PROSITE:PS50119	
+##sequence-region K1QJM8 1 656
+K1QJM8	UniProtKB	Signal peptide	1	19	.	.	.	Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:SignalP	
+K1QJM8	UniProtKB	Chain	20	656	.	.	.	ID=PRO_5003849791;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:SignalP	
+K1QJM8	UniProtKB	Domain	36	212	.	.	.	Note=VWFA;Ontology_term=ECO:0000259;evidence=ECO:0000259|PROSITE:PS50234	
+K1QJM8	UniProtKB	Domain	287	461	.	.	.	Note=VWFA;Ontology_term=ECO:0000259;evidence=ECO:0000259|PROSITE:PS50234	
+##sequence-region K1QBN7 1 410
+##sequence-region K1R176 1 355
+K1R176	UniProtKB	Domain	277	340	.	.	.	Note=BZIP (basic-leucine zipper);Ontology_term=ECO:0000259;evidence=ECO:0000259|PROSITE:PS50217	
+K1R176	UniProtKB	Coiled coil	280	336	.	.	.	Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Coils	
+##sequence-region K1Q822 1 149
+##sequence-region K1PYI4 1 116
+K1PYI4	UniProtKB	Coiled coil	19	60	.	.	.	Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Coils	
+##sequence-region K1RYN2 1 780
+K1RYN2	UniProtKB	Domain	11	43	.	.	.	Note=PACT_coil_coil;Ontology_term=ECO:0000259;evidence=ECO:0000259|Pfam:PF10495	
+##sequence-region K1QW74 1 431
+K1QW74	UniProtKB	Domain	42	319	.	.	.	Note=ANK_REP_REGION;Ontology_term=ECO:0000259;evidence=ECO:0000259|PROSITE:PS50297	
+K1QW74	UniProtKB	Repeat	42	74	.	.	.	Note=ANK;Ontology_term=ECO:0000256;evidence=ECO:0000256|PROSITE-ProRule:PRU00023	
+K1QW74	UniProtKB	Repeat	75	107	.	.	.	Note=ANK;Ontology_term=ECO:0000256;evidence=ECO:0000256|PROSITE-ProRule:PRU00023	
+K1QW74	UniProtKB	Repeat	108	140	.	.	.	Note=ANK;Ontology_term=ECO:0000256;evidence=ECO:0000256|PROSITE-ProRule:PRU00023	
+K1QW74	UniProtKB	Repeat	141	173	.	.	.	Note=ANK;Ontology_term=ECO:0000256;evidence=ECO:0000256|PROSITE-ProRule:PRU00023	
+K1QW74	UniProtKB	Repeat	174	206	.	.	.	Note=ANK;Ontology_term=ECO:0000256;evidence=ECO:0000256|PROSITE-ProRule:PRU00023	
+K1QW74	UniProtKB	Repeat	207	239	.	.	.	Note=ANK;Ontology_term=ECO:0000256;evidence=ECO:0000256|PROSITE-ProRule:PRU00023	
+K1QW74	UniProtKB	Repeat	240	272	.	.	.	Note=ANK;Ontology_term=ECO:0000256;evidence=ECO:0000256|PROSITE-ProRule:PRU00023	
+##sequence-region K1Q8Y9 1 303
+##sequence-region K1RDX5 1 243
+K1RDX5	UniProtKB	Domain	164	227	.	.	.	Note=PPIase cyclophilin-type;Ontology_term=ECO:0000259;evidence=ECO:0000259|PROSITE:PS50072	
+##sequence-region K1PW08 1 1137
+K1PW08	UniProtKB	Domain	30	121	.	.	.	Note=hGDE_N;Ontology_term=ECO:0000259;evidence=ECO:0000259|Pfam:PF14699	
+K1PW08	UniProtKB	Domain	139	570	.	.	.	Note=hDGE_amylase;Ontology_term=ECO:0000259;evidence=ECO:0000259|Pfam:PF14701	
+K1PW08	UniProtKB	Domain	715	988	.	.	.	Note=hGDE_central;Ontology_term=ECO:0000259;evidence=ECO:0000259|Pfam:PF14702	
+K1PW08	UniProtKB	Domain	1083	1129	.	.	.	Note=GDE_C;Ontology_term=ECO:0000259;evidence=ECO:0000259|Pfam:PF06202	
+##sequence-region K1PTN1 1 1077
+K1PTN1	UniProtKB	Domain	698	884	.	.	.	Note=Macro;Ontology_term=ECO:0000259;evidence=ECO:0000259|PROSITE:PS51154	
+##sequence-region K1P9B8 1 114
+K1P9B8	UniProtKB	Transmembrane	7	28	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+K1P9B8	UniProtKB	Transmembrane	40	57	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+##sequence-region K1RDX6 1 254
+##sequence-region K1QM34 1 480
+K1QM34	UniProtKB	Transmembrane	51	78	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+K1QM34	UniProtKB	Transmembrane	87	110	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+K1QM34	UniProtKB	Transmembrane	125	146	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+K1QM34	UniProtKB	Transmembrane	167	187	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+K1QM34	UniProtKB	Transmembrane	207	229	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+K1QM34	UniProtKB	Transmembrane	338	358	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+K1QM34	UniProtKB	Transmembrane	378	397	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+K1QM34	UniProtKB	Domain	67	394	.	.	.	Note=G_PROTEIN_RECEP_F1_2;Ontology_term=ECO:0000259;evidence=ECO:0000259|PROSITE:PS50262	
+##sequence-region K1RHY7 1 522
+K1RHY7	UniProtKB	Domain	192	504	.	.	.	Note=IgGFc_binding;Ontology_term=ECO:0000259;evidence=ECO:0000259|Pfam:PF17517	
+K1RHY7	UniProtKB	Coiled coil	35	87	.	.	.	Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Coils	
+##sequence-region K1RBH2 1 236
+##sequence-region K1Q4G9 1 333
+##sequence-region B2BR16 1 43
+B2BR16	UniProtKB	Domain	7	21	.	.	.	Note=G6PD_N;Ontology_term=ECO:0000259;evidence=ECO:0000259|Pfam:PF00479	
+B2BR16	UniProtKB	Non-terminal residue	1	1	.	.	.	Ontology_term=ECO:0000313;evidence=ECO:0000313|EMBL:ACB29751.1	
+B2BR16	UniProtKB	Non-terminal residue	43	43	.	.	.	Ontology_term=ECO:0000313;evidence=ECO:0000313|EMBL:ACB29751.1	
+##sequence-region K1PU79 1 424
+K1PU79	UniProtKB	Domain	29	202	.	.	.	Note=G6PD_N;Ontology_term=ECO:0000259;evidence=ECO:0000259|Pfam:PF00479	
+K1PU79	UniProtKB	Domain	204	422	.	.	.	Note=G6PD_C;Ontology_term=ECO:0000259;evidence=ECO:0000259|Pfam:PF02781	
+##sequence-region K1RK66 1 489
+K1RK66	UniProtKB	Signal peptide	1	19	.	.	.	Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:SignalP	
+K1RK66	UniProtKB	Chain	20	489	.	.	.	ID=PRO_5003850741;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:SignalP	
+K1RK66	UniProtKB	Domain	84	226	.	.	.	Note=PGRP;Ontology_term=ECO:0000259;evidence=ECO:0000259|SMART:SM00701	
+K1RK66	UniProtKB	Domain	95	232	.	.	.	Note=Ami_2;Ontology_term=ECO:0000259;evidence=ECO:0000259|SMART:SM00644	
+##sequence-region K1QTX2 1 161
+##sequence-region K1RZ40 1 126
+##sequence-region K1PIQ3 1 426
+##sequence-region K1R672 1 818
+##sequence-region K1PF13 1 1031
+K1PF13	UniProtKB	Domain	218	240	.	.	.	Note=C2H2-type;Ontology_term=ECO:0000259;evidence=ECO:0000259|PROSITE:PS00028	
+##sequence-region K1Q8H4 1 199
+K1Q8H4	UniProtKB	Domain	60	137	.	.	.	Note=RRM (RNA recognition motif);Ontology_term=ECO:0000259;evidence=ECO:0000259|PROSITE:PS50102	
+K1Q8H4	UniProtKB	Domain	167	199	.	.	.	Note=RRM (RNA recognition motif);Ontology_term=ECO:0000259;evidence=ECO:0000259|PROSITE:PS50102	
+##sequence-region K1R1I1 1 672
+K1R1I1	UniProtKB	Domain	142	237	.	.	.	Note=NTP_transf_2;Ontology_term=ECO:0000259;evidence=ECO:0000259|Pfam:PF01909	
+K1R1I1	UniProtKB	Domain	305	363	.	.	.	Note=PAP-associated;Ontology_term=ECO:0000259;evidence=ECO:0000259|Pfam:PF03828	
+##sequence-region K1QDX8 1 197
+##sequence-region K1QAK6 1 520
+K1QAK6	UniProtKB	Domain	1	162	.	.	.	Note=Helicase ATP-binding;Ontology_term=ECO:0000259;evidence=ECO:0000259|PROSITE:PS51192	
+K1QAK6	UniProtKB	Domain	349	514	.	.	.	Note=Helicase C-terminal;Ontology_term=ECO:0000259;evidence=ECO:0000259|PROSITE:PS51194	
+##sequence-region K1QLF7 1 988
+K1QLF7	UniProtKB	Domain	490	577	.	.	.	Note=SUEL-type lectin;Ontology_term=ECO:0000259;evidence=ECO:0000259|PROSITE:PS50228	
+K1QLF7	UniProtKB	Domain	622	737	.	.	.	Note=F5/8 type C;Ontology_term=ECO:0000259;evidence=ECO:0000259|PROSITE:PS50022	
+K1QLF7	UniProtKB	Domain	750	869	.	.	.	Note=C-type lectin;Ontology_term=ECO:0000259;evidence=ECO:0000259|PROSITE:PS50041	
+K1QLF7	UniProtKB	Domain	930	985	.	.	.	Note=Chitin-binding type-2;Ontology_term=ECO:0000259;evidence=ECO:0000259|PROSITE:PS50940	
+##sequence-region K1RQA8 1 310
+##sequence-region K1RTK5 1 518
+##sequence-region K1QW88 1 630
+K1QW88	UniProtKB	Transmembrane	218	242	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+K1QW88	UniProtKB	Transmembrane	248	266	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+K1QW88	UniProtKB	Transmembrane	472	495	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+K1QW88	UniProtKB	Transmembrane	507	524	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+K1QW88	UniProtKB	Transmembrane	536	558	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+K1QW88	UniProtKB	Transmembrane	602	621	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+K1QW88	UniProtKB	Domain	22	196	.	.	.	Note=Neur_chan_LBD;Ontology_term=ECO:0000259;evidence=ECO:0000259|Pfam:PF02931	
+K1QW88	UniProtKB	Domain	225	280	.	.	.	Note=Neur_chan_memb;Ontology_term=ECO:0000259;evidence=ECO:0000259|Pfam:PF02932	
+K1QW88	UniProtKB	Domain	293	441	.	.	.	Note=Neur_chan_LBD;Ontology_term=ECO:0000259;evidence=ECO:0000259|Pfam:PF02931	
+K1QW88	UniProtKB	Domain	479	579	.	.	.	Note=Neur_chan_memb;Ontology_term=ECO:0000259;evidence=ECO:0000259|Pfam:PF02932	
+##sequence-region K1Q7F3 1 611
+##sequence-region K1P8P3 1 3175
+K1P8P3	UniProtKB	Domain	1744	1867	.	.	.	Note=Actin-binding;Ontology_term=ECO:0000259;evidence=ECO:0000259|PROSITE:PS50021	
+##sequence-region D7EZH1 1 97
+D7EZH1	UniProtKB	Domain	1	97	.	.	.	Note=Cystatin;Ontology_term=ECO:0000259;evidence=ECO:0000259|SMART:SM00043	
+##sequence-region K1Q2N1 1 893
+K1Q2N1	UniProtKB	Domain	228	285	.	.	.	Note=Death;Ontology_term=ECO:0000259;evidence=ECO:0000259|PROSITE:PS50017	
+K1Q2N1	UniProtKB	Domain	293	358	.	.	.	Note=CARD;Ontology_term=ECO:0000259;evidence=ECO:0000259|PROSITE:PS50209	
+K1Q2N1	UniProtKB	Domain	677	734	.	.	.	Note=Death;Ontology_term=ECO:0000259;evidence=ECO:0000259|PROSITE:PS50017	
+K1Q2N1	UniProtKB	Domain	742	806	.	.	.	Note=CARD;Ontology_term=ECO:0000259;evidence=ECO:0000259|PROSITE:PS50209	
+##sequence-region K1R3Z5 1 318
+##sequence-region K1Q337 1 224
+K1Q337	UniProtKB	Domain	68	163	.	.	.	Note=CS;Ontology_term=ECO:0000259;evidence=ECO:0000259|PROSITE:PS51203	
+K1Q337	UniProtKB	Domain	147	224	.	.	.	Note=SGS;Ontology_term=ECO:0000259;evidence=ECO:0000259|PROSITE:PS51048	
+##sequence-region K1RU23 1 1085
+K1RU23	UniProtKB	Domain	493	708	.	.	.	Note=Helicase ATP-binding;Ontology_term=ECO:0000259;evidence=ECO:0000259|PROSITE:PS51192	
+K1RU23	UniProtKB	Domain	917	1080	.	.	.	Note=Helicase C-terminal;Ontology_term=ECO:0000259;evidence=ECO:0000259|PROSITE:PS51194	
+##sequence-region K1QMS5 1 198
+K1QMS5	UniProtKB	Metal binding	82	82	.	.	.	Note=Iron%3B via tele nitrogen%3B catalytic;Ontology_term=ECO:0000256;evidence=ECO:0000256|PIRSR:PIRSR610300-51	
+K1QMS5	UniProtKB	Metal binding	84	84	.	.	.	Note=Iron%3B via tele nitrogen%3B catalytic;Ontology_term=ECO:0000256;evidence=ECO:0000256|PIRSR:PIRSR610300-51	
+K1QMS5	UniProtKB	Metal binding	142	142	.	.	.	Note=Iron%3B via tele nitrogen%3B catalytic;Ontology_term=ECO:0000256;evidence=ECO:0000256|PIRSR:PIRSR610300-51	
+K1QMS5	UniProtKB	Cross-link	89	159	.	.	.	Note=3'-(S-cysteinyl)-tyrosine (Cys-Tyr);Ontology_term=ECO:0000256;evidence=ECO:0000256|PIRSR:PIRSR610300-50	
+##sequence-region K1PLB5 1 67
+##sequence-region K1PRY7 1 144
+##sequence-region K1R7B1 1 66
+K1R7B1	UniProtKB	Non-terminal residue	1	1	.	.	.	Ontology_term=ECO:0000313;evidence=ECO:0000313|EMBL:EKC41663.1	
+##sequence-region K1QY01 1 305
+K1QY01	UniProtKB	Domain	7	213	.	.	.	Note=AIG1-type G (guanine nucleotide-binding);Ontology_term=ECO:0000259;evidence=ECO:0000259|PROSITE:PS51720	
+K1QY01	UniProtKB	Coiled coil	209	241	.	.	.	Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Coils	
+##sequence-region K1QRM5 1 4263
+K1QRM5	UniProtKB	Domain	3248	3519	.	.	.	Note=AAA;Ontology_term=ECO:0000259;evidence=ECO:0000259|SMART:SM00382	
+K1QRM5	UniProtKB	Coiled coil	3545	3582	.	.	.	Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Coils	
+##sequence-region K1Q0W8 1 1196
+K1Q0W8	UniProtKB	Domain	591	666	.	.	.	Note=Ig-like (immunoglobulin-like);Ontology_term=ECO:0000259;evidence=ECO:0000259|PROSITE:PS50835	
+K1Q0W8	UniProtKB	Domain	685	772	.	.	.	Note=Ig-like (immunoglobulin-like);Ontology_term=ECO:0000259;evidence=ECO:0000259|PROSITE:PS50835	
+##sequence-region K1PXP0 1 565
+K1PXP0	UniProtKB	Domain	28	455	.	.	.	Note=AMP-binding;Ontology_term=ECO:0000259;evidence=ECO:0000259|Pfam:PF00501	
+K1PXP0	UniProtKB	Domain	465	549	.	.	.	Note=AMP-binding_C;Ontology_term=ECO:0000259;evidence=ECO:0000259|Pfam:PF13193	
+##sequence-region K1QDA6 1 352
+##sequence-region K1PG14 1 844
+K1PG14	UniProtKB	Coiled coil	247	281	.	.	.	Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Coils	
+##sequence-region K1RL35 1 305
+K1RL35	UniProtKB	Repeat	1	110	.	.	.	Note=Solcar;Ontology_term=ECO:0000256;evidence=ECO:0000256|PROSITE-ProRule:PRU00282	
+K1RL35	UniProtKB	Repeat	118	203	.	.	.	Note=Solcar;Ontology_term=ECO:0000256;evidence=ECO:0000256|PROSITE-ProRule:PRU00282	
+K1RL35	UniProtKB	Repeat	216	300	.	.	.	Note=Solcar;Ontology_term=ECO:0000256;evidence=ECO:0000256|PROSITE-ProRule:PRU00282	
+K1RL35	UniProtKB	Non-terminal residue	1	1	.	.	.	Ontology_term=ECO:0000313;evidence=ECO:0000313|EMBL:EKC35016.1	
+##sequence-region K1QCK8 1 436
+K1QCK8	UniProtKB	Transmembrane	12	31	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+K1QCK8	UniProtKB	Transmembrane	68	88	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+K1QCK8	UniProtKB	Transmembrane	109	132	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+K1QCK8	UniProtKB	Transmembrane	144	161	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+K1QCK8	UniProtKB	Transmembrane	199	219	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+K1QCK8	UniProtKB	Transmembrane	225	242	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+K1QCK8	UniProtKB	Transmembrane	263	287	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+K1QCK8	UniProtKB	Transmembrane	293	315	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+K1QCK8	UniProtKB	Transmembrane	373	402	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+##sequence-region K1PCK7 1 222
+##sequence-region K1RI78 1 203
+K1RI78	UniProtKB	Active site	150	150	.	.	.	Ontology_term=ECO:0000256;evidence=ECO:0000256|PROSITE-ProRule:PRU10077	
+##sequence-region K1R1I9 1 1321
+K1R1I9	UniProtKB	Signal peptide	1	22	.	.	.	Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:SignalP	
+K1R1I9	UniProtKB	Chain	23	1321	.	.	.	ID=PRO_5007316105;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:SignalP	
+K1R1I9	UniProtKB	Domain	26	559	.	.	.	Note=COesterase;Ontology_term=ECO:0000259;evidence=ECO:0000259|Pfam:PF00135	
+K1R1I9	UniProtKB	Domain	902	1001	.	.	.	Note=TIR;Ontology_term=ECO:0000259;evidence=ECO:0000259|Pfam:PF13676	
+K1R1I9	UniProtKB	Coiled coil	671	701	.	.	.	Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Coils	
+##sequence-region K1QHI4 1 791
+K1QHI4	UniProtKB	Signal peptide	1	22	.	.	.	Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:SignalP	
+K1QHI4	UniProtKB	Chain	23	791	.	.	.	ID=PRO_5003852033;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:SignalP	
+K1QHI4	UniProtKB	Transmembrane	86	107	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+K1QHI4	UniProtKB	Transmembrane	141	159	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+K1QHI4	UniProtKB	Transmembrane	171	191	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+K1QHI4	UniProtKB	Transmembrane	233	252	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+K1QHI4	UniProtKB	Transmembrane	272	290	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+K1QHI4	UniProtKB	Transmembrane	345	369	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+K1QHI4	UniProtKB	Transmembrane	375	395	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+K1QHI4	UniProtKB	Transmembrane	407	425	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+K1QHI4	UniProtKB	Domain	446	765	.	.	.	Note=TPR_REGION;Ontology_term=ECO:0000259;evidence=ECO:0000259|PROSITE:PS50293	
+K1QHI4	UniProtKB	Repeat	446	479	.	.	.	Note=TPR;Ontology_term=ECO:0000256;evidence=ECO:0000256|PROSITE-ProRule:PRU00339	
+K1QHI4	UniProtKB	Repeat	480	513	.	.	.	Note=TPR;Ontology_term=ECO:0000256;evidence=ECO:0000256|PROSITE-ProRule:PRU00339	
+K1QHI4	UniProtKB	Repeat	514	547	.	.	.	Note=TPR;Ontology_term=ECO:0000256;evidence=ECO:0000256|PROSITE-ProRule:PRU00339	
+K1QHI4	UniProtKB	Repeat	559	592	.	.	.	Note=TPR;Ontology_term=ECO:0000256;evidence=ECO:0000256|PROSITE-ProRule:PRU00339	
+K1QHI4	UniProtKB	Repeat	596	629	.	.	.	Note=TPR;Ontology_term=ECO:0000256;evidence=ECO:0000256|PROSITE-ProRule:PRU00339	
+K1QHI4	UniProtKB	Repeat	630	663	.	.	.	Note=TPR;Ontology_term=ECO:0000256;evidence=ECO:0000256|PROSITE-ProRule:PRU00339	
+K1QHI4	UniProtKB	Repeat	664	697	.	.	.	Note=TPR;Ontology_term=ECO:0000256;evidence=ECO:0000256|PROSITE-ProRule:PRU00339	
+K1QHI4	UniProtKB	Repeat	698	731	.	.	.	Note=TPR;Ontology_term=ECO:0000256;evidence=ECO:0000256|PROSITE-ProRule:PRU00339	
+K1QHI4	UniProtKB	Repeat	732	765	.	.	.	Note=TPR;Ontology_term=ECO:0000256;evidence=ECO:0000256|PROSITE-ProRule:PRU00339	
+##sequence-region K1Q9R6 1 669
+K1Q9R6	UniProtKB	Domain	318	540	.	.	.	Note=AIG1-type G (guanine nucleotide-binding);Ontology_term=ECO:0000259;evidence=ECO:0000259|PROSITE:PS51720	
+K1Q9R6	UniProtKB	Coiled coil	532	661	.	.	.	Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Coils	
+##sequence-region K1PSL5 1 795
+K1PSL5	UniProtKB	Coiled coil	108	205	.	.	.	Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Coils	
+##sequence-region K1Q098 1 824
+K1Q098	UniProtKB	Domain	397	533	.	.	.	Note=PHD-type;Ontology_term=ECO:0000259;evidence=ECO:0000259|PROSITE:PS51533	
+K1Q098	UniProtKB	Active site	624	624	.	.	.	Ontology_term=ECO:0000256;evidence=ECO:0000256|PROSITE-ProRule:PRU01016	
+##sequence-region K1QRQ2 1 542
+K1QRQ2	UniProtKB	Domain	248	538	.	.	.	Note=ELFV_dehydrog;Ontology_term=ECO:0000259;evidence=ECO:0000259|SMART:SM00839	
+##sequence-region K1RA27 1 1004
+##sequence-region K1PXU8 1 647
+##sequence-region K1PGX1 1 798
+K1PGX1	UniProtKB	Transmembrane	58	78	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+K1PGX1	UniProtKB	Transmembrane	119	137	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+K1PGX1	UniProtKB	Transmembrane	279	305	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+K1PGX1	UniProtKB	Transmembrane	317	334	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+K1PGX1	UniProtKB	Transmembrane	354	373	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+K1PGX1	UniProtKB	Transmembrane	519	539	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+K1PGX1	UniProtKB	Transmembrane	551	569	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+K1PGX1	UniProtKB	Transmembrane	581	598	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+K1PGX1	UniProtKB	Transmembrane	610	628	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+K1PGX1	UniProtKB	Transmembrane	649	666	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+K1PGX1	UniProtKB	Transmembrane	672	693	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+K1PGX1	UniProtKB	Domain	54	673	.	.	.	Note=MFS_1_like;Ontology_term=ECO:0000259;evidence=ECO:0000259|Pfam:PF12832	
+##sequence-region K1QQP1 1 447
+K1QQP1	UniProtKB	Domain	142	263	.	.	.	Note=MI;Ontology_term=ECO:0000259;evidence=ECO:0000259|PROSITE:PS51366	
+K1QQP1	UniProtKB	Domain	305	428	.	.	.	Note=MI;Ontology_term=ECO:0000259;evidence=ECO:0000259|PROSITE:PS51366	
+##sequence-region K1Q935 1 4149
+K1Q935	UniProtKB	Domain	3072	3112	.	.	.	Note=RING-type;Ontology_term=ECO:0000259;evidence=ECO:0000259|PROSITE:PS50089	
+K1Q935	UniProtKB	Coiled coil	3204	3227	.	.	.	Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Coils	
+K1Q935	UniProtKB	Coiled coil	4017	4044	.	.	.	Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Coils	
+##sequence-region K1P6T3 1 520
+K1P6T3	UniProtKB	Transmembrane	7	24	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+K1P6T3	UniProtKB	Transmembrane	116	137	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+K1P6T3	UniProtKB	Transmembrane	149	172	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+K1P6T3	UniProtKB	Transmembrane	192	213	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+K1P6T3	UniProtKB	Transmembrane	225	250	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+K1P6T3	UniProtKB	Transmembrane	284	306	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+K1P6T3	UniProtKB	Transmembrane	327	352	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+K1P6T3	UniProtKB	Transmembrane	358	381	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+K1P6T3	UniProtKB	Transmembrane	402	421	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+K1P6T3	UniProtKB	Transmembrane	441	461	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+##sequence-region K1QNM6 1 132
+K1QNM6	UniProtKB	Signal peptide	1	20	.	.	.	Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:SignalP	
+K1QNM6	UniProtKB	Chain	21	132	.	.	.	ID=PRO_5007677313;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:SignalP	
+##sequence-region K1RNZ4 1 303
+K1RNZ4	UniProtKB	Transmembrane	54	74	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+##sequence-region K1QW78 1 277
+K1QW78	UniProtKB	Domain	185	245	.	.	.	Note=Homeobox DNA-binding;Ontology_term=ECO:0000259;evidence=ECO:0000259|PROSITE:PS50071	
+K1QW78	UniProtKB	DNA binding	187	246	.	.	.	Note=Homeobox;Ontology_term=ECO:0000256;evidence=ECO:0000256|PROSITE-ProRule:PRU00108	
+##sequence-region K1PG80 1 1875
+K1PG80	UniProtKB	Domain	474	818	.	.	.	Note=Kinesin motor;Ontology_term=ECO:0000259;evidence=ECO:0000259|PROSITE:PS50067	
+K1PG80	UniProtKB	Nucleotide binding	569	576	.	.	.	Note=ATP;Ontology_term=ECO:0000256;evidence=ECO:0000256|PROSITE-ProRule:PRU00283	
+##sequence-region K1QRD6 1 456
+K1QRD6	UniProtKB	Domain	7	196	.	.	.	Note=3'-5' exonuclease;Ontology_term=ECO:0000259;evidence=ECO:0000259|SMART:SM00474	
+##sequence-region K1RXY7 1 1299
+K1RXY7	UniProtKB	Domain	9	84	.	.	.	Note=SUEL-type lectin;Ontology_term=ECO:0000259;evidence=ECO:0000259|PROSITE:PS50228	
+##sequence-region K1PYT4 1 379
+K1PYT4	UniProtKB	Coiled coil	282	318	.	.	.	Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Coils	
+K1PYT4	UniProtKB	Coiled coil	321	352	.	.	.	Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Coils	
+##sequence-region K1Q8J9 1 764
+K1Q8J9	UniProtKB	Coiled coil	21	48	.	.	.	Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Coils	
+K1Q8J9	UniProtKB	Coiled coil	97	152	.	.	.	Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Coils	
+K1Q8J9	UniProtKB	Coiled coil	160	201	.	.	.	Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Coils	
+K1Q8J9	UniProtKB	Coiled coil	261	316	.	.	.	Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Coils	
+K1Q8J9	UniProtKB	Coiled coil	360	394	.	.	.	Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Coils	
+K1Q8J9	UniProtKB	Coiled coil	498	525	.	.	.	Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Coils	
+K1Q8J9	UniProtKB	Coiled coil	543	570	.	.	.	Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Coils	
+K1Q8J9	UniProtKB	Coiled coil	581	615	.	.	.	Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Coils	
+##sequence-region K1PGS9 1 218
+K1PGS9	UniProtKB	Domain	123	171	.	.	.	Note=LRAT;Ontology_term=ECO:0000259;evidence=ECO:0000259|Pfam:PF04970	
+##sequence-region K1QTX3 1 295
+K1QTX3	UniProtKB	Transmembrane	47	68	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+K1QTX3	UniProtKB	Transmembrane	89	111	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+K1QTX3	UniProtKB	Transmembrane	131	154	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+K1QTX3	UniProtKB	Transmembrane	187	206	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+K1QTX3	UniProtKB	Transmembrane	218	237	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+K1QTX3	UniProtKB	Domain	1	235	.	.	.	Note=G_PROTEIN_RECEP_F1_2;Ontology_term=ECO:0000259;evidence=ECO:0000259|PROSITE:PS50262	
+##sequence-region K1RA05 1 374
+##sequence-region K1QYN9 1 297
+K1QYN9	UniProtKB	Transmembrane	27	47	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+K1QYN9	UniProtKB	Transmembrane	59	82	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+K1QYN9	UniProtKB	Transmembrane	97	118	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+K1QYN9	UniProtKB	Transmembrane	139	159	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+K1QYN9	UniProtKB	Transmembrane	188	212	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+K1QYN9	UniProtKB	Domain	39	297	.	.	.	Note=G_PROTEIN_RECEP_F1_2;Ontology_term=ECO:0000259;evidence=ECO:0000259|PROSITE:PS50262	
+##sequence-region K1R3B6 1 497
+K1R3B6	UniProtKB	Domain	30	92	.	.	.	Note=RING-type;Ontology_term=ECO:0000259;evidence=ECO:0000259|PROSITE:PS50089	
+K1R3B6	UniProtKB	Domain	124	168	.	.	.	Note=B box-type;Ontology_term=ECO:0000259;evidence=ECO:0000259|PROSITE:PS50119	
+##sequence-region K1RD00 1 565
+K1RD00	UniProtKB	Domain	28	455	.	.	.	Note=AMP-binding;Ontology_term=ECO:0000259;evidence=ECO:0000259|Pfam:PF00501	
+K1RD00	UniProtKB	Domain	465	549	.	.	.	Note=AMP-binding_C;Ontology_term=ECO:0000259;evidence=ECO:0000259|Pfam:PF13193	
+##sequence-region K1PKM6 1 559
+K1PKM6	UniProtKB	Metal binding	82	82	.	.	.	Note=Iron%3B via tele nitrogen%3B catalytic;Ontology_term=ECO:0000256;evidence=ECO:0000256|PIRSR:PIRSR610300-51	
+K1PKM6	UniProtKB	Metal binding	84	84	.	.	.	Note=Iron%3B via tele nitrogen%3B catalytic;Ontology_term=ECO:0000256;evidence=ECO:0000256|PIRSR:PIRSR610300-51	
+K1PKM6	UniProtKB	Metal binding	142	142	.	.	.	Note=Iron%3B via tele nitrogen%3B catalytic;Ontology_term=ECO:0000256;evidence=ECO:0000256|PIRSR:PIRSR610300-51	
+K1PKM6	UniProtKB	Cross-link	89	159	.	.	.	Note=3'-(S-cysteinyl)-tyrosine (Cys-Tyr);Ontology_term=ECO:0000256;evidence=ECO:0000256|PIRSR:PIRSR610300-50	
+##sequence-region K1Q1N1 1 1074
+K1Q1N1	UniProtKB	Domain	441	527	.	.	.	Note=Alpha-mann_mid;Ontology_term=ECO:0000259;evidence=ECO:0000259|SMART:SM00872	
+##sequence-region K1QKQ0 1 501
+##sequence-region K1QGP7 1 331
+K1QGP7	UniProtKB	Transmembrane	212	232	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+K1QGP7	UniProtKB	Transmembrane	244	262	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+K1QGP7	UniProtKB	Domain	95	298	.	.	.	Note=MCU;Ontology_term=ECO:0000259;evidence=ECO:0000259|Pfam:PF04678	
+K1QGP7	UniProtKB	Coiled coil	168	205	.	.	.	Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Coils	
+##sequence-region K1Q7P1 1 294
+##sequence-region K1RMV4 1 604
+K1RMV4	UniProtKB	Domain	13	60	.	.	.	Note=B box-type;Ontology_term=ECO:0000259;evidence=ECO:0000259|PROSITE:PS50119	
+K1RMV4	UniProtKB	Domain	99	140	.	.	.	Note=B box-type;Ontology_term=ECO:0000259;evidence=ECO:0000259|PROSITE:PS50119	
+##sequence-region K1QMA6 1 280
+K1QMA6	UniProtKB	Transmembrane	20	43	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|PIRNR:PIRNR017529	
+K1QMA6	UniProtKB	Transmembrane	82	102	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|PIRNR:PIRNR017529	
+K1QMA6	UniProtKB	Transmembrane	168	189	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|PIRNR:PIRNR017529	
+K1QMA6	UniProtKB	Transmembrane	201	223	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|PIRNR:PIRNR017529	
+K1QMA6	UniProtKB	Transmembrane	243	260	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|PIRNR:PIRNR017529	
+##sequence-region K1RGR7 1 87
+##sequence-region K1QQ17 1 215
+##sequence-region K1QK26 1 826
+##sequence-region K1R5K5 1 522
+##sequence-region K1PFJ8 1 204
+K1PFJ8	UniProtKB	Domain	2	203	.	.	.	Note=FAA_hydrolase;Ontology_term=ECO:0000259;evidence=ECO:0000259|Pfam:PF01557	
+##sequence-region K1PBZ7 1 179
+##sequence-region K1PW59 1 957
+K1PW59	UniProtKB	Domain	281	316	.	.	.	Note=EF-hand;Ontology_term=ECO:0000259;evidence=ECO:0000259|PROSITE:PS50222	
+K1PW59	UniProtKB	Domain	519	554	.	.	.	Note=EF-hand;Ontology_term=ECO:0000259;evidence=ECO:0000259|PROSITE:PS50222	
+K1PW59	UniProtKB	Domain	656	683	.	.	.	Note=EF-hand;Ontology_term=ECO:0000259;evidence=ECO:0000259|PROSITE:PS50222	
+K1PW59	UniProtKB	Domain	759	794	.	.	.	Note=EF-hand;Ontology_term=ECO:0000259;evidence=ECO:0000259|PROSITE:PS50222	
+##sequence-region K1R0C2 1 641
+K1R0C2	UniProtKB	Domain	9	86	.	.	.	Note=IGFBP N-terminal;Ontology_term=ECO:0000259;evidence=ECO:0000259|PROSITE:PS51323	
+K1R0C2	UniProtKB	Domain	250	312	.	.	.	Note=VWFC;Ontology_term=ECO:0000259;evidence=ECO:0000259|PROSITE:PS50184	
+K1R0C2	UniProtKB	Domain	312	369	.	.	.	Note=VWFC;Ontology_term=ECO:0000259;evidence=ECO:0000259|PROSITE:PS50184	
+K1R0C2	UniProtKB	Domain	380	406	.	.	.	Note=Antistasin-like;Ontology_term=ECO:0000259;evidence=ECO:0000259|PROSITE:PS51252	
+K1R0C2	UniProtKB	Domain	406	431	.	.	.	Note=Antistasin-like;Ontology_term=ECO:0000259;evidence=ECO:0000259|PROSITE:PS51252	
+K1R0C2	UniProtKB	Domain	438	464	.	.	.	Note=Antistasin-like;Ontology_term=ECO:0000259;evidence=ECO:0000259|PROSITE:PS51252	
+K1R0C2	UniProtKB	Domain	467	492	.	.	.	Note=Antistasin-like;Ontology_term=ECO:0000259;evidence=ECO:0000259|PROSITE:PS51252	
+K1R0C2	UniProtKB	Domain	509	566	.	.	.	Note=VWFC;Ontology_term=ECO:0000259;evidence=ECO:0000259|PROSITE:PS50184	
+K1R0C2	UniProtKB	Domain	579	637	.	.	.	Note=VWFC;Ontology_term=ECO:0000259;evidence=ECO:0000259|PROSITE:PS50184	
+##sequence-region K1QVD7 1 1062
+K1QVD7	UniProtKB	Transmembrane	185	209	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+K1QVD7	UniProtKB	Transmembrane	215	232	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+K1QVD7	UniProtKB	Transmembrane	244	272	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+K1QVD7	UniProtKB	Domain	4	181	.	.	.	Note=Neur_chan_LBD;Ontology_term=ECO:0000259;evidence=ECO:0000259|Pfam:PF02931	
+K1QVD7	UniProtKB	Domain	190	632	.	.	.	Note=Neur_chan_memb;Ontology_term=ECO:0000259;evidence=ECO:0000259|Pfam:PF02932	
+K1QVD7	UniProtKB	Domain	934	957	.	.	.	Note=zf-CCHH;Ontology_term=ECO:0000259;evidence=ECO:0000259|Pfam:PF10283	
+K1QVD7	UniProtKB	Coiled coil	857	899	.	.	.	Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Coils	
+##sequence-region K1RAR0 1 834
+K1RAR0	UniProtKB	Transmembrane	79	102	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+K1RAR0	UniProtKB	Transmembrane	123	143	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+K1RAR0	UniProtKB	Transmembrane	182	204	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+K1RAR0	UniProtKB	Transmembrane	211	230	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+K1RAR0	UniProtKB	Transmembrane	263	281	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+K1RAR0	UniProtKB	Transmembrane	293	316	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+K1RAR0	UniProtKB	Transmembrane	355	384	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+K1RAR0	UniProtKB	Transmembrane	396	422	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+K1RAR0	UniProtKB	Transmembrane	428	451	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+K1RAR0	UniProtKB	Transmembrane	472	493	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+K1RAR0	UniProtKB	Transmembrane	505	531	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+K1RAR0	UniProtKB	Transmembrane	644	666	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+K1RAR0	UniProtKB	Transmembrane	672	691	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+K1RAR0	UniProtKB	Transmembrane	712	731	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+##sequence-region K1RAP5 1 359
+K1RAP5	UniProtKB	Domain	28	75	.	.	.	Note=DM DNA-binding;Ontology_term=ECO:0000259;evidence=ECO:0000259|PROSITE:PS50809	
+K1RAP5	UniProtKB	Domain	196	241	.	.	.	Note=CUE;Ontology_term=ECO:0000259;evidence=ECO:0000259|PROSITE:PS51140	
+K1RAP5	UniProtKB	DNA binding	28	75	.	.	.	Note=DM;Ontology_term=ECO:0000256;evidence=ECO:0000256|PROSITE-ProRule:PRU00070	
+##sequence-region K1Q9A8 1 784
+K1Q9A8	UniProtKB	Domain	505	783	.	.	.	Note=Protein kinase;Ontology_term=ECO:0000259;evidence=ECO:0000259|PROSITE:PS50011	
+K1Q9A8	UniProtKB	Coiled coil	452	479	.	.	.	Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Coils	
+##sequence-region K1PI86 1 681
+K1PI86	UniProtKB	Domain	507	676	.	.	.	Note=W2;Ontology_term=ECO:0000259;evidence=ECO:0000259|PROSITE:PS51363	
+##sequence-region K1QL19 1 362
+K1QL19	UniProtKB	Transmembrane	20	42	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|RuleBase:RU363063	
+##sequence-region K1R8Z9 1 509
+K1R8Z9	UniProtKB	Transmembrane	12	36	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|RuleBase:RU361216	
+K1R8Z9	UniProtKB	Transmembrane	56	77	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|RuleBase:RU361216	
+K1R8Z9	UniProtKB	Transmembrane	89	111	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|RuleBase:RU361216	
+K1R8Z9	UniProtKB	Transmembrane	216	235	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|RuleBase:RU361216	
+K1R8Z9	UniProtKB	Transmembrane	256	277	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|RuleBase:RU361216	
+K1R8Z9	UniProtKB	Transmembrane	289	315	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|RuleBase:RU361216	
+K1R8Z9	UniProtKB	Transmembrane	401	422	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|RuleBase:RU361216	
+K1R8Z9	UniProtKB	Transmembrane	428	450	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|RuleBase:RU361216	
+##sequence-region K1RD14 1 499
+K1RD14	UniProtKB	Transmembrane	26	45	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|RuleBase:RU361216	
+K1RD14	UniProtKB	Transmembrane	65	86	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|RuleBase:RU361216	
+K1RD14	UniProtKB	Transmembrane	98	122	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|RuleBase:RU361216	
+K1RD14	UniProtKB	Transmembrane	215	232	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|RuleBase:RU361216	
+K1RD14	UniProtKB	Transmembrane	253	274	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|RuleBase:RU361216	
+K1RD14	UniProtKB	Transmembrane	286	311	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|RuleBase:RU361216	
+K1RD14	UniProtKB	Transmembrane	318	341	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|RuleBase:RU361216	
+K1RD14	UniProtKB	Transmembrane	361	386	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|RuleBase:RU361216	
+K1RD14	UniProtKB	Transmembrane	393	414	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|RuleBase:RU361216	
+K1RD14	UniProtKB	Transmembrane	420	447	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|RuleBase:RU361216	
+##sequence-region K1QJ88 1 744
+K1QJ88	UniProtKB	Domain	17	146	.	.	.	Note=VHS;Ontology_term=ECO:0000259;evidence=ECO:0000259|PROSITE:PS50179	
+K1QJ88	UniProtKB	Domain	213	272	.	.	.	Note=SH3;Ontology_term=ECO:0000259;evidence=ECO:0000259|PROSITE:PS50002	
+##sequence-region K1RVZ4 1 192
+K1RVZ4	UniProtKB	Signal peptide	1	18	.	.	.	Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:SignalP	
+K1RVZ4	UniProtKB	Chain	19	192	.	.	.	ID=PRO_5003850934;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:SignalP	
+K1RVZ4	UniProtKB	Domain	62	186	.	.	.	Note=Sod_Cu;Ontology_term=ECO:0000259;evidence=ECO:0000259|Pfam:PF00080	
+##sequence-region K1QKA1 1 300
+K1QKA1	UniProtKB	Domain	31	86	.	.	.	Note=BHLH (basic helix-loop-helix);Ontology_term=ECO:0000259;evidence=ECO:0000259|PROSITE:PS50888	
+K1QKA1	UniProtKB	Domain	106	142	.	.	.	Note=Orange;Ontology_term=ECO:0000259;evidence=ECO:0000259|PROSITE:PS51054	
+##sequence-region K1Q8X1 1 131
+##sequence-region K1R1Z8 1 164
+##sequence-region K1QT98 1 322
+K1QT98	UniProtKB	Domain	26	105	.	.	.	Note=Fes1;Ontology_term=ECO:0000259;evidence=ECO:0000259|Pfam:PF08609	
+##sequence-region K1QXT1 1 476
+##sequence-region K1Q0E3 1 341
+K1Q0E3	UniProtKB	Domain	186	246	.	.	.	Note=Homeobox DNA-binding;Ontology_term=ECO:0000259;evidence=ECO:0000259|PROSITE:PS50071	
+K1Q0E3	UniProtKB	DNA binding	188	247	.	.	.	Note=Homeobox;Ontology_term=ECO:0000256;evidence=ECO:0000256|PROSITE-ProRule:PRU00108	
+##sequence-region K1Q101 1 139
+K1Q101	UniProtKB	Domain	67	102	.	.	.	Note=EF-hand;Ontology_term=ECO:0000259;evidence=ECO:0000259|PROSITE:PS50222	
+##sequence-region K1RKQ0 1 486
+K1RKQ0	UniProtKB	Signal peptide	1	17	.	.	.	Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:SignalP	
+K1RKQ0	UniProtKB	Chain	18	486	.	.	.	ID=PRO_5003852531;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:SignalP	
+K1RKQ0	UniProtKB	Domain	225	484	.	.	.	Note=Olfactomedin-like;Ontology_term=ECO:0000259;evidence=ECO:0000259|PROSITE:PS51132	
+##sequence-region K1PQ41 1 1246
+K1PQ41	UniProtKB	Domain	59	340	.	.	.	Note=Mab-21;Ontology_term=ECO:0000259;evidence=ECO:0000259|SMART:SM01265	
+K1PQ41	UniProtKB	Domain	674	955	.	.	.	Note=Mab-21;Ontology_term=ECO:0000259;evidence=ECO:0000259|SMART:SM01265	
+##sequence-region K1QES9 1 290
+K1QES9	UniProtKB	Non-terminal residue	1	1	.	.	.	Ontology_term=ECO:0000313;evidence=ECO:0000313|EMBL:EKC35422.1	
+##sequence-region K1R2P9 1 359
+K1R2P9	UniProtKB	Domain	61	347	.	.	.	Note=Mab-21;Ontology_term=ECO:0000259;evidence=ECO:0000259|SMART:SM01265	
+##sequence-region K1QVM2 1 191
+##sequence-region K1QHT5 1 1679
+K1QHT5	UniProtKB	Domain	1547	1675	.	.	.	Note=HEPN;Ontology_term=ECO:0000259;evidence=ECO:0000259|Pfam:PF05168	
+##sequence-region K1QLV1 1 359
+K1QLV1	UniProtKB	Domain	42	277	.	.	.	Note=Epimerase;Ontology_term=ECO:0000259;evidence=ECO:0000259|Pfam:PF01370	
+##sequence-region K1PXG3 1 169
+K1PXG3	UniProtKB	Transmembrane	6	30	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+K1PXG3	UniProtKB	Transmembrane	139	161	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+##sequence-region K1QCY8 1 417
+K1QCY8	UniProtKB	Signal peptide	1	22	.	.	.	Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:SignalP	
+K1QCY8	UniProtKB	Chain	23	417	.	.	.	ID=PRO_5003851878;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:SignalP	
+K1QCY8	UniProtKB	Transmembrane	233	257	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+K1QCY8	UniProtKB	Transmembrane	264	282	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+K1QCY8	UniProtKB	Transmembrane	294	317	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+K1QCY8	UniProtKB	Transmembrane	392	415	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+K1QCY8	UniProtKB	Domain	41	232	.	.	.	Note=Neur_chan_LBD;Ontology_term=ECO:0000259;evidence=ECO:0000259|Pfam:PF02931	
+K1QCY8	UniProtKB	Domain	239	336	.	.	.	Note=Neur_chan_memb;Ontology_term=ECO:0000259;evidence=ECO:0000259|Pfam:PF02932	
+##sequence-region K1QCZ7 1 417
+K1QCZ7	UniProtKB	Transmembrane	214	236	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+K1QCZ7	UniProtKB	Transmembrane	243	261	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+K1QCZ7	UniProtKB	Transmembrane	273	296	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+K1QCZ7	UniProtKB	Transmembrane	392	414	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+K1QCZ7	UniProtKB	Domain	20	212	.	.	.	Note=Neur_chan_LBD;Ontology_term=ECO:0000259;evidence=ECO:0000259|Pfam:PF02931	
+K1QCZ7	UniProtKB	Domain	220	324	.	.	.	Note=Neur_chan_memb;Ontology_term=ECO:0000259;evidence=ECO:0000259|Pfam:PF02932	
+##sequence-region K1PY34 1 648
+K1PY34	UniProtKB	Transmembrane	22	41	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+K1PY34	UniProtKB	Transmembrane	62	79	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+K1PY34	UniProtKB	Transmembrane	91	115	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+K1PY34	UniProtKB	Transmembrane	136	155	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+K1PY34	UniProtKB	Transmembrane	167	186	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+K1PY34	UniProtKB	Transmembrane	198	216	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+K1PY34	UniProtKB	Transmembrane	248	266	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+K1PY34	UniProtKB	Transmembrane	287	312	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+K1PY34	UniProtKB	Transmembrane	396	415	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+K1PY34	UniProtKB	Transmembrane	421	442	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+K1PY34	UniProtKB	Transmembrane	454	474	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+K1PY34	UniProtKB	Transmembrane	545	569	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+##sequence-region K1Q1T0 1 411
+##sequence-region K1R1K7 1 207
+K1R1K7	UniProtKB	Domain	9	142	.	.	.	Note=NDK;Ontology_term=ECO:0000259;evidence=ECO:0000259|Pfam:PF00334	
+##sequence-region K1RNG7 1 173
+K1RNG7	UniProtKB	Coiled coil	36	60	.	.	.	Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Coils	
+##sequence-region K1QPP8 1 285
+K1QPP8	UniProtKB	Domain	24	282	.	.	.	Note=IFRD;Ontology_term=ECO:0000259;evidence=ECO:0000259|Pfam:PF05004	
+##sequence-region K1QN54 1 424
+K1QN54	UniProtKB	Domain	158	330	.	.	.	Note=DUF383;Ontology_term=ECO:0000259;evidence=ECO:0000259|Pfam:PF04063	
+K1QN54	UniProtKB	Domain	336	389	.	.	.	Note=DUF384;Ontology_term=ECO:0000259;evidence=ECO:0000259|Pfam:PF04064	
+##sequence-region K1Q066 1 395
+K1Q066	UniProtKB	Domain	279	395	.	.	.	Note=TGF_BETA_2;Ontology_term=ECO:0000259;evidence=ECO:0000259|PROSITE:PS51362	
+##sequence-region K1RVE9 1 2049
+K1RVE9	UniProtKB	Transmembrane	529	551	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+K1RVE9	UniProtKB	Transmembrane	571	595	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+K1RVE9	UniProtKB	Transmembrane	607	631	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+K1RVE9	UniProtKB	Transmembrane	637	658	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+K1RVE9	UniProtKB	Transmembrane	711	733	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+K1RVE9	UniProtKB	Transmembrane	1168	1189	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+K1RVE9	UniProtKB	Transmembrane	1410	1432	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+K1RVE9	UniProtKB	Transmembrane	1452	1478	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+K1RVE9	UniProtKB	Transmembrane	1490	1509	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+K1RVE9	UniProtKB	Transmembrane	1521	1546	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+K1RVE9	UniProtKB	Transmembrane	1558	1576	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+K1RVE9	UniProtKB	Transmembrane	1606	1625	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+K1RVE9	UniProtKB	Domain	790	1012	.	.	.	Note=ABC transporter;Ontology_term=ECO:0000259;evidence=ECO:0000259|PROSITE:PS50893	
+K1RVE9	UniProtKB	Domain	1668	1902	.	.	.	Note=ABC transporter;Ontology_term=ECO:0000259;evidence=ECO:0000259|PROSITE:PS50893	
+K1RVE9	UniProtKB	Nucleotide binding	1704	1711	.	.	.	Note=ATP;Ontology_term=ECO:0000256;evidence=ECO:0000256|PROSITE-ProRule:PRU00434	
+##sequence-region K1Q6V8 1 718
+##sequence-region K1RKJ5 1 761
+K1RKJ5	UniProtKB	Transmembrane	188	208	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+K1RKJ5	UniProtKB	Transmembrane	246	266	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+K1RKJ5	UniProtKB	Transmembrane	278	301	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+K1RKJ5	UniProtKB	Transmembrane	313	331	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+K1RKJ5	UniProtKB	Transmembrane	351	372	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+K1RKJ5	UniProtKB	Transmembrane	384	402	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+K1RKJ5	UniProtKB	Transmembrane	409	434	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+K1RKJ5	UniProtKB	Domain	39	129	.	.	.	Note=BTB_2;Ontology_term=ECO:0000259;evidence=ECO:0000259|Pfam:PF02214	
+K1RKJ5	UniProtKB	Domain	189	443	.	.	.	Note=Ion_trans;Ontology_term=ECO:0000259;evidence=ECO:0000259|Pfam:PF00520	
+##sequence-region K1PIG2 1 873
+K1PIG2	UniProtKB	Transmembrane	180	202	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+K1PIG2	UniProtKB	Transmembrane	217	237	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+K1PIG2	UniProtKB	Transmembrane	291	313	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+K1PIG2	UniProtKB	Transmembrane	339	358	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+K1PIG2	UniProtKB	Transmembrane	370	392	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+K1PIG2	UniProtKB	Transmembrane	398	418	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+K1PIG2	UniProtKB	Domain	179	440	.	.	.	Note=G_PROTEIN_RECEP_F3_4;Ontology_term=ECO:0000259;evidence=ECO:0000259|PROSITE:PS50259	
+##sequence-region K1PI99 1 539
+K1PI99	UniProtKB	Transmembrane	163	185	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+K1PI99	UniProtKB	Domain	246	516	.	.	.	Note=Protein kinase;Ontology_term=ECO:0000259;evidence=ECO:0000259|PROSITE:PS50011	
+##sequence-region K1QI57 1 697
+K1QI57	UniProtKB	Domain	14	61	.	.	.	Note=RING-type;Ontology_term=ECO:0000259;evidence=ECO:0000259|PROSITE:PS50089	
+K1QI57	UniProtKB	Domain	96	138	.	.	.	Note=B box-type;Ontology_term=ECO:0000259;evidence=ECO:0000259|PROSITE:PS50119	
+K1QI57	UniProtKB	Coiled coil	174	205	.	.	.	Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Coils	
+##sequence-region K1PEZ7 1 78
+##sequence-region K1PBB1 1 564
+K1PBB1	UniProtKB	Domain	1	110	.	.	.	Note=TPR_REGION;Ontology_term=ECO:0000259;evidence=ECO:0000259|PROSITE:PS50293	
+K1PBB1	UniProtKB	Repeat	9	42	.	.	.	Note=TPR;Ontology_term=ECO:0000256;evidence=ECO:0000256|PROSITE-ProRule:PRU00339	
+K1PBB1	UniProtKB	Repeat	43	76	.	.	.	Note=TPR;Ontology_term=ECO:0000256;evidence=ECO:0000256|PROSITE-ProRule:PRU00339	
+K1PBB1	UniProtKB	Repeat	77	110	.	.	.	Note=TPR;Ontology_term=ECO:0000256;evidence=ECO:0000256|PROSITE-ProRule:PRU00339	
+K1PBB1	UniProtKB	Domain	249	485	.	.	.	Note=TPR_REGION;Ontology_term=ECO:0000259;evidence=ECO:0000259|PROSITE:PS50293	
+K1PBB1	UniProtKB	Repeat	249	282	.	.	.	Note=TPR;Ontology_term=ECO:0000256;evidence=ECO:0000256|PROSITE-ProRule:PRU00339	
+K1PBB1	UniProtKB	Repeat	283	316	.	.	.	Note=TPR;Ontology_term=ECO:0000256;evidence=ECO:0000256|PROSITE-ProRule:PRU00339	
+K1PBB1	UniProtKB	Repeat	324	357	.	.	.	Note=TPR;Ontology_term=ECO:0000256;evidence=ECO:0000256|PROSITE-ProRule:PRU00339	
+K1PBB1	UniProtKB	Repeat	384	417	.	.	.	Note=TPR;Ontology_term=ECO:0000256;evidence=ECO:0000256|PROSITE-ProRule:PRU00339	
+K1PBB1	UniProtKB	Repeat	418	451	.	.	.	Note=TPR;Ontology_term=ECO:0000256;evidence=ECO:0000256|PROSITE-ProRule:PRU00339	
+K1PBB1	UniProtKB	Repeat	452	485	.	.	.	Note=TPR;Ontology_term=ECO:0000256;evidence=ECO:0000256|PROSITE-ProRule:PRU00339	
+##sequence-region K1PZL2 1 2700
+K1PZL2	UniProtKB	Transmembrane	12	32	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+K1PZL2	UniProtKB	Domain	52	100	.	.	.	Note=P-type (trefoil);Ontology_term=ECO:0000259;evidence=ECO:0000259|PROSITE:PS51448	
+K1PZL2	UniProtKB	Domain	913	962	.	.	.	Note=P-type (trefoil);Ontology_term=ECO:0000259;evidence=ECO:0000259|PROSITE:PS51448	
+K1PZL2	UniProtKB	Domain	1808	1860	.	.	.	Note=P-type (trefoil);Ontology_term=ECO:0000259;evidence=ECO:0000259|PROSITE:PS51448	
+K1PZL2	UniProtKB	Disulfide bond	941	958	.	.	.	Ontology_term=ECO:0000256;evidence=ECO:0000256|PROSITE-ProRule:PRU00779	
+##sequence-region K1R2U3 1 254
+K1R2U3	UniProtKB	Domain	79	185	.	.	.	Note=TPR_REGION;Ontology_term=ECO:0000259;evidence=ECO:0000259|PROSITE:PS50293	
+K1R2U3	UniProtKB	Repeat	79	112	.	.	.	Note=TPR;Ontology_term=ECO:0000256;evidence=ECO:0000256|PROSITE-ProRule:PRU00339	
+K1R2U3	UniProtKB	Repeat	118	151	.	.	.	Note=TPR;Ontology_term=ECO:0000256;evidence=ECO:0000256|PROSITE-ProRule:PRU00339	
+K1R2U3	UniProtKB	Repeat	152	185	.	.	.	Note=TPR;Ontology_term=ECO:0000256;evidence=ECO:0000256|PROSITE-ProRule:PRU00339	
+K1R2U3	UniProtKB	Coiled coil	151	178	.	.	.	Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Coils	
+##sequence-region K1RM35 1 279
+K1RM35	UniProtKB	Transmembrane	28	49	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+K1RM35	UniProtKB	Domain	155	197	.	.	.	Note=TNF_2;Ontology_term=ECO:0000259;evidence=ECO:0000259|PROSITE:PS50049	
+##sequence-region K1QHB3 1 237
+##sequence-region K1QHN3 1 626
+K1QHN3	UniProtKB	Transmembrane	485	507	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+##sequence-region K1PWG5 1 367
+K1PWG5	UniProtKB	Domain	118	258	.	.	.	Note=ANK_REP_REGION;Ontology_term=ECO:0000259;evidence=ECO:0000259|PROSITE:PS50297	
+K1PWG5	UniProtKB	Repeat	118	150	.	.	.	Note=ANK;Ontology_term=ECO:0000256;evidence=ECO:0000256|PROSITE-ProRule:PRU00023	
+K1PWG5	UniProtKB	Repeat	220	252	.	.	.	Note=ANK;Ontology_term=ECO:0000256;evidence=ECO:0000256|PROSITE-ProRule:PRU00023	
+K1PWG5	UniProtKB	Domain	310	365	.	.	.	Note=SOCS box;Ontology_term=ECO:0000259;evidence=ECO:0000259|PROSITE:PS50225	
+##sequence-region Q9GPJ2 1 221
+Q9GPJ2	UniProtKB	Signal peptide	1	22	.	.	.	Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:SignalP	
+Q9GPJ2	UniProtKB	Chain	23	221	.	.	.	ID=PRO_5007716805;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:SignalP	
+Q9GPJ2	UniProtKB	Domain	23	151	.	.	.	Note=NTR;Ontology_term=ECO:0000259;evidence=ECO:0000259|PROSITE:PS50189	
+##sequence-region K1QM26 1 132
+K1QM26	UniProtKB	Transmembrane	37	58	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+K1QM26	UniProtKB	Transmembrane	85	108	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+##sequence-region K1PNH8 1 432
+K1PNH8	UniProtKB	Domain	28	95	.	.	.	Note=BTB (POZ);Ontology_term=ECO:0000259;evidence=ECO:0000259|PROSITE:PS50097	
+##sequence-region K1PMI1 1 222
+K1PMI1	UniProtKB	Domain	64	111	.	.	.	Note=SAM (sterile alpha motif);Ontology_term=ECO:0000259;evidence=ECO:0000259|Pfam:PF07647	
+K1PMI1	UniProtKB	Domain	168	213	.	.	.	Note=HD_domain;Ontology_term=ECO:0000259;evidence=ECO:0000259|Pfam:PF01966	
+##sequence-region K1QR76 1 555
+K1QR76	UniProtKB	Domain	173	486	.	.	.	Note=Protein kinase;Ontology_term=ECO:0000259;evidence=ECO:0000259|PROSITE:PS50011	
+##sequence-region K1QVS4 1 136
+##sequence-region K1QZ87 1 444
+K1QZ87	UniProtKB	Transmembrane	123	147	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+K1QZ87	UniProtKB	Transmembrane	225	247	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+K1QZ87	UniProtKB	Transmembrane	254	274	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+K1QZ87	UniProtKB	Transmembrane	286	303	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+K1QZ87	UniProtKB	Transmembrane	315	336	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+K1QZ87	UniProtKB	Transmembrane	356	378	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+K1QZ87	UniProtKB	Transmembrane	411	434	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+K1QZ87	UniProtKB	Domain	159	275	.	.	.	Note=acidPPc;Ontology_term=ECO:0000259;evidence=ECO:0000259|Pfam:PF01569	
+##sequence-region K1QU18 1 195
+##sequence-region K1PHB6 1 255
+##sequence-region K1PTF7 1 631
+##sequence-region K1PBT2 1 227
+K1PBT2	UniProtKB	Domain	36	155	.	.	.	Note=ANK_REP_REGION;Ontology_term=ECO:0000259;evidence=ECO:0000259|PROSITE:PS50297	
+K1PBT2	UniProtKB	Repeat	36	68	.	.	.	Note=ANK;Ontology_term=ECO:0000256;evidence=ECO:0000256|PROSITE-ProRule:PRU00023	
+K1PBT2	UniProtKB	Repeat	72	101	.	.	.	Note=ANK;Ontology_term=ECO:0000256;evidence=ECO:0000256|PROSITE-ProRule:PRU00023	
+K1PBT2	UniProtKB	Repeat	102	134	.	.	.	Note=ANK;Ontology_term=ECO:0000256;evidence=ECO:0000256|PROSITE-ProRule:PRU00023	
+##sequence-region K1Q1T5 1 1461
+K1Q1T5	UniProtKB	Coiled coil	1173	1410	.	.	.	Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Coils	
+##sequence-region K1R4W0 1 413
+K1R4W0	UniProtKB	Signal peptide	1	22	.	.	.	Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:SignalP	
+K1R4W0	UniProtKB	Chain	23	413	.	.	.	ID=PRO_5003850430;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:SignalP	
+K1R4W0	UniProtKB	Transmembrane	234	257	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+K1R4W0	UniProtKB	Transmembrane	264	282	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+K1R4W0	UniProtKB	Transmembrane	294	320	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+K1R4W0	UniProtKB	Transmembrane	387	408	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+K1R4W0	UniProtKB	Domain	32	232	.	.	.	Note=Neur_chan_LBD;Ontology_term=ECO:0000259;evidence=ECO:0000259|Pfam:PF02931	
+K1R4W0	UniProtKB	Domain	240	351	.	.	.	Note=Neur_chan_memb;Ontology_term=ECO:0000259;evidence=ECO:0000259|Pfam:PF02932	
+##sequence-region K1PIC0 1 743
+K1PIC0	UniProtKB	Domain	396	469	.	.	.	Note=MIB/HERC2;Ontology_term=ECO:0000259;evidence=ECO:0000259|PROSITE:PS51416	
+K1PIC0	UniProtKB	Domain	594	668	.	.	.	Note=MIB/HERC2;Ontology_term=ECO:0000259;evidence=ECO:0000259|PROSITE:PS51416	
+##sequence-region K1P3D7 1 576
+K1P3D7	UniProtKB	Domain	8	57	.	.	.	Note=B box-type;Ontology_term=ECO:0000259;evidence=ECO:0000259|PROSITE:PS50119	
+K1P3D7	UniProtKB	Domain	70	103	.	.	.	Note=B box-type;Ontology_term=ECO:0000259;evidence=ECO:0000259|PROSITE:PS50119	
+##sequence-region K1RQ81 1 285
+##sequence-region K1R8V9 1 545
+K1R8V9	UniProtKB	Signal peptide	1	23	.	.	.	Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:SignalP	
+K1R8V9	UniProtKB	Chain	24	545	.	.	.	ID=PRO_5003850533;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:SignalP	
+K1R8V9	UniProtKB	Domain	28	337	.	.	.	Note=Sulfatase;Ontology_term=ECO:0000259;evidence=ECO:0000259|Pfam:PF00884	
+K1R8V9	UniProtKB	Modified residue	74	74	.	.	.	Note=3-oxoalanine (Cys);Ontology_term=ECO:0000256;evidence=ECO:0000256|PIRSR:PIRSR600917-51	
+##sequence-region K1QRP7 1 875
+K1QRP7	UniProtKB	Transmembrane	38	62	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+K1QRP7	UniProtKB	Transmembrane	74	98	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+K1QRP7	UniProtKB	Transmembrane	110	132	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+K1QRP7	UniProtKB	Transmembrane	153	176	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+K1QRP7	UniProtKB	Transmembrane	196	223	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+K1QRP7	UniProtKB	Transmembrane	759	778	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+K1QRP7	UniProtKB	Transmembrane	798	820	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+K1QRP7	UniProtKB	Domain	53	817	.	.	.	Note=G_PROTEIN_RECEP_F1_2;Ontology_term=ECO:0000259;evidence=ECO:0000259|PROSITE:PS50262	
+##sequence-region K1PQP4 1 176
+K1PQP4	UniProtKB	Transmembrane	6	29	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+##sequence-region K1PBH0 1 755
+K1PBH0	UniProtKB	Domain	231	278	.	.	.	Note=B box-type;Ontology_term=ECO:0000259;evidence=ECO:0000259|PROSITE:PS50119	
+K1PBH0	UniProtKB	Domain	285	326	.	.	.	Note=B box-type;Ontology_term=ECO:0000259;evidence=ECO:0000259|PROSITE:PS50119	
+##sequence-region K1PQZ0 1 1127
+K1PQZ0	UniProtKB	Domain	425	688	.	.	.	Note=Protein kinase;Ontology_term=ECO:0000259;evidence=ECO:0000259|PROSITE:PS50011	
+K1PQZ0	UniProtKB	Domain	761	891	.	.	.	Note=Guanylate cyclase;Ontology_term=ECO:0000259;evidence=ECO:0000259|PROSITE:PS50125	
+##sequence-region K1QAL8 1 302
+K1QAL8	UniProtKB	Domain	44	295	.	.	.	Note=PNP_UDP_1;Ontology_term=ECO:0000259;evidence=ECO:0000259|Pfam:PF01048	
+##sequence-region K1PUM2 1 126
+K1PUM2	UniProtKB	Domain	13	88	.	.	.	Note=Histone;Ontology_term=ECO:0000259;evidence=ECO:0000259|Pfam:PF00125	
+K1PUM2	UniProtKB	Domain	91	124	.	.	.	Note=Histone_H2A_C;Ontology_term=ECO:0000259;evidence=ECO:0000259|Pfam:PF16211	
+##sequence-region K1P923 1 365
+K1P923	UniProtKB	Domain	10	69	.	.	.	Note=SAM (sterile alpha motif);Ontology_term=ECO:0000259;evidence=ECO:0000259|PROSITE:PS50105	
+K1P923	UniProtKB	Domain	76	135	.	.	.	Note=SAM (sterile alpha motif);Ontology_term=ECO:0000259;evidence=ECO:0000259|PROSITE:PS50105	
+##sequence-region K1R7Q9 1 175
+##sequence-region K1Q4L3 1 407
+K1Q4L3	UniProtKB	Transmembrane	219	242	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+K1Q4L3	UniProtKB	Transmembrane	249	266	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+K1Q4L3	UniProtKB	Transmembrane	286	307	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+K1Q4L3	UniProtKB	Transmembrane	383	406	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+K1Q4L3	UniProtKB	Domain	22	217	.	.	.	Note=Neur_chan_LBD;Ontology_term=ECO:0000259;evidence=ECO:0000259|Pfam:PF02931	
+K1Q4L3	UniProtKB	Domain	225	337	.	.	.	Note=Neur_chan_memb;Ontology_term=ECO:0000259;evidence=ECO:0000259|Pfam:PF02932	
+##sequence-region K1QMH8 1 372
+K1QMH8	UniProtKB	Domain	16	58	.	.	.	Note=RING-type;Ontology_term=ECO:0000259;evidence=ECO:0000259|PROSITE:PS50089	
+K1QMH8	UniProtKB	Domain	98	141	.	.	.	Note=B box-type;Ontology_term=ECO:0000259;evidence=ECO:0000259|PROSITE:PS50119	
+K1QMH8	UniProtKB	Domain	162	197	.	.	.	Note=B box-type;Ontology_term=ECO:0000259;evidence=ECO:0000259|PROSITE:PS50119	
+##sequence-region K1PFT9 1 187
+K1PFT9	UniProtKB	Domain	24	135	.	.	.	Note=Actin-binding;Ontology_term=ECO:0000259;evidence=ECO:0000259|PROSITE:PS50021	
+##sequence-region K1QD91 1 1138
+K1QD91	UniProtKB	Domain	330	402	.	.	.	Note=ANK_REP_REGION;Ontology_term=ECO:0000259;evidence=ECO:0000259|PROSITE:PS50297	
+K1QD91	UniProtKB	Repeat	364	396	.	.	.	Note=ANK;Ontology_term=ECO:0000256;evidence=ECO:0000256|PROSITE-ProRule:PRU00023	
+K1QD91	UniProtKB	Domain	611	677	.	.	.	Note=ANK_REP_REGION;Ontology_term=ECO:0000259;evidence=ECO:0000259|PROSITE:PS50297	
+K1QD91	UniProtKB	Repeat	642	677	.	.	.	Note=ANK;Ontology_term=ECO:0000256;evidence=ECO:0000256|PROSITE-ProRule:PRU00023	
+K1QD91	UniProtKB	Repeat	705	742	.	.	.	Note=ANK;Ontology_term=ECO:0000256;evidence=ECO:0000256|PROSITE-ProRule:PRU00023	
+K1QD91	UniProtKB	Domain	964	1004	.	.	.	Note=MYND-type;Ontology_term=ECO:0000259;evidence=ECO:0000259|PROSITE:PS50865	
+##sequence-region K1Q1K0 1 213
+##sequence-region K1RWI3 1 636
+K1RWI3	UniProtKB	Domain	30	344	.	.	.	Note=Calpain catalytic;Ontology_term=ECO:0000259;evidence=ECO:0000259|PROSITE:PS50203	
+K1RWI3	UniProtKB	Domain	516	592	.	.	.	Note=C2;Ontology_term=ECO:0000259;evidence=ECO:0000259|PROSITE:PS50004	
+K1RWI3	UniProtKB	Active site	85	85	.	.	.	Ontology_term=ECO:0000256;evidence=ECO:0000256|PROSITE-ProRule:PRU00239	
+K1RWI3	UniProtKB	Active site	253	253	.	.	.	Ontology_term=ECO:0000256;evidence=ECO:0000256|PROSITE-ProRule:PRU00239	
+K1RWI3	UniProtKB	Active site	285	285	.	.	.	Ontology_term=ECO:0000256;evidence=ECO:0000256|PROSITE-ProRule:PRU00239	
+##sequence-region K1PNF7 1 228
+##sequence-region K1QEM9 1 207
+##sequence-region K1QCA4 1 1645
+K1QCA4	UniProtKB	Domain	20	103	.	.	.	Note=Ig-like (immunoglobulin-like);Ontology_term=ECO:0000259;evidence=ECO:0000259|PROSITE:PS50835	
+K1QCA4	UniProtKB	Domain	111	194	.	.	.	Note=Ig-like (immunoglobulin-like);Ontology_term=ECO:0000259;evidence=ECO:0000259|PROSITE:PS50835	
+K1QCA4	UniProtKB	Domain	467	547	.	.	.	Note=Ig-like (immunoglobulin-like);Ontology_term=ECO:0000259;evidence=ECO:0000259|PROSITE:PS50835	
+K1QCA4	UniProtKB	Domain	556	641	.	.	.	Note=Ig-like (immunoglobulin-like);Ontology_term=ECO:0000259;evidence=ECO:0000259|PROSITE:PS50835	
+K1QCA4	UniProtKB	Domain	679	770	.	.	.	Note=Ig-like (immunoglobulin-like);Ontology_term=ECO:0000259;evidence=ECO:0000259|PROSITE:PS50835	
+K1QCA4	UniProtKB	Active site	1266	1266	.	.	.	Note=Proton acceptor;Ontology_term=ECO:0000256;evidence=ECO:0000256|PIRSR:PIRSR600269-50	
+K1QCA4	UniProtKB	Active site	1346	1346	.	.	.	Note=Schiff-base intermediate with substrate%3B via topaquinone;Ontology_term=ECO:0000256;evidence=ECO:0000256|PIRSR:PIRSR600269-50	
+K1QCA4	UniProtKB	Modified residue	1346	1346	.	.	.	Note=2'%2C4'%2C5'-topaquinone;Ontology_term=ECO:0000256;evidence=ECO:0000256|PIRSR:PIRSR600269-51	
+##sequence-region K1Q473 1 397
+K1Q473	UniProtKB	Coiled coil	23	50	.	.	.	Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Coils	
+##sequence-region K1Q3E4 1 3111
+K1Q3E4	UniProtKB	Domain	38	110	.	.	.	Note=HTH OST-type;Ontology_term=ECO:0000259;evidence=ECO:0000259|PROSITE:PS51644	
+K1Q3E4	UniProtKB	Domain	325	398	.	.	.	Note=HTH OST-type;Ontology_term=ECO:0000259;evidence=ECO:0000259|PROSITE:PS51644	
+##sequence-region K1QPG7 1 484
+K1QPG7	UniProtKB	Transmembrane	452	470	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+##sequence-region K1QAV1 1 674
+K1QAV1	UniProtKB	Domain	253	318	.	.	.	Note=SAM (sterile alpha motif);Ontology_term=ECO:0000259;evidence=ECO:0000259|PROSITE:PS50105	
+##sequence-region K1QIV5 1 191
+K1QIV5	UniProtKB	Transmembrane	28	48	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+K1QIV5	UniProtKB	Transmembrane	88	105	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+K1QIV5	UniProtKB	Transmembrane	126	143	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+K1QIV5	UniProtKB	Transmembrane	155	174	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+##sequence-region K1Q143 1 2907
+K1Q143	UniProtKB	Domain	1920	2020	.	.	.	Note=C2;Ontology_term=ECO:0000259;evidence=ECO:0000259|PROSITE:PS50004	
+##sequence-region K1Q793 1 337
+K1Q793	UniProtKB	Domain	64	150	.	.	.	Note=Fibrinogen C-terminal;Ontology_term=ECO:0000259;evidence=ECO:0000259|PROSITE:PS51406	
+K1Q793	UniProtKB	Domain	204	337	.	.	.	Note=C1q;Ontology_term=ECO:0000259;evidence=ECO:0000259|PROSITE:PS50871	
+##sequence-region K1R749 1 152
+K1R749	UniProtKB	Domain	12	147	.	.	.	Note=ADF-H;Ontology_term=ECO:0000259;evidence=ECO:0000259|PROSITE:PS51263	
+##sequence-region K1P4R2 1 492
+##sequence-region K1Q158 1 348
+K1Q158	UniProtKB	Transmembrane	18	42	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+K1Q158	UniProtKB	Transmembrane	54	83	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+K1Q158	UniProtKB	Transmembrane	95	116	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+K1Q158	UniProtKB	Transmembrane	137	157	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+K1Q158	UniProtKB	Transmembrane	186	212	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+K1Q158	UniProtKB	Transmembrane	224	247	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+K1Q158	UniProtKB	Domain	34	278	.	.	.	Note=G_PROTEIN_RECEP_F1_2;Ontology_term=ECO:0000259;evidence=ECO:0000259|PROSITE:PS50262	
+##sequence-region K1QKS9 1 2718
+K1QKS9	UniProtKB	Transmembrane	2046	2070	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+K1QKS9	UniProtKB	Transmembrane	2214	2235	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+K1QKS9	UniProtKB	Transmembrane	2269	2290	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+K1QKS9	UniProtKB	Transmembrane	2317	2344	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+K1QKS9	UniProtKB	Transmembrane	2350	2371	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+K1QKS9	UniProtKB	Transmembrane	2424	2457	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+K1QKS9	UniProtKB	Transmembrane	2463	2484	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+K1QKS9	UniProtKB	Transmembrane	2589	2617	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+K1QKS9	UniProtKB	Transmembrane	2623	2642	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+K1QKS9	UniProtKB	Domain	588	680	.	.	.	Note=PKD;Ontology_term=ECO:0000259;evidence=ECO:0000259|PROSITE:PS50093	
+K1QKS9	UniProtKB	Domain	711	771	.	.	.	Note=PKD;Ontology_term=ECO:0000259;evidence=ECO:0000259|PROSITE:PS50093	
+K1QKS9	UniProtKB	Domain	1201	1282	.	.	.	Note=RRM (RNA recognition motif);Ontology_term=ECO:0000259;evidence=ECO:0000259|PROSITE:PS50102	
+K1QKS9	UniProtKB	Domain	1362	1405	.	.	.	Note=SURP motif;Ontology_term=ECO:0000259;evidence=ECO:0000259|PROSITE:PS50128	
+K1QKS9	UniProtKB	Domain	1474	1619	.	.	.	Note=CID;Ontology_term=ECO:0000259;evidence=ECO:0000259|PROSITE:PS51391	
+K1QKS9	UniProtKB	Coiled coil	1123	1150	.	.	.	Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Coils	
+##sequence-region K1PZ83 1 709
+##sequence-region K1R099 1 324
+K1R099	UniProtKB	Transmembrane	27	47	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+K1R099	UniProtKB	Transmembrane	59	85	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+K1R099	UniProtKB	Transmembrane	97	118	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+K1R099	UniProtKB	Transmembrane	139	159	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+K1R099	UniProtKB	Transmembrane	188	209	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+K1R099	UniProtKB	Domain	39	212	.	.	.	Note=G_PROTEIN_RECEP_F1_2;Ontology_term=ECO:0000259;evidence=ECO:0000259|PROSITE:PS50262	
+##sequence-region K1QLM9 1 181
+K1QLM9	UniProtKB	Transmembrane	158	179	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+K1QLM9	UniProtKB	Domain	82	149	.	.	.	Note=T-SNARE coiled-coil homology;Ontology_term=ECO:0000259;evidence=ECO:0000259|SMART:SM00397	
+##sequence-region K1RAS6 1 124
+##sequence-region K1QAQ9 1 399
+K1QAQ9	UniProtKB	Transmembrane	54	79	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+K1QAQ9	UniProtKB	Transmembrane	91	116	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+K1QAQ9	UniProtKB	Transmembrane	128	149	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+K1QAQ9	UniProtKB	Transmembrane	170	191	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+K1QAQ9	UniProtKB	Transmembrane	224	244	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+K1QAQ9	UniProtKB	Transmembrane	274	292	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+K1QAQ9	UniProtKB	Transmembrane	312	331	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+K1QAQ9	UniProtKB	Domain	70	328	.	.	.	Note=G_PROTEIN_RECEP_F1_2;Ontology_term=ECO:0000259;evidence=ECO:0000259|PROSITE:PS50262	
+##sequence-region K1PGU6 1 82
+##sequence-region K1QHX7 1 1689
+K1QHX7	UniProtKB	Domain	1563	1649	.	.	.	Note=WD_REPEATS_REGION;Ontology_term=ECO:0000259;evidence=ECO:0000259|PROSITE:PS50294	
+K1QHX7	UniProtKB	Repeat	1608	1649	.	.	.	Note=WD;Ontology_term=ECO:0000256;evidence=ECO:0000256|PROSITE-ProRule:PRU00221	
+##sequence-region K1QFR9 1 2419
+K1QFR9	UniProtKB	Domain	45	149	.	.	.	Note=Actin-binding;Ontology_term=ECO:0000259;evidence=ECO:0000259|PROSITE:PS50021	
+K1QFR9	UniProtKB	Domain	164	266	.	.	.	Note=Actin-binding;Ontology_term=ECO:0000259;evidence=ECO:0000259|PROSITE:PS50021	
+K1QFR9	UniProtKB	Domain	2271	2383	.	.	.	Note=PH;Ontology_term=ECO:0000259;evidence=ECO:0000259|PROSITE:PS50003	
+K1QFR9	UniProtKB	Coiled coil	774	808	.	.	.	Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Coils	
+K1QFR9	UniProtKB	Coiled coil	986	1020	.	.	.	Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Coils	
+##sequence-region K1QRY2 1 107
+K1QRY2	UniProtKB	Transmembrane	30	52	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+##sequence-region K1R6I4 1 165
+##sequence-region K1QZ12 1 152
+##sequence-region K1RHP3 1 384
+K1RHP3	UniProtKB	Domain	19	208	.	.	.	Note=Peptidase_M24;Ontology_term=ECO:0000259;evidence=ECO:0000259|Pfam:PF00557	
+##sequence-region K1RAQ0 1 131
+K1RAQ0	UniProtKB	Transmembrane	58	84	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+##sequence-region K1R189 1 339
+K1R189	UniProtKB	Transmembrane	12	32	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+K1R189	UniProtKB	Transmembrane	44	68	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+K1R189	UniProtKB	Transmembrane	88	118	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+K1R189	UniProtKB	Transmembrane	130	155	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+K1R189	UniProtKB	Transmembrane	175	203	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+K1R189	UniProtKB	Transmembrane	224	246	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+K1R189	UniProtKB	Transmembrane	266	283	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+K1R189	UniProtKB	Domain	24	280	.	.	.	Note=G_PROTEIN_RECEP_F1_2;Ontology_term=ECO:0000259;evidence=ECO:0000259|PROSITE:PS50262	
+##sequence-region K1QDF5 1 479
+K1QDF5	UniProtKB	Transmembrane	31	49	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+K1QDF5	UniProtKB	Domain	292	325	.	.	.	Note=C3H1-type;Ontology_term=ECO:0000259;evidence=ECO:0000259|PROSITE:PS50103	
+K1QDF5	UniProtKB	Zinc finger	292	325	.	.	.	Note=C3H1-type;Ontology_term=ECO:0000256;evidence=ECO:0000256|PROSITE-ProRule:PRU00723	
+##sequence-region K1Q0J7 1 59
+##sequence-region K1RMB2 1 382
+K1RMB2	UniProtKB	Domain	45	148	.	.	.	Note=Rieske;Ontology_term=ECO:0000259;evidence=ECO:0000259|PROSITE:PS51296	
+##sequence-region K1RST0 1 413
+K1RST0	UniProtKB	Transmembrane	64	86	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+K1RST0	UniProtKB	Transmembrane	127	147	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+K1RST0	UniProtKB	Transmembrane	153	170	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+K1RST0	UniProtKB	Transmembrane	182	205	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+K1RST0	UniProtKB	Transmembrane	252	274	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+K1RST0	UniProtKB	Transmembrane	295	319	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+K1RST0	UniProtKB	Transmembrane	343	362	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+K1RST0	UniProtKB	Domain	76	359	.	.	.	Note=G_PROTEIN_RECEP_F1_2;Ontology_term=ECO:0000259;evidence=ECO:0000259|PROSITE:PS50262	
+##sequence-region K1RVI8 1 392
+K1RVI8	UniProtKB	Domain	6	64	.	.	.	Note=Chromo;Ontology_term=ECO:0000259;evidence=ECO:0000259|PROSITE:PS50013	
+##sequence-region K1Q9Q7 1 452
+K1Q9Q7	UniProtKB	Domain	12	55	.	.	.	Note=RING-type;Ontology_term=ECO:0000259;evidence=ECO:0000259|PROSITE:PS50089	
+K1Q9Q7	UniProtKB	Domain	82	114	.	.	.	Note=B box-type;Ontology_term=ECO:0000259;evidence=ECO:0000259|PROSITE:PS50119	
+##sequence-region K1QCT5 1 298
+##sequence-region K1PJ85 1 428
+K1PJ85	UniProtKB	Domain	208	347	.	.	.	Note=AAA;Ontology_term=ECO:0000259;evidence=ECO:0000259|SMART:SM00382	
+##sequence-region K1P2T2 1 168
+##sequence-region K1R7W9 1 317
+K1R7W9	UniProtKB	Domain	98	317	.	.	.	Note=FERM;Ontology_term=ECO:0000259;evidence=ECO:0000259|PROSITE:PS50057	
+##sequence-region K1RAD3 1 339
+K1RAD3	UniProtKB	Signal peptide	1	17	.	.	.	Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:SignalP	
+K1RAD3	UniProtKB	Chain	18	339	.	.	.	ID=PRO_5003850550;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:SignalP	
+K1RAD3	UniProtKB	Domain	196	230	.	.	.	Note=ShKT;Ontology_term=ECO:0000259;evidence=ECO:0000259|PROSITE:PS51670	
+K1RAD3	UniProtKB	Disulfide bond	196	230	.	.	.	Ontology_term=ECO:0000256;evidence=ECO:0000256|PROSITE-ProRule:PRU01005	
+##sequence-region K1RER2 1 2317
+K1RER2	UniProtKB	Domain	259	470	.	.	.	Note=WD_REPEATS_REGION;Ontology_term=ECO:0000259;evidence=ECO:0000259|PROSITE:PS50294	
+K1RER2	UniProtKB	Repeat	302	344	.	.	.	Note=WD;Ontology_term=ECO:0000256;evidence=ECO:0000256|PROSITE-ProRule:PRU00221	
+K1RER2	UniProtKB	Repeat	388	428	.	.	.	Note=WD;Ontology_term=ECO:0000256;evidence=ECO:0000256|PROSITE-ProRule:PRU00221	
+K1RER2	UniProtKB	Domain	556	639	.	.	.	Note=PH;Ontology_term=ECO:0000259;evidence=ECO:0000259|PROSITE:PS50003	
+K1RER2	UniProtKB	Domain	1074	1270	.	.	.	Note=Rab-GAP TBC;Ontology_term=ECO:0000259;evidence=ECO:0000259|PROSITE:PS50086	
+K1RER2	UniProtKB	Coiled coil	84	111	.	.	.	Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Coils	
+K1RER2	UniProtKB	Coiled coil	818	845	.	.	.	Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Coils	
+K1RER2	UniProtKB	Coiled coil	890	917	.	.	.	Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Coils	
+K1RER2	UniProtKB	Coiled coil	1340	1361	.	.	.	Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Coils	
+##sequence-region K1R1J0 1 492
+##sequence-region K1R1G1 1 1247
+K1R1G1	UniProtKB	Signal peptide	1	16	.	.	.	Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:SignalP	
+K1R1G1	UniProtKB	Chain	17	1247	.	.	.	ID=PRO_5003850481;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:SignalP	
+K1R1G1	UniProtKB	Domain	28	188	.	.	.	Note=CHB_HEX;Ontology_term=ECO:0000259;evidence=ECO:0000259|SMART:SM01081	
+K1R1G1	UniProtKB	Domain	873	1032	.	.	.	Note=CHB_HEX;Ontology_term=ECO:0000259;evidence=ECO:0000259|SMART:SM01081	
+##sequence-region K1QJC6 1 142
+K1QJC6	UniProtKB	Domain	1	129	.	.	.	Note=ADF-H;Ontology_term=ECO:0000259;evidence=ECO:0000259|PROSITE:PS51263	
+##sequence-region K1QPP1 1 685
+K1QPP1	UniProtKB	Domain	18	73	.	.	.	Note=RING-type;Ontology_term=ECO:0000259;evidence=ECO:0000259|PROSITE:PS50089	
+K1QPP1	UniProtKB	Domain	118	160	.	.	.	Note=B box-type;Ontology_term=ECO:0000259;evidence=ECO:0000259|PROSITE:PS50119	
+K1QPP1	UniProtKB	Domain	172	214	.	.	.	Note=B box-type;Ontology_term=ECO:0000259;evidence=ECO:0000259|PROSITE:PS50119	
+##sequence-region K1Q9Z3 1 1058
+K1Q9Z3	UniProtKB	Domain	30	96	.	.	.	Note=LIM zinc-binding;Ontology_term=ECO:0000259;evidence=ECO:0000259|PROSITE:PS50023	
+K1Q9Z3	UniProtKB	Coiled coil	209	233	.	.	.	Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Coils	
+K1Q9Z3	UniProtKB	Coiled coil	326	353	.	.	.	Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Coils	
+##sequence-region K1PXH1 1 262
+##sequence-region K1QWV3 1 320
+K1QWV3	UniProtKB	Domain	235	264	.	.	.	Note=C2H2-type;Ontology_term=ECO:0000259;evidence=ECO:0000259|PROSITE:PS50157	
+K1QWV3	UniProtKB	Domain	265	294	.	.	.	Note=C2H2-type;Ontology_term=ECO:0000259;evidence=ECO:0000259|PROSITE:PS50157	
+K1QWV3	UniProtKB	Domain	295	320	.	.	.	Note=C2H2-type;Ontology_term=ECO:0000259;evidence=ECO:0000259|PROSITE:PS50157	
+##sequence-region K1QKJ4 1 485
+K1QKJ4	UniProtKB	Domain	334	400	.	.	.	Note=LIM zinc-binding;Ontology_term=ECO:0000259;evidence=ECO:0000259|PROSITE:PS50023	
+##sequence-region K1REA2 1 363
+K1REA2	UniProtKB	Signal peptide	1	22	.	.	.	Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:SignalP	
+K1REA2	UniProtKB	Chain	23	363	.	.	.	ID=PRO_5003850774;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:SignalP	
+K1REA2	UniProtKB	Transmembrane	282	303	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+##sequence-region K1RKL9 1 399
+K1RKL9	UniProtKB	Domain	84	118	.	.	.	Note=SAP;Ontology_term=ECO:0000259;evidence=ECO:0000259|PROSITE:PS50800	
+##sequence-region K1R2F1 1 243
+K1R2F1	UniProtKB	Transmembrane	7	27	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+K1R2F1	UniProtKB	Transmembrane	62	90	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+K1R2F1	UniProtKB	Transmembrane	159	184	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+K1R2F1	UniProtKB	Transmembrane	204	223	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+K1R2F1	UniProtKB	Domain	1	220	.	.	.	Note=G_PROTEIN_RECEP_F1_2;Ontology_term=ECO:0000259;evidence=ECO:0000259|PROSITE:PS50262	
+##sequence-region K1PJB0 1 634
+K1PJB0	UniProtKB	Coiled coil	255	282	.	.	.	Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Coils	
+##sequence-region K1R1Z7 1 1169
+K1R1Z7	UniProtKB	Domain	285	361	.	.	.	Note=CARD;Ontology_term=ECO:0000259;evidence=ECO:0000259|PROSITE:PS50209	
+##sequence-region K1PAG1 1 4464
+K1PAG1	UniProtKB	Domain	1842	1978	.	.	.	Note=AAA;Ontology_term=ECO:0000259;evidence=ECO:0000259|SMART:SM00382	
+K1PAG1	UniProtKB	Domain	2447	2592	.	.	.	Note=AAA;Ontology_term=ECO:0000259;evidence=ECO:0000259|SMART:SM00382	
+K1PAG1	UniProtKB	Coiled coil	766	800	.	.	.	Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Coils	
+K1PAG1	UniProtKB	Coiled coil	3034	3078	.	.	.	Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Coils	
+K1PAG1	UniProtKB	Coiled coil	3265	3313	.	.	.	Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Coils	
+K1PAG1	UniProtKB	Coiled coil	3574	3598	.	.	.	Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Coils	
+##sequence-region K1QU70 1 480
+##sequence-region K1QHR7 1 141
+##sequence-region K1PFS1 1 664
+K1PFS1	UniProtKB	Transmembrane	16	37	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+K1PFS1	UniProtKB	Transmembrane	43	63	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+K1PFS1	UniProtKB	Transmembrane	88	112	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+K1PFS1	UniProtKB	Transmembrane	124	148	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+K1PFS1	UniProtKB	Transmembrane	187	213	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+K1PFS1	UniProtKB	Transmembrane	225	251	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+K1PFS1	UniProtKB	Transmembrane	257	280	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+K1PFS1	UniProtKB	Transmembrane	301	320	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+K1PFS1	UniProtKB	Transmembrane	340	363	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+K1PFS1	UniProtKB	Non-terminal residue	1	1	.	.	.	Ontology_term=ECO:0000313;evidence=ECO:0000313|EMBL:EKC22732.1	
+##sequence-region K1PL14 1 270
+K1PL14	UniProtKB	Domain	106	218	.	.	.	Note=SH2;Ontology_term=ECO:0000259;evidence=ECO:0000259|PROSITE:PS50001	
+K1PL14	UniProtKB	Domain	211	269	.	.	.	Note=SOCS box;Ontology_term=ECO:0000259;evidence=ECO:0000259|PROSITE:PS50225	
+##sequence-region K1QFA6 1 134
+##sequence-region K1Q003 1 132
+##sequence-region K1R725 1 133
+##sequence-region K1QLU8 1 128
+##sequence-region K1RNN3 1 541
+K1RNN3	UniProtKB	Signal peptide	1	17	.	.	.	Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:SignalP	
+K1RNN3	UniProtKB	Chain	18	541	.	.	.	ID=PRO_5003850938;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:SignalP	
+K1RNN3	UniProtKB	Domain	21	215	.	.	.	Note=Chitin-binding type-4;Ontology_term=ECO:0000259;evidence=ECO:0000259|Pfam:PF03067	
+K1RNN3	UniProtKB	Coiled coil	504	538	.	.	.	Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Coils	
+##sequence-region K1QH19 1 2086
+K1QH19	UniProtKB	Domain	645	808	.	.	.	Note=Helicase ATP-binding;Ontology_term=ECO:0000259;evidence=ECO:0000259|PROSITE:PS51192	
+K1QH19	UniProtKB	Domain	838	1011	.	.	.	Note=Helicase C-terminal;Ontology_term=ECO:0000259;evidence=ECO:0000259|PROSITE:PS51194	
+K1QH19	UniProtKB	Domain	1875	1919	.	.	.	Note=RING-type;Ontology_term=ECO:0000259;evidence=ECO:0000259|PROSITE:PS50089	
+##sequence-region K1QHH5 1 227
+##sequence-region K1PPN8 1 311
+##sequence-region K1Q8T2 1 1001
+K1Q8T2	UniProtKB	Signal peptide	1	20	.	.	.	Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:SignalP	
+K1Q8T2	UniProtKB	Chain	21	1001	.	.	.	ID=PRO_5003849549;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:SignalP	
+K1Q8T2	UniProtKB	Domain	643	742	.	.	.	Note=Ig-like (immunoglobulin-like);Ontology_term=ECO:0000259;evidence=ECO:0000259|PROSITE:PS50835	
+K1Q8T2	UniProtKB	Domain	965	1001	.	.	.	Note=PLAC;Ontology_term=ECO:0000259;evidence=ECO:0000259|PROSITE:PS50900	
+##sequence-region K1QTW5 1 485
+##sequence-region K1RJ71 1 140
+##sequence-region K1S3W9 1 612
+K1S3W9	UniProtKB	Domain	422	554	.	.	.	Note=Guanylate cyclase;Ontology_term=ECO:0000259;evidence=ECO:0000259|PROSITE:PS50125	
+K1S3W9	UniProtKB	Coiled coil	367	394	.	.	.	Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Coils	
+K1S3W9	UniProtKB	Non-terminal residue	1	1	.	.	.	Ontology_term=ECO:0000313;evidence=ECO:0000313|EMBL:EKC42091.1	
+##sequence-region K1RDB9 1 139
+##sequence-region K1R7B8 1 321
+K1R7B8	UniProtKB	Domain	6	200	.	.	.	Note=VWFA;Ontology_term=ECO:0000259;evidence=ECO:0000259|PROSITE:PS50234	
+##sequence-region K1QZ42 1 295
+K1QZ42	UniProtKB	Domain	25	229	.	.	.	Note=ANK_REP_REGION;Ontology_term=ECO:0000259;evidence=ECO:0000259|PROSITE:PS50297	
+K1QZ42	UniProtKB	Repeat	63	95	.	.	.	Note=ANK;Ontology_term=ECO:0000256;evidence=ECO:0000256|PROSITE-ProRule:PRU00023	
+K1QZ42	UniProtKB	Repeat	97	129	.	.	.	Note=ANK;Ontology_term=ECO:0000256;evidence=ECO:0000256|PROSITE-ProRule:PRU00023	
+K1QZ42	UniProtKB	Repeat	130	162	.	.	.	Note=ANK;Ontology_term=ECO:0000256;evidence=ECO:0000256|PROSITE-ProRule:PRU00023	
+K1QZ42	UniProtKB	Domain	242	290	.	.	.	Note=SOCS box;Ontology_term=ECO:0000259;evidence=ECO:0000259|PROSITE:PS50225	
+##sequence-region K1R160 1 399
+K1R160	UniProtKB	Transmembrane	35	63	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+K1R160	UniProtKB	Transmembrane	75	101	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+K1R160	UniProtKB	Transmembrane	113	132	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+K1R160	UniProtKB	Transmembrane	153	173	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+K1R160	UniProtKB	Transmembrane	202	233	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+K1R160	UniProtKB	Transmembrane	254	273	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+K1R160	UniProtKB	Transmembrane	293	317	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+K1R160	UniProtKB	Domain	54	314	.	.	.	Note=G_PROTEIN_RECEP_F1_2;Ontology_term=ECO:0000259;evidence=ECO:0000259|PROSITE:PS50262	
+##sequence-region K1QX33 1 214
+##sequence-region K1QCE2 1 200
+##sequence-region K1R7H7 1 396
+K1R7H7	UniProtKB	Coiled coil	256	280	.	.	.	Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Coils	
+##sequence-region K1QH75 1 553
+K1QH75	UniProtKB	Coiled coil	502	529	.	.	.	Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Coils	
+##sequence-region K1QDS0 1 289
+##sequence-region K1Q5N8 1 2793
+##sequence-region K1PSE4 1 171
+##sequence-region K1QDH8 1 408
+K1QDH8	UniProtKB	Transmembrane	14	36	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+K1QDH8	UniProtKB	Transmembrane	63	86	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+K1QDH8	UniProtKB	Transmembrane	107	130	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+K1QDH8	UniProtKB	Transmembrane	173	194	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+K1QDH8	UniProtKB	Transmembrane	215	237	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+K1QDH8	UniProtKB	Transmembrane	264	285	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+K1QDH8	UniProtKB	Transmembrane	313	333	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+K1QDH8	UniProtKB	Domain	112	369	.	.	.	Note=G_PROTEIN_RECEP_F1_2;Ontology_term=ECO:0000259;evidence=ECO:0000259|PROSITE:PS50262	
+##sequence-region K1QGR8 1 558
+K1QGR8	UniProtKB	Domain	256	550	.	.	.	Note=AA_TRNA_LIGASE_II;Ontology_term=ECO:0000259;evidence=ECO:0000259|PROSITE:PS50862	
+K1QGR8	UniProtKB	Coiled coil	81	115	.	.	.	Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Coils	
+##sequence-region K1PA25 1 243
+K1PA25	UniProtKB	Transmembrane	20	41	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+K1PA25	UniProtKB	Transmembrane	62	83	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+K1PA25	UniProtKB	Transmembrane	103	125	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+K1PA25	UniProtKB	Transmembrane	137	156	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+K1PA25	UniProtKB	Transmembrane	176	196	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+##sequence-region K1QKT6 1 183
+K1QKT6	UniProtKB	Domain	4	183	.	.	.	Note=TIR;Ontology_term=ECO:0000259;evidence=ECO:0000259|PROSITE:PS50104	
+##sequence-region K1QLS5 1 543
+K1QLS5	UniProtKB	Transmembrane	7	29	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+##sequence-region K1RDT2 1 665
+K1RDT2	UniProtKB	Domain	57	665	.	.	.	Note=WD_REPEATS_REGION;Ontology_term=ECO:0000259;evidence=ECO:0000259|PROSITE:PS50294	
+K1RDT2	UniProtKB	Repeat	448	482	.	.	.	Note=WD;Ontology_term=ECO:0000256;evidence=ECO:0000256|PROSITE-ProRule:PRU00221	
+K1RDT2	UniProtKB	Repeat	499	540	.	.	.	Note=WD;Ontology_term=ECO:0000256;evidence=ECO:0000256|PROSITE-ProRule:PRU00221	
+K1RDT2	UniProtKB	Repeat	583	624	.	.	.	Note=WD;Ontology_term=ECO:0000256;evidence=ECO:0000256|PROSITE-ProRule:PRU00221	
+K1RDT2	UniProtKB	Repeat	625	665	.	.	.	Note=WD;Ontology_term=ECO:0000256;evidence=ECO:0000256|PROSITE-ProRule:PRU00221	
+##sequence-region K1PJ96 1 1812
+K1PJ96	UniProtKB	Domain	1230	1405	.	.	.	Note=Helicase ATP-binding;Ontology_term=ECO:0000259;evidence=ECO:0000259|PROSITE:PS51192	
+K1PJ96	UniProtKB	Domain	1592	1746	.	.	.	Note=Helicase C-terminal;Ontology_term=ECO:0000259;evidence=ECO:0000259|PROSITE:PS51194	
+##sequence-region K1QH76 1 497
+K1QH76	UniProtKB	Domain	5	81	.	.	.	Note=Apple;Ontology_term=ECO:0000259;evidence=ECO:0000259|PROSITE:PS50948	
+##sequence-region K1Q0E8 1 178
+##sequence-region K1Q3T5 1 332
+K1Q3T5	UniProtKB	Domain	115	175	.	.	.	Note=Homeobox DNA-binding;Ontology_term=ECO:0000259;evidence=ECO:0000259|PROSITE:PS50071	
+K1Q3T5	UniProtKB	DNA binding	117	176	.	.	.	Note=Homeobox;Ontology_term=ECO:0000256;evidence=ECO:0000256|PROSITE-ProRule:PRU00108	
+##sequence-region K1R8B8 1 144
+##sequence-region K1S3M0 1 900
+K1S3M0	UniProtKB	Coiled coil	443	475	.	.	.	Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Coils	
+##sequence-region K1QSY3 1 152
+K1QSY3	UniProtKB	Transmembrane	69	94	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+K1QSY3	UniProtKB	Transmembrane	115	134	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+##sequence-region K1RBJ7 1 317
+K1RBJ7	UniProtKB	Coiled coil	191	281	.	.	.	Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Coils	
+##sequence-region K1RL88 1 190
+K1RL88	UniProtKB	Non-terminal residue	1	1	.	.	.	Ontology_term=ECO:0000313;evidence=ECO:0000313|EMBL:EKC35056.1	
+##sequence-region K1QDR1 1 548
+K1QDR1	UniProtKB	Domain	41	96	.	.	.	Note=ANK_REP_REGION;Ontology_term=ECO:0000259;evidence=ECO:0000259|PROSITE:PS50297	
+##sequence-region K1RS52 1 596
+K1RS52	UniProtKB	Domain	13	78	.	.	.	Note=BTB (POZ);Ontology_term=ECO:0000259;evidence=ECO:0000259|PROSITE:PS50097	
+K1RS52	UniProtKB	Domain	177	440	.	.	.	Note=NPH3;Ontology_term=ECO:0000259;evidence=ECO:0000259|PROSITE:PS51649	
+K1RS52	UniProtKB	Coiled coil	438	465	.	.	.	Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Coils	
+##sequence-region K1QWR2 1 398
+##sequence-region K1PSQ9 1 156
+K1PSQ9	UniProtKB	Domain	24	140	.	.	.	Note=CUB;Ontology_term=ECO:0000259;evidence=ECO:0000259|PROSITE:PS01180	
+##sequence-region K1QRN3 1 325
+K1QRN3	UniProtKB	Domain	7	66	.	.	.	Note=CHORD;Ontology_term=ECO:0000259;evidence=ECO:0000259|PROSITE:PS51401	
+K1QRN3	UniProtKB	Domain	154	213	.	.	.	Note=CHORD;Ontology_term=ECO:0000259;evidence=ECO:0000259|PROSITE:PS51401	
+K1QRN3	UniProtKB	Domain	224	314	.	.	.	Note=CS;Ontology_term=ECO:0000259;evidence=ECO:0000259|PROSITE:PS51203	
+##sequence-region K1PBZ8 1 692
+K1PBZ8	UniProtKB	Transmembrane	77	95	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+K1PBZ8	UniProtKB	Transmembrane	107	128	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+K1PBZ8	UniProtKB	Transmembrane	149	176	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+K1PBZ8	UniProtKB	Transmembrane	271	291	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+K1PBZ8	UniProtKB	Transmembrane	303	330	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+K1PBZ8	UniProtKB	Transmembrane	350	367	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+K1PBZ8	UniProtKB	Transmembrane	379	404	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+K1PBZ8	UniProtKB	Transmembrane	438	459	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+K1PBZ8	UniProtKB	Transmembrane	480	503	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+K1PBZ8	UniProtKB	Transmembrane	515	535	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+K1PBZ8	UniProtKB	Transmembrane	556	576	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+K1PBZ8	UniProtKB	Transmembrane	596	615	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+##sequence-region K1Q572 1 113
+##sequence-region K1QVE0 1 410
+K1QVE0	UniProtKB	Domain	117	234	.	.	.	Note=DUF4200;Ontology_term=ECO:0000259;evidence=ECO:0000259|Pfam:PF13863	
+K1QVE0	UniProtKB	Coiled coil	117	162	.	.	.	Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Coils	
+K1QVE0	UniProtKB	Coiled coil	191	218	.	.	.	Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Coils	
+K1QVE0	UniProtKB	Coiled coil	296	320	.	.	.	Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Coils	
+##sequence-region K1QNJ1 1 243
+##sequence-region K1Q5Z6 1 341
+K1Q5Z6	UniProtKB	Domain	207	316	.	.	.	Note=eIF2B_5;Ontology_term=ECO:0000259;evidence=ECO:0000259|SMART:SM00653	
+##sequence-region K1QCB5 1 386
+K1QCB5	UniProtKB	Domain	22	237	.	.	.	Note=PARP catalytic;Ontology_term=ECO:0000259;evidence=ECO:0000259|PROSITE:PS51059	
+##sequence-region K1PSZ3 1 124
+##sequence-region K1R149 1 935
+K1R149	UniProtKB	Coiled coil	804	831	.	.	.	Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Coils	
+##sequence-region K1QF30 1 5532
+K1QF30	UniProtKB	Domain	4337	4377	.	.	.	Note=RING-type;Ontology_term=ECO:0000259;evidence=ECO:0000259|PROSITE:PS50089	
+K1QF30	UniProtKB	Coiled coil	1958	1981	.	.	.	Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Coils	
+K1QF30	UniProtKB	Coiled coil	2977	3000	.	.	.	Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Coils	
+K1QF30	UniProtKB	Coiled coil	5423	5450	.	.	.	Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Coils	
+##sequence-region K1R2D5 1 308
+##sequence-region K1QPS2 1 520
+##sequence-region K1PYD8 1 145
+K1PYD8	UniProtKB	Transmembrane	114	135	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+K1PYD8	UniProtKB	Repeat	17	55	.	.	.	Note=NHL;Ontology_term=ECO:0000256;evidence=ECO:0000256|PROSITE-ProRule:PRU00504	
+K1PYD8	UniProtKB	Repeat	73	100	.	.	.	Note=NHL;Ontology_term=ECO:0000256;evidence=ECO:0000256|PROSITE-ProRule:PRU00504	
+##sequence-region K1PPI1 1 630
+K1PPI1	UniProtKB	Domain	583	618	.	.	.	Note=RING-type;Ontology_term=ECO:0000259;evidence=ECO:0000259|PROSITE:PS50089	
+##sequence-region K1QRX6 1 401
+K1QRX6	UniProtKB	Transmembrane	63	84	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+K1QRX6	UniProtKB	Transmembrane	96	121	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+K1QRX6	UniProtKB	Transmembrane	133	166	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+K1QRX6	UniProtKB	Transmembrane	186	205	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+K1QRX6	UniProtKB	Transmembrane	243	267	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+K1QRX6	UniProtKB	Transmembrane	299	318	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+K1QRX6	UniProtKB	Transmembrane	338	358	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+K1QRX6	UniProtKB	Domain	76	355	.	.	.	Note=G_PROTEIN_RECEP_F1_2;Ontology_term=ECO:0000259;evidence=ECO:0000259|PROSITE:PS50262	
+##sequence-region K1QMM1 1 1276
+K1QMM1	UniProtKB	Domain	22	318	.	.	.	Note=FERM;Ontology_term=ECO:0000259;evidence=ECO:0000259|PROSITE:PS50057	
+K1QMM1	UniProtKB	Coiled coil	423	457	.	.	.	Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Coils	
+##sequence-region K1RWJ8 1 681
+K1RWJ8	UniProtKB	Domain	18	76	.	.	.	Note=RING-type;Ontology_term=ECO:0000259;evidence=ECO:0000259|PROSITE:PS50089	
+K1RWJ8	UniProtKB	Domain	108	158	.	.	.	Note=B box-type;Ontology_term=ECO:0000259;evidence=ECO:0000259|PROSITE:PS50119	
+K1RWJ8	UniProtKB	Domain	173	214	.	.	.	Note=B box-type;Ontology_term=ECO:0000259;evidence=ECO:0000259|PROSITE:PS50119	
+K1RWJ8	UniProtKB	Repeat	428	456	.	.	.	Note=NHL;Ontology_term=ECO:0000256;evidence=ECO:0000256|PROSITE-ProRule:PRU00504	
+K1RWJ8	UniProtKB	Repeat	476	501	.	.	.	Note=NHL;Ontology_term=ECO:0000256;evidence=ECO:0000256|PROSITE-ProRule:PRU00504	
+K1RWJ8	UniProtKB	Repeat	512	542	.	.	.	Note=NHL;Ontology_term=ECO:0000256;evidence=ECO:0000256|PROSITE-ProRule:PRU00504	
+K1RWJ8	UniProtKB	Repeat	574	591	.	.	.	Note=NHL;Ontology_term=ECO:0000256;evidence=ECO:0000256|PROSITE-ProRule:PRU00504	
+K1RWJ8	UniProtKB	Repeat	599	638	.	.	.	Note=NHL;Ontology_term=ECO:0000256;evidence=ECO:0000256|PROSITE-ProRule:PRU00504	
+K1RWJ8	UniProtKB	Coiled coil	239	314	.	.	.	Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Coils	
+##sequence-region K1QV00 1 308
+K1QV00	UniProtKB	Domain	12	89	.	.	.	Note=3'-5' exonuclease;Ontology_term=ECO:0000259;evidence=ECO:0000259|Pfam:PF01612	
+##sequence-region K1RNH5 1 324
+K1RNH5	UniProtKB	Domain	16	122	.	.	.	Note=IRF tryptophan pentad repeat DNA-binding;Ontology_term=ECO:0000259;evidence=ECO:0000259|PROSITE:PS51507	
+##sequence-region K1R9R7 1 258
+##sequence-region K1RHZ0 1 1358
+K1RHZ0	UniProtKB	Domain	716	816	.	.	.	Note=ANK_REP_REGION;Ontology_term=ECO:0000259;evidence=ECO:0000259|PROSITE:PS50297	
+K1RHZ0	UniProtKB	Domain	990	1270	.	.	.	Note=ANK_REP_REGION;Ontology_term=ECO:0000259;evidence=ECO:0000259|PROSITE:PS50297	
+K1RHZ0	UniProtKB	Repeat	1185	1220	.	.	.	Note=ANK;Ontology_term=ECO:0000256;evidence=ECO:0000256|PROSITE-ProRule:PRU00023	
+K1RHZ0	UniProtKB	Repeat	1221	1263	.	.	.	Note=ANK;Ontology_term=ECO:0000256;evidence=ECO:0000256|PROSITE-ProRule:PRU00023	
+##sequence-region K1R5Y5 1 473
+K1R5Y5	UniProtKB	Transmembrane	12	40	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+K1R5Y5	UniProtKB	Transmembrane	88	115	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+K1R5Y5	UniProtKB	Transmembrane	127	147	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+K1R5Y5	UniProtKB	Transmembrane	173	195	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+K1R5Y5	UniProtKB	Transmembrane	216	235	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+K1R5Y5	UniProtKB	Domain	29	297	.	.	.	Note=G_PROTEIN_RECEP_F1_2;Ontology_term=ECO:0000259;evidence=ECO:0000259|PROSITE:PS50262	
+##sequence-region K1R773 1 138
+K1R773	UniProtKB	Domain	71	134	.	.	.	Note=BZIP (basic-leucine zipper);Ontology_term=ECO:0000259;evidence=ECO:0000259|PROSITE:PS50217	
+K1R773	UniProtKB	Coiled coil	96	123	.	.	.	Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Coils	
+##sequence-region K1QWX0 1 311
+K1QWX0	UniProtKB	Domain	31	166	.	.	.	Note=MPN (JAB/Mov34);Ontology_term=ECO:0000259;evidence=ECO:0000259|SMART:SM00232	
+##sequence-region K1P1C8 1 268
+K1P1C8	UniProtKB	Domain	1	248	.	.	.	Note=Protein kinase;Ontology_term=ECO:0000259;evidence=ECO:0000259|PROSITE:PS50011	
+##sequence-region K1PVE0 1 287
+K1PVE0	UniProtKB	Signal peptide	1	24	.	.	.	Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:SignalP	
+K1PVE0	UniProtKB	Chain	25	287	.	.	.	ID=PRO_5003849188;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:SignalP	
+K1PVE0	UniProtKB	Domain	30	83	.	.	.	Note=SMB (somatomedin-B);Ontology_term=ECO:0000259;evidence=ECO:0000259|PROSITE:PS50958	
+##sequence-region K1R2J9 1 74
+##sequence-region K1R086 1 497
+K1R086	UniProtKB	Transmembrane	12	34	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|RuleBase:RU361216	
+K1R086	UniProtKB	Transmembrane	54	76	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|RuleBase:RU361216	
+K1R086	UniProtKB	Transmembrane	88	112	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|RuleBase:RU361216	
+K1R086	UniProtKB	Transmembrane	192	209	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|RuleBase:RU361216	
+K1R086	UniProtKB	Transmembrane	230	251	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|RuleBase:RU361216	
+K1R086	UniProtKB	Transmembrane	263	289	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|RuleBase:RU361216	
+K1R086	UniProtKB	Transmembrane	301	318	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|RuleBase:RU361216	
+K1R086	UniProtKB	Transmembrane	338	363	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|RuleBase:RU361216	
+K1R086	UniProtKB	Transmembrane	375	392	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|RuleBase:RU361216	
+K1R086	UniProtKB	Transmembrane	398	420	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|RuleBase:RU361216	
+##sequence-region K1QVY3 1 158
+##sequence-region K1R202 1 521
+##sequence-region K1QG92 1 861
+K1QG92	UniProtKB	Transmembrane	788	818	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+K1QG92	UniProtKB	Domain	17	186	.	.	.	Note=VWFA;Ontology_term=ECO:0000259;evidence=ECO:0000259|PROSITE:PS50234	
+##sequence-region K1QFN7 1 470
+K1QFN7	UniProtKB	Domain	2	177	.	.	.	Note=TLD;Ontology_term=ECO:0000259;evidence=ECO:0000259|SMART:SM00584	
+##sequence-region K1RF20 1 437
+K1RF20	UniProtKB	Domain	2	163	.	.	.	Note=TLD;Ontology_term=ECO:0000259;evidence=ECO:0000259|SMART:SM00584	
+##sequence-region K1QUS6 1 470
+K1QUS6	UniProtKB	Domain	2	177	.	.	.	Note=TLD;Ontology_term=ECO:0000259;evidence=ECO:0000259|SMART:SM00584	
+##sequence-region K1QP68 1 180
+K1QP68	UniProtKB	Domain	130	157	.	.	.	Note=C2H2-type;Ontology_term=ECO:0000259;evidence=ECO:0000259|PROSITE:PS50157	
+##sequence-region K1RLE8 1 1229
+K1RLE8	UniProtKB	Coiled coil	117	166	.	.	.	Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Coils	
+K1RLE8	UniProtKB	Coiled coil	419	453	.	.	.	Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Coils	
+##sequence-region K1PPR0 1 262
+K1PPR0	UniProtKB	Transmembrane	33	54	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+K1PPR0	UniProtKB	Transmembrane	229	253	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+##sequence-region K1PM60 1 296
+K1PM60	UniProtKB	Domain	6	241	.	.	.	Note=PABS (polyamine biosynthesis);Ontology_term=ECO:0000259;evidence=ECO:0000259|PROSITE:PS51006	
+K1PM60	UniProtKB	Active site	161	161	.	.	.	Note=Proton acceptor;Ontology_term=ECO:0000256;evidence=ECO:0000256|PROSITE-ProRule:PRU00354	
+##sequence-region K1R2B0 1 826
+K1R2B0	UniProtKB	Domain	46	300	.	.	.	Note=Protein kinase;Ontology_term=ECO:0000259;evidence=ECO:0000259|PROSITE:PS50011	
+##sequence-region K1Q839 1 150
+##sequence-region K1Q348 1 609
+K1Q348	UniProtKB	Transmembrane	97	122	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+K1Q348	UniProtKB	Transmembrane	143	161	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+K1Q348	UniProtKB	Transmembrane	176	196	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+K1Q348	UniProtKB	Transmembrane	208	233	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+K1Q348	UniProtKB	Transmembrane	245	274	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+K1Q348	UniProtKB	Transmembrane	294	316	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+K1Q348	UniProtKB	Transmembrane	479	500	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+K1Q348	UniProtKB	Transmembrane	506	527	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+K1Q348	UniProtKB	Domain	398	464	.	.	.	Note=RING-CH-type;Ontology_term=ECO:0000259;evidence=ECO:0000259|PROSITE:PS51292	
+##sequence-region K1QUG2 1 485
+##sequence-region K1QNG5 1 399
+K1QNG5	UniProtKB	Transmembrane	53	74	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+K1QNG5	UniProtKB	Transmembrane	86	106	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+K1QNG5	UniProtKB	Transmembrane	126	144	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+K1QNG5	UniProtKB	Transmembrane	165	185	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+K1QNG5	UniProtKB	Transmembrane	214	238	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+K1QNG5	UniProtKB	Transmembrane	323	346	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+K1QNG5	UniProtKB	Transmembrane	358	384	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+K1QNG5	UniProtKB	Domain	66	381	.	.	.	Note=G_PROTEIN_RECEP_F1_2;Ontology_term=ECO:0000259;evidence=ECO:0000259|PROSITE:PS50262	
+##sequence-region K1PMH4 1 183
+##sequence-region K1RWC0 1 148
+K1RWC0	UniProtKB	Domain	71	134	.	.	.	Note=BZIP (basic-leucine zipper);Ontology_term=ECO:0000259;evidence=ECO:0000259|PROSITE:PS50217	
+K1RWC0	UniProtKB	Coiled coil	103	137	.	.	.	Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Coils	
+##sequence-region K1Q7M2 1 330
+K1Q7M2	UniProtKB	Signal peptide	1	16	.	.	.	Ontology_term=ECO:0000256;evidence=ECO:0000256|RuleBase:RU362133	
+K1Q7M2	UniProtKB	Chain	17	330	.	.	.	ID=PRO_5005399140;Ontology_term=ECO:0000256;evidence=ECO:0000256|RuleBase:RU362133	
+K1Q7M2	UniProtKB	Domain	27	86	.	.	.	Note=Inhibitor_I29;Ontology_term=ECO:0000259;evidence=ECO:0000259|SMART:SM00848	
+K1Q7M2	UniProtKB	Domain	114	329	.	.	.	Note=Pept_C1;Ontology_term=ECO:0000259;evidence=ECO:0000259|SMART:SM00645	
+##sequence-region K1QFP6 1 117
+K1QFP6	UniProtKB	Signal peptide	1	18	.	.	.	Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:SignalP	
+K1QFP6	UniProtKB	Chain	19	117	.	.	.	ID=PRO_5003849889;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:SignalP	
+##sequence-region K1QTJ3 1 105
+K1QTJ3	UniProtKB	Transmembrane	52	75	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+##sequence-region K1RBB3 1 106
+##sequence-region K1QHI6 1 4471
+K1QHI6	UniProtKB	Domain	1944	2081	.	.	.	Note=AAA;Ontology_term=ECO:0000259;evidence=ECO:0000259|SMART:SM00382	
+K1QHI6	UniProtKB	Domain	2224	2379	.	.	.	Note=AAA;Ontology_term=ECO:0000259;evidence=ECO:0000259|SMART:SM00382	
+K1QHI6	UniProtKB	Domain	2550	2698	.	.	.	Note=AAA;Ontology_term=ECO:0000259;evidence=ECO:0000259|SMART:SM00382	
+K1QHI6	UniProtKB	Coiled coil	289	316	.	.	.	Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Coils	
+K1QHI6	UniProtKB	Coiled coil	3172	3206	.	.	.	Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Coils	
+K1QHI6	UniProtKB	Coiled coil	3392	3433	.	.	.	Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Coils	
+K1QHI6	UniProtKB	Coiled coil	3581	3608	.	.	.	Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Coils	
+##sequence-region K1R427 1 262
+##sequence-region K1PEP8 1 422
+K1PEP8	UniProtKB	Transmembrane	34	54	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+K1PEP8	UniProtKB	Transmembrane	66	86	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+K1PEP8	UniProtKB	Transmembrane	106	124	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+K1PEP8	UniProtKB	Transmembrane	145	165	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+K1PEP8	UniProtKB	Transmembrane	192	213	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+K1PEP8	UniProtKB	Transmembrane	285	308	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+K1PEP8	UniProtKB	Transmembrane	320	343	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+K1PEP8	UniProtKB	Domain	45	341	.	.	.	Note=G_PROTEIN_RECEP_F1_2;Ontology_term=ECO:0000259;evidence=ECO:0000259|PROSITE:PS50262	
+##sequence-region K1QVI9 1 272
+##sequence-region K1PLG4 1 164
+##sequence-region K1PPJ6 1 489
+K1PPJ6	UniProtKB	Region	295	297	.	.	.	Note=Nicotinamide ribonucleotide binding;Ontology_term=ECO:0000256;evidence=ECO:0000256|PIRSR:PIRSR005943-1	
+K1PPJ6	UniProtKB	Region	337	338	.	.	.	Note=Nicotinamide ribonucleotide binding;Ontology_term=ECO:0000256;evidence=ECO:0000256|PIRSR:PIRSR005943-1	
+K1PPJ6	UniProtKB	Binding site	184	184	.	.	.	Note=Diphosphate;Ontology_term=ECO:0000256;evidence=ECO:0000256|PIRSR:PIRSR005943-1	
+K1PPJ6	UniProtKB	Binding site	207	207	.	.	.	Note=Nicotinamide ribonucleotide;Ontology_term=ECO:0000256;evidence=ECO:0000256|PIRSR:PIRSR005943-1	
+K1PPJ6	UniProtKB	Binding site	233	233	.	.	.	Note=Diphosphate;Ontology_term=ECO:0000256;evidence=ECO:0000256|PIRSR:PIRSR005943-1	
+K1PPJ6	UniProtKB	Binding site	295	295	.	.	.	Note=Diphosphate;Ontology_term=ECO:0000256;evidence=ECO:0000256|PIRSR:PIRSR005943-1	
+K1PPJ6	UniProtKB	Binding site	368	368	.	.	.	Note=Nicotinamide ribonucleotide%3B via amide nitrogen;Ontology_term=ECO:0000256;evidence=ECO:0000256|PIRSR:PIRSR005943-1	
+K1PPJ6	UniProtKB	Binding site	376	376	.	.	.	Note=Nicotinamide ribonucleotide;Ontology_term=ECO:0000256;evidence=ECO:0000256|PIRSR:PIRSR005943-1	
+##sequence-region K1QVQ1 1 139
+##sequence-region K1QFS2 1 382
+##sequence-region K1R363 1 667
+K1R363	UniProtKB	Transmembrane	21	46	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+K1R363	UniProtKB	Transmembrane	66	88	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+K1R363	UniProtKB	Transmembrane	109	130	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+K1R363	UniProtKB	Transmembrane	150	175	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+K1R363	UniProtKB	Transmembrane	235	262	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+K1R363	UniProtKB	Transmembrane	282	300	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+K1R363	UniProtKB	Transmembrane	321	341	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+K1R363	UniProtKB	Transmembrane	361	378	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+K1R363	UniProtKB	Domain	419	643	.	.	.	Note=Aminotran_5;Ontology_term=ECO:0000259;evidence=ECO:0000259|Pfam:PF00266	
+##sequence-region K1R5B2 1 63
+##sequence-region K1Q2D8 1 289
+K1Q2D8	UniProtKB	Coiled coil	169	209	.	.	.	Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Coils	
+##sequence-region K1QSA9 1 1924
+K1QSA9	UniProtKB	Domain	1609	1817	.	.	.	Note=Rap-GAP;Ontology_term=ECO:0000259;evidence=ECO:0000259|PROSITE:PS50085	
+##sequence-region K1Q6H5 1 637
+K1Q6H5	UniProtKB	Domain	49	242	.	.	.	Note=ANK_REP_REGION;Ontology_term=ECO:0000259;evidence=ECO:0000259|PROSITE:PS50297	
+K1Q6H5	UniProtKB	Repeat	90	122	.	.	.	Note=ANK;Ontology_term=ECO:0000256;evidence=ECO:0000256|PROSITE-ProRule:PRU00023	
+K1Q6H5	UniProtKB	Repeat	123	155	.	.	.	Note=ANK;Ontology_term=ECO:0000256;evidence=ECO:0000256|PROSITE-ProRule:PRU00023	
+K1Q6H5	UniProtKB	Domain	529	584	.	.	.	Note=ANK_REP_REGION;Ontology_term=ECO:0000259;evidence=ECO:0000259|PROSITE:PS50297	
+K1Q6H5	UniProtKB	Repeat	542	578	.	.	.	Note=ANK;Ontology_term=ECO:0000256;evidence=ECO:0000256|PROSITE-ProRule:PRU00023	
+##sequence-region K1PFN2 1 2278
+K1PFN2	UniProtKB	Domain	331	424	.	.	.	Note=Fibronectin type-III;Ontology_term=ECO:0000259;evidence=ECO:0000259|PROSITE:PS50853	
+K1PFN2	UniProtKB	Domain	426	538	.	.	.	Note=Fibronectin type-III;Ontology_term=ECO:0000259;evidence=ECO:0000259|PROSITE:PS50853	
+K1PFN2	UniProtKB	Domain	541	630	.	.	.	Note=Fibronectin type-III;Ontology_term=ECO:0000259;evidence=ECO:0000259|PROSITE:PS50853	
+K1PFN2	UniProtKB	Domain	693	791	.	.	.	Note=Fibronectin type-III;Ontology_term=ECO:0000259;evidence=ECO:0000259|PROSITE:PS50853	
+K1PFN2	UniProtKB	Domain	804	902	.	.	.	Note=Fibronectin type-III;Ontology_term=ECO:0000259;evidence=ECO:0000259|PROSITE:PS50853	
+K1PFN2	UniProtKB	Domain	927	1028	.	.	.	Note=Fibronectin type-III;Ontology_term=ECO:0000259;evidence=ECO:0000259|PROSITE:PS50853	
+K1PFN2	UniProtKB	Domain	1046	1150	.	.	.	Note=Fibronectin type-III;Ontology_term=ECO:0000259;evidence=ECO:0000259|PROSITE:PS50853	
+K1PFN2	UniProtKB	Domain	1362	1455	.	.	.	Note=Fibronectin type-III;Ontology_term=ECO:0000259;evidence=ECO:0000259|PROSITE:PS50853	
+K1PFN2	UniProtKB	Domain	1471	1563	.	.	.	Note=Fibronectin type-III;Ontology_term=ECO:0000259;evidence=ECO:0000259|PROSITE:PS50853	
+K1PFN2	UniProtKB	Domain	1564	1655	.	.	.	Note=Fibronectin type-III;Ontology_term=ECO:0000259;evidence=ECO:0000259|PROSITE:PS50853	
+K1PFN2	UniProtKB	Domain	1657	1756	.	.	.	Note=Fibronectin type-III;Ontology_term=ECO:0000259;evidence=ECO:0000259|PROSITE:PS50853	
+##sequence-region K1Q9A4 1 329
+K1Q9A4	UniProtKB	Domain	71	324	.	.	.	Note=PNP_UDP_1;Ontology_term=ECO:0000259;evidence=ECO:0000259|Pfam:PF01048	
+K1Q9A4	UniProtKB	Region	129	131	.	.	.	Note=Phosphate binding;Ontology_term=ECO:0000256;evidence=ECO:0000256|PIRSR:PIRSR000477-2	
+K1Q9A4	UniProtKB	Binding site	78	78	.	.	.	Note=Phosphate;Ontology_term=ECO:0000256;evidence=ECO:0000256|PIRSR:PIRSR000477-2	
+K1Q9A4	UniProtKB	Binding site	109	109	.	.	.	Note=Phosphate;Ontology_term=ECO:0000256;evidence=ECO:0000256|PIRSR:PIRSR000477-2	
+K1Q9A4	UniProtKB	Binding site	161	161	.	.	.	Note=Phosphate%3B via amide nitrogen;Ontology_term=ECO:0000256;evidence=ECO:0000256|PIRSR:PIRSR000477-2	
+K1Q9A4	UniProtKB	Binding site	246	246	.	.	.	Note=Purine nucleoside;Ontology_term=ECO:0000256;evidence=ECO:0000256|PIRSR:PIRSR000477-2	
+K1Q9A4	UniProtKB	Binding site	265	265	.	.	.	Note=Phosphate;Ontology_term=ECO:0000256;evidence=ECO:0000256|PIRSR:PIRSR000477-2	
+K1Q9A4	UniProtKB	Binding site	288	288	.	.	.	Note=Purine nucleoside;Ontology_term=ECO:0000256;evidence=ECO:0000256|PIRSR:PIRSR000477-2	
+##sequence-region K1PCJ3 1 560
+K1PCJ3	UniProtKB	Signal peptide	1	24	.	.	.	Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:SignalP	
+K1PCJ3	UniProtKB	Chain	25	560	.	.	.	ID=PRO_5003851341;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:SignalP	
+K1PCJ3	UniProtKB	Transmembrane	211	233	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+K1PCJ3	UniProtKB	Transmembrane	245	265	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+K1PCJ3	UniProtKB	Transmembrane	299	324	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+K1PCJ3	UniProtKB	Transmembrane	336	356	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+K1PCJ3	UniProtKB	Transmembrane	387	407	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+K1PCJ3	UniProtKB	Transmembrane	428	451	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+K1PCJ3	UniProtKB	Transmembrane	471	490	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+K1PCJ3	UniProtKB	Domain	26	147	.	.	.	Note=FZ (frizzled);Ontology_term=ECO:0000259;evidence=ECO:0000259|PROSITE:PS50038	
+K1PCJ3	UniProtKB	Domain	209	497	.	.	.	Note=G_PROTEIN_RECEP_F2_4;Ontology_term=ECO:0000259;evidence=ECO:0000259|PROSITE:PS50261	
+K1PCJ3	UniProtKB	Disulfide bond	31	92	.	.	.	Ontology_term=ECO:0000256;evidence=ECO:0000256|PROSITE-ProRule:PRU00090	
+K1PCJ3	UniProtKB	Disulfide bond	39	85	.	.	.	Ontology_term=ECO:0000256;evidence=ECO:0000256|PROSITE-ProRule:PRU00090	
+K1PCJ3	UniProtKB	Disulfide bond	76	114	.	.	.	Ontology_term=ECO:0000256;evidence=ECO:0000256|PROSITE-ProRule:PRU00090	
+K1PCJ3	UniProtKB	Disulfide bond	103	144	.	.	.	Ontology_term=ECO:0000256;evidence=ECO:0000256|PROSITE-ProRule:PRU00090	
+K1PCJ3	UniProtKB	Disulfide bond	107	131	.	.	.	Ontology_term=ECO:0000256;evidence=ECO:0000256|PROSITE-ProRule:PRU00090	
+##sequence-region K1PZI7 1 1074
+K1PZI7	UniProtKB	Domain	306	509	.	.	.	Note=MCM;Ontology_term=ECO:0000259;evidence=ECO:0000259|PROSITE:PS50051	
+K1PZI7	UniProtKB	Coiled coil	836	863	.	.	.	Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Coils	
+##sequence-region K1R7J9 1 1099
+K1R7J9	UniProtKB	Signal peptide	1	22	.	.	.	Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:SignalP	
+K1R7J9	UniProtKB	Chain	23	1099	.	.	.	ID=PRO_5003852651;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:SignalP	
+K1R7J9	UniProtKB	Transmembrane	211	235	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+K1R7J9	UniProtKB	Coiled coil	313	340	.	.	.	Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Coils	
+##sequence-region K1Q9S2 1 153
+##sequence-region K1QP56 1 277
+K1QP56	UniProtKB	Domain	14	149	.	.	.	Note=PI31_Prot_N;Ontology_term=ECO:0000259;evidence=ECO:0000259|Pfam:PF11566	
+K1QP56	UniProtKB	Domain	186	255	.	.	.	Note=PI31_Prot_C;Ontology_term=ECO:0000259;evidence=ECO:0000259|Pfam:PF08577	
+##sequence-region K1QHH7 1 128
+K1QHH7	UniProtKB	Signal peptide	1	23	.	.	.	Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:SignalP	
+K1QHH7	UniProtKB	Chain	24	128	.	.	.	ID=PRO_5003849950;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:SignalP	
+##sequence-region K1QQK1 1 453
+K1QQK1	UniProtKB	Domain	346	432	.	.	.	Note=PCI;Ontology_term=ECO:0000259;evidence=ECO:0000259|SMART:SM00088	
+##sequence-region K1Q645 1 316
+K1Q645	UniProtKB	Domain	33	121	.	.	.	Note=Pribosyltran_N;Ontology_term=ECO:0000259;evidence=ECO:0000259|Pfam:PF13793	
+K1Q645	UniProtKB	Domain	214	286	.	.	.	Note=Pribosyltran;Ontology_term=ECO:0000259;evidence=ECO:0000259|Pfam:PF00156	
+##sequence-region K1RFF6 1 299
+K1RFF6	UniProtKB	Domain	251	286	.	.	.	Note=RING-type;Ontology_term=ECO:0000259;evidence=ECO:0000259|PROSITE:PS50089	
+##sequence-region K1QZH7 1 575
+K1QZH7	UniProtKB	Signal peptide	1	21	.	.	.	Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:SignalP	
+K1QZH7	UniProtKB	Chain	22	575	.	.	.	ID=PRO_5003852133;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:SignalP	
+K1QZH7	UniProtKB	Domain	198	563	.	.	.	Note=ANF_receptor;Ontology_term=ECO:0000259;evidence=ECO:0000259|Pfam:PF01094	
+##sequence-region K1QZI2 1 373
+##sequence-region K1RBB1 1 545
+K1RBB1	UniProtKB	Transmembrane	6	26	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+K1RBB1	UniProtKB	Transmembrane	38	61	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+K1RBB1	UniProtKB	Transmembrane	81	98	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+K1RBB1	UniProtKB	Transmembrane	119	143	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+K1RBB1	UniProtKB	Transmembrane	155	174	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+K1RBB1	UniProtKB	Transmembrane	181	199	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+K1RBB1	UniProtKB	Transmembrane	222	239	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+K1RBB1	UniProtKB	Transmembrane	260	281	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+K1RBB1	UniProtKB	Transmembrane	316	341	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+K1RBB1	UniProtKB	Transmembrane	362	382	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+K1RBB1	UniProtKB	Transmembrane	388	412	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+K1RBB1	UniProtKB	Transmembrane	424	447	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+K1RBB1	UniProtKB	Transmembrane	459	484	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+##sequence-region K1R8T0 1 325
+K1R8T0	UniProtKB	Domain	119	301	.	.	.	Note=Brix;Ontology_term=ECO:0000259;evidence=ECO:0000259|PROSITE:PS50833	
+K1R8T0	UniProtKB	Coiled coil	46	69	.	.	.	Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Coils	
+##sequence-region K1R874 1 606
+K1R874	UniProtKB	Domain	152	222	.	.	.	Note=TGc;Ontology_term=ECO:0000259;evidence=ECO:0000259|SMART:SM00460	
+##sequence-region K1QBX1 1 159
+K1QBX1	UniProtKB	Transmembrane	89	115	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+##sequence-region K1PSG8 1 1139
+K1PSG8	UniProtKB	Domain	621	663	.	.	.	Note=CAP-Gly;Ontology_term=ECO:0000259;evidence=ECO:0000259|PROSITE:PS50245	
+K1PSG8	UniProtKB	Coiled coil	217	291	.	.	.	Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Coils	
+K1PSG8	UniProtKB	Coiled coil	699	726	.	.	.	Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Coils	
+##sequence-region K1P1A2 1 177
+##sequence-region K1Q503 1 870
+K1Q503	UniProtKB	Signal peptide	1	21	.	.	.	Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:SignalP	
+K1Q503	UniProtKB	Chain	22	870	.	.	.	ID=PRO_5003849535;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:SignalP	
+K1Q503	UniProtKB	Transmembrane	232	255	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+K1Q503	UniProtKB	Transmembrane	262	280	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+K1Q503	UniProtKB	Transmembrane	292	315	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+K1Q503	UniProtKB	Transmembrane	668	693	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+K1Q503	UniProtKB	Transmembrane	699	717	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+K1Q503	UniProtKB	Transmembrane	729	756	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+K1Q503	UniProtKB	Transmembrane	762	779	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+K1Q503	UniProtKB	Transmembrane	841	863	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+K1Q503	UniProtKB	Domain	31	229	.	.	.	Note=Neur_chan_LBD;Ontology_term=ECO:0000259;evidence=ECO:0000259|Pfam:PF02931	
+K1Q503	UniProtKB	Domain	464	667	.	.	.	Note=Neur_chan_LBD;Ontology_term=ECO:0000259;evidence=ECO:0000259|Pfam:PF02931	
+##sequence-region K1Q7Q3 1 144
+##sequence-region K1PY33 1 377
+K1PY33	UniProtKB	Transmembrane	30	49	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+K1PY33	UniProtKB	Transmembrane	69	89	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+K1PY33	UniProtKB	Transmembrane	96	122	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+K1PY33	UniProtKB	Transmembrane	142	163	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+K1PY33	UniProtKB	Transmembrane	175	197	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+K1PY33	UniProtKB	Transmembrane	203	225	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+K1PY33	UniProtKB	Transmembrane	245	266	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+K1PY33	UniProtKB	Transmembrane	281	301	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+##sequence-region K1QVR0 1 265
+K1QVR0	UniProtKB	Domain	104	238	.	.	.	Note=CSN8_PSD8_EIF3K;Ontology_term=ECO:0000259;evidence=ECO:0000259|Pfam:PF10075	
+##sequence-region K1QPN6 1 158
+K1QPN6	UniProtKB	Domain	15	158	.	.	.	Note=TIR;Ontology_term=ECO:0000259;evidence=ECO:0000259|PROSITE:PS50104	
+##sequence-region K1PAQ1 1 256
+##sequence-region K1P3E1 1 1480
+K1P3E1	UniProtKB	Domain	226	438	.	.	.	Note=Peptidase M12B;Ontology_term=ECO:0000259;evidence=ECO:0000259|PROSITE:PS50215	
+K1P3E1	UniProtKB	Domain	1428	1468	.	.	.	Note=PLAC;Ontology_term=ECO:0000259;evidence=ECO:0000259|PROSITE:PS50900	
+K1P3E1	UniProtKB	Active site	373	373	.	.	.	Ontology_term=ECO:0000256;evidence=ECO:0000256|PROSITE-ProRule:PRU00276	
+K1P3E1	UniProtKB	Metal binding	372	372	.	.	.	Note=Zinc%3B catalytic;Ontology_term=ECO:0000256;evidence=ECO:0000256|PROSITE-ProRule:PRU00276	
+K1P3E1	UniProtKB	Metal binding	376	376	.	.	.	Note=Zinc%3B catalytic;Ontology_term=ECO:0000256;evidence=ECO:0000256|PROSITE-ProRule:PRU00276	
+K1P3E1	UniProtKB	Metal binding	382	382	.	.	.	Note=Zinc%3B catalytic;Ontology_term=ECO:0000256;evidence=ECO:0000256|PROSITE-ProRule:PRU00276	
+##sequence-region K1QNA7 1 521
+K1QNA7	UniProtKB	Coiled coil	299	326	.	.	.	Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Coils	
+K1QNA7	UniProtKB	Coiled coil	334	361	.	.	.	Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Coils	
+K1QNA7	UniProtKB	Coiled coil	396	430	.	.	.	Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Coils	
+K1QNA7	UniProtKB	Coiled coil	445	479	.	.	.	Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Coils	
+##sequence-region K1PNS6 1 731
+K1PNS6	UniProtKB	Domain	136	315	.	.	.	Note=Macro;Ontology_term=ECO:0000259;evidence=ECO:0000259|PROSITE:PS51154	
+K1PNS6	UniProtKB	Domain	487	731	.	.	.	Note=PARP catalytic;Ontology_term=ECO:0000259;evidence=ECO:0000259|PROSITE:PS51059	
+##sequence-region K1RE25 1 666
+##sequence-region K1PDZ2 1 190
+K1PDZ2	UniProtKB	Signal peptide	1	23	.	.	.	Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:SignalP	
+K1PDZ2	UniProtKB	Chain	24	190	.	.	.	ID=PRO_5003848912;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:SignalP	
+K1PDZ2	UniProtKB	Transmembrane	165	186	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+K1PDZ2	UniProtKB	Domain	35	139	.	.	.	Note=Folate_rec;Ontology_term=ECO:0000259;evidence=ECO:0000259|Pfam:PF03024	
+##sequence-region K1RDF9 1 199
+##sequence-region K1PWY3 1 320
+K1PWY3	UniProtKB	Signal peptide	1	27	.	.	.	Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:SignalP	
+K1PWY3	UniProtKB	Chain	28	320	.	.	.	ID=PRO_5003849222;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:SignalP	
+K1PWY3	UniProtKB	Domain	165	320	.	.	.	Note=C1q;Ontology_term=ECO:0000259;evidence=ECO:0000259|PROSITE:PS50871	
+##sequence-region K1QLW5 1 192
+K1QLW5	UniProtKB	Signal peptide	1	18	.	.	.	Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:SignalP	
+K1QLW5	UniProtKB	Chain	19	192	.	.	.	ID=PRO_5003851708;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:SignalP	
+K1QLW5	UniProtKB	Domain	62	186	.	.	.	Note=Sod_Cu;Ontology_term=ECO:0000259;evidence=ECO:0000259|Pfam:PF00080	
+##sequence-region K1Q8J5 1 138
+##sequence-region K1QAZ0 1 220
+K1QAZ0	UniProtKB	Transmembrane	12	34	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+K1QAZ0	UniProtKB	Transmembrane	64	87	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+K1QAZ0	UniProtKB	Transmembrane	99	124	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+K1QAZ0	UniProtKB	Transmembrane	177	198	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+##sequence-region K1RB45 1 326
+K1RB45	UniProtKB	Signal peptide	1	19	.	.	.	Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:SignalP	
+K1RB45	UniProtKB	Chain	20	326	.	.	.	ID=PRO_5003850576;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:SignalP	
+##sequence-region K1QVW7 1 2111
+K1QVW7	UniProtKB	Transmembrane	1599	1622	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+K1QVW7	UniProtKB	Domain	22	115	.	.	.	Note=Ig-like (immunoglobulin-like);Ontology_term=ECO:0000259;evidence=ECO:0000259|PROSITE:PS50835	
+K1QVW7	UniProtKB	Domain	229	314	.	.	.	Note=Ig-like (immunoglobulin-like);Ontology_term=ECO:0000259;evidence=ECO:0000259|PROSITE:PS50835	
+K1QVW7	UniProtKB	Domain	318	404	.	.	.	Note=Ig-like (immunoglobulin-like);Ontology_term=ECO:0000259;evidence=ECO:0000259|PROSITE:PS50835	
+K1QVW7	UniProtKB	Domain	410	491	.	.	.	Note=Ig-like (immunoglobulin-like);Ontology_term=ECO:0000259;evidence=ECO:0000259|PROSITE:PS50835	
+K1QVW7	UniProtKB	Domain	508	593	.	.	.	Note=Ig-like (immunoglobulin-like);Ontology_term=ECO:0000259;evidence=ECO:0000259|PROSITE:PS50835	
+K1QVW7	UniProtKB	Domain	597	687	.	.	.	Note=Ig-like (immunoglobulin-like);Ontology_term=ECO:0000259;evidence=ECO:0000259|PROSITE:PS50835	
+K1QVW7	UniProtKB	Domain	692	786	.	.	.	Note=Ig-like (immunoglobulin-like);Ontology_term=ECO:0000259;evidence=ECO:0000259|PROSITE:PS50835	
+K1QVW7	UniProtKB	Domain	796	891	.	.	.	Note=Ig-like (immunoglobulin-like);Ontology_term=ECO:0000259;evidence=ECO:0000259|PROSITE:PS50835	
+K1QVW7	UniProtKB	Domain	898	993	.	.	.	Note=Fibronectin type-III;Ontology_term=ECO:0000259;evidence=ECO:0000259|PROSITE:PS50853	
+K1QVW7	UniProtKB	Domain	998	1096	.	.	.	Note=Fibronectin type-III;Ontology_term=ECO:0000259;evidence=ECO:0000259|PROSITE:PS50853	
+K1QVW7	UniProtKB	Domain	1101	1197	.	.	.	Note=Fibronectin type-III;Ontology_term=ECO:0000259;evidence=ECO:0000259|PROSITE:PS50853	
+K1QVW7	UniProtKB	Domain	1201	1294	.	.	.	Note=Fibronectin type-III;Ontology_term=ECO:0000259;evidence=ECO:0000259|PROSITE:PS50853	
+K1QVW7	UniProtKB	Domain	1291	1382	.	.	.	Note=Ig-like (immunoglobulin-like);Ontology_term=ECO:0000259;evidence=ECO:0000259|PROSITE:PS50835	
+K1QVW7	UniProtKB	Domain	1386	1479	.	.	.	Note=Fibronectin type-III;Ontology_term=ECO:0000259;evidence=ECO:0000259|PROSITE:PS50853	
+K1QVW7	UniProtKB	Domain	1484	1578	.	.	.	Note=Fibronectin type-III;Ontology_term=ECO:0000259;evidence=ECO:0000259|PROSITE:PS50853	
+##sequence-region K1S6Z0 1 1545
+K1S6Z0	UniProtKB	Domain	1357	1444	.	.	.	Note=Death;Ontology_term=ECO:0000259;evidence=ECO:0000259|PROSITE:PS50017	
+K1S6Z0	UniProtKB	Domain	1477	1545	.	.	.	Note=Death;Ontology_term=ECO:0000259;evidence=ECO:0000259|PROSITE:PS50017	
+K1S6Z0	UniProtKB	Coiled coil	754	835	.	.	.	Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Coils	
+##sequence-region K1PM59 1 411
+K1PM59	UniProtKB	Domain	54	180	.	.	.	Note=Kin17_mid;Ontology_term=ECO:0000259;evidence=ECO:0000259|SMART:SM01253	
+K1PM59	UniProtKB	Coiled coil	151	185	.	.	.	Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Coils	
+##sequence-region K1QC34 1 1752
+K1QC34	UniProtKB	Domain	1324	1365	.	.	.	Note=WD_REPEATS_REGION;Ontology_term=ECO:0000259;evidence=ECO:0000259|PROSITE:PS50294	
+K1QC34	UniProtKB	Repeat	1324	1356	.	.	.	Note=WD;Ontology_term=ECO:0000256;evidence=ECO:0000256|PROSITE-ProRule:PRU00221	
+K1QC34	UniProtKB	Domain	1593	1675	.	.	.	Note=WD_REPEATS_REGION;Ontology_term=ECO:0000259;evidence=ECO:0000259|PROSITE:PS50294	
+K1QC34	UniProtKB	Repeat	1634	1675	.	.	.	Note=WD;Ontology_term=ECO:0000256;evidence=ECO:0000256|PROSITE-ProRule:PRU00221	
+##sequence-region K1QJE3 1 1386
+K1QJE3	UniProtKB	Domain	14	70	.	.	.	Note=FHA;Ontology_term=ECO:0000259;evidence=ECO:0000259|PROSITE:PS50006	
+K1QJE3	UniProtKB	Coiled coil	373	400	.	.	.	Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Coils	
+K1QJE3	UniProtKB	Coiled coil	422	491	.	.	.	Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Coils	
+K1QJE3	UniProtKB	Coiled coil	657	732	.	.	.	Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Coils	
+K1QJE3	UniProtKB	Coiled coil	738	776	.	.	.	Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Coils	
+K1QJE3	UniProtKB	Coiled coil	780	829	.	.	.	Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Coils	
+K1QJE3	UniProtKB	Coiled coil	844	885	.	.	.	Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Coils	
+K1QJE3	UniProtKB	Coiled coil	954	1048	.	.	.	Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Coils	
+K1QJE3	UniProtKB	Coiled coil	1211	1262	.	.	.	Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Coils	
+##sequence-region K1R8M3 1 650
+K1R8M3	UniProtKB	Domain	25	102	.	.	.	Note=TFIIS N-terminal;Ontology_term=ECO:0000259;evidence=ECO:0000259|PROSITE:PS51319	
+##sequence-region K1PQQ9 1 406
+K1PQQ9	UniProtKB	Transmembrane	73	98	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+K1PQQ9	UniProtKB	Transmembrane	110	130	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+K1PQQ9	UniProtKB	Transmembrane	150	168	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+K1PQQ9	UniProtKB	Transmembrane	188	208	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+K1PQQ9	UniProtKB	Transmembrane	246	271	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+K1PQQ9	UniProtKB	Transmembrane	299	320	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+K1PQQ9	UniProtKB	Transmembrane	340	362	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+K1PQQ9	UniProtKB	Domain	90	359	.	.	.	Note=G_PROTEIN_RECEP_F1_2;Ontology_term=ECO:0000259;evidence=ECO:0000259|PROSITE:PS50262	
+##sequence-region K1P317 1 676
+##sequence-region K1PPR2 1 963
+##sequence-region K1Q996 1 562
+K1Q996	UniProtKB	Transmembrane	381	406	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+K1Q996	UniProtKB	Transmembrane	413	431	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+K1Q996	UniProtKB	Transmembrane	443	466	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+K1Q996	UniProtKB	Transmembrane	538	560	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+K1Q996	UniProtKB	Domain	181	380	.	.	.	Note=Neur_chan_LBD;Ontology_term=ECO:0000259;evidence=ECO:0000259|Pfam:PF02931	
+K1Q996	UniProtKB	Domain	388	484	.	.	.	Note=Neur_chan_memb;Ontology_term=ECO:0000259;evidence=ECO:0000259|Pfam:PF02932	
+##sequence-region K1QLS4 1 386
+##sequence-region K1RAQ3 1 124
+K1RAQ3	UniProtKB	Transmembrane	46	65	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+##sequence-region K1QQJ2 1 129
+K1QQJ2	UniProtKB	Transmembrane	55	80	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+K1QQJ2	UniProtKB	Transmembrane	100	120	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+##sequence-region K1PXB3 1 481
+K1PXB3	UniProtKB	Domain	38	336	.	.	.	Note=ANK_REP_REGION;Ontology_term=ECO:0000259;evidence=ECO:0000259|PROSITE:PS50297	
+K1PXB3	UniProtKB	Repeat	54	86	.	.	.	Note=ANK;Ontology_term=ECO:0000256;evidence=ECO:0000256|PROSITE-ProRule:PRU00023	
+K1PXB3	UniProtKB	Repeat	87	114	.	.	.	Note=ANK;Ontology_term=ECO:0000256;evidence=ECO:0000256|PROSITE-ProRule:PRU00023	
+K1PXB3	UniProtKB	Repeat	198	230	.	.	.	Note=ANK;Ontology_term=ECO:0000256;evidence=ECO:0000256|PROSITE-ProRule:PRU00023	
+K1PXB3	UniProtKB	Repeat	234	266	.	.	.	Note=ANK;Ontology_term=ECO:0000256;evidence=ECO:0000256|PROSITE-ProRule:PRU00023	
+K1PXB3	UniProtKB	Repeat	300	336	.	.	.	Note=ANK;Ontology_term=ECO:0000256;evidence=ECO:0000256|PROSITE-ProRule:PRU00023	
+K1PXB3	UniProtKB	Domain	440	477	.	.	.	Note=SOCS box;Ontology_term=ECO:0000259;evidence=ECO:0000259|PROSITE:PS50225	
+##sequence-region K1PXU9 1 413
+K1PXU9	UniProtKB	Domain	50	387	.	.	.	Note=Mab-21;Ontology_term=ECO:0000259;evidence=ECO:0000259|SMART:SM01265	
+##sequence-region K1QYR2 1 812
+K1QYR2	UniProtKB	Domain	5	51	.	.	.	Note=B box-type;Ontology_term=ECO:0000259;evidence=ECO:0000259|PROSITE:PS50119	
+K1QYR2	UniProtKB	Domain	518	630	.	.	.	Note=CUB;Ontology_term=ECO:0000259;evidence=ECO:0000259|PROSITE:PS01180	
+##sequence-region K1PVB4 1 59
+##sequence-region K1Q6X2 1 78
+##sequence-region K1R6C4 1 597
+K1R6C4	UniProtKB	Transmembrane	76	100	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+K1R6C4	UniProtKB	Transmembrane	204	224	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+K1R6C4	UniProtKB	Transmembrane	325	349	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+K1R6C4	UniProtKB	Transmembrane	369	388	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+K1R6C4	UniProtKB	Transmembrane	447	468	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+K1R6C4	UniProtKB	Transmembrane	489	510	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+K1R6C4	UniProtKB	Transmembrane	516	537	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+##sequence-region K1RLH2 1 612
+K1RLH2	UniProtKB	Transmembrane	410	433	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+K1RLH2	UniProtKB	Transmembrane	439	457	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+K1RLH2	UniProtKB	Transmembrane	469	490	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+K1RLH2	UniProtKB	Transmembrane	584	606	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+K1RLH2	UniProtKB	Domain	114	195	.	.	.	Note=Fe_hyd_lg_C;Ontology_term=ECO:0000259;evidence=ECO:0000259|Pfam:PF02906	
+K1RLH2	UniProtKB	Domain	210	406	.	.	.	Note=Neur_chan_LBD;Ontology_term=ECO:0000259;evidence=ECO:0000259|Pfam:PF02931	
+K1RLH2	UniProtKB	Domain	415	564	.	.	.	Note=Neur_chan_memb;Ontology_term=ECO:0000259;evidence=ECO:0000259|Pfam:PF02932	
+##sequence-region K1Q2S7 1 454
+##sequence-region K1QPL2 1 375
+K1QPL2	UniProtKB	Transmembrane	32	58	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+K1QPL2	UniProtKB	Transmembrane	70	91	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+K1QPL2	UniProtKB	Transmembrane	111	131	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+K1QPL2	UniProtKB	Transmembrane	152	174	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+K1QPL2	UniProtKB	Transmembrane	194	223	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+K1QPL2	UniProtKB	Transmembrane	244	270	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+K1QPL2	UniProtKB	Transmembrane	282	302	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+K1QPL2	UniProtKB	Domain	50	299	.	.	.	Note=G_PROTEIN_RECEP_F1_2;Ontology_term=ECO:0000259;evidence=ECO:0000259|PROSITE:PS50262	
+##sequence-region K1QQG5 1 250
+K1QQG5	UniProtKB	Domain	108	210	.	.	.	Note=TIR;Ontology_term=ECO:0000259;evidence=ECO:0000259|Pfam:PF13676	
+##sequence-region K1PFT1 1 341
+K1PFT1	UniProtKB	Domain	1	305	.	.	.	Note=Protein kinase;Ontology_term=ECO:0000259;evidence=ECO:0000259|PROSITE:PS50011	
+##sequence-region K1QUK1 1 692
+K1QUK1	UniProtKB	Transmembrane	22	47	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+K1QUK1	UniProtKB	Transmembrane	93	111	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+K1QUK1	UniProtKB	Transmembrane	120	136	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+K1QUK1	UniProtKB	Transmembrane	142	160	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+K1QUK1	UniProtKB	Transmembrane	231	249	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+K1QUK1	UniProtKB	Transmembrane	261	279	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+K1QUK1	UniProtKB	Transmembrane	285	305	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+K1QUK1	UniProtKB	Transmembrane	326	349	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+K1QUK1	UniProtKB	Transmembrane	369	389	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+##sequence-region K1PKM8 1 181
+K1PKM8	UniProtKB	Domain	39	74	.	.	.	Note=EF-hand;Ontology_term=ECO:0000259;evidence=ECO:0000259|PROSITE:PS50222	
+K1PKM8	UniProtKB	Domain	75	110	.	.	.	Note=EF-hand;Ontology_term=ECO:0000259;evidence=ECO:0000259|PROSITE:PS50222	
+K1PKM8	UniProtKB	Domain	113	148	.	.	.	Note=EF-hand;Ontology_term=ECO:0000259;evidence=ECO:0000259|PROSITE:PS50222	
+K1PKM8	UniProtKB	Domain	149	181	.	.	.	Note=EF-hand;Ontology_term=ECO:0000259;evidence=ECO:0000259|PROSITE:PS50222	
+K1PKM8	UniProtKB	Calcium binding	52	63	.	.	.	Ontology_term=ECO:0000256;evidence=ECO:0000256|PROSITE-ProRule:PRU00448	
+K1PKM8	UniProtKB	Calcium binding	126	137	.	.	.	Ontology_term=ECO:0000256;evidence=ECO:0000256|PROSITE-ProRule:PRU00448	
+K1PKM8	UniProtKB	Calcium binding	162	173	.	.	.	Ontology_term=ECO:0000256;evidence=ECO:0000256|PROSITE-ProRule:PRU00448	
+##sequence-region K1QSP7 1 166
+##sequence-region K1PAB7 1 280
+K1PAB7	UniProtKB	Coiled coil	201	235	.	.	.	Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Coils	
+K1PAB7	UniProtKB	Coiled coil	253	280	.	.	.	Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Coils	
+##sequence-region K1QSR3 1 143
+K1QSR3	UniProtKB	Domain	17	143	.	.	.	Note=C1q;Ontology_term=ECO:0000259;evidence=ECO:0000259|PROSITE:PS50871	
+##sequence-region K1PDE1 1 1770
+K1PDE1	UniProtKB	Domain	330	439	.	.	.	Note=WD_REPEATS_REGION;Ontology_term=ECO:0000259;evidence=ECO:0000259|PROSITE:PS50294	
+K1PDE1	UniProtKB	Coiled coil	1173	1214	.	.	.	Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Coils	
+K1PDE1	UniProtKB	Coiled coil	1251	1296	.	.	.	Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Coils	
+##sequence-region K1PJT0 1 204
+K1PJT0	UniProtKB	Domain	16	163	.	.	.	Note=Isochorismatase;Ontology_term=ECO:0000259;evidence=ECO:0000259|Pfam:PF00857	
+##sequence-region K1RY19 1 155
+##sequence-region K1PBT3 1 390
+K1PBT3	UniProtKB	Domain	138	374	.	.	.	Note=Sulfotransfer_1;Ontology_term=ECO:0000259;evidence=ECO:0000259|Pfam:PF00685	
+##sequence-region K1R5G2 1 411
+K1R5G2	UniProtKB	Domain	2	122	.	.	.	Note=FPG_CAT;Ontology_term=ECO:0000259;evidence=ECO:0000259|PROSITE:PS51068	
+K1R5G2	UniProtKB	Coiled coil	304	335	.	.	.	Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Coils	
+##sequence-region K1QJV9 1 263
+K1QJV9	UniProtKB	Domain	13	101	.	.	.	Note=BTB_2;Ontology_term=ECO:0000259;evidence=ECO:0000259|Pfam:PF02214	
+##sequence-region K1R2Z6 1 504
+K1R2Z6	UniProtKB	Transmembrane	105	123	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+K1R2Z6	UniProtKB	Transmembrane	129	153	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+K1R2Z6	UniProtKB	Transmembrane	165	187	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+K1R2Z6	UniProtKB	Transmembrane	193	214	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+K1R2Z6	UniProtKB	Transmembrane	257	282	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+K1R2Z6	UniProtKB	Transmembrane	302	326	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+K1R2Z6	UniProtKB	Transmembrane	338	360	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+K1R2Z6	UniProtKB	Transmembrane	366	386	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+K1R2Z6	UniProtKB	Transmembrane	398	418	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+K1R2Z6	UniProtKB	Transmembrane	430	451	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+K1R2Z6	UniProtKB	Domain	21	456	.	.	.	Note=MFS;Ontology_term=ECO:0000259;evidence=ECO:0000259|PROSITE:PS50850	
+##sequence-region K1RDA5 1 389
+K1RDA5	UniProtKB	Transmembrane	12	33	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+K1RDA5	UniProtKB	Transmembrane	45	69	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+K1RDA5	UniProtKB	Transmembrane	89	110	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+K1RDA5	UniProtKB	Transmembrane	122	144	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+K1RDA5	UniProtKB	Transmembrane	171	195	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+K1RDA5	UniProtKB	Transmembrane	297	319	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+K1RDA5	UniProtKB	Transmembrane	331	353	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+K1RDA5	UniProtKB	Domain	24	350	.	.	.	Note=G_PROTEIN_RECEP_F1_2;Ontology_term=ECO:0000259;evidence=ECO:0000259|PROSITE:PS50262	
+##sequence-region K1PS25 1 450
+##sequence-region K1QAC9 1 671
+K1QAC9	UniProtKB	Domain	37	83	.	.	.	Note=RING-type;Ontology_term=ECO:0000259;evidence=ECO:0000259|PROSITE:PS50089	
+K1QAC9	UniProtKB	Domain	116	166	.	.	.	Note=B box-type;Ontology_term=ECO:0000259;evidence=ECO:0000259|PROSITE:PS50119	
+K1QAC9	UniProtKB	Domain	177	219	.	.	.	Note=B box-type;Ontology_term=ECO:0000259;evidence=ECO:0000259|PROSITE:PS50119	
+K1QAC9	UniProtKB	Coiled coil	279	302	.	.	.	Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Coils	
+##sequence-region K1R0S1 1 486
+K1R0S1	UniProtKB	Domain	229	428	.	.	.	Note=GAS;Ontology_term=ECO:0000259;evidence=ECO:0000259|Pfam:PF13851	
+K1R0S1	UniProtKB	Coiled coil	29	63	.	.	.	Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Coils	
+K1R0S1	UniProtKB	Coiled coil	68	98	.	.	.	Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Coils	
+K1R0S1	UniProtKB	Coiled coil	172	207	.	.	.	Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Coils	
+K1R0S1	UniProtKB	Coiled coil	256	356	.	.	.	Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Coils	
+##sequence-region K1QSB0 1 337
+K1QSB0	UniProtKB	Domain	12	199	.	.	.	Note=FBPase;Ontology_term=ECO:0000259;evidence=ECO:0000259|Pfam:PF00316	
+##sequence-region K1PJE2 1 467
+K1PJE2	UniProtKB	Transmembrane	9	28	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+K1PJE2	UniProtKB	Transmembrane	48	70	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+K1PJE2	UniProtKB	Transmembrane	82	99	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+K1PJE2	UniProtKB	Transmembrane	111	129	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+K1PJE2	UniProtKB	Transmembrane	136	155	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+K1PJE2	UniProtKB	Transmembrane	167	185	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+K1PJE2	UniProtKB	Transmembrane	197	217	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+K1PJE2	UniProtKB	Transmembrane	237	255	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+K1PJE2	UniProtKB	Transmembrane	288	308	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+K1PJE2	UniProtKB	Transmembrane	328	345	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+K1PJE2	UniProtKB	Transmembrane	396	417	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+K1PJE2	UniProtKB	Domain	47	419	.	.	.	Note=Ammonium_transp;Ontology_term=ECO:0000259;evidence=ECO:0000259|Pfam:PF00909	
+##sequence-region K1QBN5 1 502
+##sequence-region K1PSR4 1 358
+K1PSR4	UniProtKB	Domain	73	123	.	.	.	Note=Laminin EGF-like;Ontology_term=ECO:0000259;evidence=ECO:0000259|PROSITE:PS50027	
+K1PSR4	UniProtKB	Disulfide bond	96	105	.	.	.	Ontology_term=ECO:0000256;evidence=ECO:0000256|PROSITE-ProRule:PRU00460	
+##sequence-region K1PYP0 1 219
+K1PYP0	UniProtKB	Domain	126	178	.	.	.	Note=BHLH (basic helix-loop-helix);Ontology_term=ECO:0000259;evidence=ECO:0000259|PROSITE:PS50888	
+##sequence-region K1QFU8 1 675
+K1QFU8	UniProtKB	Domain	254	663	.	.	.	Note=Amidase;Ontology_term=ECO:0000259;evidence=ECO:0000259|Pfam:PF01425	
+##sequence-region K1QMY7 1 785
+K1QMY7	UniProtKB	Transmembrane	20	42	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+K1QMY7	UniProtKB	Transmembrane	718	738	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+K1QMY7	UniProtKB	Transmembrane	758	782	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+##sequence-region K1PMF1 1 473
+K1PMF1	UniProtKB	Domain	386	415	.	.	.	Note=C2H2-type;Ontology_term=ECO:0000259;evidence=ECO:0000259|PROSITE:PS50157	
+K1PMF1	UniProtKB	Domain	416	445	.	.	.	Note=C2H2-type;Ontology_term=ECO:0000259;evidence=ECO:0000259|PROSITE:PS50157	
+K1PMF1	UniProtKB	Domain	446	473	.	.	.	Note=C2H2-type;Ontology_term=ECO:0000259;evidence=ECO:0000259|PROSITE:PS50157	
+##sequence-region K1R8T3 1 1024
+K1R8T3	UniProtKB	Domain	84	154	.	.	.	Note=PDZ (DHR);Ontology_term=ECO:0000259;evidence=ECO:0000259|PROSITE:PS50106	
+K1R8T3	UniProtKB	Domain	787	983	.	.	.	Note=Rho-GAP;Ontology_term=ECO:0000259;evidence=ECO:0000259|PROSITE:PS50238	
+K1R8T3	UniProtKB	Coiled coil	454	488	.	.	.	Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Coils	
+##sequence-region K1PH08 1 634
+K1PH08	UniProtKB	Transmembrane	86	109	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+K1PH08	UniProtKB	Transmembrane	121	146	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+K1PH08	UniProtKB	Transmembrane	234	255	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+K1PH08	UniProtKB	Transmembrane	267	287	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+K1PH08	UniProtKB	Transmembrane	299	322	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+K1PH08	UniProtKB	Transmembrane	359	379	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+K1PH08	UniProtKB	Transmembrane	416	436	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+K1PH08	UniProtKB	Transmembrane	448	470	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+K1PH08	UniProtKB	Transmembrane	482	507	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+K1PH08	UniProtKB	Transmembrane	519	540	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+K1PH08	UniProtKB	Transmembrane	561	580	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+K1PH08	UniProtKB	Transmembrane	592	614	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+##sequence-region K1QVM0 1 401
+K1QVM0	UniProtKB	Domain	49	92	.	.	.	Note=RING-type;Ontology_term=ECO:0000259;evidence=ECO:0000259|PROSITE:PS50089	
+##sequence-region K1RDR5 1 1226
+K1RDR5	UniProtKB	Transmembrane	1137	1161	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+K1RDR5	UniProtKB	Domain	290	378	.	.	.	Note=Peptidase M12B;Ontology_term=ECO:0000259;evidence=ECO:0000259|PROSITE:PS50215	
+K1RDR5	UniProtKB	Active site	324	324	.	.	.	Ontology_term=ECO:0000256;evidence=ECO:0000256|PROSITE-ProRule:PRU00276	
+K1RDR5	UniProtKB	Metal binding	323	323	.	.	.	Note=Zinc%3B catalytic;Ontology_term=ECO:0000256;evidence=ECO:0000256|PROSITE-ProRule:PRU00276	
+K1RDR5	UniProtKB	Metal binding	327	327	.	.	.	Note=Zinc%3B catalytic;Ontology_term=ECO:0000256;evidence=ECO:0000256|PROSITE-ProRule:PRU00276	
+K1RDR5	UniProtKB	Metal binding	333	333	.	.	.	Note=Zinc%3B catalytic;Ontology_term=ECO:0000256;evidence=ECO:0000256|PROSITE-ProRule:PRU00276	
+##sequence-region K1RBD2 1 503
+K1RBD2	UniProtKB	Transmembrane	54	75	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+K1RBD2	UniProtKB	Transmembrane	102	129	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+K1RBD2	UniProtKB	Transmembrane	135	156	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+K1RBD2	UniProtKB	Transmembrane	209	242	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+K1RBD2	UniProtKB	Transmembrane	248	269	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+K1RBD2	UniProtKB	Transmembrane	374	402	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+K1RBD2	UniProtKB	Transmembrane	408	427	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+##sequence-region K1R833 1 429
+K1R833	UniProtKB	Transmembrane	20	45	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+K1R833	UniProtKB	Transmembrane	57	83	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+K1R833	UniProtKB	Transmembrane	95	116	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+K1R833	UniProtKB	Transmembrane	137	157	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+K1R833	UniProtKB	Transmembrane	191	215	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+K1R833	UniProtKB	Transmembrane	350	368	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+K1R833	UniProtKB	Transmembrane	388	412	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+K1R833	UniProtKB	Domain	37	409	.	.	.	Note=G_PROTEIN_RECEP_F1_2;Ontology_term=ECO:0000259;evidence=ECO:0000259|PROSITE:PS50262	
+##sequence-region K1QDY5 1 410
+##sequence-region K1PW64 1 92
+K1PW64	UniProtKB	Domain	3	84	.	.	.	Note=Ubiquitin-like;Ontology_term=ECO:0000259;evidence=ECO:0000259|PROSITE:PS50053	
+##sequence-region K1QGH8 1 240
+##sequence-region K1R7X1 1 1106
+K1R7X1	UniProtKB	Domain	143	726	.	.	.	Note=WD_REPEATS_REGION;Ontology_term=ECO:0000259;evidence=ECO:0000259|PROSITE:PS50294	
+K1R7X1	UniProtKB	Repeat	186	227	.	.	.	Note=WD;Ontology_term=ECO:0000256;evidence=ECO:0000256|PROSITE-ProRule:PRU00221	
+K1R7X1	UniProtKB	Repeat	228	271	.	.	.	Note=WD;Ontology_term=ECO:0000256;evidence=ECO:0000256|PROSITE-ProRule:PRU00221	
+K1R7X1	UniProtKB	Repeat	272	313	.	.	.	Note=WD;Ontology_term=ECO:0000256;evidence=ECO:0000256|PROSITE-ProRule:PRU00221	
+K1R7X1	UniProtKB	Repeat	462	496	.	.	.	Note=WD;Ontology_term=ECO:0000256;evidence=ECO:0000256|PROSITE-ProRule:PRU00221	
+K1R7X1	UniProtKB	Repeat	559	600	.	.	.	Note=WD;Ontology_term=ECO:0000256;evidence=ECO:0000256|PROSITE-ProRule:PRU00221	
+K1R7X1	UniProtKB	Repeat	601	642	.	.	.	Note=WD;Ontology_term=ECO:0000256;evidence=ECO:0000256|PROSITE-ProRule:PRU00221	
+K1R7X1	UniProtKB	Repeat	643	684	.	.	.	Note=WD;Ontology_term=ECO:0000256;evidence=ECO:0000256|PROSITE-ProRule:PRU00221	
+K1R7X1	UniProtKB	Repeat	685	726	.	.	.	Note=WD;Ontology_term=ECO:0000256;evidence=ECO:0000256|PROSITE-ProRule:PRU00221	
+##sequence-region K1PV73 1 247
+##sequence-region K1QIR0 1 505
+K1QIR0	UniProtKB	Domain	174	237	.	.	.	Note=Homeobox DNA-binding;Ontology_term=ECO:0000259;evidence=ECO:0000259|PROSITE:PS50071	
+K1QIR0	UniProtKB	DNA binding	176	238	.	.	.	Note=Homeobox;Ontology_term=ECO:0000256;evidence=ECO:0000256|PROSITE-ProRule:PRU00108	
+##sequence-region K1Q611 1 362
+K1Q611	UniProtKB	Coiled coil	236	263	.	.	.	Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Coils	
+K1Q611	UniProtKB	Coiled coil	274	349	.	.	.	Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Coils	
+##sequence-region K1Q9C1 1 639
+K1Q9C1	UniProtKB	Domain	49	72	.	.	.	Note=C2H2-type;Ontology_term=ECO:0000259;evidence=ECO:0000259|PROSITE:PS50157	
+K1Q9C1	UniProtKB	Domain	521	548	.	.	.	Note=C2H2-type;Ontology_term=ECO:0000259;evidence=ECO:0000259|PROSITE:PS50157	
+K1Q9C1	UniProtKB	Domain	549	576	.	.	.	Note=C2H2-type;Ontology_term=ECO:0000259;evidence=ECO:0000259|PROSITE:PS50157	
+K1Q9C1	UniProtKB	Domain	577	604	.	.	.	Note=C2H2-type;Ontology_term=ECO:0000259;evidence=ECO:0000259|PROSITE:PS50157	
+##sequence-region K1PRJ3 1 497
+K1PRJ3	UniProtKB	Transmembrane	195	216	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+K1PRJ3	UniProtKB	Transmembrane	236	259	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+K1PRJ3	UniProtKB	Transmembrane	280	299	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+K1PRJ3	UniProtKB	Transmembrane	340	364	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+K1PRJ3	UniProtKB	Transmembrane	376	396	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+K1PRJ3	UniProtKB	Transmembrane	408	431	.	.	.	Note=Helical;Ontology_term=ECO:0000256;evidence=ECO:0000256|SAM:Phobius	
+K1PRJ3	UniProtKB	Domain	9	98	.	.	.	Note=F420_oxidored;Ontology_term=ECO:0000259;evidence=ECO:0000259|Pfam:PF03807	
+K1PRJ3	UniProtKB	Domain	266	373	.	.	.	Note=Ferric oxidoreductase;Ontology_term=ECO:0000259;evidence=ECO:0000259|Pfam:PF01794	
+##sequence-region K1PQ59 1 197
+K1PQ59	UniProtKB	Domain	19	187	.	.	.	Note=ANK_REP_REGION;Ontology_term=ECO:0000259;evidence=ECO:0000259|PROSITE:PS50297	
+K1PQ59	UniProtKB	Repeat	19	51	.	.	.	Note=ANK;Ontology_term=ECO:0000256;evidence=ECO:0000256|PROSITE-ProRule:PRU00023	
+K1PQ59	UniProtKB	Repeat	52	84	.	.	.	Note=ANK;Ontology_term=ECO:0000256;evidence=ECO:0000256|PROSITE-ProRule:PRU00023	
+K1PQ59	UniProtKB	Repeat	95	127	.	.	.	Note=ANK;Ontology_term=ECO:0000256;evidence=ECO:0000256|PROSITE-ProRule:PRU00023	
+K1PQ59	UniProtKB	Repeat	129	162	.	.	.	Note=ANK;Ontology_term=ECO:0000256;evidence=ECO:0000256|PROSITE-ProRule:PRU00023	
+##sequence-region K1QHD3 1 105
+##sequence-region K1R8S3 1 179
+##sequence-region K1QCH6 1 107
