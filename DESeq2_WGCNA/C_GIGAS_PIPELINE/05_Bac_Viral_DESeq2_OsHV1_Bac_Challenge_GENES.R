@@ -28,6 +28,16 @@ library(reshape)
 library(ggplot2)
 #install.packages("pheatmap")
 library(pheatmap)
+source("https://bioconductor.org/biocLite.R")
+biocLite("Biostrings")
+library(Biostrings)
+source("https://bioc.ism.ac.jp/biocLite.R")
+biocLite("rtracklayer")
+library(rtracklayer)
+biocLite(c("GenomicRanges",
+           "BSgenome"))
+library(GenomicRanges)
+library(BSgenome)
 # Construct Bac_Viral_PHENO_DATA.csv that contains SRA run information, such as which contrast, tissue, etc.
 
 ####DEG Analysis with GENE Count Matrix ####
@@ -93,7 +103,7 @@ head( resoshv1Gene[ order( resoshv1Gene$log2FoldChange ), ] ) #head for stronges
 tail( resoshv1Gene[ order( resoshv1Gene$log2FoldChange ), ] ) #tail for strongest up regulation
 summary(resoshv1Gene)
 #sum(resoshv1Tran$padj < 0.1, na.rm=TRUE) #
-#resoshv1Tran_05 <- results(ddsOshv1Tran,alpha=0.05)
+resoshv1Gene_05 <- results(ddsOshv1Gene,alpha=0.05)
 #summary(resoshv1Tran_05)
 sum(resoshv1Gene$padj < 0.05, na.rm=TRUE) #3776
 
@@ -170,6 +180,7 @@ head(OsHV1_withID_subset_resoshv1Gene_dfSig) #0 genes are significant!
 #write(GeneIDstring, "GeneIDstring", sep = ",")
 #write this to a file and then perform look up on the UniProt website
 
+
 #Extract gene titles from non Sig genes
 OsHV1_withID_subset_resoshv1Gene_df_non_Sig <- 
   resoshv1Gene_df_non_Sig[grep("gene:", rownames(resoshv1Gene_df_non_Sig)), ]
@@ -183,69 +194,6 @@ GeneIDstring_nonSig <- toString(GeneIDdf_nonSig[,3], sep=',')
 GeneIDstring_nonSig
 write(GeneIDstring_nonSig, "GeneIDstring_nonSig", sep = ",")
 #write this to a file and then perform look up on the UniProt website
-
-####For situations only looking at the gene name of a few genes, can look it up locally ####
-#Load C. gigas UniProt ID information for C. gigas
-source("https://bioconductor.org/biocLite.R")
-biocLite("UniProt.ws")
-library(UniProt.ws)
-browseVignettes("UniProt.ws")
-#Taxonomy ID for C. virginica: 29159
-availableUniprotSpecies(pattern = "gigas")
-CgigasUp <- UniProt.ws(29159)
-CgigasUp
-keytypes(CgigasUp)
-columns(CgigasUp)
-keytypes(CgigasUp)
-showMethods("keys")
-#structure: res <- select(UniProtName, keys, columns, keytype)
-#select(up, keys=c("P31946","P62258"), columns=c("PDB","SEQUENCE"), keytype="ENSEMBL_GENOMES TRANSCRIPT)
-
-#Create object to look up UNIPROTKB entries and retreive other gene info
-columns <- c("ENSEMBL_PROTEIN","HGNC","SEQUENCE", "GENES","ENTREZ_GENE", "ID", "GO", "GO-ID", "KEGG")
-keytype <- "ENSEMBL_GENOMES TRANSCRIPT"
-#keys <- transcriptIDdf[,3] #set key to be  vector of all of your transcriptIDs from previous
-keys <- transcriptIDparen[1:50] #test to see how this works
-res <- select(CgigasUp, keys, columns, keytype)
-res
-
-####Otherwise, Uploaded Sig Differentially Expressed transcripts from the UniProt.ws website ####
-#oshv1_GeneIDs_UniProt_SIG <- read.csv("", header=TRUE)
-#make sure to upload as csv version so that the protein names load correctly
-#head(oshv1_GeneIDs_UniProt_SIG)
-
-####Extract GIMAP/IAN proteins and CgIAPs from Significantly Differentially Expressed Genes####
-#Significantly differentially Expressed IAPs, using several names
-#oshv1_GeneIDs_UniProt_SIG_ProtNames <- oshv1_GeneIDs_UniProt_SIG$Protein.names
-#oshv1_IAP_gene_SIG <- grepl("IAP", oshv1_GeneIDs_UniProt_SIG$Protein.names, ignore.case = TRUE) 
-#grep("TRUE", oshv1_IAP_gene_SIG) 
-
-#oshv1_apoptosis_gene_SIG <- grepl("apoptosis", oshv1_GeneIDs_UniProt_SIG$Protein.names, ignore.case = TRUE) 
-#grep("TRUE", oshv1_apoptosis_geme_SIG) #3, 353
-#oshv1_apoptosis_gene_SIG_info <- oshv1_GeneIDs_UniProt_SIG[294,]
-
-#oshv1_inhibitor_SIG <-  grepl("inhibitor", oshv1_transcriptIDs_UniProt_SIG$Protein.names, ignore.case = TRUE) 
-#grep("TRUE", oshv1_inhibitor_SIG) # 24 149 294 349
-#oshv1_inhibitor_SIG_info <- oshv1_transcriptIDs_UniProt_SIG[c(24, 149, 294, 349),] #only 294!
-
-#oshv1_IAPs_SIG_info <- oshv1_transcriptIDs_UniProt_SIG[c(3,353, 294),]
-#oshv1_IAPs_SIG_info
-
-
-#Significant GIMAP Genes
-#oshv1_IAN_Sig <- grepl("IAN", oshv1_transcriptIDs_UniProt_SIG$Protein.names, ignore.case = TRUE) 
-#grep("TRUE", oshv1_IAN_Sig) #0 TRUE
-#oshv1_AIG_Sig <- grepl("AIG", oshv1_transcriptIDs_UniProt_SIG$Protein.names, ignore.case = TRUE) 
-#grep("TRUE", oshv1_AIG_Sig) #0 TRUE
-#oshv1_IMAP_Sig <- grepl("IMAP", oshv1_transcriptIDs_UniProt_SIG$Protein.names, ignore.case = TRUE) 
-#grep("TRUE", oshv1_IMAP_Sig) #0 TRUE
-
-#oshv1_GTP_SIG <- grepl("GTP", oshv1_transcriptIDs_UniProt_SIG$Protein.names, ignore.case = TRUE) 
-#grep("TRUE", oshv1_GIMAP_SIG)
-#oshv1_transcriptIDs_UniProt_SIG[c(53,54,65,85,125),] #53 and 65 are GIMAP! called GTPase IMAP
-#oshv1_GIMAP_Sig_info <- oshv1_transcriptIDs_UniProt_SIG[c(53,65),]
-#oshv1_GIMAP_Sig_info
-
 
 #Uploaded NON Sig Differentially Expressed transcripts from the UniProt.ws website ####
 oshv1_GeneIDs_UniProt_non_Sig <- read.csv("Bac_Viral_resoshv1Gene_df_non_sig_UniprotId.csv", header=TRUE)
@@ -321,12 +269,54 @@ oshv1_GIMAP_gene_non_sig_combined_FULL["Type"] <- "GIMAP"
 oshv1_GIMAP_IAP_gene_combined_FULL <- rbind(oshv1_GIMAP_gene_non_sig_combined_FULL, oshv1_IAP_gene_non_sig_combined_FULL)
 
 ####OsHV1 Gene Set Enrichment Analysis topGO ####
-#subset out only the genes that have "MSTRG ID"
+##Apoptotoic process genes currently in OsHV1 in non sig genes that have a gene name##
+#No sig genes that are already named, so looking at non sig and also peforming BLAST2GO gene enrichment
+oshv1_apoptotic_process_non_Sig <- grepl("apoptotic", oshv1_GeneIDs_UniProt_non_Sig$Gene.ontology..GO., ignore.case = TRUE) 
+grep("TRUE", oshv1_apoptotic_process_non_Sig) # 68 146 183 are uncharacterized apoptosis regulators?
+oshv1_protease_non_Sig <- grepl("protease", oshv1_GeneIDs_UniProt_non_Sig$Protein.names, ignore.case = TRUE) 
+grep("TRUE", oshv1_protease_non_Sig) #283 (serine protease)
+oshv1_bcl_non_Sig <- grepl("bcl", oshv1_GeneIDs_UniProt_non_Sig$Protein.names, ignore.case = TRUE) 
+grep("TRUE", oshv1_bcl_non_Sig) #0
+oshv1_BAG_non_Sig <- grepl("bag", oshv1_GeneIDs_UniProt_non_Sig$Protein.names, ignore.case = TRUE) 
+grep("TRUE", oshv1_BAG_non_Sig) #0
+oshv1_cytochrome_non_Sig <- grepl("cytochrome", oshv1_GeneIDs_UniProt_non_Sig$Protein.names, ignore.case = TRUE) 
+grep("TRUE", oshv1_cytochrome_non_Sig) #0
+
+
+####BLAST2GO the MSTRG SIG genes, then perform gene set enrichment on these and pull out more specific apoptosis genes ####
+##subset out only the genes that have "MSTRG ID"
 #lookup these lines in the stringtie.merge file to find the sequence for them, then put them into BLAST2GO
-resoshv1Gene_dfSig_MSTRG <- resoshv1Gene_dfSig[grep("MSTRG", rownames(resoshv1Gene_dfSig)), ]
+resoshv1Gene_dfSig_MSTRG <- resoshv1Gene_dfSig[grep("MSTRG", rownames(resoshv1Gene_dfSig)), ] #for Significant genes
 MSTRGID_gene_Sig <- as.data.frame(rownames(resoshv1Gene_dfSig_MSTRG))
 head(MSTRGID_gene_Sig)
-write.table(MSTRGID_gene_Sig[,1], file="MSTRGID_gene_Sig", sep= "\t")
+write.table(MSTRGID_gene_Sig[,1], file="MSTRGID_Gene_Sig_oshv1", sep= "\t")
+
+resoshv1Gene_df_non_Sig_MSTRG <- resoshv1Gene_df_non_Sig[grep("MSTRG", rownames(resBacGene_non_Sig)),]
+MSTRGID_gene_non_Sig <- as.data.frame(rownames(resoshv1Gene_df_non_Sig_MSTRG))
+head(MSTRGID_gene_non_Sig)
+write.table(MSTRGID_gene_non_Sig[,1], file="MSTRGID_gene_non_Sig_oshv1", sep="\t")
+
+####STOPPED EDITING HERE ####
+
+#GRanges object and getSeq function from GenomicRanges and BSgenome packages to retrieve sequences
+#Download the stringtie.merge (in this case Bac_viral_stringtie_merged.gtf)
+#from the Biostrings package
+C_gigas_seqs <- readDNAStringSet("Crassostrea_gigas_genome.fa")
+
+#using import from rtracklayer
+#MSTRG Gene List with GTF entries pulled out from Bac_viral_stringtie_merged.gtf
+C_gigas_features <- import("Bac_viral_MSTRG_GENE_SIG_merged_noexons.gtf")
+C_gigas_features_list <- C_gigas_features[1:1261,]
+mcols(C_gigas_features) <- mcols(C_gigas_features)[,c("type","gene_name","gene_id")]
+head(C_gigas_features)
+subset <- C_gigas_features[4,]
+#Using getseq from BSGenome
+C_gigas_MSTRG_DNA_sequence <- getSeq(C_gigas_seqs, subset)
+
+Error in subset_List_by_List(x, i) : 
+  list-like subscript has names not in list-like object to subset
+
+
 
 
 ####Bacterial Challenge Differential Gene Expression Analysis ####
@@ -468,31 +458,6 @@ write(BacGeneID_nonSig, "BacGeneID_nonSig", sep = ",")
 #transcriptIDparen <- sapply(strsplit(transcriptIDstring, '[, ]+'), function(x) toString(dQuote(x)))
 #str(transcriptIDparen)
 
-####For situations only looking at the gene name of a few genes, can look it up locally ####
-#Load C. gigas UniProt ID information for C. gigas
-#source("https://bioconductor.org/biocLite.R")
-#biocLite("UniProt.ws")
-#library(UniProt.ws)
-#browseVignettes("UniProt.ws")
-#Taxonomy ID for C. virginica: 29159
-#availableUniprotSpecies(pattern = "gigas")
-#CgigasUp <- UniProt.ws(29159)
-#CgigasUp
-#keytypes(CgigasUp)
-#columns(CgigasUp)
-#keytypes(CgigasUp)
-#showMethods("keys")
-#structure: res <- select(UniProtName, keys, columns, keytype)
-#select(up, keys=c("P31946","P62258"), columns=c("PDB","SEQUENCE"), keytype="ENSEMBL_GENOMES TRANSCRIPT)
-
-#Create object to look up UNIPROTKB entries and retreive other gene info
-#columns <- c("ENSEMBL_PROTEIN","HGNC","SEQUENCE", "GENES","ENTREZ_GENE", "ID", "GO", "GO-ID", "KEGG")
-#keytype <- "ENSEMBL_GENOMES TRANSCRIPT"
-#keys <- transcriptIDdf[,3] #set key to be  vector of all of your transcriptIDs from previous
-#keys <- transcriptIDparen[1:50] #test to see how this works
-#res <- select(CgigasUp, keys, columns, keytype)
-#res
-
 ####Otherwise, Uploaded Sig Differentially Expressed transcripts from the UniProt.ws website ####
 #Bac_GeneIDs_UniProt_SIG <- read.csv("BacTran_resBacTran_df_Sig_transcriptIDstring.csv", header=TRUE)
 #make sure to upload as csv version so that the protein names load correctly
@@ -570,6 +535,7 @@ Bac_GIMAP_IAP_combined_FULL <- rbind(Bac_IAP_SIG_combined_FULL, Bac_IAP_non_sig_
                                      Bac_GIMAP_non_sig_combined_FULL)
 
 ####Bacterial Challenge Gene Set Enrichment Analysis ####
+
 
 
 
@@ -752,3 +718,5 @@ duplicated(GIMAP_OsHV1_Bac$Transcript)
 #references: 
 #https://github.com/sr320/LabDocs/tree/master/code/DESeq
 #StringTie manual : http://ccb.jhu.edu/software/stringtie/index.shtml?t=manual
+#https://monashbioinformaticsplatform.github.io/r-more/topics/sequences_and_features.html
+

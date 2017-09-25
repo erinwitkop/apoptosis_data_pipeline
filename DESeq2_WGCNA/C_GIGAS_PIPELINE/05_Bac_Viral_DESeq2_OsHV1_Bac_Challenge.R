@@ -1007,6 +1007,8 @@ grep("TRUE", GIMAP_OsHV1_Bac_duplicated) # 12 13 15 17 19 21 22 23 24 25
 ##OSHV1## assuming Intrinsic pathway of apoptosis
 #Caspases (caspase 2 is important with IAPS)
 #Sig caspases (none) OsHV1
+####STOPPED EDITING HERE ####
+
 oshv1_caspase_Sig <- grepl("caspase", oshv1_transcriptIDs_UniProt_SIG$Protein.names, ignore.case = TRUE) 
 grep("TRUE", oshv1_caspase_Sig) #0
 oshv1_protease_Sig <- grepl("protease", oshv1_transcriptIDs_UniProt_SIG$Protein.names, ignore.case = TRUE) 
