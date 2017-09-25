@@ -8,33 +8,25 @@
 
 set -e 
 echo "START $(date)"
-cd /data3/marine_diseases_lab/erin/Bio_project_SRA/
+F=/data3/marine_diseases_lab/erin/Bio_project_SRA/
 module load SRA-Toolkit/2.8.2-1-centos_linux64
 
-for f in *.txt
+for f in $F/*.txt
 do 
   prefetch --option-file $f 
   while read -r LINE; do
-    fastq-dump $LINE --readids --outdir . 
+    fastq-dump -O $F --readids $LINE
   done < $f 
 done   
 	
 #for paired end reads
 
-for f in *_paired.text
+for f in $F/*_paired.text
 do 
   prefetch --option-file $f 
   while read -r LINE; do
-    fastq-dump $LINE --split-files --readids --outdir . 
+    fastq-dump -O $F --split-files --readids $LINE 
   done < $f 
 done   
 
 echo "STOP $(date)"
-
-
-SRR5357619
-SRR5357620
-SRR5357623
-SRR5357624
-SRR5357625
-SRR5357626
