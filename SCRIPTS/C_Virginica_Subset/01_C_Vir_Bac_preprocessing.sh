@@ -47,13 +47,13 @@ done
 
 #Quality trimming, of both the left and the right sides to get rid of reads that are less than quality 20
 for i in ${array1[@]}; do 
-	bbduk.sh in1=${i} out1=${i}.trim in2=$(echo ${i}|sed s/_1/_2/) out2=$(echo ${i}|sed s/_1/_2/).trim qtrim=rl trimq=20
+	bbduk.sh in1=${i}.clean out1=${i}.clean.trim in2=$(echo ${i}|sed s/_1/_2/).clean out2=$(echo ${i}|sed s/_1/_2/).clean.trim qtrim=rl trimq=20
  	echo "quality trimming ${i}" $(date)
 done
 
 #Quality filtering to get rid of entire low quality reads. maq=10 will trim reads that have average quality of less than 10
 for i in ${array1[@]}; do 
-	bbduk.sh in1=${i}.trim out1=${i}.trim.filter in2=$(echo ${i}|sed s/_1/_2/).trim out2=$(echo ${i}|sed s/_1/_2/).trim.filter maq=10
+	bbduk.sh in1=${i}.clean.trim out1=${i}.clean.trim.filter in2=$(echo ${i}|sed s/_1/_2/).clean.trim out2=$(echo ${i}|sed s/_1/_2/).clean.trim.filter maq=10
 	echo "STOP" $(date)
 	echo "quality filtering ${i}" $(date)
 done
@@ -61,7 +61,7 @@ done
 #Histogram generation, only generating for one of the pair (assuming that similar stats will be present). 
 #All histogram output contents are combined into one file
 for i in ${array1[@]}; do
- 	 bbduk.sh in1=${i}.trim.filter in2=$(echo ${i}|sed s/_1/_2/).trim.filter  bhist=${i}.b.hist qhist=${i}.q.hist gchist=${i}.gc.hist lhis$
+ 	 bbduk.sh in1=${i}.clean.trim.filter in2=$(echo ${i}|sed s/_1/_2/).clean.trim.filter  bhist=${i}.b.hist qhist=${i}.q.hist gchist=${i}.gc.hist lhis$
 	 echo "STOP" $(date)
      echo ${i} > ${i}.hist.all
      echo "bhist" >> ${i}.hist.all
@@ -117,7 +117,7 @@ done
 #histogram generation
  #Histogram generation
 for i in ${array3[@]}; do
-        bbduk.sh in1=${i}.trim.filter bhist=bhist.txt qhist=qhist.txt gchist=gchist.txt aqhist=aqhist.txt lhist=lhist.txt gcbins=auto
+        bbduk.sh in1=${i}.clean.trim.filter bhist=bhist.txt qhist=qhist.txt gchist=gchist.txt aqhist=aqhist.txt lhist=lhist.txt gcbins=auto
         echo "STOP" $(date)
         echo ${i} > ${i}.hist.all
         echo "bhist" >> ${i}.hist.all
