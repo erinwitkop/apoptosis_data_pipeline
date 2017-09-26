@@ -21,7 +21,7 @@ library(dplyr)
 install.packages("tidyr")
 library(tidyr)
 install.packages("reshape")
-library(reshape)
+library(reshape2)
 source("http://bioconductor.org/biocLite.R")
 biocLite("biomaRt")
 library(biomaRt)
@@ -734,7 +734,7 @@ COMBINED_GIMAP_IAP_cols <- COMBINED_GIMAP_IAP[,c(2,7,8,9,10,11,12)]
 #Download data to simplify Protein Names for Viewing 
 write.csv( as.data.frame(COMBINED_GIMAP_IAP_cols), file="COMBINED_GIMAP_IAP_cols.csv")
 #Added transcript header
-COMBINED_GIMAP_IAP_cols <- read.csv("COMBINED_GIMAP_IAP_cols_edited.csv", header = TRUE)
+COMBINED_GIMAP_IAP_cols <- read.csv("COMBINED_GIMAP_IAP_cols.csv", header = TRUE)
 COMBINED_GIMAP_IAP_cols_Bac <- COMBINED_GIMAP_IAP_cols[1:29,]
 COMBINED_GIMAP_IAP_cols_Oshv1 <- COMBINED_GIMAP_IAP_cols[30:69,]
 colnames(COMBINED_GIMAP_IAP_cols_Bac)
@@ -1002,6 +1002,57 @@ GIMAP_OsHV1_Bac_duplicated<- duplicated(GIMAP_OsHV1_Bac$Ensembl_Genomes_Transcri
 grep("TRUE", GIMAP_OsHV1_Bac_duplicated) # 12 13 15 17 19 21 22 23 24 25
 
 ####Plot Duplicated Transcripts as a heatmap ####
+#heatmap
+#Helpful website: https://flowingdata.com/2010/01/21/how-to-make-a-heatmap-a-quick-and-easy-solution/
+#sort the data greatest to least
+COMBINED_GIMAP_IAP_cols_ordered <- COMBINED_GIMAP_IAP_cols[order(COMBINED_GIMAP_IAP_cols$log2FoldChange),]
+COMBINED_GIMAP_IAP_cols_Bac_ordered <- COMBINED_GIMAP_IAP_cols_Bac[order(COMBINED_GIMAP_IAP_cols_Bac$log2FoldChange),]
+COMBINED_GIMAP_IAP_cols_Oshv1_ordered <- COMBINED_GIMAP_IAP_cols_Oshv1[order(COMBINED_GIMAP_IAP_cols_Oshv1$log2FoldChange),] 
+
+#Name the rows by Protein.Transcript.Names
+row.names(COMBINED_GIMAP_IAP_cols_ordered) <- COMBINED_GIMAP_IAP_cols_ordered$Protein.Transcript.Names
+row.names(COMBINED_GIMAP_IAP_cols_Bac_ordered) <- COMBINED_GIMAP_IAP_cols_Bac_ordered$Protein.Transcript.Names
+row.names(COMBINED_GIMAP_IAP_cols_Oshv1_ordered) <- COMBINED_GIMAP_IAP_cols_Oshv1_ordered$Protein.Transcript.Names
+
+#Make a matrix
+COMBINED_GIMAP_IAP_cols_ordered_matrix <- data.matrix(COMBINED_GIMAP_IAP_cols_ordered)
+COMBINED_GIMAP_IAP_cols_Bac_ordered_matrix <- data.matrix(COMBINED_GIMAP_IAP_cols_Bac_ordered)
+COMBINED_GIMAP_IAP_cols_Oshv1_ordered_matrix <- data.matrix(COMBINED_GIMAP_IAP_cols_Oshv1_ordered)
+
+#Make the heatmap
+COMBINED_GIMAP_IAP_cols_ordered_matrix_heatmap <- heatmap(COMBINED_GIMAP_IAP_cols_ordered_matrix, Rowv=NA, Colv=NA, col = heat.colors(256), scale="column", margins=c(5,10))
+COMBINED_GIMAP_IAP_cols_Bac_ordered_matrix_heatmap <- heatmap(COMBINED_GIMAP_IAP_cols_Bac_ordered_matrix, Rowv=NA, Colv=NA, col = heat.colors(256), scale="column", margins=c(5,10)) 
+COMBINED_GIMAP_IAP_cols_Oshv1_ordered_matrix_heatmap
+
+#Using ggplot2
+#melt dataframe I'm going to use
+#https://www.r-bloggers.com/how-to-create-a-fast-and-easy-heatmap-with-ggplot2/
+#sort the data greatest to least
+COMBINED_GIMAP_IAP_cols_ordered <- COMBINED_GIMAP_IAP_cols[order(COMBINED_GIMAP_IAP_cols$log2FoldChange),]
+COMBINED_GIMAP_IAP_cols_Bac_ordered <- COMBINED_GIMAP_IAP_cols_Bac[order(COMBINED_GIMAP_IAP_cols_Bac$log2FoldChange),]
+COMBINED_GIMAP_IAP_cols_Oshv1_ordered <- COMBINED_GIMAP_IAP_cols_Oshv1[order(COMBINED_GIMAP_IAP_cols_Oshv1$log2FoldChange),] 
+
+COMBINED_GIMAP_IAP_cols_ordered_log2FC <- COMBINED_GIMAP_IAP_cols_ordered[,c(2,4,7,9)]
+COMBINED_GIMAP_IAP_cols_Bac_ordered_log2FC <- COMBINED_GIMAP_IAP_cols_Bac_ordered[,c(2,4,7,9)]
+COMBINED_GIMAP_IAP_cols_Oshv1_ordered_log2FC <- COMBINED_GIMAP_IAP_cols_Oshv1_ordered[,c(2,4,7,9)]
+
+#Name the rows by Protein.Transcript.Names
+row.names(COMBINED_GIMAP_IAP_cols_ordered) <- COMBINED_GIMAP_IAP_cols_ordered$Protein.Transcript.Names
+row.names(COMBINED_GIMAP_IAP_cols_Bac_ordered) <- COMBINED_GIMAP_IAP_cols_Bac_ordered$Protein.Transcript.Names
+row.names(COMBINED_GIMAP_IAP_cols_Oshv1_ordered) <- COMBINED_GIMAP_IAP_cols_Oshv1_ordered$Protein.Transcript.Names
+
+# Elaboration of heatmap (white - steelblue)
+ggplot(COMBINED_GIMAP_IAP_cols_ordered_log2FC, aes(Challenge, Protein.Transcript.Names)) +
+  geom_tile(aes(fill = log2FoldChange), color = "white") +
+  scale_fill_gradient(low = "white", high = "steelblue") +
+  ylab("Challenge") +
+  xlab("Protein Transcripts") +
+  theme(legend.title = element_text(size = 10),
+        legend.text = element_text(size = 12),
+        plot.title = element_text(size=16),
+        axis.title=element_text(size=14,face="bold"),
+        axis.text.x = element_text(angle = 90, hjust = 1)) +
+  labs(fill = "log2FoldChange")
 
 ####Investigate Transcripts from Other Gene Families####
 ##OSHV1## assuming Intrinsic pathway of apoptosis
