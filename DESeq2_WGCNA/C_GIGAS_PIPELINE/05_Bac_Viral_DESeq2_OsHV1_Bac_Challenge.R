@@ -1002,28 +1002,6 @@ GIMAP_OsHV1_Bac_duplicated<- duplicated(GIMAP_OsHV1_Bac$Ensembl_Genomes_Transcri
 grep("TRUE", GIMAP_OsHV1_Bac_duplicated) # 12 13 15 17 19 21 22 23 24 25
 
 ####Plot Duplicated Transcripts as a heatmap ####
-#heatmap
-#Helpful website: https://flowingdata.com/2010/01/21/how-to-make-a-heatmap-a-quick-and-easy-solution/
-#sort the data greatest to least
-COMBINED_GIMAP_IAP_cols_ordered <- COMBINED_GIMAP_IAP_cols[order(COMBINED_GIMAP_IAP_cols$log2FoldChange),]
-COMBINED_GIMAP_IAP_cols_Bac_ordered <- COMBINED_GIMAP_IAP_cols_Bac[order(COMBINED_GIMAP_IAP_cols_Bac$log2FoldChange),]
-COMBINED_GIMAP_IAP_cols_Oshv1_ordered <- COMBINED_GIMAP_IAP_cols_Oshv1[order(COMBINED_GIMAP_IAP_cols_Oshv1$log2FoldChange),] 
-
-#Name the rows by Protein.Transcript.Names
-row.names(COMBINED_GIMAP_IAP_cols_ordered) <- COMBINED_GIMAP_IAP_cols_ordered$Protein.Transcript.Names
-row.names(COMBINED_GIMAP_IAP_cols_Bac_ordered) <- COMBINED_GIMAP_IAP_cols_Bac_ordered$Protein.Transcript.Names
-row.names(COMBINED_GIMAP_IAP_cols_Oshv1_ordered) <- COMBINED_GIMAP_IAP_cols_Oshv1_ordered$Protein.Transcript.Names
-
-#Make a matrix
-COMBINED_GIMAP_IAP_cols_ordered_matrix <- data.matrix(COMBINED_GIMAP_IAP_cols_ordered)
-COMBINED_GIMAP_IAP_cols_Bac_ordered_matrix <- data.matrix(COMBINED_GIMAP_IAP_cols_Bac_ordered)
-COMBINED_GIMAP_IAP_cols_Oshv1_ordered_matrix <- data.matrix(COMBINED_GIMAP_IAP_cols_Oshv1_ordered)
-
-#Make the heatmap
-COMBINED_GIMAP_IAP_cols_ordered_matrix_heatmap <- heatmap(COMBINED_GIMAP_IAP_cols_ordered_matrix, Rowv=NA, Colv=NA, col = heat.colors(256), scale="column", margins=c(5,10))
-COMBINED_GIMAP_IAP_cols_Bac_ordered_matrix_heatmap <- heatmap(COMBINED_GIMAP_IAP_cols_Bac_ordered_matrix, Rowv=NA, Colv=NA, col = heat.colors(256), scale="column", margins=c(5,10)) 
-COMBINED_GIMAP_IAP_cols_Oshv1_ordered_matrix_heatmap
-
 #Using ggplot2
 #melt dataframe I'm going to use
 #https://www.r-bloggers.com/how-to-create-a-fast-and-easy-heatmap-with-ggplot2/
@@ -1054,11 +1032,13 @@ ggplot(COMBINED_GIMAP_IAP_cols_ordered_log2FC, aes(Challenge, Protein.Transcript
         axis.text.x = element_text(angle = 90, hjust = 1)) +
   labs(fill = "log2FoldChange")
 
+
 ####Investigate Transcripts from Other Gene Families####
 ##OSHV1## assuming Intrinsic pathway of apoptosis
 #Caspases (caspase 2 is important with IAPS)
 #Sig caspases (none) OsHV1
-####STOPPED EDITING HERE ####
+
+####STOPPED EDITING/UPDATING RESULTS HERE #### may not be relevant to do
 
 oshv1_caspase_Sig <- grepl("caspase", oshv1_transcriptIDs_UniProt_SIG$Protein.names, ignore.case = TRUE) 
 grep("TRUE", oshv1_caspase_Sig) #0

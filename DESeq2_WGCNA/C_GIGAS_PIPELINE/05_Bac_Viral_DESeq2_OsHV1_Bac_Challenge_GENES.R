@@ -296,28 +296,10 @@ MSTRGID_gene_non_Sig <- as.data.frame(rownames(resoshv1Gene_df_non_Sig_MSTRG))
 head(MSTRGID_gene_non_Sig)
 write.table(MSTRGID_gene_non_Sig[,1], file="MSTRGID_gene_non_Sig_oshv1", sep="\t")
 
-####STOPPED EDITING HERE ####
+#USE 06_MSTRG_isolate_getfasta.sh script to get the sequence of genes while using the bam files of each and the sequence
+#INSERT SIG SEQUENCES SEQUENCES INTO BLAST2GO
 
-#GRanges object and getSeq function from GenomicRanges and BSgenome packages to retrieve sequences
-#Download the stringtie.merge (in this case Bac_viral_stringtie_merged.gtf)
-#from the Biostrings package
-C_gigas_seqs <- readDNAStringSet("Crassostrea_gigas_genome.fa")
-
-#using import from rtracklayer
-#MSTRG Gene List with GTF entries pulled out from Bac_viral_stringtie_merged.gtf
-C_gigas_features <- import("Bac_viral_MSTRG_GENE_SIG_merged_noexons.gtf")
-C_gigas_features_list <- C_gigas_features[1:1261,]
-mcols(C_gigas_features) <- mcols(C_gigas_features)[,c("type","gene_name","gene_id")]
-head(C_gigas_features)
-subset <- C_gigas_features[4,]
-#Using getseq from BSGenome
-C_gigas_MSTRG_DNA_sequence <- getSeq(C_gigas_seqs, subset)
-
-Error in subset_List_by_List(x, i) : 
-  list-like subscript has names not in list-like object to subset
-
-
-
+#DON'T CURRENTLY HAVE THE SEQUENCES FOR THESE BECAUSE I NEED TO GO BACK AND USE THE STRINGTIE -A OPTION
 
 ####Bacterial Challenge Differential Gene Expression Analysis ####
 #Gram negative SRA's (including control): (SRR796597, SRR796596, SRR796595, SRR796594, SRR796593, SRR796592, SRR796589)
