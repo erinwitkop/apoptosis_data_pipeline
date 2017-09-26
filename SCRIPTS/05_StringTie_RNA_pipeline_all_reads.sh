@@ -42,7 +42,7 @@ done
 
  	stringtie --merge -G /data3/marine_diseases_lab/erin/Bio_project_SRA/pipeline_files/Crassostrea_gigas.gff -o stringtie_merged.gtf mergelist.txt
 
-	#Cuffcompare to 
+
 #gffcompare to compare how transcripts compare to reference annotation
 
  	gffcompare -r /data3/marine_diseases_lab/erin/Bio_project_SRA/pipeline_files/Crassostrea_gigas.gff -G -o merged stringtie_merged.gtf
