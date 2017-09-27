@@ -9,7 +9,7 @@
 #call the DESeq2 library 
 #source("https://bioconductor.org/biocLite.R")
 #biocLite("BiocUpgrade") 
-#biocLite("DESeq2")
+#biocLite(c("DESeq2",)
 library("DESeq2")
 #install.packages("fdrtool")
 library(fdrtool)
