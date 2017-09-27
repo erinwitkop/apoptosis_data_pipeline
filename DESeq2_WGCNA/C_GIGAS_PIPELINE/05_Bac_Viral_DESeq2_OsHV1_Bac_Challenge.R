@@ -1032,29 +1032,6 @@ ggplot(COMBINED_GIMAP_IAP_cols_ordered_log2FC, aes(Challenge, Protein.Transcript
         axis.text.x = element_text(angle = 90, hjust = 1)) +
   labs(fill = "log2FoldChange")
 
-
-####BLAST2GO the MSTRG SIG genes, then perform gene set enrichment on these and pull out more specific apoptosis genes ####
-##subset out only the genes that have "MSTRG ID"
-#lookup these lines in the stringtie.merge file to find the sequence for them, then put them into BLAST2GO
-#Sig MSTRG's from OsHV1
-resoshv1Tran_05_dfSig_Transcript_MSTRG <- resoshv1Tran_05_dfSig[grep("MSTRG", rownames(resoshv1Tran_05_dfSig)), ] #for Significant genes
-OsHv1_MSTRGID_tran_Sig <- as.data.frame(rownames(resoshv1Tran_05_dfSig_Transcript_MSTRG))
-head(OsHv1_MSTRGID_tran_Sig)
-write.table(OsHv1_MSTRGID_tran_Sig[,1], file="OsHv1_MSTRGID_tran_Sig", sep= "\t")
-
-#Sig MSTRGs from Bacterial Challenge
-resBacTran_05_dfSig_Transcript_MSTRG <- resBacTran_05_dfSig[grep("MSTRG", rownames(resBacTran_05_dfSig)), ]
-Bac_MSTRGID_tran_Sig <- as.data.frame(rownames(resoshv1Tran_05_dfSig_Transcript_MSTRG))
-head(Bac_MSTRGID_tran_Sig)
-write.table(Bac_MSTRGID_tran_Sig[,1], file="Bac_MSTRGID_tran_Sig", sep= "\t")
-
-#USE 06_MSTRG_isolate_getfasta.sh script to get the sequence of genes while using the bam files of each and the sequence
-#INSERT SIG SEQUENCES SEQUENCES INTO BLAST2GO
-
-#TOPGO and REVIGO.R 
-
-# Cytoscape word cloud 
-
 ####Investigate Transcripts from Other Gene Families####
 ##OSHV1## assuming Intrinsic pathway of apoptosis
 #Caspases (caspase 2 is important with IAPS)
