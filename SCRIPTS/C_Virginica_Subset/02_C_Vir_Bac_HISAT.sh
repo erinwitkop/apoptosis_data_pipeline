@@ -18,10 +18,10 @@ module load SAMtools/1.3.1-foss-2016b
 #Indexing a reference genome and no annotation file (allowing for novel transcript discovery)
 	#create new directory for the HISAT index called genome, and put the genome inside it
 	# copy all reads files into this directory as well to ensure easy access by commands
-cd /data3/marine_diseases_lab/erin/Bio_project_SRA/pipeline_files
-F=/data3/marine_diseases_lab/erin/Bio_project_SRA/pipeline_files
+cd /data3/marine_diseases_lab/erin/Bio_project_SRA/pipeline_files/C_Vir_subset
+F=/data3/marine_diseases_lab/erin/Bio_project_SRA/pipeline_files/C_Vir_subset
 
-hisat2-build -f $F/GCA_002022765.4_C_virginica-3.0_genomic.fna C_vir_genome_index
+hisat2-build -f $F/cvir.fa cvir
 
 # -f indicates that the reference input files are FASTA files
 
@@ -31,7 +31,7 @@ hisat2-build -f $F/GCA_002022765.4_C_virginica-3.0_genomic.fna C_vir_genome_inde
 array1=($(ls $F/*_1.fq.clean.trim.filter))
 
 for i in ${array1[@]}; do
-	hisat2 --dta -x $F/C_vir_genome_index  -1 ${i} -2 $(echo ${i}|sed s/_1/_2/) -S ${i}.sam
+	hisat2 --dta -x $F/cvir  -1 ${i} -2 $(echo ${i}|sed s/_1/_2/) -S ${i}.sam
 	echo "HISAT2 PE ${i}" $(date)
 done
  	#don't need -f because the reads are fastq
@@ -44,7 +44,7 @@ done
 array2=($(ls $F/*.fastq.clean.trim.filter))
 
 for i in ${array2[@]}; do
-        hisat2 --dta -x $F/C_vir_genome_index -U ${i} -S ${i}.sam
+        hisat2 --dta -x $F/cvir -U ${i} -S ${i}.sam
         echo "HISAT2 SE ${i}" $(date)
 done
 	
