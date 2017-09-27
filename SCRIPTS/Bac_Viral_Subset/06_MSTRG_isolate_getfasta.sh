@@ -57,7 +57,14 @@ awk '$3=="transcript"' $F/OsHv1_MSTRGID_tran_SIG_merged.gtf > $F/OsHv1_MSTRGID_t
 #tip: the headers in the input FASTA file must exactly match the chromosome column in the BED file.
 #test this script on a subset first to see if it works properly...
 
-bedtools getfasta -fi $F/Crassostrea_gigas_genome.fa -bed $F/OsHv1_MSTRGID_tran_SIG_merged_noexons.gtf -fo $F/OsHV1_MSTRG_merged_SEQUENCE.fa -s
+#Make the "name" column the MSTRG transcript ID so the getfasta will retain it#
+cut -f9 OsHv1_MSTRGID_tran_SIG_merged_noexons.gtf > OsHv1_MSTRGID_tran_SIG_merged_noexons_MSTRGID.gtf
+#This will be merged in R! There is only one sequence per > from output below, so they are in the correct order
+
+bedtools getfasta -name -s -fi $F/Crassostrea_gigas_genome.fa -bed $F/OsHv1_MSTRGID_tran_SIG_merged_noexons.gtf -fo $F/OsHV1_MSTRG_merged_TRAN_SEQUENCE.fa 
+
+	#-name Use the “name” column in the BED file for the FASTA headers in the output FASTA file
+	# -s Force strandedness. If the feature occupies the antisense strand, the sequence will be reverse complemented. 
 
 #IN ORDER TO GET FULL GENE LOCATIONS, YOU NEED TO HAVE GOTTEN THE FEATURE COUNTS SCRIPT OR GET THE -A GENE LOCATION OUTPUT
 
