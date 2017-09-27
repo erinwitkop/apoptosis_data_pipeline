@@ -57,7 +57,7 @@ awk '$3=="transcript"' $F/OsHv1_MSTRGID_tran_SIG_merged.gtf > $F/OsHv1_MSTRGID_t
 #tip: the headers in the input FASTA file must exactly match the chromosome column in the BED file.
 #test this script on a subset first to see if it works properly...
 
-bedtools getfasta -fi $F/Crassostrea_gigas_genome.fa -bed $F/OsHv1_MSTRGID_tran_SIG_merged_noexons.gtf -fo $F/Bac_viral_MSTRG_merged_SEQUENCE.fa -s
+bedtools getfasta -fi $F/Crassostrea_gigas_genome.fa -bed $F/OsHv1_MSTRGID_tran_SIG_merged_noexons.gtf -fo $F/OsHV1_MSTRG_merged_SEQUENCE.fa -s
 
 #IN ORDER TO GET FULL GENE LOCATIONS, YOU NEED TO HAVE GOTTEN THE FEATURE COUNTS SCRIPT OR GET THE -A GENE LOCATION OUTPUT
 
