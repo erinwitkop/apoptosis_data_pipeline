@@ -11,6 +11,9 @@ set -e
 echo "START" $(date)
 
 module load bio/BEDTools/2.26.0-foss-2016b
+module load fastx/0.0.14
+module load genometools/1.5.9-foss-2016b 
+module load pyfasta/0.5.2
 F=/data3/marine_diseases_lab/erin/Bio_project_SRA/pipeline_files/Bac_Viral_subset
 
 #Using BEDtools getfasta in order to pull out MSTRG gene sequences after subsetting the stringtie.merge.gtf
@@ -24,7 +27,7 @@ F=/data3/marine_diseases_lab/erin/Bio_project_SRA/pipeline_files/Bac_Viral_subse
 
 # USAGE: bash 06_MSTRG_isolate_getfasta.sh > OsHv1_MSTRGID_tran_SIG_merged.gtf
 
-args=($(cat $F/OsHv1_MSTRGID_tran_Sig.txt))
+args=($(cat $F/OsHv1_MSTRGID_tran_non_Sig.txt))
 while read -r line
 do
     for i in ${args[@]}
@@ -66,6 +69,12 @@ bedtools getfasta -name -s -fi $F/Crassostrea_gigas_genome.fa -bed $F/OsHv1_MSTR
 	#-name Use the “name” column in the BED file for the FASTA headers in the output FASTA file
 	# -s Force strandedness. If the feature occupies the antisense strand, the sequence will be reverse complemented. 
 
+#Will add the MSTRG ID to every line in the correct order back in my R script
+
+#Remove duplicate sequences with genometools (if necessary) -Or can do it in R!
+#gt sequniq -o OsHV1_MSTRG_merged_TRAN_SEQUENCE_unique.fa OsHV1_MSTRG_merged_TRAN_SEQUENCE.fa
+gt splitfasta -numfiles 5 seqs.fasta OsHV1_MSTRG_merged_TRAN_SEQUENCE.fa
+
 #IN ORDER TO GET FULL GENE LOCATIONS, YOU NEED TO HAVE GOTTEN THE FEATURE COUNTS SCRIPT OR GET THE -A GENE LOCATION OUTPUT
 
-
+echo "DONE" $(date) 
