@@ -73,7 +73,8 @@ bedtools getfasta -name -s -fi $F/Crassostrea_gigas_genome.fa -bed $F/OsHv1_MSTR
 
 #Remove duplicate sequences with genometools (if necessary) -Or can do it in R!
 #gt sequniq -o OsHV1_MSTRG_merged_TRAN_SEQUENCE_unique.fa OsHV1_MSTRG_merged_TRAN_SEQUENCE.fa
-gt splitfasta -numfiles 5 seqs.fasta OsHV1_MSTRG_merged_TRAN_SEQUENCE.fa
+gt splitfasta -numfiles 5 OsHV1_MSTRG_merged_TRAN_SEQUENCE.fa
+gt splitfasta -numfiles 5 Bac_MSTRGID_tran_SIG_merged_SEQUENCE.fa
 
 #IN ORDER TO GET FULL GENE LOCATIONS, YOU NEED TO HAVE GOTTEN THE FEATURE COUNTS SCRIPT OR GET THE -A GENE LOCATION OUTPUT
 
