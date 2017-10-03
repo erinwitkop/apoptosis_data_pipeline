@@ -61,7 +61,7 @@ done
 #Histogram generation, only generating for one of the pair (assuming that similar stats will be present). 
 #All histogram output contents are combined into one file
 for i in ${array1[@]}; do
- 	 bbduk.sh in1=${i}.clean.trim.filter in2=$(echo ${i}|sed s/_1/_2/).clean.trim.filter  bhist=${i}.b.hist qhist=${i}.q.hist gchist=${i}.gc.hist lhis$
+ 	 bbduk.sh in1=${i}.clean.trim.filter in2=$(echo ${i}|sed s/_1/_2/).clean.trim.filter  bhist=${i}.b.hist qhist=${i}.q.hist gchist=${i}.gc.hist lhist=${i}.l.hist gcbins=auto
 	 echo "STOP" $(date)
      echo ${i} > ${i}.hist.all
      echo "bhist" >> ${i}.hist.all
@@ -71,8 +71,9 @@ for i in ${array1[@]}; do
      echo "gchist" >> ${i}.hist.all
      cat ${i}.gc.hist >> ${i}.hist.all
      echo "lhist" >> ${i}.hist.all
-     cat ${i}.l.hist >> ${i}.hist.alltogram 
-	 echo "histogram" $(date)
+     cat ${i}.l.hist >> ${i}.hist.all 
+	 echo "histogram DONE" $(date)
+done
 		#lhist = output a read length histogram
         #qhist = per base average quality
         #bhist = output a per-base composition histogram
@@ -117,7 +118,7 @@ done
 #histogram generation
  #Histogram generation
 for i in ${array3[@]}; do
-        bbduk.sh in1=${i}.clean.trim.filter bhist=bhist.txt qhist=qhist.txt gchist=gchist.txt aqhist=aqhist.txt lhist=lhist.txt gcbins=auto
+        bbduk.sh in1=${i}.clean.trim.filter bhist=${i}.b.hist qhist=${i}.q.hist gchist=${i}.gc.hist lhist=${i}.l.hist gcbins=auto
         echo "STOP" $(date)
         echo ${i} > ${i}.hist.all
         echo "bhist" >> ${i}.hist.all
