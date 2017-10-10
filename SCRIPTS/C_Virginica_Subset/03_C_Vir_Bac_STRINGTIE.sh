@@ -59,7 +59,7 @@ done
 
 #Re-estimate transcript abundance after merge step
 	for i in ${array1[@]}; do
-		stringtie -e -G $F/ref_C_virginica-3.0_top_level.gff3 -o $(echo ${i}|sed "s/\..*//").merge.gtf ${i}
+		stringtie -e -G $F/C_Vir_stringtie_merged.gtf -o $(echo ${i}|sed "s/\..*//").merge.gtf ${i}
 		echo "${i}"
 	done 
 	# input here is the original set of alignment files
