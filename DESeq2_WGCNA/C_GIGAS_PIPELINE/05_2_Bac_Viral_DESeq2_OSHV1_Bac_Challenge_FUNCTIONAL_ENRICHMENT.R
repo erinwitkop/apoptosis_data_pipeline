@@ -3,10 +3,10 @@
 #this script utilized topGO to perform Gene Set Ennrichment Analysis (GSEA)
 
 #Load packages
-source("http://bioconductor.org/biocLite.R")
-biocLite(c("topGO","ALL","Rgraphviz"))
+#source("http://bioconductor.org/biocLite.R")
+#biocLite(c("topGO","ALL","Rgraphviz"))
 library(topGO)
-install.packages("tm")
+#install.packages("tm")
 library(tm)
 library(ALL)
 library(GO.db)
@@ -307,6 +307,25 @@ Bac_sigGO_gene_names_index <- Bac_data_edited2$Bac_data_edited1 %in% Bac_sigGO_n
 !is.na(match(Bac_data_edited2$Bac_data_edited1,Bac_sigGO_name_lookup$Bac_data_edited1))
 Bac_sigGO_gene_names <- Bac_data_edited2[Bac_sigGO_gene_names_index, ]
 write.csv(Bac_sigGO_gene_names, file="Bac_sigGO_gene_names.csv")
+
+####COMPILED RESULTS TABLES ####
+Bac_numsignif_Res["Challenge"] <- "Bac"
+OsHV1_numsignif_Res["Challenge"] <- "OsHV1"
+COMBINED_TOPGO_RES_NUMSIGNIF <- rbind(Bac_numsignif_Res,OsHV1_numsignif_Res)
+write.csv(COMBINED_TOPGO_RES_NUMSIGNIF, file="COMBINED_TOPGO_NUMSIGNIF_RES.csv")
+Bac_topRes["Challenge"] <- "Bac"
+OsHV1_topRes["Challenge"] <- "OsHV1"
+COMBINED_TOPGO_RES_TOPSIGNIFICANTNODES <- rbind(Bac_topRes,OsHV1_topRes)
+write.csv(COMBINED_TOPGO_RES_TOPSIGNIFICANTNODES, file="COMBINED_TOPGO_RES_TOPSIGNIFICANTNODES.csv")
+Bac_sigGO_gene_names["Challenge"] <- "Bac"
+OsHV1_sigGO_gene_names["Challenge"] <- "OsHV1"
+#get rid of column with unmatching names
+Bac_sigGO_gene_names <- Bac_sigGO_gene_names[,c(1,2,3,4,5,6,8)]
+OsHV1_sigGO_gene_names <- OsHV1_sigGO_gene_names[,c(1,2,3,4,5,6,8)]
+COMBINED_TOPGO_RES_SIGGO_GENE_NAMES <- rbind(Bac_sigGO_gene_names,OsHV1_sigGO_gene_names)
+COMBINED_TOPGO_RES_SIGGO_GENE_NAMES <- COMBINED_TOPGO_RES_SIGGO_GENE_NAMES %>%
+  filter(Protein_names !="Uncharacterized protein")
+write.csv(COMBINED_TOPGO_RES_SIGGO_GENE_NAMES, file="COMBINED_TOPGO_RES_SIGGO_GENE_NAMES.csv")
 
 #References: Gene set enrichment analysis with topGO
 #Adrian Alexa, Jorg Rahnenfuhrer, April 24, 2017, http://www.mpi-sb.mpg.de/alexa

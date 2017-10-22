@@ -1227,6 +1227,81 @@ grep("TRUE", oshv1_translocation_non_Sig ) #6767 6830
 oshv1_translocation_non_Sig_info <- oshv1_transcriptIDs_UniProt_non_Sig[c(6767, 6830),]
 #none are correct! 
 
+#p53 (can induce apoptosis, sokolova 2009)
+#sig
+oshv1_p53_Sig <- grepl("p53", oshv1_transcriptIDs_UniProt_SIG$Protein.names, ignore.case = TRUE)
+grep("TRUE", oshv1_p53_Sig ) #0
+#non sig
+oshv1_p53_non_Sig <- grepl("p53", oshv1_transcriptIDs_UniProt_non_Sig$Protein.names, ignore.case = TRUE)
+grep("TRUE", oshv1_p53_non_Sig ) # 1434  1891  6738  9058 10187
+oshv1_p53_non_Sig_info <- oshv1_transcriptIDs_UniProt_non_Sig[c(1434,  1891,  6738,  9058, 10187),]
+
+#TLR
+oshv1_TLR_Sig <- grepl("Toll",oshv1_transcriptIDs_UniProt_SIG$Protein.names, ignore.case = TRUE)
+grep("TRUE", oshv1_TLR_Sig) #282 368
+oshv1_TLR_Sig_info <- oshv1_transcriptIDs_UniProt_SIG[368,]
+#non
+oshv1_TLR_non_Sig <- grepl("Toll-like",oshv1_transcriptIDs_UniProt_non_Sig$Protein.names, ignore.case = TRUE)
+grep("TRUE", oshv1_TLR_non_Sig) 
+#211   436   437  1373  1695  2474  2603  4467  4816  4984  5329  5406  5937  6777  7108  7294  7445  7782  8148  8150  8176  8327  8328
+#8547  8891  8896 10016 10430 11090
+oshv1_TLR_non_Sig_info <- oshv1_transcriptIDs_UniProt_non_Sig[c(211,   436,   437,  1373,  1695,  2474,  2603,  4467,  4816,  4984,  5329,
+                                                                5406,  5937,  6777,  7108,  7294 , 7445,  7782,  8148,  8150,  8176,  8327,  8328,
+                                                                8547,  8891,  8896, 10016, 10430, 11090),]
+#all are TLRs!
+
+#cAMP - can induce apoptosis in C. gigas hemocytes (sokolova 2009)
+#Sig
+oshv1_cAMP_Sig <- grepl("cAMP",oshv1_transcriptIDs_UniProt_SIG$Protein.names, ignore.case = TRUE)
+grep("TRUE", oshv1_cAMP_Sig) #0
+oshv1_cyclic_Sig <- grepl("cyclic",oshv1_transcriptIDs_UniProt_SIG$Protein.names, ignore.case = TRUE)
+grep("TRUE", oshv1_cyclic_Sig) #11, is Cylic AMP-dependent (but not cAMP)
+oshv1_adenosine_Sig <- grepl("adenosine",oshv1_transcriptIDs_UniProt_SIG$Protein.names, ignore.case = TRUE)
+grep("TRUE", oshv1_adenosine_Sig) #0
+#non-Sig
+oshv1_cAMP_non_Sig <- grepl("cAMP",oshv1_transcriptIDs_UniProt_non_Sig$Protein.names, ignore.case = TRUE)
+grep("TRUE", oshv1_cAMP_non_Sig) #1226  5642  8057  8652  9066 10800 10802 11459 # all are cAMP-dependent!
+oshv1_cAMP_non_Sig_info <- oshv1_transcriptIDs_UniProt_non_Sig[c(5642,  8057,  8652,  9066, 10800, 10802, 11459),] 
+oshv1_cyclic_non_Sig <- grepl("cyclic",oshv1_transcriptIDs_UniProt_non_Sig$Protein.names, ignore.case = TRUE)
+grep("TRUE", oshv1_cyclic_non_Sig) #1148  1976  2033  3054  3267  7848  7908  9950 11338 11339 #none are cAMP
+oshv1_adenosine_non_Sig <- grepl("adenosine monophosphate",oshv1_transcriptIDs_UniProt_non_Sig$Protein.names, ignore.case = TRUE)
+grep("TRUE", oshv1_adenosine_non_Sig) # 10937 
+#NONE
+
+#Nitric oxide may be important in apoptosis regulation! (sokolova 2009)
+#sig
+oshv1_nitric_Sig <- grepl("nitric",oshv1_transcriptIDs_UniProt_SIG$Protein.names, ignore.case = TRUE)
+grep("TRUE", oshv1_nitric_Sig) #0
+
+#non sig
+oshv1_nitric_non_Sig <- grepl("nitric",oshv1_transcriptIDs_UniProt_non_Sig$Protein.names, ignore.case = TRUE)
+grep("TRUE", oshv1_nitric_non_Sig)  #1115 8485
+oshv1_nitric_non_sig_info <- oshv1_transcriptIDs_UniProt_non_Sig[8485,]
+
+####PLOT APOPTOSIS GENE NUMBER ####
+oshv1_gene_number <- read.csv(file ="Metadata_C_gigas_apoptosis_OsHV1.csv", header=TRUE)
+#remove empty rows
+oshv1_gene_number_nonzero <- oshv1_gene_number %>% filter(Number !=0)
+
+oshv1_gene_number_PLOT <- ggplot(oshv1_gene_number_nonzero, aes(x=Gene_Name, y=Number, fill=Significance)) + 
+  geom_bar(stat="identity", position="dodge") + 
+  scale_color_discrete(name="Significance",breaks=c(1,2), labels=c("Signifant", "Non-significant"))+
+  theme(axis.text.x = element_text(angle = 75, hjust = 1)) + 
+  scale_y_continuous(name ="Number of Genes", breaks = scales::pretty_breaks(n = 10)) + 
+  ggtitle("Number of Significant and Non-Significant Expressed Apoptosis Genes during OsHV1 Challenge") + 
+  theme(plot.title = element_text(size=10)) + theme(plot.title = element_text(hjust = 0.5)) 
+  
+  
+oshv1_gene_number_PLOT2 <- oshv1_gene_number_PLOT  + 
+  theme(axis.line = element_line(colour = "black", size = 0.5, linetype = "solid")) +
+  scale_x_discrete(name="Gene Name", limits=c("Bcl2","BAG","Cyt-c","TLR","FADD",
+                                               "TRAF","TNFR","Fas","Caspase",
+                                               "PCDP","DEDD", "NO", "p53"), 
+                 labels=c("Bcl2"="Bcl2","BAG"="BAG","Cyt-c"="Cyt-c","TLR"="TLR","FADD"="FADD",
+                          "TRAF"="TRAF","TNFR"="TNFR","Fas"="Fas","Caspase"="Caspase",
+                          "PCDP"="PCDP","DEDD"="DEDD", "NO"="NO", "p53"="p53"))
+
+
 ####GATHER CONSTITUENT APOPTOSIS GENES FOR OSHV1####
 ##need to catenate these with expression and then graph 
 oshv1_caspase_non_sig_info$Ensembl_Genomes_Transcript
@@ -1421,203 +1496,273 @@ oshv1_TNF_non_sig_resoshv1_Tran_05_df <- grep("EKC37852",rownames(resoshv1Tran_0
 
 #oshv1_apoptotic_process_non_Sig_info$Ensembl_Genomes_Transcript
 #subset_oshv1_apoptotic_process_non_Sig_info <- oshv1_apoptotic_process_non_Sig_info[,c(4,8,9,10)]
+  
 
 ###BAC challenge Additional Apoptotic Transcripts####
   
-####STOPPED EDITING HERE ####
   #Caspases (caspase 2 is important with IAPS)
-  #Sig caspases (none) OsHV1
-  oshv1_caspase_Sig <- grepl("caspase", oshv1_transcriptIDs_UniProt_SIG$Protein.names, ignore.case = TRUE) 
-  grep("TRUE", oshv1_caspase_Sig) #0
+  #Sig caspases (none) Bac
+  Bac_caspase_Sig <- grepl("caspase",Bac_transcriptIDs_UniProt_SIG$Protein.names, ignore.case = TRUE)
+  grep("TRUE", Bac_caspase_Sig) 0
   
-  #Non sig caspases OsHV1
-  oshv1_caspase_non_sig <- grepl("caspase", oshv1_transcriptIDs_UniProt_non_Sig$Protein.names, ignore.case = TRUE)
-  grep("TRUE", oshv1_caspase_non_sig)
-  oshv1_caspase_non_sig_info <- oshv1_transcriptIDs_UniProt_non_Sig[c(143,  3141,  3747,  4606,  5218,  6378,  7273,  8177,  8523,  9357,  9600,  9621,
-                                                                      11079),]
+  #Non sig caspases Bac
+  Bac_caspase_non_sig <- grepl("caspase", Bac_transcriptIDs_UniProt_non_Sig$Protein.names, ignore.case = TRUE)
+  grep("TRUE", Bac_caspase_non_sig) #99 1791 2200 2620 3217 3624 4087 5010 5897 7659
+  Bac_caspase_non_sig_info <- Bac_transcriptIDs_UniProt_non_Sig[c(99, 1791, 2200, 2620, 3217, 3624, 5010, 5897, 7659),]
   
   #BcL 2 
   #Sig Bcl2
-  oshv1_Bcl2_Sig <- grepl("Bcl", oshv1_transcriptIDs_UniProt_SIG$Protein.names, ignore.case = TRUE) 
-  grep("TRUE", oshv1_Bcl2_Sig) #247
-  oshv1_Bcl2_Sig_info <- oshv1_transcriptIDs_UniProt_SIG[247,]
+  Bac_Bcl2_Sig <- grepl("Bcl", Bac_transcriptIDs_UniProt_SIG$Protein.names, ignore.case = TRUE) 
+  grep("TRUE", Bac_Bcl2_Sig) #0
   #Non sig Bcl2
-  oshv1_Bcl2_non_Sig <- grepl("bcl", oshv1_transcriptIDs_UniProt_non_Sig$Protein.names, ignore.case = TRUE)
-  grep("TRUE", oshv1_Bcl2_non_Sig) #298 1265 5265 6216 (1265 is BCL9)
-  oshv1_Bcl2_non_Sig_info <- oshv1_transcriptIDs_UniProt_non_Sig[c(298, 6216),]
+  Bac_Bcl2_non_Sig <- grepl("bcl", Bac_transcriptIDs_UniProt_non_Sig$Protein.names, ignore.case = TRUE)
+  grep("TRUE", Bac_Bcl2_non_Sig) #197 4290 4292
+  Bac_Bcl2_non_Sig_info <- Bac_transcriptIDs_UniProt_non_Sig[c(197, 4290, 4292),]
   
   #BAG
   #Sig BAG
-  oshv1_BAG_Sig <- grepl("BAG", oshv1_transcriptIDs_UniProt_SIG$Protein.names, ignore.case = TRUE) 
-  grep("TRUE", oshv1_BAG_Sig) #0
-  oshv1_athanogene_Sig <- grepl("athanogene", oshv1_transcriptIDs_UniProt_SIG$Protein.names, ignore.case = TRUE) 
-  grep("TRUE", oshv1_athanogene_Sig ) #0
+  Bac_BAG_Sig <- grepl("BAG", Bac_transcriptIDs_UniProt_SIG$Protein.names, ignore.case = TRUE) 
+  grep("TRUE", Bac_BAG_Sig) #0
+  Bac_athanogene_Sig <- grepl("athanogene", Bac_transcriptIDs_UniProt_SIG$Protein.names, ignore.case = TRUE) 
+  grep("TRUE", Bac_athanogene_Sig ) #0
   #Non sig BAG
-  oshv1_BAG_non_Sig <- grepl("BAG",oshv1_transcriptIDs_UniProt_non_Sig$Protein.names, ignore.case = TRUE) 
-  grep("TRUE", oshv1_BAG_non_Sig ) #2371  5419 10862
-  oshv1_BAG_non_Sig_info <- oshv1_transcriptIDs_UniProt_non_Sig[c(2371,  5419, 10862),]
+  Bac_BAG_non_Sig <- grepl("BAG",Bac_transcriptIDs_UniProt_non_Sig$Protein.names, ignore.case = TRUE) 
+  grep("TRUE", Bac_BAG_non_Sig ) #1651 3751 7510
+  Bac_BAG_non_Sig_info <- Bac_transcriptIDs_UniProt_non_Sig[c(1651, 3751, 7510),]
   
   #Cytochrome c
   #Sig cytochrome 
-  oshv1_cytochrome_Sig <- grepl("cytochrome", oshv1_transcriptIDs_UniProt_SIG$Protein.names, ignore.case = TRUE) 
-  grep("TRUE", oshv1_cytochrome_Sig) #57 #this is only p 350
+  Bac_cytochrome_Sig <- grepl("cytochrome", Bac_transcriptIDs_UniProt_SIG$Protein.names, ignore.case = TRUE) 
+  grep("TRUE", Bac_cytochrome_Sig) #0
   #Non sig cytochrome
-  oshv1_cytochrome_non_Sig <- grepl("cytochrome c",oshv1_transcriptIDs_UniProt_non_Sig$Protein.names, ignore.case = TRUE) 
-  grep("TRUE", oshv1_cytochrome_non_Sig )
-  # 210  3969  4374  6271  7702  9417 10039 10040
-  oshv1_cytochrome_non_Sig_info <- oshv1_transcriptIDs_UniProt_non_Sig[ 6271,] #only 6271 is the real cytochrome c
+  Bac_cytochrome_non_Sig <- grepl("cytochrome c",Bac_transcriptIDs_UniProt_non_Sig$Protein.names, ignore.case = TRUE) 
+  grep("TRUE", Bac_cytochrome_non_Sig )
+  # 137 2772 4329 5320 6509 6948 6949
+  Bac_cytochrome_non_Sig_info <- Bac_transcriptIDs_UniProt_non_Sig[4329,]
+  #4329 is real cyt-c
   
   #Apoptotic process#
   #Sig
-  oshv1_apoptotic_Sig <- grepl("apoptotic", oshv1_transcriptIDs_UniProt_SIG$Gene.ontology..GO., ignore.case = TRUE) 
-  grep("TRUE", oshv1_apoptotic_Sig) #3  45 235 247
-  oshv1_apoptotis_process_SIG_info <- oshv1_transcriptIDs_UniProt_SIG[c(3, 235 ,247),]
-  #oshv1_apoptotis_process_SIG_info <- oshv1_apoptotis_process_SIG_info %>%
-  filter(Protein.names !="Uncharacterized protein")
+  Bac_apoptotic_Sig <- grepl("apoptotic", Bac_transcriptIDs_UniProt_SIG$Gene.ontology..GO., ignore.case = TRUE) 
+  grep("TRUE", Bac_apoptotic_Sig) #24
+  Bac_apoptotis_process_SIG_info <- Bac_transcriptIDs_UniProt_SIG[24,]
+  #is an uncharacterized protein
   #Non Sig
-  oshv1_apoptotic_non_Sig <- grepl("apoptotic",oshv1_transcriptIDs_UniProt_non_Sig$Gene.ontology..GO., ignore.case = TRUE) 
-  grep("TRUE", oshv1_apoptotic_non_Sig )
-  oshv1_apoptotic_process_non_Sig_info <-oshv1_transcriptIDs_UniProt_non_Sig[c( 27,    88,   298  , 370 ,  515,   575,   630,   739,  1313,  1360,  1459,  1703,  1822  ,1961,
-                                                                                2541,  3018,  3174 , 3257 , 3468,  3937,  4133,  4172,  4291,  4298,  4728,  4814,  4950 , 5123,
-                                                                                5171 , 5192 , 5218 , 5265,  5302,  5347,  5443 , 5485 , 5574,  6216 , 6378,  6393 , 6943 , 7273,
-                                                                                7274  ,7427,  7552 , 7636,  7714,  7728 , 7783 , 8115,  8177,  8206 , 8382,  8524,  8668 , 9106,
-                                                                                9311  ,9334,  9355,  9374,  9693,  9995 ,10003, 10167, 10347, 10540 ,10546, 10659, 10759, 11432),]
-  oshv1_apoptotic_process_non_Sig_info <- oshv1_apoptotic_process_non_Sig_info %>%
+  Bac_apoptotic_non_Sig <- grepl("apoptotic",Bac_transcriptIDs_UniProt_non_Sig$Gene.ontology..GO., ignore.case = TRUE) 
+  grep("TRUE", Bac_apoptotic_non_Sig )
+  Bac_apoptotic_process_non_Sig_info <-Bac_transcriptIDs_UniProt_non_Sig[c(22,   36,   64,  197,  247,  342, 424,  499,  928, 1020, 1189, 1759, 1791, 2116, 2277, 2429, 2907,
+                                                                         2987, 2994, 3356, 3448, 3557, 3592, 3608, 3624, 3701, 3769, 3860, 4108, 4290, 4292, 4421, 4787, 5010,
+                                                                         5011, 5123, 5206, 5269, 5336, 5374, 5614, 5798, 6287, 6451, 6466, 6925, 7037, 7451, 7887 ),]
+  Bac_apoptotic_process_non_Sig_info <- Bac_apoptotic_process_non_Sig_info %>%
     filter(Protein.names != "Uncharacterized protein")
   
   #Fas
   #sig
-  oshv1_Fas_Sig <- grepl("apoptotic",oshv1_transcriptIDs_UniProt_SIG$Protein.names, ignore.case = TRUE) 
-  grep("TRUE", oshv1_Fas_Sig ) #0
+  Bac_Fas_Sig <- grepl("Fas",Bac_transcriptIDs_UniProt_SIG$Protein.names, ignore.case = TRUE) 
+  grep("TRUE", Bac_Fas_Sig ) #0
   
   #non sig
-  oshv1_Fas_non_sig <- grepl("Fas", oshv1_transcriptIDs_UniProt_non_Sig$Protein.names, ignore.case = TRUE)
-  grep("TRUE", oshv1_Fas_non_sig)
-  oshv1_Fas_non_sig_info <- oshv1_transcriptIDs_UniProt_non_Sig[9311,] #the Fas apoptotic inhibitory molecule
+  Bac_Fas_non_sig <- grepl("Fas", Bac_transcriptIDs_UniProt_non_Sig$Protein.names, ignore.case = TRUE)
+  grep("TRUE", Bac_Fas_non_sig) #1145 2159 2711 4475
+  Bac_Fas_non_sig_info <- Bac_transcriptIDs_UniProt_non_Sig[c(1145, 2159, 2711, 4475),] #the Fas apoptotic inhibitory molecule
+  #none are Fas ligand
   
   #smac/DIABLO
   #sig
-  oshv1_sAC_Sig <- grepl("sac",oshv1_transcriptIDs_UniProt_SIG$Protein.names, ignore.case = TRUE) 
-  grep("TRUE", oshv1_sAC_Sig ) #126, (was Sacsin)
-  oshv1_sAC_Sig_info <- oshv1_transcriptIDs_UniProt_SIG[126,]
-  oshv1_DIABLO_Sig <- grepl("DIABLO",oshv1_transcriptIDs_UniProt_SIG$Protein.names, ignore.case = TRUE) 
-  grep("TRUE", oshv1_DIABLO_Sig ) #0
-  oshv1_soluble_Sig <- grepl("soluble",oshv1_transcriptIDs_UniProt_SIG$Protein.names, ignore.case = TRUE) 
-  grep("TRUE", oshv1_soluble_Sig ) #252 (not sAC)
-  oshv1_AC_Sig <- grepl("adenylyl cyclase",oshv1_transcriptIDs_UniProt_SIG$Protein.names, ignore.case = TRUE) 
-  grep("TRUE", oshv1_AC_Sig ) #0
+  Bac_sAC_Sig <- grepl("smac",Bac_transcriptIDs_UniProt_SIG$Protein.names, ignore.case = TRUE) 
+  grep("TRUE", Bac_sAC_Sig ) #0
+  Bac_DIABLO_Sig <- grepl("DIABLO",Bac_transcriptIDs_UniProt_SIG$Protein.names, ignore.case = TRUE) 
+  grep("TRUE", Bac_DIABLO_Sig ) #0
+  Bac_soluble_Sig <- grepl("soluble",Bac_transcriptIDs_UniProt_SIG$Protein.names, ignore.case = TRUE) 
+  grep("TRUE", Bac_soluble_Sig ) #252 (not sAC)
+  Bac_AC_Sig <- grepl("adenylyl cyclase",Bac_transcriptIDs_UniProt_SIG$Protein.names, ignore.case = TRUE) 
+  grep("TRUE", Bac_AC_Sig ) #0
   #non sig
-  oshv1_sAC_non_Sig <- grepl("sac",oshv1_transcriptIDs_UniProt_non_Sig$Protein.names, ignore.case = TRUE) 
-  grep("TRUE", oshv1_sAC_non_Sig ) #non correct
-  oshv1_DIABLO_non_Sig <- grepl("DIABLO",oshv1_transcriptIDs_UniProt_non_Sig$Protein.names, ignore.case = TRUE) 
-  grep("TRUE", oshv1_DIABLO_non_Sig ) #0
-  oshv1_soluble_non_Sig <- grepl("soluble",oshv1_transcriptIDs_UniProt_non_Sig$Protein.names, ignore.case = TRUE) 
-  grep("TRUE", oshv1_soluble_non_Sig ) #none are correct
-  oshv1_soluble_non_Sig_info <- oshv1_transcriptIDs_UniProt_non_Sig[c(612,  6294,  6870,  6883, 11288),]
+  Bac_sAC_non_Sig <- grepl("smac",Bac_transcriptIDs_UniProt_non_Sig$Protein.names, ignore.case = TRUE) 
+  grep("TRUE", Bac_sAC_non_Sig ) #non correct
+  Bac_DIABLO_non_Sig <- grepl("DIABLO",Bac_transcriptIDs_UniProt_non_Sig$Protein.names, ignore.case = TRUE) 
+  grep("TRUE", Bac_DIABLO_non_Sig ) #0
+  Bac_soluble_non_Sig <- grepl("soluble",Bac_transcriptIDs_UniProt_non_Sig$Protein.names, ignore.case = TRUE) 
+  grep("TRUE", Bac_soluble_non_Sig ) #408 4735 4744 7791
+  Bac_soluble_non_Sig_info <- Bac_transcriptIDs_UniProt_non_Sig[c(408, 4735, 4744, 7791),]
+  #none are correct
   
   #Extrinsic pathway molecules
   #PCD and DED 
   #sig 
-  oshv1_PCD_Sig <- grepl("death",oshv1_transcriptIDs_UniProt_SIG$Protein.names, ignore.case = TRUE) 
-  grep("TRUE", oshv1_PCD_Sig ) #0
-  oshv1_PCD_Sig_info <- oshv1_transcriptIDs_UniProt_SIG[72,]
+  Bac_PCD_Sig <- grepl("death",Bac_transcriptIDs_UniProt_SIG$Protein.names, ignore.case = TRUE) 
+  grep("TRUE", Bac_PCD_Sig ) #
   #nonsig 
-  oshv1_PCD_non_Sig <- grepl("death",oshv1_transcriptIDs_UniProt_non_Sig$Protein.names, ignore.case = TRUE) 
-  grep("TRUE", oshv1_PCD_non_Sig ) #0
-  #191   782  1494  3052  3094  4051  4853  5178  5217  5302  6068  6418  6780  7531
-  #8692  8715  8772 10064 10540
-  oshv1_PCD_non_Sig_info <- oshv1_transcriptIDs_UniProt_non_Sig[c(  1494,  3052,  3094,  
-                                                                    4051,  4853,  5178,  5217,  5302,  6418,  6780, 8692,  8772, 10064, 10540),]
+  Bac_PCD_non_Sig <- grepl("death",Bac_transcriptIDs_UniProt_non_Sig$Protein.names, ignore.case = TRUE) 
+  grep("TRUE", Bac_PCD_non_Sig ) #130 1206 2139 2168 3326 3597 4194 4433 5060 5191 6006 6020 6056
+  
+  Bac_PCD_non_Sig_info <- Bac_transcriptIDs_UniProt_non_Sig[c(1206, 2139, 2168, 3326, 3597, 4194, 4433, 5060,
+                                                              6006, 6056),]
   
   #FADD
   #sig 
-  oshv1_FADD_Sig <- grepl("FADD",oshv1_transcriptIDs_UniProt_SIG$Protein.names, ignore.case = TRUE) 
-  grep("TRUE", oshv1_FADD_Sig ) #0
-  oshv1_FasAssociated_Sig <- grepl("Fas associated",oshv1_transcriptIDs_UniProt_SIG$Protein.names, ignore.case = TRUE) 
-  grep("TRUE", oshv1_FasAssociated_Sig ) #0
+  Bac_FADD_Sig <- grepl("FADD",Bac_transcriptIDs_UniProt_SIG$Protein.names, ignore.case = TRUE) 
+  grep("TRUE", Bac_FADD_Sig ) #0
+  Bac_FasAssociated_Sig <- grepl("Fas associated",Bac_transcriptIDs_UniProt_SIG$Protein.names, ignore.case = TRUE) 
+  grep("TRUE", Bac_FasAssociated_Sig ) #0
   
   #nonsig 
-  oshv1_FADD_non_Sig <- grepl("FADD",oshv1_transcriptIDs_UniProt_non_Sig$Protein.names, ignore.case = TRUE) 
-  grep("TRUE", oshv1_FADD_non_Sig ) #8524
-  oshv1_FADD_non_Sig_info <- oshv1_transcriptIDs_UniProt_non_Sig[8524,]
-  oshv1_FasAssociated_non_Sig <- grepl("Fas associated",oshv1_transcriptIDs_UniProt_non_Sig$Protein.names, ignore.case = TRUE) 
-  grep("TRUE", oshv1_FasAssociated_non_Sig ) #0
+  Bac_FADD_non_Sig <- grepl("FADD",Bac_transcriptIDs_UniProt_non_Sig$Protein.names, ignore.case = TRUE) 
+  grep("TRUE", Bac_FADD_non_Sig ) #0
+  Bac_FasAssociated_non_Sig <- grepl("Fas associated",Bac_transcriptIDs_UniProt_non_Sig$Protein.names, ignore.case = TRUE) 
+  grep("TRUE", Bac_FasAssociated_non_Sig ) #0
   
   #TRAF
   #sig 
-  oshv1_TRAF_Sig <- grepl("traf",oshv1_transcriptIDs_UniProt_SIG$Protein.names, ignore.case = TRUE) 
-  grep("TRUE", oshv1_TRAF_Sig ) #0
-  oshv1_tumornecrosis_Sig <- grepl("necrosis",oshv1_transcriptIDs_UniProt_SIG$Protein.names, ignore.case = TRUE) 
-  grep("TRUE", oshv1_tumornecrosis_Sig  ) #0
+  Bac_TRAF_Sig <- grepl("traf",Bac_transcriptIDs_UniProt_SIG$Protein.names, ignore.case = TRUE) 
+  grep("TRUE", Bac_TRAF_Sig ) #2 #trafficking complex!
+  Bac_tumornecrosis_Sig <- grepl("necrosis",Bac_transcriptIDs_UniProt_SIG$Protein.names, ignore.case = TRUE) 
+  grep("TRUE", Bac_tumornecrosis_Sig  ) #0
   #nonsig 
-  oshv1_TRAF_non_Sig <- grepl("traf",oshv1_transcriptIDs_UniProt_non_Sig$Protein.names, ignore.case = TRUE) 
-  grep("TRUE", oshv1_TRAF_non_Sig ) # 201   249   401  2564  3640  3778  4123  4759  6124  6156  6367  7155  7409
-  #8293  8996 11013 11085 11099, reduced to list below
-  oshv1_TRAF_non_Sig_info <- oshv1_transcriptIDs_UniProt_non_Sig[c(3640, 6124,  6156,  7409,
-                                                                   11013),]
+  Bac_TRAF_non_Sig <- grepl("traf",Bac_transcriptIDs_UniProt_non_Sig$Protein.names, ignore.case = TRUE) 
+  grep("TRUE", Bac_TRAF_non_Sig ) #134  273 1777 2634 2884 4229 4245 4401 4836 4927 5109 5735 6217 7380 7612 7673
+  #reduced to list below
+  Bac_TRAF_non_Sig_info <- Bac_transcriptIDs_UniProt_non_Sig[7612,]
+  
   #TNFR
   #sig - necrosis found nothing
-  oshv1_TNF_Sig <- grepl("TNF",oshv1_transcriptIDs_UniProt_SIG$Protein.names, ignore.case = TRUE) 
-  grep("TRUE", oshv1_TNF_Sig  ) #0
+  Bac_TNF_Sig <- grepl("TNF", Bac_transcriptIDs_UniProt_SIG$Protein.names, ignore.case = TRUE) 
+  grep("TRUE",  Bac_TNF_Sig  ) #0
   #nonsig 
-  oshv1_TNF_non_Sig <- grepl("TNF",oshv1_transcriptIDs_UniProt_non_Sig$Protein.names, ignore.case = TRUE) 
-  grep("TRUE", oshv1_TNF_non_Sig ) #4950  6957  7728  7933  8152 11013 11432, 11013 is repeated above, removed here
-  oshv1_TNF_non_Sig_info <- oshv1_transcriptIDs_UniProt_non_Sig[c(4950,  6957,  7728,  7933,  8152, 11432),]
+  Bac_TNF_non_Sig <- grepl("TNF", Bac_transcriptIDs_UniProt_non_Sig$Protein.names, ignore.case = TRUE) 
+  grep("TRUE",  Bac_TNF_non_Sig ) #3448 4796 5336 5485 5644 7612 7887
+  Bac_TNF_non_Sig_info <-  Bac_transcriptIDs_UniProt_non_Sig[c(3448, 5336, 5485, 5644, 7887),]
   
-  #TRAIL (should have come up with TNF)
+  #TRAIL (should have come up with TNF) TNF-related apoptosis inducing ligand
   #sig 
-  oshv1_TRAIL_Sig <- grepl("trail",oshv1_transcriptIDs_UniProt_SIG$Protein.names, ignore.case = TRUE) 
-  grep("TRUE", oshv1_TRAIL_Sig ) #0
+  Bac_TRAIL_Sig <- grepl("trail",Bac_transcriptIDs_UniProt_SIG$Protein.names, ignore.case = TRUE) 
+  grep("TRUE", Bac_TRAIL_Sig ) #0
   #nonsig 
-  oshv1_TRAIL_non_Sig <- grepl("trail",oshv1_transcriptIDs_UniProt_non_Sig$Protein.names, ignore.case = TRUE) 
-  grep("TRUE", oshv1_TRAIL_non_Sig ) #0
+  Bac_TRAIL_non_Sig <- grepl("trail",Bac_transcriptIDs_UniProt_non_Sig$Protein.names, ignore.case = TRUE) 
+  grep("TRUE", Bac_TRAIL_non_Sig ) #0
+  Bac_TRAIL_non_Sig <-Bac_transcriptIDs_UniProt_non_Sig[4796,]
   
   #siglec (sialic acid binding immunoglobulin-type lectin)
   #sig 
-  oshv1_siglec_Sig <- grepl("siglec",oshv1_transcriptIDs_UniProt_SIG$Protein.names, ignore.case = TRUE) 
-  grep("TRUE", oshv1_siglec_Sig ) #0
-  oshv1_sialic_Sig <- grepl("sialic",oshv1_transcriptIDs_UniProt_SIG$Protein.names, ignore.case = TRUE) 
-  grep("TRUE", oshv1_sialic_Sig ) #0
+  Bac_siglec_Sig <- grepl("siglec",Bac_transcriptIDs_UniProt_SIG$Protein.names, ignore.case = TRUE) 
+  grep("TRUE",Bac_siglec_Sig ) #0
+  Bac_sialic_Sig <- grepl("sialic",Bac_transcriptIDs_UniProt_SIG$Protein.names, ignore.case = TRUE) 
+  grep("TRUE", Bac_sialic_Sig ) #0
+  Bac_immunoglobulin_lectin_Sig <- grepl("immunoglobulin", Bac_transcriptIDs_UniProt_SIG$Protein.names, ignore.case = TRUE) 
+  grep("TRUE", Bac_immunoglobulin_lectin_Sig ) #0
   
   #nonsig 
-  oshv1_siglec_non_Sig <- grepl("siglec",oshv1_transcriptIDs_UniProt_non_Sig$Protein.names, ignore.case = TRUE) 
-  grep("TRUE", oshv1_siglec_non_Sig ) #0
-  oshv1_sialic_non_Sig <- grepl("sialic",oshv1_transcriptIDs_UniProt_non_Sig$Protein.names, ignore.case = TRUE) 
-  grep("TRUE", oshv1_sialic_non_Sig ) #0
+  Bac_siglec_non_Sig <- grepl("siglec",Bac_transcriptIDs_UniProt_non_Sig$Protein.names, ignore.case = TRUE) 
+  grep("TRUE", Bac_siglec_non_Sig ) #0
+  Bac_sialic_non_Sig <- grepl("sialic",Bac_transcriptIDs_UniProt_non_Sig$Protein.names, ignore.case = TRUE) 
+  grep("TRUE", Bac_sialic_non_Sig ) #0
+  Bac_immunoglobulin_lectin_non_Sig <- grepl("immunoglobulin",Bac_transcriptIDs_UniProt_non_Sig$Protein.names, ignore.case = TRUE) 
+  grep("TRUE", Bac_immunoglobulin_lectin_non_Sig ) #991 4346 5217 6214
+  Bac_immunoglobulin_lectin_non_Sig_info <- Bac_transcriptIDs_UniProt_non_Sig[c(991, 4346, 5217, 6214),]
+  #NONE are siglec
   
   #IFNLP: , IFN-like protein 
   #sig 
-  oshv1_IFN_Sig <- grepl("IFN",oshv1_transcriptIDs_UniProt_SIG$Protein.names, ignore.case = TRUE) 
-  grep("TRUE", oshv1_IFN_Sig ) #0
-  oshv1_interferon_Sig <- grepl("interferon",oshv1_transcriptIDs_UniProt_SIG$Protein.names, ignore.case = TRUE) 
-  grep("TRUE", oshv1_interferon_Sig ) #0
-  oshv1_interferon_Sig_info <- oshv1_transcriptIDs_UniProt_SIG[c(135, 301, 314 ,315, 316),]
+  Bac_IFN_Sig <- grepl("IFN", Bac_transcriptIDs_UniProt_SIG$Protein.names, ignore.case = TRUE) 
+  grep("TRUE",  Bac_IFN_Sig ) #0
+  Bac_interferon_Sig <- grepl("interferon", Bac_transcriptIDs_UniProt_SIG$Protein.names, ignore.case = TRUE) 
+  grep("TRUE",  Bac_interferon_Sig ) #0
   #NONE ARE IFNLP
   #nonsig 
-  oshv1_interferon_non_Sig <- grepl("interferon",oshv1_transcriptIDs_UniProt_non_Sig$Protein.names, ignore.case = TRUE) 
-  grep("TRUE", oshv1_interferon_non_Sig ) #0
-  #80   100   821  1477  3912  4474  4755  6338  6934  7282  7551  7754  7756
-  #8579  9396  9397 10606 10939 10940
-  oshv1_interferon_non_Sig_info <- oshv1_transcriptIDs_UniProt_non_Sig[c( 80,   100 ,  821 , 1477,
-                                                                          3912,  4474,  4755 , 6338,  6934 , 7282,  7551,  7754,  7756,
-                                                                          8579,  9396 , 9397, 10606, 10939, 10940),]
+  Bac_interferon_non_Sig <- grepl("interferon", Bac_transcriptIDs_UniProt_non_Sig$Protein.names, ignore.case = TRUE) 
+  grep("TRUE",  Bac_interferon_non_Sig ) #59   72 1030 2162 2729 4383 5016 5017 5205 5353 5355 5936 6488 6489 7559
+  Bac_interferon_non_Sig_info <-  Bac_transcriptIDs_UniProt_non_Sig[c(59,72, 1030, 2162, 2729, 4383, 5016, 5017, 
+                                                                      5205, 5353, 5355, 5936, 6488, 6489, 7559),]
   #NONE are IFNLP
   
   #cgBTG 1
   #sig 
-  oshv1_BTG_Sig <- grepl("BTG",oshv1_transcriptIDs_UniProt_SIG$Protein.names, ignore.case = TRUE) 
-  grep("TRUE", oshv1_BTG_Sig ) #0
-  oshv1_Bcell_Sig <- grepl("translocation",oshv1_transcriptIDs_UniProt_SIG$Protein.names, ignore.case = TRUE) 
-  grep("TRUE", oshv1_Bcell_Sig ) #0
+  Bac_BTG_Sig <- grepl("BTG",Bac_transcriptIDs_UniProt_SIG$Protein.names, ignore.case = TRUE) 
+  grep("TRUE", Bac_BTG_Sig ) #0
+  Bac_Bcell_Sig <- grepl("translocation",Bac_transcriptIDs_UniProt_SIG$Protein.names, ignore.case = TRUE) 
+  grep("TRUE", Bac_Bcell_Sig ) #0
   #nonsig 
-  oshv1_BTG_non_Sig <- grepl("BTG",oshv1_transcriptIDs_UniProt_non_Sig$Protein.names, ignore.case = TRUE) 
-  grep("TRUE", oshv1_BTG_non_Sig ) #352 10837
-  oshv1_BTG_non_Sig_info <- oshv1_transcriptIDs_UniProt_non_Sig[c(352, 10837),]
-  oshv1_translocation_non_Sig <- grepl("translocation",oshv1_transcriptIDs_UniProt_non_Sig$Protein.names, ignore.case = TRUE) 
-  grep("TRUE", oshv1_translocation_non_Sig ) #6767 6830
-  oshv1_translocation_non_Sig_info <- oshv1_transcriptIDs_UniProt_non_Sig[c(6767, 6830),]
-  #none are correct! 
+  Bac_BTG_non_Sig <- grepl("BTG",Bac_transcriptIDs_UniProt_non_Sig$Protein.names, ignore.case = TRUE) 
+  grep("TRUE", Bac_BTG_non_Sig ) #234 7494
+  Bac_BTG_non_Sig_info <- Bac_transcriptIDs_UniProt_non_Sig[c(234, 7494),] #these two are correct!
+  Bac_translocation_non_Sig <- grepl("translocation",Bac_transcriptIDs_UniProt_non_Sig$Protein.names, ignore.case = TRUE) 
+  grep("TRUE", Bac_translocation_non_Sig ) #4667 4707
+  Bac_translocation_non_Sig_info <- Bac_transcriptIDs_UniProt_non_Sig[c(4667, 4707),]
 
+  
+  #p53 (can induce apoptosis, sokolova 2009)
+  #sig
+  Bac_p53_Sig <- grepl("p53", Bac_transcriptIDs_UniProt_SIG$Protein.names, ignore.case = TRUE)
+  grep("TRUE", Bac_p53_Sig ) #0
+  #non sig
+  Bac_p53_non_Sig <- grepl("p53", Bac_transcriptIDs_UniProt_non_Sig$Protein.names, ignore.case = TRUE)
+  grep("TRUE", Bac_p53_non_Sig ) # 4648
+  Bac_p53_non_Sig_info <- Bac_transcriptIDs_UniProt_non_Sig[4648,]
+  
+  #TLR
+  Bac_TLR_Sig <- grepl("Toll",Bac_transcriptIDs_UniProt_SIG$Protein.names, ignore.case = TRUE)
+  grep("TRUE", Bac_TLR_Sig)
+  #non
+  Bac_TLR_non_Sig <- grepl("Toll",Bac_transcriptIDs_UniProt_non_Sig$Protein.names, ignore.case = TRUE)
+  grep("TRUE", Bac_TLR_non_Sig)  # 220  729  969 1419 1501 3089 3121 3358 4755 5137 5289 5373 5641 5755 5756 5964 6140
+  #6935 7226
+  Bac_TLR_non_Sig_info <- Bac_transcriptIDs_UniProt_non_Sig[c(969, 3121, 3358,
+                                                               5137, 5373, 5641, 5755, 5756 , 6140,
+                                                               6935, 7226),]
+  
+  #cAMP - can induce apoptosis in C. gigas hemocytes (sokolova 2009)
+  #Sig
+  Bac_cAMP_Sig <- grepl("cAMP",Bac_transcriptIDs_UniProt_SIG$Protein.names, ignore.case = TRUE)
+  grep("TRUE", Bac_cAMP_Sig) #170 #not cAMP
+  Bac_cyclic_Sig <- grepl("cyclic",Bac_transcriptIDs_UniProt_SIG$Protein.names, ignore.case = TRUE)
+  grep("TRUE", Bac_cyclic_Sig) 
+  Bac_adenosine_Sig <- grepl("adenosine",Bac_transcriptIDs_UniProt_SIG$Protein.names, ignore.case = TRUE)
+  grep("TRUE", Bac_adenosine_Sig) #0
+  #non-Sig
+  Bac_cAMP_non_Sig <- grepl("cAMP",Bac_transcriptIDs_UniProt_non_Sig$Protein.names, ignore.case = TRUE)
+  grep("TRUE", Bac_cAMP_non_Sig) #3909 5568 6257
+  Bac_cAMP_non_Sig_info <- Bac_transcriptIDs_UniProt_non_Sig[c(3909, 5568, 6257),] #none are cAMP,
+    #all are cAMP responsive or cAMP-dependent
+  Bac_cyclic_non_Sig <- grepl("cyclic",Bac_transcriptIDs_UniProt_non_Sig$Protein.names, ignore.case = TRUE)
+  grep("TRUE", Bac_cyclic_non_Sig) #214  805 1372 1414 2282 5421 6890 #NONE
+  Bac_adenosine_non_Sig <- grepl("adenosine monophosphate",Bac_transcriptIDs_UniProt_non_Sig$Protein.names, ignore.case = TRUE)
+  grep("TRUE",Bac_adenosine_non_Sig) # 7558 
+  #NONE
+  
+  #Nitric oxide may be important in apoptosis regulation! (sokolova 2009)
+  #sig
+  Bac_nitric_Sig <- grepl("nitric",Bac_transcriptIDs_UniProt_SIG$Protein.names, ignore.case = TRUE)
+  grep("TRUE", Bac_nitric_Sig) #0
+  
+  #non sig
+  Bac_nitric_non_Sig <- grepl("nitric",Bac_transcriptIDs_UniProt_non_Sig$Protein.names, ignore.case = TRUE)
+  grep("TRUE", Bac_nitric_non_Sig)  #782 5876
+  Bac_nitric_non_sig_info <- Bac_transcriptIDs_UniProt_non_Sig[5876,] #NO synthase
+  
+  
+  ####PLOT APOPTOSIS GENE NUMBER ####
+  Bac_gene_number <- read.csv(file ="Metadata_Apoptosis_gene_number_Bac.csv", header=TRUE)
+  #remove empty rows
+  Bac_gene_number_nonzero <- Bac_gene_number %>% filter(Number !=0)
+  
+  Bac_gene_number_PLOT <- ggplot(Bac_gene_number_nonzero, aes(x=Gene_Name, y=Number, fill=Significance)) + 
+    geom_bar(stat="identity", position="dodge") + 
+    scale_color_discrete(name="Significance",breaks=c(1,2), labels=c("Signifant", "Non-significant"))+
+    theme(axis.text.x = element_text(angle = 75, hjust = 1)) + 
+    scale_y_continuous(name ="Number of Genes", breaks = scales::pretty_breaks(n = 10)) + 
+    ggtitle("Number of Significant and Non-Significant Expressed Apoptosis Genes during Bacterial Challenge") + 
+    theme(plot.title = element_text(size=10)) + theme(plot.title = element_text(hjust = 0.5)) 
+  
+  
+  Bac_gene_number_PLOT2 <- Bac_gene_number_PLOT  + 
+    theme(axis.line = element_line(colour = "black", size = 0.5, linetype = "solid")) +
+    scale_x_discrete(name="Gene Name", limits=c("Bcl2","BAG","Cyt-c","TLR",
+                                                "TRAF","TNFR","TRAIL","cgBTG","Caspase",
+                                                "PCDP","DEDD", "NO", "p53"), 
+                     labels=c("Bcl2"="Bcl2","BAG"="BAG","Cyt-c"="Cyt-c","TLR"="TLR",
+                              "TRAF"="TRAF","TNFR"="TNFR","TRAIL"="TRAIL","cgBTG"="Cg-BTG","Caspase"="Caspase",
+                              "PCDP"="PCDP","DEDD"="DEDD", "NO"="NO", "p53"="p53"))
+  
 #references: 
 #https://github.com/sr320/LabDocs/tree/master/code/DESeq
 #StringTie manual : http://ccb.jhu.edu/software/stringtie/index.shtml?t=manual
