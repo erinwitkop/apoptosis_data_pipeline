@@ -18,6 +18,6 @@ for i in ${array2[@]}; do
 	echo "$(echo ${i}|sed "s/\..*//") $F/${i}" >> C_vir_sample_list.txt
 done
 
-python prepDE.py -i C_vir_sample_list.txt
+#python prepDE.py -i C_vir_sample_list.txt
 			
 echo "STOP" $(date)
