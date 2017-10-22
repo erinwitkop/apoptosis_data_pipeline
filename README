@@ -1,5 +1,6 @@
 Pipeline to perform differential transcript analysis with transcriptomes
 By: Erin M. Roberts
+8/22/17
 
 This pipeline includes scripts for the following processes for both C. gigas and C. virginica transcriptomes:
 1. Adapter trimming, quality trimming using BBTools
