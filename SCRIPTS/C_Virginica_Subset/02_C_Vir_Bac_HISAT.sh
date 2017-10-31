@@ -12,19 +12,19 @@ echo "START" $(date)
 
 module load HISAT2/2.0.4-foss-2016b   
 module load SAMtools/1.3.1-foss-2016b
-
-#HISAT2 code
-
-#Indexing a reference genome and no annotation file (allowing for novel transcript discovery)
-	#create new directory for the HISAT index called genome, and put the genome inside it
-	# copy all reads files into this directory as well to ensure easy access by commands
 cd /data3/marine_diseases_lab/erin/Bio_project_SRA/pipeline_files/C_Vir_subset
 F=/data3/marine_diseases_lab/erin/Bio_project_SRA/pipeline_files/C_Vir_subset
 
-hisat2-build -f $F/cvir.fa cvir
+
+#HISAT2 code
+#Indexing a reference genome and no annotation file (allowing for novel transcript discovery)
+	#create new directory for the HISAT index called genome, and put the genome inside it
+	# copy all reads files into this directory as well to ensure easy access by commands
+
+#Build HISAT index with cvir_edited ( this file has extra spaces in header removed so that genome and annotation don't conflict)
+hisat2-build -f $F/cvir_edited.fa cvir_edited
 
 # -f indicates that the reference input files are FASTA files
-
 #Stay in the directory created in the previous step
 
 #Aligning paired end reads
