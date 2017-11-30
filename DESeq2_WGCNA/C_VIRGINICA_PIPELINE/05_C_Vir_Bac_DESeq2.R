@@ -120,73 +120,70 @@ as.data.frame( colData(ddsRODTran) )
 ddsRODTran<- DESeq(ddsRODTran, betaPrior = FALSE) #for designs with interactions, recommends setting betaPrior=FALSE
 
 #Inspect results
-#extract contrasts between control and treatment values
-resRODTran<- results(ddsRODTran, contrast = c("treatment", "control", "treatment")) 
+#extract contrasts between control and treatment values for interaction
+resRODTran<- results(ddsRODTran)
 head(resRODTran)
-summary(resRODTran)
 
-#Order by Log2FC
-head( resRODTran[ order( resRODTran$log2FoldChange ), ] ) #head for strongest downregulation
-tail( resRODTran[ order( resRODTran$log2FoldChange ), ] ) #tail for strongest up regulation
-summary(resRODTran)
-sum(resRODTran$padj < 0.1, na.rm=TRUE) #4410
-#Change alpha setting in DESeq Results
-resRODTran_05 <- results(ddsRODTran,alpha=0.05)
-summary(resRODTran_05)
-sum(resRODTran_05$padj < 0.05, na.rm=TRUE) #2117
+# this last line is all that is needed because the interaction term is last
+  # in the design formula (said my Michael Love)
+#Small p-values for the interaction term indicate that the log fold change
+  # due to treatment is significantly different for the two conditions.
+
+#summary is just printing a table for you, you need to tell it what threshold you want
+help("summary",package="DESeq2")
+alpha <- 0.05 #set alpha to 0.05, this will control FDR
+summary(resRODTran) #default FDR is still 0.1
+summary(resRODTran, alpha) #no showing all genes with FRD < 0.05
+
+#To get the significant genes
+#The independent filtering in results() has an argument 'alpha'
+#which is used to optimize a cutoff on mean normalized count
+#to maximize the number of genes with padj < alpha
+resRODTran_05 <- results(ddsRODTran, alpha= alpha) #set FDR to 0.05 now
+resRODTran_05_Sig <- resRODTran[which(resRODTran$padj < alpha),]
+summary(resRODTran_05) #this is all the genes
+summary(resRODTran_05_Sig) #this is the significant ones!
+sum(resRODTran_05$padj < 0.05, na.rm=TRUE) #4121 tells you how many genes have expected FDR ≤ 0.05
+sum(resRODTran_05_Sig$padj < 0.05, na.rm=TRUE) #4102, differ by 19 genes only 
+sig="significant"
+resRODTran_05_Sig$Significance <- sig
+resRODTran_05_nonSig <- resRODTran[which(resRODTran$padj > alpha),] #create list of nonsig
+nonsig <- "non-significant"
+resRODTran_05_nonSig$Significance <- nonsig
+
+#add ID column with the rownames so a merge can happen later
+resRODTran_05_Sig["ID"] <- rownames(resRODTran_05_Sig) #add a new column with the rownames for match
+resRODTran_05_nonSig["ID"] <- rownames(resRODTran_05_nonSig)
+resRODTran_05["ID"] <- rownames(resRODTran_05)
 
 #metadata on meaning of the columns
-mcols(resRODTran_05, use.names = TRUE)
-#Get more detailed description
-#mcols(resRODTran_05_df)$description
+mcols(resRODTran_05_Sig, use.names = TRUE)
+mcols(resRODTran_05_Sig)$description
 #shows treatment vs. control with baseMean as the mean of normalized counts for all samples
 
-####p-value correction for all genes in resoshv1Tran ####
+#Order by Log2FC
+head( resRODTran_05[ order( resRODTran_05$log2FoldChange ), ] ) #head for strongest downregulation
+tail( resRODTran_05[ order( resRODTran_05$log2FoldChange ), ] ) #tail for strongest up regulation
+
+####p-value correction for both sets of results ####
 #First Visualize histograms
 #histogram of P- values to visualize any "hills" or "U shape"
 # hill means variance of the null distribution too high, U shape means variance assumed too low
-hist(resRODTran_05$pvalue, breaks = 20, col = "grey") #hill
+hist(resRODTran_05$pvalue, breaks= 20, col = "grey")
+hist(resRODTran_05_Sig$pvalue, breaks = 20, col = "grey") #hill
 
-#remove filtered out genes by independent filtering, they have NA adj. pvals
-resRODTran_05_df <- resRODTran_05[ !is.na(resRODTran_05$padj), ]
-
-#remove genes with NA pvals (outliers)
-resRODTran_05_df <- resRODTran_05_df[ !is.na(resRODTran_05_df$pvalue), ]
-
-#remove adjsuted pvalues, since we add the fdrtool results later on (based on the correct p-values)
-resRODTran_05_df <- resRODTran_05_df[, -which(names(resRODTran_05_df) == "padj")]
-
-#use z-scores as input to FDRtool to re-estimate the p-value
-FDR.resRODTran_05_df <- fdrtool(resRODTran_05_df$stat, statistic= "normal", plot = T)
-
-#add values to the results data frame, also ad new BH- adjusted p-values
-resRODTran_05_df[,"padj"] <- p.adjust(FDR.resRODTran_05_df$pval, method = "BH")
-
-#replot corrected p-values 
-hist(FDR.resRODTran_05_df$pval, col = "royalblue4",
-     main = "Correct null model ROD Transcript Count", xlab = "CORRECTED p-values")
-
-#Check how many genes have BH adjusted p values of less than 0.05 after P-value correction?
-sum( resRODTran_05_df$padj < 0.05, na.rm=TRUE ) #3138
-
-#Subset the results table to the differentially expressed genes under FDR 0.1, order the Log2FC table first by strongest down regulation
-resRODTran_05_dfSig <- resRODTran_05_df[ which(resRODTran_05_df$padj < 0.05 ), ]
-head( resRODTran_05_dfSig[ order( resRODTran_05_dfSig$log2FoldChange ), ] ) #head for strongest downregulation
-tail( resRODTran_05_dfSig[ order( resRODTran_05_dfSig$log2FoldChange ), ] ) #tail for strongest up regulation
-summary(resRODTran_05_dfSig)
-resRODTran_05_df_non_Sig <- resRODTran_05_df[ which(resRODTran_05_df$padj > 0.05 ), ]
-summary(resRODTran_05_df_non_Sig)
+#looks good, don't need to do the correction
 
 #Visualize Results with Diagnostic Plots#
 #MA plot, useful overview for experiment with two-group comparison. Plots log2FC over mean of normalized counts
 #genes with adjusted p value 
-plotMA(resRODTran_05_dfSig)
-plotMA(resRODTran_05_df_non_Sig)
+plotMA(resRODTran_05)
+plotMA(resRODTran_05_Sig)
 
 #Export Results to CSV
-write.csv( as.data.frame(resRODTran_05_df), file="ROD_resRODTran_05_df.csv")
-write.csv( as.data.frame(resRODTran_05_dfSig), file="ROD_resRODTran_05_dfSig.csv")
-write.csv( as.data.frame(resRODTran_05_df_non_Sig), file = "ROD_resRODTran_05_df_non_Sig.csv")
+write.csv( as.data.frame(resRODTran_05), file="ROD_resRODTran_05.csv")
+write.csv( as.data.frame(resRODTran_05_Sig), file="ROD_resRODTran_05_Sig.csv")
+write.csv( as.data.frame(resRODTran_05_nonSig), file = "ROD_resRODTran_05_nonSig.csv")
 
 ####Match lines for only those that have a "LOC" in the C_vir_stringtie_transcripts_rna_LOC_separated$transcript_id ####
 # %in% returns true for every value in the first argument that matches a value in the second argument.
@@ -196,25 +193,25 @@ C_vir_stringtie_transcripts_rna_LOC_separated_clean2 <- read.csv(file="C_vir_str
 
 #separate the transcript id column with the semicolon
 C_vir_stringtie_transcripts_rna_LOC_separated_clean_transcript_id <- C_vir_stringtie_transcripts_rna_LOC_separated_clean2 %>% separate(transcript_id, c("transcript_id", "ID"), ";", extra="merge")
-#add ID column with the rownames so a merge can happen later
-resRODTran_05_dfSig["ID"] <- rownames(resRODTran_05_dfSig) #add a new column with the rownames for match
 #check duplicate rownames
-ROD_dupliate_names<- duplicated(resRODTran_05_dfSig$rownames)
+ROD_dupliate_names<- duplicated(resRODTran_05_Sig$rownames)
 grep("TRUE", ROD_dupliate_names) #0 duplicates
 #must comvert to data frame
-resRODTran_05_dfSig_df <- data.frame(resRODTran_05_dfSig)
+resRODTran_05_Sig_df <- data.frame(resRODTran_05_Sig)
 #Merge columns together based on match in the "ID" column 
-resRODTran_05_dfSig_FULL <- merge(resRODTran_05_dfSig_df, C_vir_stringtie_transcripts_rna_LOC_separated_clean_transcript_id[,c("ID", "gene_name")], by="ID")
-nrow(resRODTran_05_dfSig_FULL) #2031
+resRODTran_05_Sig_df_FULL <- merge(resRODTran_05_Sig_df, C_vir_stringtie_transcripts_rna_LOC_separated_clean_transcript_id[,c("ID", "gene_name")], by="ID")
+nrow(resRODTran_05_Sig_df_FULL) #1854
 #put LOC info in new column
-resRODTran_05_dfSig_FULL <- resRODTran_05_dfSig_FULL %>% separate(gene_name, c("gene_name", "gene_ID"), ";")
+resRODTran_05_Sig_df_FULL <- resRODTran_05_Sig_df_FULL %>% separate(gene_name, c("gene_name", "gene_ID"), ";")
 
-#Repeat for significant genes
-resRODTran_05_df_non_Sig["ID"] <- rownames(resRODTran_05_df_non_Sig) 
+#Repeat for non significant genes
+resRODTran_05_nonSig["ID"] <- rownames(resRODTran_05_nonSig) 
 resRODTran_05_df_non_Sig_df <- data.frame(resRODTran_05_df_non_Sig)
 resRODTran_05_df_non_Sig_FULL <- merge(resRODTran_05_df_non_Sig_df, C_vir_stringtie_transcripts_rna_LOC_separated_clean_transcript_id[,c("ID", "gene_name")], by="ID")
 #put LOC info in new column
 resRODTran_05_df_non_Sig_FULL <- resRODTran_05_df_non_Sig_FULL %>% separate(gene_name, c("gene_name", "gene_ID"), ";")
+
+####STOPPED EDITING HERE####
 
 ####Lookup LOC values using Batch Entrez ####
 #dfSig
@@ -859,7 +856,7 @@ RIF_Sig_APOPTOSIS_GENE_DATA_PLOT2 <- RIF_Sig_APOPTOSIS_GENE_DATA_PLOT + geom_hli
                             "LOC111124891"="caspase-7-like", "LOC111130912"="caspase-3-like", "LOC111110045"="toll-like receptor 6", "LOC111112158"="toll-like receptor 6"))
 
 
-####STOPPED EDITING HERE ####
+
 ####Extract GIMAP and IAP genes from NON significant genes, for comparison ####
 #Expressed IAPs non sig
 #use grepl to find text strings 
