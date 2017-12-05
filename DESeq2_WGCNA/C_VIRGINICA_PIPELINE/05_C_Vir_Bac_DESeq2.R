@@ -255,7 +255,7 @@ resRODTran_05_FULL_ENTREZGENE_DATA <- rbind(resRODTran_05_Sig_ENTREZGENE_DATA,re
 # full data frame
 #make the description column a character
 resRODTran_05_FULL_ENTREZGENE_DATA$description <- as.character(resRODTran_05_FULL_ENTREZGENE_DATA$description)
-
+write.csv(resRODTran_05_FULL_ENTREZGENE_DATA, file="resRODTran_05_FULL_ENTREZGENE_DATA.csv")
 # Sample vector of keywords or phrases
   #Search terms come from the strings that found hits in the C_virginica genome annotation view in NCBI:
   #all terms with no hits in the annotation on NCBI were INCLUDED IN THIS LIST..just in case, and all aliases searched for
@@ -681,9 +681,142 @@ label=c("protein kinase C iota type-like"="PKC iota type-like","G-protein couple
 "GTPase IMAP family member 4-like (2)"="GIMAP4-like", "GTPase IMAP family member 4-like (3)"="GIMAP4-like", "GTPase IMAP family member 4-like (4)"="GIMAP4-like",
 "GTPase IMAP family member 7-like (1)"="GIMAP7-like","GTPase IMAP family member 7-like (2)"="GIMAP7-like"))
 
+####all ROD apoptosis genes p <0.1 #### 
+resRODTran_05_FULL_ENTREZGENE_DATA_APOPTOSIS_ALL_TERMS_COMBINED_01 <- resRODTran_05_FULL_ENTREZGENE_DATA_APOPTOSIS_ALL_TERMS_COMBINED[which(resRODTran_05_FULL_ENTREZGENE_DATA_APOPTOSIS_ALL_TERMS_COMBINED$padj < 0.1),]
+write.csv(resRODTran_05_FULL_ENTREZGENE_DATA_APOPTOSIS_ALL_TERMS_COMBINED_01, file="resRODTran_05_FULL_ENTREZGENE_DATA_APOPTOSIS_ALL_TERMS_COMBINED_01.csv")
+#included numbers in excel file for duplicates
+resRODTran_05_FULL_ENTREZGENE_DATA_APOPTOSIS_ALL_TERMS_COMBINED_01_done <- read.csv("resRODTran_01_path.csv", header=TRUE)
+
+# p <0.1 = *, p <0.05= **, p< 10^-5 ***
+label.ROD.df <- data.frame(description= c("G-protein coupled receptor 161-like", "caspase-8-like",
+                                          "baculoviral IAP repeat-containing protein 7-like", "toll-like receptor 6 (1)",
+                                          "toll-like receptor 1 (2)", "toll-like receptor 6 (2)",
+                                          "GTPase IMAP family member 4-like (1)", "GTPase IMAP family member 4-like (3)"), log2FoldChange=c(-22.5, -12.0,-3.0,-4.0,-5.0, -3.0,-5.5, 4.0 ))
+label.ROD.df2 <- data.frame(description= c("caspase activity and apoptosis inhibitor 1-like",
+                                           "interferon-induced protein 44-like (3)",
+                                           "receptor-interacting serine/threonine-protein kinase 4-like (2)",
+                                           "caspase-2-like",
+                                           "TNF receptor-associated factor family protein DDB_G0272098-like",
+                                           "GTPase IMAP family member 4-like (4)",
+                                           "receptor-interacting serine/threonine-protein kinase 4-like (1)",
+                                           "mitogen-activated protein kinase kinase kinase 7-like",
+                                           "GTPase IMAP family member 7-like (1)",
+                                           "toll-like receptor 10",
+                                           "toll-like receptor 4 (1)",
+                                           "protein kinase C iota type-like",
+                                           "toll-like receptor 4 (2)",
+                                           "interferon-induced protein 44-like (1)",
+                                           "toll-like receptor 13",
+                                           "GTPase IMAP family member 4-like (2)",
+                                           "GTPase IMAP family member 7-like (2)",
+                                           "toll-like receptor 1 (1)",
+                                           "interferon-induced protein 44-like (2)",
+                                           "ceramide synthase 2-like"), log2FoldChange=c(-4.5,-7.5,-6.0,-2.0, -6.5,-23.5,-4.5,5.0,-6.0,-4.5, 
+                                                                                         21.0,21.0,-2.5,-3.0,-5.5, -8.0,-6.5, -6.0,-4.0,4.0))
+label.ROD.df3 <- data.frame(description= c("caspase-7-like (2)",
+                                           "CD151 antigen-like",
+                                           "GTPase IMAP family member 4-like (5)",
+                                           "caspase-7-like (1)",
+                                           "caspase-3-like",
+                                           "putative inhibitor of apoptosis",
+                                           "receptor-interacting serine/threonine-protein kinase 4-like (3)"), log2FoldChange=c(3.5,5.5,3.5,7.5,2.5,-8.0,-8.0))
+
+ROD_Sig_PLOT_01 <- ggplot(resRODTran_05_FULL_ENTREZGENE_DATA_APOPTOSIS_ALL_TERMS_COMBINED_01_done) + 
+  geom_col(aes(x=description, y=log2FoldChange, fill=as.factor(Pathway))) + 
+  theme(axis.text.x = element_text(angle = 75, hjust = 1)) + geom_hline(yintercept=0.0) +
+  scale_y_continuous(name ="log2 Fold Change", breaks = scales::pretty_breaks(n = 20)) + 
+  ggtitle("Significantly Differentially Expressed Apoptosis Genes in C. virginica after ROD Challenge (p<0.1)") + 
+  theme(plot.title = element_text(size=10)) + theme(plot.title = element_text(hjust = 0.5))
+
+ROD_Sig_PLOT2_01 <- ROD_Sig_PLOT_01 + geom_text(data=label.ROD.df, aes(x=description, y=log2FoldChange), label = c("***")) +
+  geom_text(data=label.ROD.df2, aes(x=description, y=log2FoldChange), label = c("**")) +
+  geom_text(data=label.ROD.df3, aes(x=description, y=log2FoldChange), label = c("*")) +
+  theme(axis.line = element_line(colour = "black", size = 0.5, linetype = "solid")) +
+  scale_x_discrete(name="Description", limits=c("caspase-7-like (2)",
+                                                "caspase-7-like (1)",
+                                                "caspase-3-like",
+                                                "caspase-8-like",
+                                                "caspase-2-like",
+                                                "G-protein coupled receptor 161-like",
+                                                "receptor-interacting serine/threonine-protein kinase 4-like (2)",
+                                                "receptor-interacting serine/threonine-protein kinase 4-like (1)",
+                                                "receptor-interacting serine/threonine-protein kinase 4-like (3)",
+                                                "TNF receptor-associated factor family protein DDB_G0272098-like",
+                                                "protein kinase C iota type-like",
+                                                "baculoviral IAP repeat-containing protein 7-like",
+                                                "toll-like receptor 1 (2)",
+                                                "toll-like receptor 1 (1)",
+                                                "toll-like receptor 4 (1)",
+                                                "toll-like receptor 4 (2)",
+                                                "toll-like receptor 6 (1)",
+                                                "toll-like receptor 6 (2)",
+                                                "toll-like receptor 10",
+                                                "toll-like receptor 13",
+                                                "GTPase IMAP family member 4-like (1)",
+                                                "GTPase IMAP family member 4-like (4)",
+                                                "GTPase IMAP family member 4-like (3)",
+                                                "GTPase IMAP family member 4-like (2)",
+                                                "GTPase IMAP family member 4-like (5)",
+                                                "GTPase IMAP family member 7-like (2)",
+                                                "GTPase IMAP family member 7-like (1)",
+                                                "caspase activity and apoptosis inhibitor 1-like",
+                                                "interferon-induced protein 44-like (3)",
+                                                "interferon-induced protein 44-like (1)",
+                                                "interferon-induced protein 44-like (2)",
+                                                "mitogen-activated protein kinase kinase kinase 7-like",
+                                                "ceramide synthase 2-like",
+                                                "CD151 antigen-like",
+                                                "putative inhibitor of apoptosis"), 
+                   label=c("caspase-7-like (2)"="caspase-7-like",
+                           "caspase-7-like (1)"="caspase-7-like",
+                           "caspase-3-like"="caspase-3-like",
+                           "caspase-8-like"="caspase-8-like",
+                           "caspase-2-like"="caspase-2-like",
+                           "G-protein coupled receptor 161-like"="GPCR 161-like",
+                           "receptor-interacting serine/threonine-protein kinase 4-like (2)"="RIPK 4-like",
+                           "receptor-interacting serine/threonine-protein kinase 4-like (1)"="RIPK 4-like",
+                           "receptor-interacting serine/threonine-protein kinase 4-like (3)"="RIPK 4-like",
+                           "TNF receptor-associated factor family protein DDB_G0272098-like"="TRAF DDB_G0272098-like",
+                           "protein kinase C iota type-like"="PKC iota type-like",
+                           "baculoviral IAP repeat-containing protein 7-like"="BIR IAP repeat-containing 7-like",
+                           "toll-like receptor 1 (2)"="TLR1",
+                           "toll-like receptor 1 (1)"="TLR1",
+                           "toll-like receptor 4 (1)"="TLR4",
+                           "toll-like receptor 4 (2)"="TLR4",
+                           "toll-like receptor 6 (1)"="TLR6",
+                           "toll-like receptor 6 (2)"="TLR6",
+                           "toll-like receptor 10"="TLR10",
+                           "toll-like receptor 13"="TLR13",
+                           "GTPase IMAP family member 4-like (1)"="GIMAP 4-like",
+                           "GTPase IMAP family member 4-like (4)"="GIMAP 4-like",
+                           "GTPase IMAP family member 4-like (3)"="GIMAP 4-like",
+                           "GTPase IMAP family member 4-like (2)"="GIMAP 4-like",
+                           "GTPase IMAP family member 4-like (5)"="GIMAP 4-like",
+                           "GTPase IMAP family member 7-like (2)"="GIMAP 7-like",
+                           "GTPase IMAP family member 7-like (1)"="GIMAP 7-like",
+                           "caspase activity and apoptosis inhibitor 1-like"="CAAP 1-like",
+                           "interferon-induced protein 44-like (3)"="IFI44-like",
+                           "interferon-induced protein 44-like (1)"="IFI44-like",
+                           "interferon-induced protein 44-like (2)"="IFI44-like",
+                           "mitogen-activated protein kinase kinase kinase 7-like"="MEKK/MAPK 7-like",
+                           "ceramide synthase 2-like"="ceramide synthase 2-like",
+                           "CD151 antigen-like"= "CD151 antigen-like",
+                           "putative inhibitor of apoptosis"="putative IAP"))
+
+####ROD GIMAP and IAP transcripts ####
+
+#### ROD GO ontology Analysis #####
+#C_Vir_ROD_RIF_GO_analysis
+
+#Visualize in REVIGO
+http://revigo.irb.hr
+
+####ROD WGCNA ####
+#to be completed in an additional/separate script so this one doesn't get too crazy long
+
+
 
 #### RI PROBIOTIC CHALLENGED Differential Gene Expression Analysis ####
-
 #Subset Data for RIF Transcriptomes 
 #Extract columns you want from the C_vir_TranscriptCountData, based on which column the correct SRA data
 
@@ -1227,10 +1360,10 @@ resRIFTran_05_FULL_ENTREZGENE_DATA_APOPTOSIS_ALL_TERMS_COMBINED <- rbind(RIF_IP3
                                                                          RIF_AIF, RIF_bcl, RIF_BAX, RIF_BAG, RIF_ceramide, RIF_MEKK_MAPK, RIF_endoG,
                                                                          RIF_PI3, RIF_p35, RIF_CD151, RIF_BTG2, RIF_IAP, RIF_IAP2, RIF_API, RIF_DIAP,
                                                                          RIF_PCD, RIF_PAWR, RIF_TLR, RIF_IFI44, RIF_MyD88, RIF_GIMAP)
-
+write.csv(resRIFTran_05_FULL_ENTREZGENE_DATA_APOPTOSIS_ALL_TERMS_COMBINED, file="resRIFTran_05_FULL_ENTREZGENE_DATA_APOPTOSIS_ALL_TERMS_COMBINED.csv")
 #subset only those that are significant
-resRIFTran_05_FULL_ENTREZGENE_DATA_APOPTOSIS_ALL_TERMS_COMBINED_significant <- resRIFTran_05_FULL_ENTREZGENE_DATA_APOPTOSIS_ALL_TERMS_COMBINED %>%
-  filter(Significance == "significant")
+resRIFTran_05_FULL_ENTREZGENE_DATA_APOPTOSIS_ALL_TERMS_COMBINED_significant <- resRIFTran_05_FULL_ENTREZGENE_DATA_APOPTOSIS_ALL_TERMS_COMBINED[which(resRIFTran_05_FULL_ENTREZGENE_DATA_APOPTOSIS_ALL_TERMS_COMBINED$padj < 0.05),]
+
 #add column with apoptosis pathwway and label genes with same name with extra (#)
 write.csv(resRIFTran_05_FULL_ENTREZGENE_DATA_APOPTOSIS_ALL_TERMS_COMBINED_significant, file="resRIFTran_05_FULL_ENTREZGENE_DATA_APOPTOSIS_ALL_TERMS_COMBINED_significant.csv")
 resRIFTran_05_FULL_ENTREZGENE_DATA_APOPTOSIS_ALL_TERMS_COMBINED_significant_path <- read.csv(file="resRIFTran_05_FULL_ENTREZGENE_DATA_APOPTOSIS_ALL_TERMS_COMBINED_significant.csv", header=TRUE)
@@ -1262,6 +1395,51 @@ RIF_Sig_PLOT2 <- RIF_Sig_PLOT + geom_text(data=label.RIF.df, aes(x=description, 
                            "mitogen-activated protein kinase kinase kinase 7-like"="MEKK/MAPK 7-like",
                            "GTPase IMAP family member 4-like"="GIMAP4-like"))
 
+
+####Add to graph those with p value of < 0.1 rather than 0.05 ####
+
+resRIFTran_05_FULL_ENTREZGENE_DATA_APOPTOSIS_ALL_TERMS_COMBINED_01 <- resRIFTran_05_FULL_ENTREZGENE_DATA_APOPTOSIS_ALL_TERMS_COMBINED[which(resRIFTran_05_FULL_ENTREZGENE_DATA_APOPTOSIS_ALL_TERMS_COMBINED$padj < 0.1),]
+write.csv(resRIFTran_05_FULL_ENTREZGENE_DATA_APOPTOSIS_ALL_TERMS_COMBINED_01, file="resRIFTran_05_FULL_ENTREZGENE_DATA_APOPTOSIS_ALL_TERMS_COMBINED_01.csv")
+resRIFTran_05_FULL_ENTREZGENE_DATA_APOPTOSIS_ALL_TERMS_COMBINED_01_path <- read.csv("resRIFTran_05_FULL_ENTREZGENE_DATA_APOPTOSIS_ALL_TERMS_COMBINED_01.csv", header=TRUE)
+
+#Significance level of <=0.1 = *, less than 0.05= **, less than 10^-5= ***
+label.RIF.df <- data.frame(description= c("mitogen-activated protein kinase kinase kinase 7-like",
+                                          "GTPase IMAP family member 4-like"), log2FoldChange=c(-13.5, 11.0)) #less than 10^-5
+label.RIF.df2 <- data.frame(description=c("apoptosis regulator BAX-like", "toll-like receptor 6"), log2FoldChange=c(2.5, 3.5)) #less than 0.1
+label.RIF.df3 <- data.frame(description=c("leucine-rich repeat-containing G-protein coupled receptor 4-like",
+                                          "fatty acid synthase-like",
+                                          "receptor-interacting serine/threonine-protein kinase 4-like"), log2FoldChange=c(7.5, 3.0, 6.0)) #less than 0.05
+
+RIF_Sig_PLOT_01 <- ggplot(resRIFTran_05_FULL_ENTREZGENE_DATA_APOPTOSIS_ALL_TERMS_COMBINED_01_path) + 
+  geom_col(aes(x=description, y=log2FoldChange, fill=Pathway)) + 
+  theme(axis.text.x = element_text(angle = 75, hjust = 1)) + geom_hline(yintercept=0.0) +
+  scale_y_continuous(name ="log2 Fold Change", breaks = scales::pretty_breaks(n = 20)) + 
+  ggtitle("Significantly Differentially Expressed Apoptosis Genes in C. virginica after RIF Challenge (p < 0.1)") + 
+  theme(plot.title = element_text(size=10)) + theme(plot.title = element_text(hjust = 0.5))
+
+RIF_Sig_PLOT2_01<- RIF_Sig_PLOT_01 + geom_text(data=label.RIF.df, aes(x=description, y=log2FoldChange), label = c("***")) +
+  geom_text(data=label.RIF.df2, aes(x=description, y=log2FoldChange), label = c("*")) +
+  geom_text(data=label.RIF.df3, aes(x=description, y=log2FoldChange), label = c("**")) +
+  theme(axis.line = element_line(colour = "black", size = 0.5, linetype = "solid")) +
+  scale_x_discrete(name="Description", limits=c("leucine-rich repeat-containing G-protein coupled receptor 4-like",
+                                                "receptor-interacting serine/threonine-protein kinase 4-like",
+                                                "fatty acid synthase-like",
+                                                "apoptosis regulator BAX-like",
+                                                "mitogen-activated protein kinase kinase kinase 7-like",
+                                                "toll-like receptor 6",
+                                                "GTPase IMAP family member 4-like"), 
+                   label=c("leucine-rich repeat-containing G-protein coupled receptor 4-like"="GPCR 4-like",
+                           "receptor-interacting serine/threonine-protein kinase 4-like"="RIPK 4-like",
+                           "fatty acid synthase-like"="Fas-like",
+                           "apoptosis regulator BAX-like"="BAX-like",
+                           "mitogen-activated protein kinase kinase kinase 7-like"="MEKK/MAPK 7-like",
+                           "toll-like receptor 6"="TLR6",
+                           "GTPase IMAP family member 4-like"="GIMAP4-like"))
+
+
+#### Side by side graphing of the shared significantly differentially expressed apoptosis genes from both ####
+
+#### Compare the number of transcripts of each one of interest
 
 
 #references: 
