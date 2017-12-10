@@ -24,6 +24,7 @@ library(reshape2)
 library(ggplot2)
 #install.packages("tm")
 library(tm)
+library(stringr)
 # Construct Bac_Viral_PHENO_DATA.csv that contains SRA run information, such as which contrast, tissue, etc.
 
 ####Match "rna#" value with the Gene LOC name in the stringtie file
@@ -268,13 +269,13 @@ Rac1 <- resoshvTran_05_df_FULL[grepl("ras", ignore.case = TRUE, resoshvTran_05_d
 cdc42 <- resoshvTran_05_df_FULL[grepl("cdc42", ignore.case = TRUE, resoshvTran_05_df_FULL$Protein.names) &
                                               !grepl("activated", ignore.case=TRUE,resoshvTran_05_df_FULL$Protein.names) &
                                               !grepl("RICS",ignore.case= TRUE,resoshvTran_05_df_FULL$Protein.names),]
-#none
 PKCiota <- resoshvTran_05_df_FULL[grepl("protein",ignore.case= TRUE, resoshvTran_05_df_FULL$Protein.names) & 
-                                                grepl("kinase",ignore.case= TRUE, resoshvTran_05_df_FULL$Protein.names) & grepl("iota", ignore.case= TRUE,resoshvTran_05_df_FULL$Protein.names),]
+                                                grepl("kinase",ignore.case= TRUE, resoshvTran_05_df_FULL$Protein.names) &
+                                                grepl("EC 2.7.11.13", ignore.case = TRUE, resoshvTran_05_df_FULL$Protein.names),]
 #none
 PKCdelta <- resoshvTran_05_df_FULL[grepl("protein", resoshvTran_05_df_FULL$Protein.names) & 
-                                                 grepl("kinase",ignore.case= TRUE, resoshvTran_05_df_FULL$Protein.names) & grepl("delta", ignore.case= TRUE,resoshvTran_05_df_FULL$Protein.names) &
-                                                 !grepl("calmodulin", ignore.case= TRUE,resoshvTran_05_df_FULL$Protein.names) & !grepl("ribosomal",ignore.case= TRUE, resoshvTran_05_df_FULL$Protein.names) ,]
+                                                 grepl("kinase",ignore.case= TRUE, resoshvTran_05_df_FULL$Protein.names) & grepl("delta", ignore.case= TRUE,resoshvTran_05_df_FULL$Protein.names) 
+                                   ,]
 
 IkB <- resoshvTran_05_df_FULL[grepl("kappa", ignore.case= TRUE, resoshvTran_05_df_FULL$Protein.names) & 
                                             grepl( "inhibitor", ignore.case = TRUE, resoshvTran_05_df_FULL$Protein.names) & grepl("nuclear", ignore.case = TRUE, resoshvTran_05_df_FULL$Protein.names),]
@@ -635,7 +636,7 @@ GIMAP <- resoshvTran_05_df_FULL[grepl("GTPase", ignore.case = TRUE, resoshvTran_
 resoshvTran_05_FULL_APOPTOSIS_ALL_TERMS_COMBINED <- rbind(IP3R, Rho, Rac1, cdc42, IkB, GPCRsevenpass, GPCR, RIP, PKA, AC, CREB, Fas,
                                                                          TNF, TNFL,TNFR, caspase, TRAF, NuMa, BI, cytoc, AIF, myc, bcl, bclw, 
                                                                          BAG, MEKK_MAPK, PI3, cJUNa, BTG2, IAP, IAP2, PCD, PAWR, IFI44, TLR, MyD88,
-                                                                         CCAR, GIMAP)
+                                                                         CCAR, GIMAP, PKCiota)
 
 #subset only those that are significant
 resoshvTran_05_FULL_APOPTOSIS_ALL_TERMS_COMBINED_significant <- resoshvTran_05_FULL_APOPTOSIS_ALL_TERMS_COMBINED %>%
@@ -644,180 +645,251 @@ resoshvTran_05_FULL_APOPTOSIS_ALL_TERMS_COMBINED_significant <- resoshvTran_05_F
 write.csv(resoshvTran_05_FULL_APOPTOSIS_ALL_TERMS_COMBINED_significant, file="resoshvTran_05_FULL_APOPTOSIS_ALL_TERMS_COMBINED_significant.csv")
 resoshvTran_05_FULL_APOPTOSIS_ALL_TERMS_COMBINED_significant_path <- read.csv(file="resoshvTran_05_FULL_APOPTOSIS_ALL_TERMS_COMBINED_significant.csv", header=TRUE)
 
-#only 1 was significant without the P-value correction...
+#only 1 was significant without the P-value correction and p <0.05...the IP3R receptor
+
+####Graphing OsHV1 data ####
+
+#How many have a p <0.1 ?
+resoshvTran_05_FULL_APOPTOSIS_ALL_TERMS_COMBINED_01 <- resoshvTran_05_FULL_APOPTOSIS_ALL_TERMS_COMBINED %>% filter(padj < 0.1)
+#add pathway type to this
+resoshvTran_05_FULL_APOPTOSIS_ALL_TERMS_COMBINED_01["Type"] <- "extrinsic" 
+resoshvTran_05_FULL_APOPTOSIS_ALL_TERMS_COMBINED_01[4, 12] = "intrinsic"
+
+
+#labels for signifiance with *= p <0.05
+label.oshv.sig.df <- data.frame(Protein.names= c("Inositol 1,4,5-trisphosphate receptor type 1"), log2FoldChange=c(6.5))
+oshv_sig_1 <- ggplot(resoshvTran_05_FULL_APOPTOSIS_ALL_TERMS_COMBINED_01) + 
+  geom_col(aes(x=Protein.names, y=log2FoldChange, fill=Type)) + 
+  theme(axis.text.x = element_text(angle = 75, hjust = 1)) + geom_hline(yintercept=0.0) +
+  scale_y_continuous(name ="log2 Fold Change", breaks = scales::pretty_breaks(n = 20)) + 
+  ggtitle("Apoptosis Genes in M. gigas after OsHV-1 Challenge") + 
+  theme(plot.title = element_text(size=10)) + theme(plot.title = element_text(hjust = 0.5))
+
+Oshv_sig_2 <- oshv_sig_1 +
+  geom_text(data=label.oshv.sig.df, aes(x=Protein.names, y=log2FoldChange), label = c("*")) +
+  theme(axis.line = element_line(colour = "black", size = 0.5, linetype = "solid")) +
+  scale_x_discrete(name="Transcript Annotation")
+                                                          
+####GIMAP IAP graphing for OsHV-1 ####
+# graphing all of them regardless of significance
+oshv_GIMAP_IAP <- rbind(GIMAP, IAP, IAP2)
+ncol(oshv_GIMAP_IAP) #11
+write.csv(oshv_GIMAP_IAP, file="oshv_GIMAP_IAP.csv") # add Type column
+oshv_GIMAP_IAP_updated <- read.csv(file="oshv_GIMAP_IAP.csv",header =TRUE)
+
+oshv_GIMAP_IAP_1 <- ggplot(oshv_GIMAP_IAP_updated) + 
+  geom_col(aes(x=Protein.names, y=log2FoldChange, fill=Type)) + 
+  theme(axis.text.x = element_text(angle = 75, hjust = 1)) + geom_hline(yintercept=0.0) +
+  scale_y_continuous(name ="log2 Fold Change", breaks = scales::pretty_breaks(n = 20)) + 
+  ggtitle("GIMAP and IAP Apoptosis Genes in M. gigas after OsHV-1 Challenge") + 
+  theme(plot.title = element_text(size=10)) + theme(plot.title = element_text(hjust = 0.5))
+
+Oshv_GIMAP_IAP_2 <- oshv_GIMAP_IAP_1  +
+  theme(axis.line = element_line(colour = "black", size = 0.5, linetype = "solid")) +
+  scale_x_discrete(name="Transcript Annotation", limits=c("Apoptosis 1 inhibitor (1)",
+                                                          "Apoptosis 1 inhibitor (2)",
+                                                          "Apoptosis 1 inhibitor (3)",
+                                                          "Apoptosis 2 inhibitor (1)",
+                                                          "Apoptosis 2 inhibitor (2)",
+                                                          "Baculoviral IAP repeat-containing protein 2",
+                                                          "Baculoviral IAP repeat-containing protein 3",
+                                                          "Baculoviral IAP repeat-containing protein 3 (Fragment)",
+                                                          "Baculoviral IAP repeat-containing protein 6",
+                                                          "Baculoviral IAP repeat-containing protein 7",
+                                                          "Baculoviral IAP repeat-containing protein 7-A",
+                                                          "Baculoviral IAP repeat-containing protein 7-B (1)",
+                                                          "Baculoviral IAP repeat-containing protein 7-B (20",
+                                                          "Baculoviral IAP repeat-containing protein 7-B (3)",
+                                                          "GTPase IMAP family member 1",
+                                                          "GTPase IMAP family member 4 (1)",
+                                                          "GTPase IMAP family member 4 (2)",
+                                                          "GTPase IMAP family member 4 (3)",
+                                                          "GTPase IMAP family member 4 (4)",
+                                                          "GTPase IMAP family member 4 (5)",
+                                                          "GTPase IMAP family member 4 (6)",
+                                                          "GTPase IMAP family member 4 (7)",
+                                                          "GTPase IMAP family member 4 (8)",
+                                                          "GTPase IMAP family member 4 (9)",
+                                                          "GTPase IMAP family member 4 (10)",
+                                                          "GTPase IMAP family member 4 (11)",
+                                                          "GTPase IMAP family member 7 (12)",
+                                                          "GTPase IMAP family member 7 (13)",
+                                                          "Inhibitor of apoptosis protein (1)",
+                                                          "Putative apoptosis inhibitor ORF42",
+                                                          "Putative inhibitor of apoptosis (2)",
+                                                          "Putative inhibitor of apoptosis (3)",
+                                                          "Putative inhibitor of apoptosis (4)"), labels= c("Apoptosis 1 inhibitor (1)"= "IAP1",
+                                                                                                            "Apoptosis 1 inhibitor (2)"="IAP1",
+                                                                                                            "Apoptosis 1 inhibitor (3)"="IAP1",
+                                                                                                            "Apoptosis 2 inhibitor (1)"="IAP2",
+                                                                                                            "Apoptosis 2 inhibitor (2)"="IAP2",
+                                                                                                            "Baculoviral IAP repeat-containing protein 2"="BIR IAP repeat-containing 2",
+                                                                                                            "Baculoviral IAP repeat-containing protein 3"="BIR IAP repeat-containing 3",
+                                                                                                            "Baculoviral IAP repeat-containing protein 3 (Fragment)"="BIR IAP repeat-containing 3 (fragment)",
+                                                                                                            "Baculoviral IAP repeat-containing protein 6"="BIR IAP repeat-containing 6",
+                                                                                                            "Baculoviral IAP repeat-containing protein 7"="BIR IAP repeat-containing 7",
+                                                                                                            "Baculoviral IAP repeat-containing protein 7-A"="BIR IAP repeat-containing 7-A",
+                                                                                                            "Baculoviral IAP repeat-containing protein 7-B (1)"="BIR IAP repeat-containing 7-B",
+                                                                                                            "Baculoviral IAP repeat-containing protein 7-B (20"="BIR IAP repeat-containing 7-B",
+                                                                                                            "Baculoviral IAP repeat-containing protein 7-B (3)"="BIR IAP repeat-containing 7-B",
+                                                                                                            "GTPase IMAP family member 1"="GIMAP1",
+                                                                                                            "GTPase IMAP family member 4 (1)"="GIMAP4",
+                                                                                                            "GTPase IMAP family member 4 (2)"="GIMAP4",
+                                                                                                            "GTPase IMAP family member 4 (3)"="GIMAP4",
+                                                                                                            "GTPase IMAP family member 4 (4)"="GIMAP4",
+                                                                                                            "GTPase IMAP family member 4 (5)"="GIMAP4",
+                                                                                                            "GTPase IMAP family member 4 (6)"="GIMAP4",
+                                                                                                            "GTPase IMAP family member 4 (7)"="GIMAP4",
+                                                                                                            "GTPase IMAP family member 4 (8)"="GIMAP4",
+                                                                                                            "GTPase IMAP family member 4 (9)"="GIMAP4",
+                                                                                                            "GTPase IMAP family member 4 (10)"="GIMAP4",
+                                                                                                            "GTPase IMAP family member 4 (11)"="GIMAP4",
+                                                                                                            "GTPase IMAP family member 7 (12)"="GIMAP7",
+                                                                                                            "GTPase IMAP family member 7 (13)"="GIMAP7",
+                                                                                                            "Inhibitor of apoptosis protein (1)"= "IAP",
+                                                                                                            "Putative apoptosis inhibitor ORF42"= "putative IAP ORF42",
+                                                                                                            "Putative inhibitor of apoptosis (2)"="putative IAP",
+                                                                                                            "Putative inhibitor of apoptosis (3)"="putative IAP",
+                                                                                                            "Putative inhibitor of apoptosis (4)"="putative IAP"))
 
 
 #### Vibrio PROBIOTIC CHALLENGED Differential Gene Expression Analysis ####
-#Subset Data for RIF Transcriptomes 
-#Extract columns you want from the C_vir_TranscriptCountData, based on which column the correct SRA data
+#Gram negative SRA's (including control): (SRR796597, SRR796596, SRR796595, SRR796594, SRR796593, SRR796592, SRR796589)
+# Gram positive (including control): (SRR796598,  SRR796589)
 
-RIF_C_vir_TranColData <- C_vir_TranColData[16:21,]
-RIF_C_vir_TranscriptCountData <- C_vir_TranscriptCountData[,16:21]
-head(RIF_C_vir_TranscriptCountData)
+#Subset Bacterial Challenge Data
+BacTranCountData <- as.matrix(TranscriptCountData[ , c(31:38)])
+head(BacTranCountData)
+BacTranColData <- read.csv("bac_PHENO_DATA.csv", header=TRUE, sep=",")
+rownames(BacTranColData) <- BacTranColData$sampleID
+colnames(BacTranCountData) <- BacTranColData$sampleID
+head(BacTranCountData)
+print(BacTranColData)
 
-#give the treatment column levels
-RIF_C_vir_TranColData$treatment <- factor(RIF_C_vir_TranColData$treatment)
-levels(RIF_C_vir_TranColData$treatment)
+# Check all sample IDs in BacColData are also in BacCountData and match their orders
+all(rownames(BacTranColData) %in% colnames(BacTranCountData))  #Should return TRUE
+# returns TRUE
+all(rownames(BacTranColData) == colnames(BacTranCountData))    # should return TRUE
+#returns TRUE
 
-#### Create RIF DESeq Data Set from Matrix ####
-# DESeqDataSet from count matrix and labels, separate into resistant and susceptible 
-#add an interaction term to compare treatment between two conditions 
-#layout used for interactions: https://support.bioconductor.org/p/58162/
+#Give the "level" column levels
+BacTranColData$level <- factor(BacTranColData$level)
+levels(BacTranColData$level) #check to see that it has levels 
 
-ddsRIFTran <- DESeqDataSetFromMatrix(countData = RIF_C_vir_TranscriptCountData, 
-                                     colData = RIF_C_vir_TranColData, 
-                                     design =  ~ treatment)
+#### Create Bacterial Challenge DESeq Data Set from Matrix ####
+# DESeqDataSet from count matrix and labels 
+#here I only care about treatment versus control
+ddsBacTran <- DESeqDataSetFromMatrix(countData = BacTranCountData, 
+                                     colData = BacTranColData, 
+                                     design = ~condition)
 
-ddsRIFTran<- ddsRIFTran[ rowSums(counts(ddsRIFTran)) > 1, ]
-
+#this design will gather the effect of condition between control and each treatment
 # review how the data set looks
-head(ddsRIFTran)
+head(ddsBacTran)
 
-#Relevel each to make sure that control is the first level in the treatment factor for each
-ddsRIFTran$treatment <- relevel( ddsRIFTran$treatment, "control")
+#Relevel each to make sure that control is the first level in the condition factor
+ddsBacTran$condition <- relevel( ddsBacTran$condition, "control")
 
 #Check we're looking at the right samples
-as.data.frame( colData(ddsRIFTran) )
+as.data.frame( colData(ddsBacTran) )
 
 #Running the DEG pipeline
-ddsRIFTran<- DESeq(ddsRIFTran) #for designs with interactions, recommends setting betaPrior=FALSE
+ddsBacTran<- DESeq(ddsBacTran) #for designs with interactions, recommends setting betaPrior=FALSE
 
-#Inspect results
-#extract contrasts between control and treatment values for interaction
-resRIFTran<- results(ddsRIFTran)
-head(resRIFTran)
+#Inspect results table
+resBacTran <- results(ddsBacTran)
 
 #summary is just printing a table for you, you need to tell it what threshold you want
 help("summary",package="DESeq2")
 alpha <- 0.05 #set alpha to 0.05, this will control FDR
-summary(resRIFTran) #default FDR is still 0.1
-summary(resRIFTran, alpha) #now showing all genes with FRD < 0.05
+summary(resBacTran) #default FDR is still 0.1
+summary(resBacTran, alpha) #now showing all genes with FRD < 0.05
 
 #To get the significant genes
 #The independent filtering in results() has an argument 'alpha'
 #which is used to optimize a cutoff on mean normalized count
 #to maximize the number of genes with padj < alpha
-resRIFTran_05 <- results(ddsRIFTran, alpha= alpha) #set FDR to 0.05 now
-resRIFTran_05_Sig <- resRIFTran[which(resRIFTran$padj < alpha),]
-summary(resRIFTran_05) #this is all the genes
-summary(resRIFTran_05_Sig) #this is the significant ones!
-sum(resRIFTran_05$padj < 0.05, na.rm=TRUE) #1179 tells you how many genes have expected FDR ≤ 0.05
-sum(resRIFTran_05_Sig$padj < 0.05, na.rm=TRUE) #1179
-resRIFTran_05_Sig$Significance <- sig
-resRIFTran_05_nonSig <- resRIFTran[which(resRIFTran$padj > alpha),] #create list of nonsig
+resBacTran_05 <- results(ddsBacTran, alpha= alpha) #set FDR to 0.05 now
+resBacTran_05_Sig <- resBacTran[which(resBacTran$padj < alpha),]
+summary(resBacTran_05) #this is all the genes
+summary(resBacTran_05_Sig) #this is the significant ones!
+sum(resBacTran_05$padj < 0.05, na.rm=TRUE) #1437 tells you how many genes have expected FDR ≤ 0.05
+sum(resBacTran_05_Sig$padj < 0.05, na.rm=TRUE) #1428
+resBacTran_05_Sig$Significance <- sig
+resBacTran_05_nonSig <- resBacTran[which(resBacTran$padj > alpha),] #create list of nonsig
 nonsig <- "non-significant"
-resRIFTran_05_nonSig$Significance <- nonsig
-head(resRIFTran_05_Sig)
-head(resRIFTran_05_nonSig)
+resBacTran_05_nonSig$Significance <- nonsig
+head(resBacTran_05_Sig)
+head(resBacTran_05_nonSig)
 
 #add ID column with the rownames so a merge can happen later
-resRIFTran_05_Sig["ID"] <- rownames(resRIFTran_05_Sig) #add a new column with the rownames for match
-resRIFTran_05_nonSig["ID"] <- rownames(resRIFTran_05_nonSig)
-resRIFTran_05["ID"] <- rownames(resRIFTran_05)
+resBacTran_05_Sig["ID"] <- rownames(resBacTran_05_Sig) #add a new column with the rownames for match
+resBacTran_05_nonSig["ID"] <- rownames(resBacTran_05_nonSig)
+resBacTran_05["ID"] <- rownames(resBacTran_05)
+resBacTran_05_sig_non_sig <- rbind(resBacTran_05_Sig, resBacTran_05_nonSig)
 
 #metadata on meaning of the columns
-mcols(resRIFTran_05_Sig, use.names = TRUE)
-mcols(resRIFTran_05_Sig)$description
+mcols(resBacTran_05_Sig, use.names = TRUE)
+mcols(resBacTran_05_Sig)$description
 #shows treatment vs. control with baseMean as the mean of normalized counts for all samples
 
 #Order by Log2FC
-head( resRIFTran_05[ order( resRIFTran_05$log2FoldChange ), ] ) #head for strongest downregulation
-tail( resRIFTran_05[ order( resRIFTran_05$log2FoldChange ), ] ) #tail for strongest up regulation
+head( resBacTran_05_sig_non_sig[ order( resBacTran_05_sig_non_sig$log2FoldChange ), ] ) #head for strongest downregulation
+tail( resBacTran_05_sig_non_sig[ order( resBacTran_05_sig_non_sig$log2FoldChange ), ] ) #tail for strongest up regulation
 
 ####p-value correction for both sets of results ####
 #First Visualize histograms
 #histogram of P- values to visualize any "hills" or "U shape"
 # hill means variance of the null distribution too high, U shape means variance assumed too low
-hist(resRIFTran_05$pvalue, breaks= 20, col = "grey")
-hist(resRIFTran_05_Sig$pvalue, breaks = 20, col = "grey") #hill
+hist(resBacTran_05$pvalue, breaks= 20, col = "grey")
+hist(resBacTran_05_Sig$pvalue, breaks = 20, col = "grey") #hill
 
-#looks good, don't need to do the correction
+#looks okay, not doing the correction because we want to avoid extra false positives
+#Michael Love says he usually doesn't have a need to do one
 
 #Visualize Results with Diagnostic Plots#
 #MA plot, useful overview for experiment with two-group comparison. Plots log2FC over mean of normalized counts
 #genes with adjusted p value 
-plotMA(resRIFTran_05)
-plotMA(resRIFTran_05_Sig)
+plotMA(resBacTran_05)
+plotMA(resBacTran_05_Sig)
 
 #Export Results to CSV
-write.csv( as.data.frame(resRIFTran_05), file="RIF_resRIFTran_05.csv")
-write.csv( as.data.frame(resRIFTran_05_Sig), file="RIF_resRIFTran_05_Sig.csv")
-write.csv( as.data.frame(resRIFTran_05_nonSig), file = "RIF_resRIFTran_05_nonSig.csv")
+write.csv( as.data.frame(resBacTran_05), file="Bac_resBacTran_05_NEW.csv")
+write.csv( as.data.frame(resBacTran_05_Sig), file="Bac_resBacTran_05_Sig_NEW.csv")
+write.csv( as.data.frame(resBacTran_05_sig_non_sig), file = "Bac_resBacTran_05_sig_non_sig_NEW.csv")
+#only do the Uniprot search for OsHV_resoshvTran_05_sig_non_sig_NEW.csv
 
-####Match lines for only those that have a "LOC" in the C_vir_stringtie_transcripts_rna_LOC_separated$transcript_id ####
+####Subset files for only those that have Transcript IDs####
+Bac_withID_subset_resoshvTran_05_df <- 
+  resBacTran_05_sig_non_sig[grep("transcript:", rownames(resBacTran_05_sig_non_sig)), ]
+head(Bac_withID_subset_resoshvTran_05_df)
+#split the ID column by :
+Bac_withID_subset_resoshvTran_05_df_split <- str_split_fixed(Bac_withID_subset_resoshvTran_05_df$ID, ":", 2)
+head(Bac_withID_subset_resoshvTran_05_df_split)
+Bac_withID_subset_resoshvTran_05_df_split_2 <- toString(Bac_withID_subset_resoshvTran_05_df_split[,2], sep=',')
+write(Bac_withID_subset_resoshvTran_05_df_split_2, "Bac_withID_subset_resoshvTran_05_df_split", sep = ",")
+#Add ID column to OsHV_withID_subset_resoshvTran_05_df
+Bac_withID_subset_resoshvTran_05_df["ID"] <- Bac_withID_subset_resoshvTran_05_df_split[,2]
+head(Bac_withID_subset_resoshvTran_05_df)
+#perform lookup with Uniprot using the Enemble Genomes Transcript option
+
+####Upload transcripts from the UniProt.ws website ####
+Bac_transcriptIDs_UniProt_sig_nonsig <- read.csv("Bac_Tran_sig_non_sig_Uniprot.csv", header=TRUE)
+#make sure to upload as csv version so that the protein names load correctly
+head(Bac_transcriptIDs_UniProt_sig_nonsig)
+Bac_transcriptIDs_UniProt_sig_nonsig["Challenge"] <- "Bac"
+head(Bac_transcriptIDs_UniProt_sig_nonsig)
+
+####Match lines for only those that have a shared ID in Bac_Tran_sig_non_sig_Uniprot.csv
 # %in% returns true for every value in the first argument that matches a value in the second argument.
 # the order of arguments is important
-#load file with the spaces changed to ; so that the column can be separated
-C_vir_stringtie_transcripts_rna_LOC_separated_clean2 <- read.csv(file="C_vir_stringtie_transcripts_rna_LOC_separated_clean2.csv", header=TRUE)
 
-#separate the transcript id column with the semicolon
-C_vir_stringtie_transcripts_rna_LOC_separated_clean_transcript_id <- C_vir_stringtie_transcripts_rna_LOC_separated_clean2 %>% separate(transcript_id, c("transcript_id", "ID"), ";", extra="merge")
-#check duplicate rownames
-RIF_dupliate_names<- duplicated(resRIFTran_05_Sig$rownames)
-grep("TRUE", RIF_dupliate_names) #0 duplicates
-#must comvert to data frame
-resRIFTran_05_Sig_df <- data.frame(resRIFTran_05_Sig)
 #Merge columns together based on match in the "ID" column 
-resRIFTran_05_Sig_df_FULL <- merge(resRIFTran_05_Sig_df, C_vir_stringtie_transcripts_rna_LOC_separated_clean_transcript_id[,c("ID", "gene_name")], by="ID")
-nrow(resRIFTran_05_Sig_df_FULL) #517
-#put LOC info in new column
-resRIFTran_05_Sig_df_FULL <- resRIFTran_05_Sig_df_FULL %>% separate(gene_name, c("gene_name", "gene_ID"), ";")
+resBacTran_05_df_FULL <- merge(Bac_withID_subset_resoshvTran_05_df, Bac_transcriptIDs_UniProt_sig_nonsig[c("ID", "Protein.names","Gene.ontology..GO.","Gene.ontology.IDs", "Challenge")], by="ID")
+nrow(resBacTran_05_df_FULL) #8333
 
-#Repeat for non significant genes
-resRIFTran_05_nonSig_df <- data.frame(resRIFTran_05_nonSig)
-resRIFTran_05_df_nonSig_FULL <- merge(resRIFTran_05_nonSig_df, C_vir_stringtie_transcripts_rna_LOC_separated_clean_transcript_id[,c("ID", "gene_name")], by="ID")
-
-#put LOC info in new column
-resRIFTran_05_df_nonSig_FULL <- resRIFTran_05_df_nonSig_FULL %>% separate(gene_name, c("gene_name", "gene_ID"), ";")
-
-####Lookup LOC values using Batch Entrez ####
-#Sig
-write.csv(resRIFTran_05_Sig_df_FULL$gene_ID, file="resRIFTran_05_Sig_df_FULL_gene_ID.csv")
-#put column with LOC info into text file
-#perform batch Entrez lookup to the gene database to retrieve IDs
-
-#non_Sig
-write.csv(resRIFTran_05_df_nonSig_FULL$gene_ID, file="resRIFTran_05_df_nonSig_FULL_gene_ID.csv")
-#put column wit LOC into text file
-#perform batch Entrez lookup with the gene database to retrieve IDs
-#batch Entrez gets rid of duplicates
-
-#####Merge the LOC values with gene name####
-#SIG
-#convert file to csv using excel 
-resRIFTran_05_Sig_ENTREZGENE <- read.csv(file="resRIFTran_05_df_Sig_ENTREZ_RESULTS_FULL.csv", header = TRUE)
-#change symbol to gene_ID
-colnames(resRIFTran_05_Sig_ENTREZGENE)[6] <- "gene_ID"
-#merge file based on the LOC column
-resRIFTran_05_Sig_ENTREZGENE_DATA <-  merge(resRIFTran_05_Sig_ENTREZGENE, resRIFTran_05_Sig_df_FULL[,c("gene_ID", "log2FoldChange","pvalue","padj")], by="gene_ID")
-head(resRIFTran_05_Sig_ENTREZGENE_DATA)
-
-#NON SIG
-resRIFTran_05_NON_Sig_ENTREZGENE <- read.csv(file="RIF_non_sig_ENTREZ_all.csv", header = TRUE)
-#change symbol to gene_ID
-colnames(resRIFTran_05_NON_Sig_ENTREZGENE)[6] <- "gene_ID"
-#merge file based on the LOC column
-resRIFTran_05_NON_Sig_ENTREZGENE_DATA <-  merge(resRIFTran_05_NON_Sig_ENTREZGENE, resRIFTran_05_df_nonSig_FULL[,c("gene_ID", "log2FoldChange","pvalue","padj")], by="gene_ID")
-head(resRIFTran_05_Sig_ENTREZGENE_DATA)
-
-#add columns for significance and merge the two files so only one search needs to be done
-resRIFTran_05_Sig_ENTREZGENE_DATA$Significance <- sig
-resRIFTran_05_NON_Sig_ENTREZGENE_DATA$Significance <- nonsig
-
-resRIFTran_05_FULL_ENTREZGENE_DATA <- rbind(resRIFTran_05_Sig_ENTREZGENE_DATA,resRIFTran_05_NON_Sig_ENTREZGENE_DATA)
-
-####Add full list of apoptosis related genes and aliases to grep for
-#https://stackoverflow.com/questions/17130129/find-matches-of-a-vector-of-strings-in-another-vector-of-strings
-#https://stackoverflow.com/questions/37684179/how-to-search-for-multiple-words-in-the-same-string-using-r
-
-# full data frame
-#make the description column a character
-resRIFTran_05_FULL_ENTREZGENE_DATA$description <- as.character(resRIFTran_05_FULL_ENTREZGENE_DATA$description)
-
-# Sample vector of keywords or phrases
-#Search terms come from the strings that found hits in the C_virginica genome annotation view in NCBI:
-#all terms with no hits in the annotation on NCBI were INCLUDED IN THIS LIST..just in case, and all aliases searched for
-
+#### Apoptosis terms in OsHV1 challenge ####
+#full list of terms
 apoptosis_keywords <- as.character(c("IP3R","inositol","RhoA","RhoB","RhoC","rho","RhoE","ras","Rac1","Cdc42",
                                      "PKC","IkB","kappa","NFKB","NF-kappa-B","GPCR","Apo3","TWEAK","DR3LG","TNFSF12","Apo","TNFSF10","TNFSF","TRAIL",
                                      "Apo2L","c-FLIP","FLICE", "Casper","FLAME","FLAME-1","CASH","CLARP","MRIT","FADD-like","IL-1β","I-FLICE",
@@ -855,682 +927,571 @@ apoptosis_multiple_keywords <- as.character(c("protein kinase c","NF-kappa-B inh
 apoptosis_keywords_unique <- unique(unlist(strsplit(apoptosis_keywords, " ")))
 apoptosis_multiple_keywords_no_space_unique <- unique(unlist(strsplit(apoptosis_multiple_keywords_no_space, " ")))
 
+#make sure its a dataframe
+resBacTran_05_df_FULL <- as.data.frame(resBacTran_05_df_FULL)
+
 #searching for each one individually:
-RIF_IP3R <- resRIFTran_05_FULL_ENTREZGENE_DATA[grepl("inositol", resRIFTran_05_FULL_ENTREZGENE_DATA$description) & 
-                                                 grepl("phosphate", resRIFTran_05_FULL_ENTREZGENE_DATA$description) &  grepl("receptor", resRIFTran_05_FULL_ENTREZGENE_DATA$description),]
-RIF_IP3Ra <- resRIFTran_05_FULL_ENTREZGENE_DATA[grepl("IP3R", resRIFTran_05_FULL_ENTREZGENE_DATA$description),] #8 
-RIF_Rho <- resRIFTran_05_FULL_ENTREZGENE_DATA[grepl("ras", ignore.case = TRUE, resRIFTran_05_FULL_ENTREZGENE_DATA$description) & 
-                                                grepl("GTP", ignore.case = TRUE, resRIFTran_05_FULL_ENTREZGENE_DATA$description) &  grepl("rho", ignore.case = TRUE, resRIFTran_05_FULL_ENTREZGENE_DATA$description),]
-RIF_Rac1 <- resRIFTran_05_FULL_ENTREZGENE_DATA[grepl("ras", ignore.case = TRUE, resRIFTran_05_FULL_ENTREZGENE_DATA$description) & 
-                                                 grepl("botulinum", ignore.case = TRUE, resRIFTran_05_FULL_ENTREZGENE_DATA$description) &  grepl("C3", ignore.case = TRUE, resRIFTran_05_FULL_ENTREZGENE_DATA$description),]
-RIF_cdc42 <- resRIFTran_05_FULL_ENTREZGENE_DATA[grepl("cdc42", ignore.case = TRUE, resRIFTran_05_FULL_ENTREZGENE_DATA$description) &
-                                                  !grepl("activated", ignore.case=TRUE,resRIFTran_05_FULL_ENTREZGENE_DATA$description),]
+oshv_IP3R <- resBacTran_05_df_FULL[grepl("inositol", ignore.case= TRUE,resBacTran_05_df_FULL$Protein.names) & 
+                                 grepl("phosphate", ignore.case= TRUE,resBacTran_05_df_FULL$Protein.names) & 
+                                grepl("receptor", resBacTran_05_df_FULL$Protein.names) &
+                                !grepl("interacting", ignore.case = TRUE, resBacTran_05_df_FULL$Protein.names) &
+                                !grepl("protein", ignore.case = TRUE, resBacTran_05_df_FULL$Protein.names),]
+#IP3Ra <-resBacTran_05_df_FULL[grepl("IP3R", ignore.case= TRUE,resBacTran_05_df_FULL$Protein.names),]  
+oshv_Rho <- resBacTran_05_df_FULL[grepl("rho", ignore.case = TRUE, resBacTran_05_df_FULL$Protein.names) &
+                                grepl("GTP", ignore.case= TRUE,resBacTran_05_df_FULL$Protein.names) &
+                                !grepl("activating",ignore.case= TRUE,resBacTran_05_df_FULL$Protein.names) &
+                                !grepl("mitochondrial", ignore.case=TRUE,resBacTran_05_df_FULL$Protein.names),]
+oshv_Rac1 <- resBacTran_05_df_FULL[grepl("ras", ignore.case = TRUE, resBacTran_05_df_FULL$Protein.names) & 
+                                 grepl("botulinum", ignore.case = TRUE, resBacTran_05_df_FULL$Protein.names) &  grepl("C3", ignore.case = TRUE, resBacTran_05_df_FULL$Protein.names),]
+oshv_cdc42 <- resBacTran_05_df_FULL[grepl("cdc42", ignore.case = TRUE, resBacTran_05_df_FULL$Protein.names) &
+                                  !grepl("activated", ignore.case=TRUE,resBacTran_05_df_FULL$Protein.names) &
+                                  !grepl("RICS",ignore.case= TRUE,resBacTran_05_df_FULL$Protein.names),]
+oshv_PKC <- resBacTran_05_df_FULL[grepl("protein",ignore.case= TRUE, resBacTran_05_df_FULL$Protein.names) & 
+                                    grepl("kinase",ignore.case= TRUE, resBacTran_05_df_FULL$Protein.names) &
+                                    grepl('C', ignore.case = TRUE, resBacTran_05_df_FULL$Protein.names) &
+                                  grepl("EC 2.7.11.13", ignore.case = TRUE, resBacTran_05_df_FULL$Protein.names),]
+oshv_PKCdelta <- resBacTran_05_df_FULL[grepl("protein", resBacTran_05_df_FULL$Protein.names) & 
+                                     grepl("kinase",ignore.case= TRUE, resBacTran_05_df_FULL$Protein.names) & grepl("delta", ignore.case= TRUE,resBacTran_05_df_FULL$Protein.names),]
+                               
 
-RIF_PKCiota <- resRIFTran_05_FULL_ENTREZGENE_DATA[grepl("protein", resRIFTran_05_FULL_ENTREZGENE_DATA$description) & 
-                                                    grepl("kinase", resRIFTran_05_FULL_ENTREZGENE_DATA$description) & grepl("iota", resRIFTran_05_FULL_ENTREZGENE_DATA$description),]
-RIF_PKCdelta <- resRIFTran_05_FULL_ENTREZGENE_DATA[grepl("protein", resRIFTran_05_FULL_ENTREZGENE_DATA$description) & 
-                                                     grepl("kinase", resRIFTran_05_FULL_ENTREZGENE_DATA$description) & grepl("delta", resRIFTran_05_FULL_ENTREZGENE_DATA$description) &
-                                                     !grepl("calmodulin", resRIFTran_05_FULL_ENTREZGENE_DATA$description) & !grepl("ribosomal", resRIFTran_05_FULL_ENTREZGENE_DATA$description) ,]
+oshv_IkB <- resBacTran_05_df_FULL[grepl("kappa", ignore.case= TRUE, resBacTran_05_df_FULL$Protein.names) & 
+                                grepl( "inhibitor", ignore.case = TRUE, resBacTran_05_df_FULL$Protein.names) & grepl("nuclear", ignore.case = TRUE, resBacTran_05_df_FULL$Protein.names),]
 
-RIF_IkB <- resRIFTran_05_FULL_ENTREZGENE_DATA[grepl("NF-kappa-B", ignore.case= TRUE, resRIFTran_05_FULL_ENTREZGENE_DATA$description) & 
-                                                grepl( "inhibitor", ignore.case = TRUE, resRIFTran_05_FULL_ENTREZGENE_DATA$description) & !grepl("ras-like", ignore.case = TRUE, resRIFTran_05_FULL_ENTREZGENE_DATA$description),]
-RIF_NFkB <- resRIFTran_05_FULL_ENTREZGENE_DATA[grepl("NF-kappa-B", ignore.case= TRUE, resRIFTran_05_FULL_ENTREZGENE_DATA$description) & 
-                                                 grepl( "nuclear", ignore.case = TRUE, resRIFTran_05_FULL_ENTREZGENE_DATA$description) & !grepl("inhibitor", ignore.case = TRUE, resRIFTran_05_FULL_ENTREZGENE_DATA$description),]
+#none are NFkB
+oshv_NFkB <- resBacTran_05_df_FULL[grepl("NF-kappa-B", ignore.case= TRUE, resBacTran_05_df_FULL$Protein.names) & 
+                                 !grepl("inhibitor", ignore.case = TRUE, resBacTran_05_df_FULL$Protein.names),]
+oshv_NFkB <- resBacTran_05_df_FULL[grepl("nuclear", ignore.case= TRUE, resBacTran_05_df_FULL$Protein.names) & 
+                                 grepl("kappa", ignore.case = TRUE, resBacTran_05_df_FULL$Protein.names),]
 
-RIF_GPCRsevenpass <- resRIFTran_05_FULL_ENTREZGENE_DATA[grepl("G-type", resRIFTran_05_FULL_ENTREZGENE_DATA$description) & grepl("seven-pass", resRIFTran_05_FULL_ENTREZGENE_DATA$description),]
-RIF_GPCR <- resRIFTran_05_FULL_ENTREZGENE_DATA[grepl("G-protein" , resRIFTran_05_FULL_ENTREZGENE_DATA$description) & 
-                                                 grepl("coupled", resRIFTran_05_FULL_ENTREZGENE_DATA$description) &  grepl("receptor", resRIFTran_05_FULL_ENTREZGENE_DATA$description),]
+
+oshv_GPCRsevenpass <- resBacTran_05_df_FULL[grepl("G-type", ignore.case= TRUE,resBacTran_05_df_FULL$Protein.names) & grepl("seven-pass", ignore.case= TRUE,resBacTran_05_df_FULL$Protein.names),]
+oshv_GPCR <- resBacTran_05_df_FULL[grepl("G-protein" , ignore.case= TRUE,resBacTran_05_df_FULL$Protein.names) & 
+                                 grepl("coupled", ignore.case= TRUE,resBacTran_05_df_FULL$Protein.names) &  grepl("receptor", ignore.case= TRUE,resBacTran_05_df_FULL$Protein.names),]
+
 # 0 hits
-RIF_Apo3 <- resRIFTran_05_FULL_ENTREZGENE_DATA[grepl("Apo3",ignore.case= TRUE, resRIFTran_05_FULL_ENTREZGENE_DATA$description),]
+oshv_Apo3 <- resBacTran_05_df_FULL[grepl("Apo3",ignore.case= TRUE, resBacTran_05_df_FULL$Protein.names),]
 # 0 hits
-RIF_Apo2 <- resRIFTran_05_FULL_ENTREZGENE_DATA[grepl("Apo2",ignore.case= TRUE, resRIFTran_05_FULL_ENTREZGENE_DATA$description),]
+oshv_Apo2 <- resBacTran_05_df_FULL[grepl("Apo2",ignore.case= TRUE, resBacTran_05_df_FULL$Protein.names),]
 # 0 hits
-RIF_ApoL <- resRIFTran_05_FULL_ENTREZGENE_DATA[grepl("Apo" , ignore.case= TRUE, resRIFTran_05_FULL_ENTREZGENE_DATA$description) & grepl("ligand", ignore.case= TRUE,resRIFTran_05_FULL_ENTREZGENE_DATA$description),]
+oshv_ApoL <- resBacTran_05_df_FULL[grepl("Apo" , ignore.case= TRUE, resBacTran_05_df_FULL$Protein.names) & grepl("ligand", ignore.case= TRUE,resBacTran_05_df_FULL$Protein.names),]
 # 0 hits
-RIF_TWEAK <- resRIFTran_05_FULL_ENTREZGENE_DATA[grepl("TWEAK",ignore.case= TRUE, resRIFTran_05_FULL_ENTREZGENE_DATA$description),]
+oshv_TWEAK <- resBacTran_05_df_FULL[grepl("TWEAK",ignore.case= TRUE, resBacTran_05_df_FULL$Protein.names),]
 # 0 hits
-RIF_TRAIL <- resRIFTran_05_FULL_ENTREZGENE_DATA[grepl("TRAIL",ignore.case= TRUE, resRIFTran_05_FULL_ENTREZGENE_DATA$description),]
+oshv_TRAIL <- resBacTran_05_df_FULL[grepl("TRAIL",ignore.case= TRUE, resBacTran_05_df_FULL$Protein.names),]
 # 0 hits
-RIF_TRAILb <- resRIFTran_05_FULL_ENTREZGENE_DATA[grepl("TNF-related", ignore.case= TRUE,  resRIFTran_05_FULL_ENTREZGENE_DATA$description) & 
-                                                   grepl("apoptosis",ignore.case= TRUE, resRIFTran_05_FULL_ENTREZGENE_DATA$description) &  grepl("ligand",ignore.case= TRUE,  resRIFTran_05_FULL_ENTREZGENE_DATA$description),]
+oshv_TRAILb <- resBacTran_05_df_FULL[grepl("Tumor", ignore.case= TRUE,  resBacTran_05_df_FULL$Protein.names) & 
+                                   grepl("apoptosis",ignore.case= TRUE, resBacTran_05_df_FULL$Protein.names),]
 #0 hits
-RIF_TRAILc <- resRIFTran_05_FULL_ENTREZGENE_DATA[grepl("TNFSF12",ignore.case= TRUE, resRIFTran_05_FULL_ENTREZGENE_DATA$description),]
+oshv_TRAILc <- resBacTran_05_df_FULL[grepl("TNFSF12",ignore.case= TRUE, resBacTran_05_df_FULL$Protein.names),]
 # 0 hits
-RIF_cFLIP <- resRIFTran_05_FULL_ENTREZGENE_DATA[grepl("c-FLIP",ignore.case= TRUE, resRIFTran_05_FULL_ENTREZGENE_DATA$description),]
+oshv_cFLIP <- resBacTran_05_df_FULL[grepl("FLIP",ignore.case= TRUE, resBacTran_05_df_FULL$Protein.names),]
 # 0 hits
-RIF_cFLIP2 <- resRIFTran_05_FULL_ENTREZGENE_DATA[grepl("FLICE",ignore.case= TRUE, resRIFTran_05_FULL_ENTREZGENE_DATA$description),]
-RIF_cFLIP3 <- resRIFTran_05_FULL_ENTREZGENE_DATA[grepl("CASPER",ignore.case= TRUE, resRIFTran_05_FULL_ENTREZGENE_DATA$description),]
-RIF_cFLIP4 <- resRIFTran_05_FULL_ENTREZGENE_DATA[grepl("FLAME",ignore.case= TRUE, resRIFTran_05_FULL_ENTREZGENE_DATA$description),]
-RIF_cFLIP5 <- resRIFTran_05_FULL_ENTREZGENE_DATA[grepl("CASH",ignore.case= TRUE, resRIFTran_05_FULL_ENTREZGENE_DATA$description),]
-RIF_cFLIP6 <- resRIFTran_05_FULL_ENTREZGENE_DATA[grepl("CLARP",ignore.case= TRUE, resRIFTran_05_FULL_ENTREZGENE_DATA$description),]
-RIF_cFLIP7 <- resRIFTran_05_FULL_ENTREZGENE_DATA[grepl("MRIT",ignore.case= TRUE, resRIFTran_05_FULL_ENTREZGENE_DATA$description),]
-RIF_cFLIP8 <- resRIFTran_05_FULL_ENTREZGENE_DATA[grepl("FADD-like",ignore.case= TRUE, resRIFTran_05_FULL_ENTREZGENE_DATA$description) &
-                                                   grepl("inhibitory",ignore.case= TRUE,  resRIFTran_05_FULL_ENTREZGENE_DATA$description),]
+oshv_cFLIP2 <- resBacTran_05_df_FULL[grepl("FLICE",ignore.case= TRUE, resBacTran_05_df_FULL$Protein.names),]
+oshv_cFLIP3 <- resBacTran_05_df_FULL[grepl("CASPER",ignore.case= TRUE,resBacTran_05_df_FULL$Protein.names),]
+oshv_cFLIP4 <- resBacTran_05_df_FULL[grepl("FLAME",ignore.case= TRUE, resBacTran_05_df_FULL$Protein.names),]
+oshv_cFLIP5 <- resBacTran_05_df_FULL[grepl("CASH",ignore.case= TRUE, resBacTran_05_df_FULL$Protein.names),]
+oshv_cFLIP6 <- resBacTran_05_df_FULL[grepl("CLARP",ignore.case= TRUE, resBacTran_05_df_FULL$Protein.names),]
+oshv_cFLIP7 <- resBacTran_05_df_FULL[grepl("MRIT",ignore.case= TRUE, resBacTran_05_df_FULL$Protein.names),]
+oshv_cFLIP8 <- resBacTran_05_df_FULL[grepl("Fas",ignore.case= TRUE, resBacTran_05_df_FULL$Protein.names) &
+                                   grepl("inhibitory",ignore.case= TRUE,  resBacTran_05_df_FULL$Protein.names),]
 
-RIF_RIP <- resRIFTran_05_FULL_ENTREZGENE_DATA[grepl("receptor", resRIFTran_05_FULL_ENTREZGENE_DATA$description) & grepl("interacting", resRIFTran_05_FULL_ENTREZGENE_DATA$description)
-                                              & !grepl("thyroid", resRIFTran_05_FULL_ENTREZGENE_DATA$description)
-                                              & !grepl("glutamate", resRIFTran_05_FULL_ENTREZGENE_DATA$description)
-                                              & !grepl("cannabinoid", resRIFTran_05_FULL_ENTREZGENE_DATA$description)
-                                              & !grepl("AH", resRIFTran_05_FULL_ENTREZGENE_DATA$description),]
+oshv_RIPK <- resBacTran_05_df_FULL[grepl("receptor",ignore.case= TRUE, resBacTran_05_df_FULL$Protein.names) & grepl("interacting", ignore.case= TRUE,resBacTran_05_df_FULL$Protein.names)
+                              & !grepl("thyroid",ignore.case= TRUE, resBacTran_05_df_FULL$Protein.names)
+                              & !grepl("glutamate",ignore.case= TRUE, resBacTran_05_df_FULL$Protein.names)
+                              & !grepl("cannabinoid", ignore.case= TRUE,resBacTran_05_df_FULL$Protein.names)
+                              & !grepl("AH", ignore.case= TRUE,resBacTran_05_df_FULL$Protein.names) &
+                                !grepl('inositol', ignore.case=TRUE,resBacTran_05_df_FULL$Protein.names) &
+                                !grepl("nogo", ignore.case = TRUE, resBacTran_05_df_FULL$Protein.names),]
 #non are cAMP specifically
-RIF_cAMP <-  resRIFTran_05_FULL_ENTREZGENE_DATA[grepl("cAMP",ignore.case= TRUE, resRIFTran_05_FULL_ENTREZGENE_DATA$description),]
+oshv_cAMP <-  resBacTran_05_df_FULL[grepl("cAMP",ignore.case= TRUE, resBacTran_05_df_FULL$Protein.names),]
 
 #no hits
-RIF_cAMP2 <-  resRIFTran_05_FULL_ENTREZGENE_DATA[grepl("cyclic",ignore.case= TRUE, resRIFTran_05_FULL_ENTREZGENE_DATA$description) 
-                                                 & grepl("adenosine", ignore.case = TRUE,resRIFTran_05_FULL_ENTREZGENE_DATA$description),]
-#none are PKA
-RIF_PKA <- resRIFTran_05_FULL_ENTREZGENE_DATA[grepl("protein", resRIFTran_05_FULL_ENTREZGENE_DATA$description) & 
-                                                grepl("kinase", resRIFTran_05_FULL_ENTREZGENE_DATA$description) & grepl("A", resRIFTran_05_FULL_ENTREZGENE_DATA$description),]
+oshv_cAMP2 <-  resBacTran_05_df_FULL[grepl("cyclic",ignore.case= TRUE, resBacTran_05_df_FULL$Protein.names) 
+                                 & grepl("adenosine", ignore.case = TRUE,resBacTran_05_df_FULL$Protein.names),]
 
-RIF_AC <- resRIFTran_05_FULL_ENTREZGENE_DATA[grepl("adenylate", resRIFTran_05_FULL_ENTREZGENE_DATA$description) & grepl("cyclase", resRIFTran_05_FULL_ENTREZGENE_DATA$description),]
-RIF_CREB <- resRIFTran_05_FULL_ENTREZGENE_DATA[grepl("cAMP-responsive", ignore.case = TRUE, resRIFTran_05_FULL_ENTREZGENE_DATA$description),]
+#oshv_PKA <- resBacTran_05_df_FULL[grepl("protein", ignore.case= TRUE,resBacTran_05_df_FULL$Protein.names) & 
+# grepl("kinase",ignore.case= TRUE, resBacTran_05_df_FULL$Protein.names) & grepl("A",ignore.case= TRUE, resBacTran_05_df_FULL$Protein.names),]
+
+oshv_PKA <- resBacTran_05_df_FULL[grepl("cAMP",ignore.case= TRUE, resBacTran_05_df_FULL$Protein.names) &
+                                grepl("kinase",resBacTran_05_df_FULL$Protein.names),]
+
+oshv_AC <- resBacTran_05_df_FULL[grepl("adenylate", ignore.case= TRUE,resBacTran_05_df_FULL$Protein.names) & grepl("cyclase", ignore.case= TRUE,resBacTran_05_df_FULL$Protein.names) &
+                               !grepl("cyclase-associated",ignore.case= TRUE,resBacTran_05_df_FULL$Protein.names),]
+
+oshv_CREB <- resBacTran_05_df_FULL[grepl("cAMP-responsive", ignore.case = TRUE, resBacTran_05_df_FULL$Protein.names) &
+                                     !grepl("modulator", resBacTran_05_df_FULL$Protein.names),]
 
 #0 hits
-RIF_DR <- resRIFTran_05_FULL_ENTREZGENE_DATA[grepl("death",ignore.case = TRUE, resRIFTran_05_FULL_ENTREZGENE_DATA$description) & grepl("receptor", resRIFTran_05_FULL_ENTREZGENE_DATA$description),]
-RIF_DR1 <- resRIFTran_05_FULL_ENTREZGENE_DATA[grepl("TRAMP", ignore.case = TRUE, resRIFTran_05_FULL_ENTREZGENE_DATA$description),]
-RIF_DR2 <- resRIFTran_05_FULL_ENTREZGENE_DATA[grepl("WSL",ignore.case = TRUE, resRIFTran_05_FULL_ENTREZGENE_DATA$description),]
-RIF_DR3 <- resRIFTran_05_FULL_ENTREZGENE_DATA[grepl("LARD",ignore.case = TRUE, resRIFTran_05_FULL_ENTREZGENE_DATA$description),]
-RIF_DR4 <- resRIFTran_05_FULL_ENTREZGENE_DATA[grepl("DDR3",ignore.case = TRUE, resRIFTran_05_FULL_ENTREZGENE_DATA$description),]
+oshv_DR <- resBacTran_05_df_FULL[grepl("death",ignore.case = TRUE, resBacTran_05_df_FULL$Protein.names) & grepl("receptor", ignore.case= TRUE,resBacTran_05_df_FULL$Protein.names),]
+oshv_DR1 <- resBacTran_05_df_FULL[grepl("TRAMP", ignore.case = TRUE, resBacTran_05_df_FULL$Protein.names),]
+oshv_DR2 <- resBacTran_05_df_FULL[grepl("WSL",ignore.case = TRUE, resBacTran_05_df_FULL$Protein.names),]
+oshv_DR3 <-resBacTran_05_df_FULL[grepl("LARD",ignore.case = TRUE, resBacTran_05_df_FULL$Protein.names),]
+oshv_DR4 <- resBacTran_05_df_FULL[grepl("DDR3",ignore.case = TRUE, resBacTran_05_df_FULL$Protein.names),]
 
-RIF_Fas <- resRIFTran_05_FULL_ENTREZGENE_DATA[grepl("fatty", resRIFTran_05_FULL_ENTREZGENE_DATA$description) &
-                                                grepl( "acid", resRIFTran_05_FULL_ENTREZGENE_DATA$description) &
-                                                grepl( "synthase", resRIFTran_05_FULL_ENTREZGENE_DATA$description) &
-                                                !grepl("acyl",resRIFTran_05_FULL_ENTREZGENE_DATA$description),]
+oshv_Fas <- resBacTran_05_df_FULL[grepl("fatty", ignore.case= TRUE,resBacTran_05_df_FULL$Protein.names) &
+                                grepl( "acid", ignore.case= TRUE,resBacTran_05_df_FULL$Protein.names) &
+                                grepl( "synthase", ignore.case= TRUE,resBacTran_05_df_FULL$Protein.names) &
+                                !grepl("elongation", ignore.case=TRUE, resBacTran_05_df_FULL$Protein.names),]
 
-
-RIF_FasL <- resRIFTran_05_FULL_ENTREZGENE_DATA[grepl("FasL", ignore.case = TRUE ,resRIFTran_05_FULL_ENTREZGENE_DATA$description),]
-RIF_FASL2 <- resRIFTran_05_FULL_ENTREZGENE_DATA[grepl("TNF", ignore.case = TRUE ,resRIFTran_05_FULL_ENTREZGENE_DATA$description) &
-                                                  grepl("superfamily", ignore.case = TRUE ,resRIFTran_05_FULL_ENTREZGENE_DATA$description) &
-                                                  grepl("6", ignore.case = TRUE ,resRIFTran_05_FULL_ENTREZGENE_DATA$description),]
 #none are what I want
-RIF_Fas2 <- resRIFTran_05_FULL_ENTREZGENE_DATA[grepl("Fas", ignore.case = TRUE ,resRIFTran_05_FULL_ENTREZGENE_DATA$description),]
+oshv_Fasb <-  resBacTran_05_df_FULL[grepl("fas", ignore.case= TRUE,resBacTran_05_df_FULL$Protein.names),]
+oshv_FasL <- resBacTran_05_df_FULL[grepl("FasL", ignore.case = TRUE ,resBacTran_05_df_FULL$Protein.names),]
+oshv_FASL2 <- resBacTran_05_df_FULL[grepl("TNF", ignore.case = TRUE ,resBacTran_05_df_FULL$Protein.names) &
+  grepl("superfamily", ignore.case = TRUE ,resBacTran_05_df_FULL$Protein.names) &
+  grepl("6", ignore.case = TRUE ,resBacTran_05_df_FULL$Protein.names),]
+oshv_Fas2 <- resBacTran_05_df_FULL[grepl("Fas", ignore.case = TRUE ,resBacTran_05_df_FULL$Protein.names),]
 
 #no DR5
-RIF_DR5 <- resRIFTran_05_FULL_ENTREZGENE_DATA[grepl("TNFRS10B", ignore.case = TRUE ,resRIFTran_05_FULL_ENTREZGENE_DATA$description),]
-RIF_DR5a <- resRIFTran_05_FULL_ENTREZGENE_DATA[grepl("TRAIL-R2", ignore.case = TRUE ,resRIFTran_05_FULL_ENTREZGENE_DATA$description),]
-RIF_DR5b <- resRIFTran_05_FULL_ENTREZGENE_DATA[grepl("TRICK2", ignore.case = TRUE ,resRIFTran_05_FULL_ENTREZGENE_DATA$description),]
-RIF_DR5c <- resRIFTran_05_FULL_ENTREZGENE_DATA[grepl("KILLER", ignore.case = TRUE ,resRIFTran_05_FULL_ENTREZGENE_DATA$description),]
-RIF_DR5d <- resRIFTran_05_FULL_ENTREZGENE_DATA[grepl("ZTNFR9", ignore.case = TRUE ,resRIFTran_05_FULL_ENTREZGENE_DATA$description),]
+oshv_DR5 <-resBacTran_05_df_FULL[grepl("TNFRS10B", ignore.case = TRUE ,resBacTran_05_df_FULL$Protein.names),]
+oshv_DR5a <- resBacTran_05_df_FULL[grepl("TRAIL-R2", ignore.case = TRUE ,resBacTran_05_df_FULL$Protein.names),]
+oshv_DR5b <- resBacTran_05_df_FULL[grepl("TRICK2", ignore.case = TRUE ,resBacTran_05_df_FULL$Protein.names),]
+oshv_DR5c <- resBacTran_05_df_FULL[grepl("KILLER", ignore.case = TRUE ,resBacTran_05_df_FULL$Protein.names),]
+oshv_DR5d <- resBacTran_05_df_FULL[grepl("ZTNFR9", ignore.case = TRUE ,resBacTran_05_df_FULL$Protein.names),]
 
 
-RIF_TNF <- resRIFTran_05_FULL_ENTREZGENE_DATA[grepl("tumor", resRIFTran_05_FULL_ENTREZGENE_DATA$description) & 
-                                                grepl( "necrosis", resRIFTran_05_FULL_ENTREZGENE_DATA$description) &
-                                                grepl( "factor", resRIFTran_05_FULL_ENTREZGENE_DATA$description) &
-                                                !grepl("C1q", resRIFTran_05_FULL_ENTREZGENE_DATA$description) &
-                                                !grepl("alpha-induced",resRIFTran_05_FULL_ENTREZGENE_DATA$description) &
-                                                !grepl("endothelial",resRIFTran_05_FULL_ENTREZGENE_DATA$description),]
+oshv_TNF <- resBacTran_05_df_FULL[grepl("tumor", ignore.case= TRUE,resBacTran_05_df_FULL$Protein.names) & 
+                                grepl( "necrosis", ignore.case= TRUE,resBacTran_05_df_FULL$Protein.names) &
+                                grepl( "factor", ignore.case= TRUE,resBacTran_05_df_FULL$Protein.names) & 
+                                !grepl("related",resBacTran_05_df_FULL$Protein.names) &
+                                !grepl("ligand", resBacTran_05_df_FULL$Protein.names) &
+                                !grepl("receptor", resBacTran_05_df_FULL$Protein.names),]
+oshv_TNFL <- resBacTran_05_df_FULL[grepl("tumor", ignore.case= TRUE,resBacTran_05_df_FULL$Protein.names) & 
+                                 grepl( "necrosis", ignore.case= TRUE,resBacTran_05_df_FULL$Protein.names) &
+                                 grepl( "factor", ignore.case= TRUE,resBacTran_05_df_FULL$Protein.names) & 
+                                 !grepl("related",resBacTran_05_df_FULL$Protein.names) &
+                                 grepl("ligand", resBacTran_05_df_FULL$Protein.names),]
+oshv_TNFR <- resBacTran_05_df_FULL[grepl("tumor", ignore.case= TRUE,resBacTran_05_df_FULL$Protein.names) & 
+                                 grepl( "necrosis", ignore.case= TRUE,resBacTran_05_df_FULL$Protein.names) &
+                                 grepl( "factor", ignore.case= TRUE,resBacTran_05_df_FULL$Protein.names) & 
+                                 !grepl("related",resBacTran_05_df_FULL$Protein.names) &
+                                 !grepl("ligand", resBacTran_05_df_FULL$Protein.names) &
+                                 grepl("receptor", ignore.case = TRUE,resBacTran_05_df_FULL$Protein.names ),]
+#none are FAIM
+oshv_FAIM <- resBacTran_05_df_FULL[grepl("fas", ignore.case= TRUE,resBacTran_05_df_FULL$Protein.names) & 
+                                 grepl("inhibitory", ignore.case= TRUE,resBacTran_05_df_FULL$Protein.names) ,]
 
-RIF_FAIM <- resRIFTran_05_FULL_ENTREZGENE_DATA[grepl("fas", resRIFTran_05_FULL_ENTREZGENE_DATA$description) & 
-                                                 grepl("apoptotic", resRIFTran_05_FULL_ENTREZGENE_DATA$description) &
-                                                 grepl("inhibitory", resRIFTran_05_FULL_ENTREZGENE_DATA$description) ,]
+#none are TRAD
+oshv_TRADD <- resBacTran_05_df_FULL[grepl("death", ignore.case= TRUE,resBacTran_05_df_FULL$Protein.names) & grepl(  "domain", ignore.case= TRUE,resBacTran_05_df_FULL$Protein.names) &
+                                  grepl(  "receptor", ignore.case= TRUE,resBacTran_05_df_FULL$Protein.names),]
 
-#non are TRAD
-RIF_TRADD <- resRIFTran_05_FULL_ENTREZGENE_DATA[grepl("death", resRIFTran_05_FULL_ENTREZGENE_DATA$description) & grepl(  "domain", resRIFTran_05_FULL_ENTREZGENE_DATA$description) &
-                                                  grepl(  "receptor", resRIFTran_05_FULL_ENTREZGENE_DATA$description),]
+#no FADD
+oshv_FADD <- resBacTran_05_df_FULL[grepl("Fas", ignore.case = TRUE, resBacTran_05_df_FULL$Protein.names) &
+                                 grepl("death", ignore.case = TRUE, resBacTran_05_df_FULL$Protein.names),]
 
-RIF_FADD <- resRIFTran_05_FULL_ENTREZGENE_DATA[grepl("FAS-associated", ignore.case = TRUE, resRIFTran_05_FULL_ENTREZGENE_DATA$description) &
-                                                 grepl("death", ignore.case = TRUE, resRIFTran_05_FULL_ENTREZGENE_DATA$description),]
-RIF_caspase <- resRIFTran_05_FULL_ENTREZGENE_DATA[grepl("caspase", ignore.case = TRUE ,resRIFTran_05_FULL_ENTREZGENE_DATA$description) &
-                                                    !grepl("activity",resRIFTran_05_FULL_ENTREZGENE_DATA$description),]
-RIF_procaspase <- resRIFTran_05_FULL_ENTREZGENE_DATA[grepl("procaspase", ignore.case = TRUE ,resRIFTran_05_FULL_ENTREZGENE_DATA$description),]
+oshv_caspase <- resBacTran_05_df_FULL[grepl("caspase", ignore.case = TRUE ,resBacTran_05_df_FULL$Protein.names) &
+                                    !grepl("activity",ignore.case= TRUE,resBacTran_05_df_FULL$Protein.names) &
+                                    !grepl("adapter", ignore.case= TRUE,resBacTran_05_df_FULL$Protein.names),]
+
+#no procapases
+oshv_procaspase <- resBacTran_05_df_FULL[grepl("procasp", ignore.case = TRUE ,resBacTran_05_df_FULL$Protein.names),]
 
 #no sialic acid
-RIF_siglec <- resRIFTran_05_FULL_ENTREZGENE_DATA[grepl("siglec", ignore.case = TRUE ,resRIFTran_05_FULL_ENTREZGENE_DATA$description),]
-RIF_sialic <- resRIFTran_05_FULL_ENTREZGENE_DATA[grepl("sialic", ignore.case = TRUE ,resRIFTran_05_FULL_ENTREZGENE_DATA$description) &
-                                                   grepl("immunoglobulin", ignore.case = TRUE ,resRIFTran_05_FULL_ENTREZGENE_DATA$description),]
+oshv_siglec <- resBacTran_05_df_FULL[grepl("siglec", ignore.case = TRUE ,resBacTran_05_df_FULL$Protein.names),]
+oshv_sialic <- resBacTran_05_df_FULL[grepl("sialic", ignore.case = TRUE ,resBacTran_05_df_FULL$Protein.names),]
+
 #none are IFNLP
-RIF_IFNLP <- resRIFTran_05_FULL_ENTREZGENE_DATA[grepl("IFNLP", ignore.case = TRUE ,resRIFTran_05_FULL_ENTREZGENE_DATA$description),]
-RIF_IFNLPa <- resRIFTran_05_FULL_ENTREZGENE_DATA[grepl("interferon", ignore.case = TRUE ,resRIFTran_05_FULL_ENTREZGENE_DATA$description),]
+oshv_IFNLP <- resBacTran_05_df_FULL[grepl("IFNLP", ignore.case = TRUE ,resBacTran_05_df_FULL$Protein.names),]
+oshv_IFNLPa <- resBacTran_05_df_FULL[grepl("interferon", ignore.case = TRUE ,resBacTran_05_df_FULL$Protein.names),]
 
-RIF_TRAF <- resRIFTran_05_FULL_ENTREZGENE_DATA[grepl("TNF", ignore.case = TRUE ,resRIFTran_05_FULL_ENTREZGENE_DATA$description) &
-                                                 grepl("receptor-associated", ignore.case = TRUE, resRIFTran_05_FULL_ENTREZGENE_DATA$description) ,]
+oshv_TRAF <- resBacTran_05_df_FULL[grepl("TNF", ignore.case = TRUE ,resBacTran_05_df_FULL$Protein.names) &
+                                 grepl("receptor-associated", ignore.case = TRUE ,resBacTran_05_df_FULL$Protein.names) ,]
 
-#no NuMA
-RIF_NuMa <- resRIFTran_05_FULL_ENTREZGENE_DATA[grepl("mitotic", resRIFTran_05_FULL_ENTREZGENE_DATA$description) & grepl( "apparatus", resRIFTran_05_FULL_ENTREZGENE_DATA$description),]
-RIF_NuMAa <- resRIFTran_05_FULL_ENTREZGENE_DATA[grepl("nuclear", resRIFTran_05_FULL_ENTREZGENE_DATA$description) & grepl( "mitotic", resRIFTran_05_FULL_ENTREZGENE_DATA$description),]
-RIF_NuMAb<- resRIFTran_05_FULL_ENTREZGENE_DATA[grepl("SP-H", resRIFTran_05_FULL_ENTREZGENE_DATA$description),]
+oshv_NuMa <- resBacTran_05_df_FULL[grepl("mitotic", ignore.case= TRUE,resBacTran_05_df_FULL$Protein.names) & grepl( "apparatus",ignore.case= TRUE, resBacTran_05_df_FULL$Protein.names) &
+                                        !grepl("p62", ignore.case = TRUE, resBacTran_05_df_FULL$Protein.names),]
+#oshv_NuMAa <- resoshvTran_05_df_FULL[grepl("nuclear", ignore.case= TRUE,resBacTran_05_df_FULL$Protein.names) & grepl( "mitotic", ignore.case= TRUE,resBacTran_05_df_FULL$Protein.names),]
+#oshv_NuMAb<- resoshvTran_05_df_FULL[grepl("SP-H", ignore.case= TRUE,resBacTran_05_df_FULL$Protein.names),]
 
-RIF_ICAD <- resRIFTran_05_FULL_ENTREZGENE_DATA[grepl("DNA", resRIFTran_05_FULL_ENTREZGENE_DATA$description) & grepl("fragmentation", resRIFTran_05_FULL_ENTREZGENE_DATA$description) &
-                                                 grepl("alpha", resRIFTran_05_FULL_ENTREZGENE_DATA$description) ,]
-RIF_CAD <- resRIFTran_05_FULL_ENTREZGENE_DATA[grepl("DNA", resRIFTran_05_FULL_ENTREZGENE_DATA$description) & grepl("fragmentation", resRIFTran_05_FULL_ENTREZGENE_DATA$description) &
-                                                grepl("beta", resRIFTran_05_FULL_ENTREZGENE_DATA$description) ,]
-RIF_CADb <- resRIFTran_05_FULL_ENTREZGENE_DATA[grepl("caspase", resRIFTran_05_FULL_ENTREZGENE_DATA$description) & grepl("activated", resRIFTran_05_FULL_ENTREZGENE_DATA$description) ,]
+#no CAD or ICAD
+oshv_ICAD <- resBacTran_05_df_FULL[grepl("DNA", ignore.case= TRUE,resBacTran_05_df_FULL$Protein.names) & grepl("fragmentation", ignore.case= TRUE,resBacTran_05_df_FULL$Protein.names),]
+oshv_CAD <- resBacTran_05_df_FULL[grepl("DNA", ignore.case= TRUE,resBacTran_05_df_FULL$Protein.names) & grepl("fragmentation", ignore.case= TRUE,resBacTran_05_df_FULL$Protein.names) &
+                                grepl("beta", ignore.case= TRUE,resBacTran_05_df_FULL$Protein.names) ,]
+oshv_CADb <-resoshvTran_05_df_FULL[grepl("caspase", ignore.case= TRUE, resBacTran_05_df_FULL$Protein.names) & grepl("activated", ignore.case= TRUE,resBacTran_05_df_FULL$Protein.names) ,]
 
 #no APIP
-RIF_APIP <- resRIFTran_05_FULL_ENTREZGENE_DATA[grepl("apoptotic", resRIFTran_05_FULL_ENTREZGENE_DATA$description) & grepl( "peptidase", resRIFTran_05_FULL_ENTREZGENE_DATA$description),]
-RIF_APIPb <- resRIFTran_05_FULL_ENTREZGENE_DATA[grepl("apoptotic", resRIFTran_05_FULL_ENTREZGENE_DATA$description) & grepl( "protease", resRIFTran_05_FULL_ENTREZGENE_DATA$description),]
-RIF_APIPc <- resRIFTran_05_FULL_ENTREZGENE_DATA[grepl("APAF", ignore.case = TRUE, resRIFTran_05_FULL_ENTREZGENE_DATA$description) ,]
-RIF_APIPc <- resRIFTran_05_FULL_ENTREZGENE_DATA[grepl("APIP", ignore.case=TRUE, resRIFTran_05_FULL_ENTREZGENE_DATA$description) ,]
+oshv_APIP <- resBacTran_05_df_FULL[grepl("apoptosis",ignore.case= TRUE, resBacTran_05_df_FULL$Protein.names) & grepl( "peptidase", ignore.case= TRUE,resBacTran_05_df_FULL$Protein.names),]
+oshv_APIPb <- resBacTran_05_df_FULL[grepl("apoptosis", ignore.case= TRUE,resBacTran_05_df_FULL$Protein.names) & grepl( "protease", ignore.case= TRUE,resBacTran_05_df_FULL$Protein.names),]
+oshv_APIPc <- resBacTran_05_df_FULL[grepl("APAF", ignore.case = TRUE, resBacTran_05_df_FULL$Protein.names) ,]
+oshv_APIPc <- resBacTran_05_df_FULL[grepl("APIP", ignore.case=TRUE, resBacTran_05_df_FULL$Protein.names) ,]
 
 #no sAC
-RIF_sAC <- resRIFTran_05_FULL_ENTREZGENE_DATA[grepl("adenylyl", resRIFTran_05_FULL_ENTREZGENE_DATA$description) & grepl( "cyclase", resRIFTran_05_FULL_ENTREZGENE_DATA$description),]
+oshv_sAC <- resBacTran_05_df_FULL[grepl("adenylyl", ignore.case= TRUE,resBacTran_05_df_FULL$Protein.names) & grepl( "soluble", ignore.case= TRUE,resBacTran_05_df_FULL$Protein.names),]
 
-#no BI-1
-RIF_BI <- resRIFTran_05_FULL_ENTREZGENE_DATA[grepl("bax", resRIFTran_05_FULL_ENTREZGENE_DATA$description) & grepl( "inhibitor", resRIFTran_05_FULL_ENTREZGENE_DATA$description),]
+oshv_BI <- resBacTran_05_df_FULL[grepl("bax",ignore.case=TRUE, resBacTran_05_df_FULL$Protein.names),]
 
-RIF_PDRP <- resRIFTran_05_FULL_ENTREZGENE_DATA[grepl("p53", resRIFTran_05_FULL_ENTREZGENE_DATA$description) & grepl( "damage", resRIFTran_05_FULL_ENTREZGENE_DATA$description),]
+#no PDRP
+oshv_PDRP <-resBacTran_05_df_FULL[grepl("p53", ignore.case= TRUE,resBacTran_05_df_FULL$Protein.names),]
 
-RIF_cytoc <- resRIFTran_05_FULL_ENTREZGENE_DATA[grepl("cytochrome", resRIFTran_05_FULL_ENTREZGENE_DATA$description) & grepl( "c-like", resRIFTran_05_FULL_ENTREZGENE_DATA$description),]
+oshv_cytoc <- resBacTran_05_df_FULL[grepl("cytochrome", ignore.case= TRUE,resBacTran_05_df_FULL$Protein.names) & grepl( "c", ignore.case= TRUE,resBacTran_05_df_FULL$Protein.names) &
+                                  !grepl("P450", resBacTran_05_df_FULL$Protein.names) &
+                                  !grepl("oxidase", resBacTran_05_df_FULL$Protein.names ) &
+                                  !grepl("reductase", resBacTran_05_df_FULL$Protein.names ) &
+                                  !grepl("lyase", resBacTran_05_df_FULL$Protein.names ) &
+                                  !grepl("b5", resBacTran_05_df_FULL$Protein.names ) &
+                                  !grepl("dehydrogenase", resBacTran_05_df_FULL$Protein.names ) &
+                                  grepl("heme", resBacTran_05_df_FULL$Protein.names)
+                                ,]
 
-RIF_AIF <- resRIFTran_05_FULL_ENTREZGENE_DATA[grepl("apoptosis", resRIFTran_05_FULL_ENTREZGENE_DATA$description) & 
-                                                grepl( "inducing", resRIFTran_05_FULL_ENTREZGENE_DATA$description) &
-                                                grepl( "factor", resRIFTran_05_FULL_ENTREZGENE_DATA$description),]
+oshv_AIF <- resBacTran_05_df_FULL[grepl("apoptosis", ignore.case= TRUE,resBacTran_05_df_FULL$Protein.names) & 
+                                grepl( "inducing", ignore.case= TRUE,resBacTran_05_df_FULL$Protein.names) &
+                                grepl( "factor", ignore.case= TRUE,resBacTran_05_df_FULL$Protein.names),]
 #no Blk
-RIF_Blk <- resRIFTran_05_FULL_ENTREZGENE_DATA[grepl("blk", ignore.case=TRUE, resRIFTran_05_FULL_ENTREZGENE_DATA$description),]
-RIF_Blkb <- resRIFTran_05_FULL_ENTREZGENE_DATA[grepl("B", ignore.case=TRUE, resRIFTran_05_FULL_ENTREZGENE_DATA$description) & grepl( "lymphoid", resRIFTran_05_FULL_ENTREZGENE_DATA$description),]
-RIF_Blkc <- resRIFTran_05_FULL_ENTREZGENE_DATA[grepl("p55", ignore.case=TRUE, resRIFTran_05_FULL_ENTREZGENE_DATA$description),]
+oshv_Blk <- resBacTran_05_df_FULL[grepl("bik", ignore.case=TRUE, resBacTran_05_df_FULL$Protein.names),]
+oshv_Blkb <- resBacTran_05_df_FULL[grepl("B", ignore.case=TRUE, resBacTran_05_df_FULL$Protein.names) & grepl( "lymphoid", ignore.case= TRUE,resBacTran_05_df_FULL$Protein.names),]
+oshv_Blkc <- resBacTran_05_df_FULL[grepl("p55", ignore.case=TRUE, resBacTran_05_df_FULL$Protein.names),]
 
-#no myc
-RIF_myc <- resRIFTran_05_FULL_ENTREZGENE_DATA[grepl("myc", resRIFTran_05_FULL_ENTREZGENE_DATA$description),]
-RIF_myc <-  resRIFTran_05_FULL_ENTREZGENE_DATA[grepl("oncogene", resRIFTran_05_FULL_ENTREZGENE_DATA$description),]
 
-#no aven
-RIF_aven <-   resRIFTran_05_FULL_ENTREZGENE_DATA[grepl("aven", resRIFTran_05_FULL_ENTREZGENE_DATA$description) &
-                                                   !grepl("scavenger", resRIFTran_05_FULL_ENTREZGENE_DATA$description),]
+oshv_myc <- resBacTran_05_df_FULL[grepl("C-myc", ignore.case= TRUE,resBacTran_05_df_FULL$Protein.names),]
+#oshv_myc <-  resBacTran_05_df_FULL[grepl("oncogene", ignore.case= TRUE,resBacTran_05_df_FULL$Protein.names),]
+
+#no aven (it is aka Apoptosis And Caspase Activation Inhibitor)
+oshv_aven <-  resBacTran_05_df_FULL[grepl("caspase",ignore.case=TRUE, resBacTran_05_df_FULL$Protein.names) &
+                                  !grepl("activation", ignore.case=TRUE, resBacTran_05_df_FULL$Protein.names),]
+
 #no p53..
-RIF_p53 <- resRIFTran_05_FULL_ENTREZGENE_DATA[grepl("tumor", resRIFTran_05_FULL_ENTREZGENE_DATA$description) & grepl( "antigen", resRIFTran_05_FULL_ENTREZGENE_DATA$description),]
-RIF_p53 <- resRIFTran_05_FULL_ENTREZGENE_DATA[grepl("p53", resRIFTran_05_FULL_ENTREZGENE_DATA$description) ,]
-RIF_p53 <- resRIFTran_05_FULL_ENTREZGENE_DATA[grepl("tumor", resRIFTran_05_FULL_ENTREZGENE_DATA$description) & grepl( "protein", resRIFTran_05_FULL_ENTREZGENE_DATA$description),]
+oshv_p53 <- resBacTran_05_df_FULL[grepl("tumor", ignore.case= TRUE,resBacTran_05_df_FULL$Protein.names) & grepl( "antigen",ignore.case= TRUE, resBacTran_05_df_FULL$Protein.names),]
+oshv_p53 <- resBacTran_05_df_FULL[grepl("p53", ignore.case= TRUE, resBacTran_05_df_FULL$Protein.names) ,]
+oshv_p53 <- resBacTran_05_df_FULL[grepl("tumor", ignore.case= TRUE,resBacTran_05_df_FULL$Protein.names) & grepl( "protein", ignore.case= TRUE,resBacTran_05_df_FULL$Protein.names),]
 
 #no smac
-RIF_smac <- resRIFTran_05_FULL_ENTREZGENE_DATA[grepl("low", resRIFTran_05_FULL_ENTREZGENE_DATA$description) & grepl( "PI", resRIFTran_05_FULL_ENTREZGENE_DATA$description),]
-RIF_smac <- resRIFTran_05_FULL_ENTREZGENE_DATA[grepl("mitochondrial", resRIFTran_05_FULL_ENTREZGENE_DATA$description) & grepl( "activator", resRIFTran_05_FULL_ENTREZGENE_DATA$description),]
-RIF_smac1 <- resRIFTran_05_FULL_ENTREZGENE_DATA[grepl("IAP", ignore.case = TRUE, resRIFTran_05_FULL_ENTREZGENE_DATA$description) & grepl( "direct", resRIFTran_05_FULL_ENTREZGENE_DATA$description),]
+oshv_smac <- resBacTran_05_df_FULL[grepl("low", ignore.case= TRUE,resBacTran_05_df_FULL$Protein.names) & grepl( "PI", ignore.case= TRUE,resBacTran_05_df_FULL$Protein.names),]
+oshv_smac <- resBacTran_05_df_FULL[grepl("mitochondrial", ignore.case= TRUE,resBacTran_05_df_FULL$Protein.names) & grepl( "activator", ignore.case= TRUE,resBacTran_05_df_FULL$Protein.names),]
+oshv_smac1 <- resBacTran_05_df_FULL[grepl("IAP", ignore.case = TRUE, resBacTran_05_df_FULL$Protein.names) & grepl( "direct", ignore.case= TRUE,resBacTran_05_df_FULL$Protein.names),]
 
-RIF_bcl <- resRIFTran_05_FULL_ENTREZGENE_DATA[grepl("bcl",ignore.case = TRUE, resRIFTran_05_FULL_ENTREZGENE_DATA$description) &
-                                                !grepl("interacting",resRIFTran_05_FULL_ENTREZGENE_DATA$description),]
-
+oshv_bcl <- resBacTran_05_df_FULL[grepl("bcl",ignore.case = TRUE, resBacTran_05_df_FULL$Protein.names) &
+                                grepl("apoptosis", ignore.case=TRUE,resBacTran_05_df_FULL$Protein.names),]
+oshv_bclw <-  resBacTran_05_df_FULL[grepl("bcl-2",ignore.case = TRUE, resBacTran_05_df_FULL$Protein.names) &
+                                  grepl("like",ignore.case = TRUE, resBacTran_05_df_FULL$Protein.names),]
 #no mcl
-RIF_mcl <- resRIFTran_05_FULL_ENTREZGENE_DATA[grepl("myeloid",ignore.case = TRUE, resRIFTran_05_FULL_ENTREZGENE_DATA$description) &
-                                                grepl("leukemia", ignore.case = TRUE, resRIFTran_05_FULL_ENTREZGENE_DATA$description),]
-RIF_mcl <- resRIFTran_05_FULL_ENTREZGENE_DATA[grepl("cell", resRIFTran_05_FULL_ENTREZGENE_DATA$description) & grepl( "differentiation", resRIFTran_05_FULL_ENTREZGENE_DATA$description),]
+oshv_mcl <- resBacTran_05_df_FULL[grepl("myeloid",ignore.case = TRUE, resBacTran_05_df_FULL$Protein.names) &
+                                grepl("leukemia", ignore.case = TRUE, resBacTran_05_df_FULL$Protein.names),]
+oshv_mcl <- resBacTran_05_df_FULL[grepl("cell", ignore.case= TRUE,resBacTran_05_df_FULL$Protein.names) & grepl( "differentiation", ignore.case= TRUE,resBacTran_05_df_FULL$Protein.names),]
 
 #no A1
-RIF_A1 <- resRIFTran_05_FULL_ENTREZGENE_DATA[grepl("bcl-2",ignore.case = TRUE, resRIFTran_05_FULL_ENTREZGENE_DATA$description),]
+oshv_A1 <- resBacTran_05_df_FULL[grepl("bcl-2",ignore.case = TRUE, resBacTran_05_df_FULL$Protein.names),]
 
 #no Bak
-RIF_Bak <- resRIFTran_05_FULL_ENTREZGENE_DATA[grepl("antagonist", resRIFTran_05_FULL_ENTREZGENE_DATA$description) & grepl( " killer", resRIFTran_05_FULL_ENTREZGENE_DATA$description),]
-RIF_Bak2 <- resRIFTran_05_FULL_ENTREZGENE_DATA[grepl("bcl2l7",ignore.case = TRUE, resRIFTran_05_FULL_ENTREZGENE_DATA$description),]
+oshv_Bak <- resBacTran_05_df_FULL[grepl("antagonist", ignore.case= TRUE,resBacTran_05_df_FULL$Protein.names) & grepl( "killer", ignore.case= TRUE,resBacTran_05_df_FULL$Protein.names),]
+oshv_Bak2 <- resBacTran_05_df_FULL[grepl("bcl2l7",ignore.case = TRUE, resBacTran_05_df_FULL$Protein.names),]
 
-RIF_BAX <- resRIFTran_05_FULL_ENTREZGENE_DATA[grepl("bax-like",ignore.case = TRUE, resRIFTran_05_FULL_ENTREZGENE_DATA$description),]
+#none are Bcl-2 associated protein 
+oshv_BAX <- resBacTran_05_df_FULL[grepl("bax",ignore.case = TRUE, resBacTran_05_df_FULL$Protein.names),]
 
 #no Bok
-RIF_Bok <-  resRIFTran_05_FULL_ENTREZGENE_DATA[grepl("ovarian", resRIFTran_05_FULL_ENTREZGENE_DATA$description) & grepl( "killer", resRIFTran_05_FULL_ENTREZGENE_DATA$description),]
-RIF_Bok <- resRIFTran_05_FULL_ENTREZGENE_DATA[grepl("ovarian", resRIFTran_05_FULL_ENTREZGENE_DATA$description),]
+oshv_Bok <-  resBacTran_05_df_FULL[grepl("ovarian",ignore.case= TRUE, resBacTran_05_df_FULL$Protein.names) & grepl( "killer", ignore.case= TRUE,resBacTran_05_df_FULL$Protein.names),]
+oshv_Bok <- resBacTran_05_df_FULL[grepl("ovarian",ignore.case= TRUE, resBacTran_05_df_FULL$Protein.names),]
 
 #no BAD
-RIF_BAD <- resRIFTran_05_FULL_ENTREZGENE_DATA[grepl("death", resRIFTran_05_FULL_ENTREZGENE_DATA$description) & grepl( "promoter", resRIFTran_05_FULL_ENTREZGENE_DATA$description),]
-RIF_BAD2 <- resRIFTran_05_FULL_ENTREZGENE_DATA[grepl("binding", resRIFTran_05_FULL_ENTREZGENE_DATA$description) & grepl( "component", resRIFTran_05_FULL_ENTREZGENE_DATA$description),]
-RIF_BAD3 <- resRIFTran_05_FULL_ENTREZGENE_DATA[grepl("BAD", ignore.case=TRUE, resRIFTran_05_FULL_ENTREZGENE_DATA$description),]
+oshv_BAD <- resBacTran_05_df_FULL[grepl("death",ignore.case= TRUE, resBacTran_05_df_FULL$Protein.names) & grepl( "promoter",ignore.case= TRUE, resBacTran_05_df_FULL$Protein.names),]
+oshv_BAD2 <- resBacTran_05_df_FULL[grepl("binding", ignore.case= TRUE,resBacTran_05_df_FULL$Protein.names) & grepl( "component", ignore.case= TRUE,resBacTran_05_df_FULL$Protein.names),]
+oshv_BAD3 <- resBacTran_05_df_FULL[grepl("BAD", ignore.case=TRUE, resBacTran_05_df_FULL$Protein.names),]
 
-RIF_BAG <- resRIFTran_05_FULL_ENTREZGENE_DATA[grepl("BAG",ignore.case=TRUE, resRIFTran_05_FULL_ENTREZGENE_DATA$description),]
+oshv_BAG <- resBacTran_05_df_FULL[grepl("BAG",ignore.case=TRUE, resBacTran_05_df_FULL$Protein.names),]
 
 #no BH3
-RIF_BH3 <- resRIFTran_05_FULL_ENTREZGENE_DATA[grepl("BH3",ignore.case=TRUE, resRIFTran_05_FULL_ENTREZGENE_DATA$description),]
-RIF_Bid <- resRIFTran_05_FULL_ENTREZGENE_DATA[grepl("Bid",ignore.case=TRUE, resRIFTran_05_FULL_ENTREZGENE_DATA$description),]
+oshv_BH3 <- resBacTran_05_df_FULL[grepl("BH3",ignore.case=TRUE, resBacTran_05_df_FULL$Protein.names),]
+oshv_Bid <- resBacTran_05_df_FULL[grepl("Bid",ignore.case=TRUE, resBacTran_05_df_FULL$Protein.names),]
 
-#no BIM
-RIF_BIM <- resRIFTran_05_FULL_ENTREZGENE_DATA[grepl("BIM",ignore.case=TRUE, resRIFTran_05_FULL_ENTREZGENE_DATA$description),]
+#no BIM or Bcl-2-like protein 11
+oshv_BIM <- resBacTran_05_df_FULL[grepl("BIM",ignore.case=TRUE, resBacTran_05_df_FULL$Protein.names),]
+oshv_BIMb <- resBacTran_05_df_FULL[grepl("Bcl-2",ignore.case=TRUE, resBacTran_05_df_FULL$Protein.names),]
 
 # no Bik
-RIF_Bik <- resRIFTran_05_FULL_ENTREZGENE_DATA[grepl("interacting", resRIFTran_05_FULL_ENTREZGENE_DATA$description) & grepl( "killer", resRIFTran_05_FULL_ENTREZGENE_DATA$description),]
+oshv_Bik <- resBacTran_05_df_FULL[grepl("interacting", ignore.case= TRUE,resBacTran_05_df_FULL$Protein.names) & grepl( "killer",ignore.case= TRUE, resBacTran_05_df_FULL$Protein.names),]
 
 #no Puma
-RIF_Puma <- resRIFTran_05_FULL_ENTREZGENE_DATA[grepl("modulator", resRIFTran_05_FULL_ENTREZGENE_DATA$description) & grepl( "apoptosis", resRIFTran_05_FULL_ENTREZGENE_DATA$description),]
-RIF_Puma <- resRIFTran_05_FULL_ENTREZGENE_DATA[grepl("JFY", resRIFTran_05_FULL_ENTREZGENE_DATA$description),]
+oshv_Puma <- resBacTran_05_df_FULL[grepl("modulator",ignore.case= TRUE, resBacTran_05_df_FULL$Protein.names) & grepl( "apoptosis",ignore.case= TRUE, resBacTran_05_df_FULL$Protein.names),]
+oshv_Puma <- resBacTran_05_df_FULL[grepl("JFY", ignore.case= TRUE,resBacTran_05_df_FULL$Protein.names),]
 
-RIF_ceramide <- resRIFTran_05_FULL_ENTREZGENE_DATA[grepl("ceramide", resRIFTran_05_FULL_ENTREZGENE_DATA$description) &
-                                                     !grepl("galactosylceramide",resRIFTran_05_FULL_ENTREZGENE_DATA$description)&
-                                                     !grepl("kinase",resRIFTran_05_FULL_ENTREZGENE_DATA$description) &
-                                                     grepl("synthase",resRIFTran_05_FULL_ENTREZGENE_DATA$description ) &
-                                                     !grepl("phospho", resRIFTran_05_FULL_ENTREZGENE_DATA$description),]
+#no ceramide
+oshv_ceramide <- resBacTran_05_df_FULL[grepl("ceramide",ignore.case= TRUE, resBacTran_05_df_FULL$Protein.names) ,]
 
-RIF_MEKK_MAPK <- resRIFTran_05_FULL_ENTREZGENE_DATA[grepl("mitogen-activated", resRIFTran_05_FULL_ENTREZGENE_DATA$description) &
-                                                      grepl( "kinase", resRIFTran_05_FULL_ENTREZGENE_DATA$description) &
-                                                      !grepl("kinase-binding", resRIFTran_05_FULL_ENTREZGENE_DATA$description) &
-                                                      !grepl("interacting", resRIFTran_05_FULL_ENTREZGENE_DATA$description),]
+oshv_MEKK_MAPK <- resBacTran_05_df_FULL[grepl("mitogen-activated", ignore.case= TRUE,resBacTran_05_df_FULL$Protein.names) &
+                                      grepl( "kinase", ignore.case= TRUE,resBacTran_05_df_FULL$Protein.names) &
+                                      !grepl("kinase-binding", ignore.case= TRUE,resBacTran_05_df_FULL$Protein.names),]
 
 #no p38 MAPK
-RIF_p38_MAPK <- resRIFTran_05_FULL_ENTREZGENE_DATA[grepl("mitogen-activated", resRIFTran_05_FULL_ENTREZGENE_DATA$description) &
-                                                     grepl( "kinase", resRIFTran_05_FULL_ENTREZGENE_DATA$description) &
-                                                     grepl("p38", ignore.case=TRUE, resRIFTran_05_FULL_ENTREZGENE_DATA$description),]
+oshv_p38_MAPK <-resBacTran_05_df_FULL[grepl("mitogen-activated",ignore.case= TRUE, resBacTran_05_df_FULL$Protein.names) &
+                                    grepl( "kinase",ignore.case= TRUE, resBacTran_05_df_FULL$Protein.names) &
+                                    grepl("p38", ignore.case=TRUE, resBacTran_05_df_FULL$Protein.names),]
 
-RIF_endoG <- resRIFTran_05_FULL_ENTREZGENE_DATA[grepl("endonuclease", resRIFTran_05_FULL_ENTREZGENE_DATA$description) &
-                                                  grepl( "G", resRIFTran_05_FULL_ENTREZGENE_DATA$description) &
-                                                  !grepl("flap", resRIFTran_05_FULL_ENTREZGENE_DATA$description),]
+#none
+oshv_endoG <-resBacTran_05_df_FULL[grepl("endonuclease",ignore.case= TRUE,resBacTran_05_df_FULL$Protein.names) & grepl( "G",ignore.case= TRUE, resBacTran_05_df_FULL$Protein.names),]
 
-RIF_PI3 <- resRIFTran_05_FULL_ENTREZGENE_DATA[grepl("phosphatidylinositol", resRIFTran_05_FULL_ENTREZGENE_DATA$description) & grepl( "3-kinase", resRIFTran_05_FULL_ENTREZGENE_DATA$description),]
+oshv_PI3 <- resBacTran_05_df_FULL[grepl("phosphatidylinositol", ignore.case= TRUE,resBacTran_05_df_FULL$Protein.names) & grepl( "3-kinase",ignore.case= TRUE, resBacTran_05_df_FULL$Protein.names),]
 
-#only AKT interacting protein
-RIF_AKTB <- resRIFTran_05_FULL_ENTREZGENE_DATA[grepl("protein", ignore.case = TRUE, resRIFTran_05_FULL_ENTREZGENE_DATA$description) &
-                                                 grepl("kinase", resRIFTran_05_FULL_ENTREZGENE_DATA$description) &
-                                                 grepl("B",resRIFTran_05_FULL_ENTREZGENE_DATA$description),]
+#no AKT
+oshv_AKTB <-resBacTran_05_df_FULL[grepl("protein", ignore.case = TRUE, resBacTran_05_df_FULL$Protein.names) &
+                                 grepl("kinase",ignore.case= TRUE, resBacTran_05_df_FULL$Protein.names) &
+                                 grepl("B",ignore.case= TRUE,resBacTran_05_df_FULL$Protein.names),]
 #no protein kinase B!
-RIF_akt <- resRIFTran_05_FULL_ENTREZGENE_DATA[grepl("akt", ignore.case = TRUE, resRIFTran_05_FULL_ENTREZGENE_DATA$description),]
+oshv_akt <- resBacTran_05_df_FULL[grepl("akt", ignore.case = TRUE, resBacTran_05_df_FULL$Protein.names),]
 
-RIF_JNK <- resRIFTran_05_FULL_ENTREZGENE_DATA[grepl("stress-activated", resRIFTran_05_FULL_ENTREZGENE_DATA$description) & grepl( "JNK", resRIFTran_05_FULL_ENTREZGENE_DATA$description),]
+#no JNK
+oshv_JNK <- resBacTran_05_df_FULL[grepl("stress-activated", ignore.case= TRUE,resBacTran_05_df_FULL$Protein.names) & grepl( "JNK", ignore.case= TRUE,resBacTran_05_df_FULL$Protein.names),]
 
-
-RIF_p35 <- resRIFTran_05_FULL_ENTREZGENE_DATA[grepl("cyclin", resRIFTran_05_FULL_ENTREZGENE_DATA$description) & grepl( "dependent", resRIFTran_05_FULL_ENTREZGENE_DATA$description) &
-                                                grepl( "5", resRIFTran_05_FULL_ENTREZGENE_DATA$description) &
-                                                grepl("activator",resRIFTran_05_FULL_ENTREZGENE_DATA$description),]
-#none
-RIF_cJUN <- resRIFTran_05_FULL_ENTREZGENE_DATA[grepl("proto", resRIFTran_05_FULL_ENTREZGENE_DATA$description) & grepl( "oncogene", resRIFTran_05_FULL_ENTREZGENE_DATA$description) &
-                                                 grepl("jun", resRIFTran_05_FULL_ENTREZGENE_DATA$description),]
-#none
-RIF_cJUN <- resRIFTran_05_FULL_ENTREZGENE_DATA[grepl("c-jun", resRIFTran_05_FULL_ENTREZGENE_DATA$description),]
-#1 
-RIF_cJUNa <- resRIFTran_05_FULL_ENTREZGENE_DATA[grepl("AP-1", resRIFTran_05_FULL_ENTREZGENE_DATA$description) &
-                                                  grepl("transcription",resRIFTran_05_FULL_ENTREZGENE_DATA$description),]
-RIF_CD151 <- resRIFTran_05_FULL_ENTREZGENE_DATA[grepl("CD151", ignore.case = TRUE, resRIFTran_05_FULL_ENTREZGENE_DATA$description),]
 
 #none
-RIF_BTG1 <- resRIFTran_05_FULL_ENTREZGENE_DATA[grepl("B", resRIFTran_05_FULL_ENTREZGENE_DATA$description) & grepl("translocation", resRIFTran_05_FULL_ENTREZGENE_DATA$description),]
-
-#1 
-RIF_BTG2 <- resRIFTran_05_FULL_ENTREZGENE_DATA[grepl("BTG", resRIFTran_05_FULL_ENTREZGENE_DATA$description) ,]
-
-RIF_IAP <- resRIFTran_05_FULL_ENTREZGENE_DATA[grepl("inhibitor", resRIFTran_05_FULL_ENTREZGENE_DATA$description) &
-                                                grepl("apoptosis", ignore.case=TRUE, resRIFTran_05_FULL_ENTREZGENE_DATA$description) &
-                                                !grepl("death-associated", ignore.case = TRUE, resRIFTran_05_FULL_ENTREZGENE_DATA$description) &
-                                                !grepl("caspase", resRIFTran_05_FULL_ENTREZGENE_DATA$description) &
-                                                !grepl("5-like", resRIFTran_05_FULL_ENTREZGENE_DATA$description),]
-RIF_IAP2 <- resRIFTran_05_FULL_ENTREZGENE_DATA[grepl("baculoviral", resRIFTran_05_FULL_ENTREZGENE_DATA$description) &
-                                                 grepl("IAP", ignore.case = TRUE,resRIFTran_05_FULL_ENTREZGENE_DATA$description),]
-RIF_API <- resRIFTran_05_FULL_ENTREZGENE_DATA[grepl("inhibitor", resRIFTran_05_FULL_ENTREZGENE_DATA$description) &
-                                                grepl("apoptosis", ignore.case=TRUE, resRIFTran_05_FULL_ENTREZGENE_DATA$description) &
-                                                !grepl("death-associated", ignore.case = TRUE, resRIFTran_05_FULL_ENTREZGENE_DATA$description) &
-                                                !grepl("caspase", resRIFTran_05_FULL_ENTREZGENE_DATA$description) &
-                                                grepl("5-like", resRIFTran_05_FULL_ENTREZGENE_DATA$description),]
-
-RIF_DIAP <- resRIFTran_05_FULL_ENTREZGENE_DATA[grepl("inhibitor", resRIFTran_05_FULL_ENTREZGENE_DATA$description) &
-                                                 grepl("apoptosis", ignore.case=TRUE, resRIFTran_05_FULL_ENTREZGENE_DATA$description) &
-                                                 grepl("death-associated", ignore.case = TRUE, resRIFTran_05_FULL_ENTREZGENE_DATA$description),]
-#no CAAP
-RIF_CAAP <- resRIFTran_05_FULL_ENTREZGENE_DATA[grepl("inhibitor", resRIFTran_05_FULL_ENTREZGENE_DATA$description) &
-                                                 grepl("apoptosis", ignore.case=TRUE, resRIFTran_05_FULL_ENTREZGENE_DATA$description) &
-                                                 !grepl("death-associated", ignore.case = TRUE, resRIFTran_05_FULL_ENTREZGENE_DATA$description) &
-                                                 grepl("caspase", resRIFTran_05_FULL_ENTREZGENE_DATA$description),]
-
-RIF_PCD <- resRIFTran_05_FULL_ENTREZGENE_DATA[grepl("programmed", resRIFTran_05_FULL_ENTREZGENE_DATA$description) & 
-                                                grepl("death", resRIFTran_05_FULL_ENTREZGENE_DATA$description) &
-                                                grepl("cell", resRIFTran_05_FULL_ENTREZGENE_DATA$description) &
-                                                !grepl("interacting", resRIFTran_05_FULL_ENTREZGENE_DATA$description),]
-
-RIF_NR13 <- resRIFTran_05_FULL_ENTREZGENE_DATA[grepl("NR13", resRIFTran_05_FULL_ENTREZGENE_DATA$description),]
+oshv_p35 <- resBacTran_05_df_FULL[grepl("cyclin", ignore.case= TRUE,resBacTran_05_df_FULL$Protein.names) & grepl( "dependent",ignore.case= TRUE, resBacTran_05_df_FULL$Protein.names) &
+                                grepl( "5",ignore.case= TRUE, resBacTran_05_df_FULL$Protein.names) &
+                                grepl("activator",ignore.case= TRUE,resBacTran_05_df_FULL$Protein.names),]
+oshv_p35 <- resBacTran_05_df_FULL[grepl("p35", ignore.case= TRUE,resBacTran_05_df_FULL$Protein.names),]
 
 
-RIF_PAWR <- resRIFTran_05_FULL_ENTREZGENE_DATA[grepl("WT1", resRIFTran_05_FULL_ENTREZGENE_DATA$description) & grepl("regulator", resRIFTran_05_FULL_ENTREZGENE_DATA$description),]
+#oshv_cJUN <- resBacTran_05_df_FULL[grepl("jun",ignore.case= TRUE, resBacTran_05_df_FULL$Protein.names) ,]
+oshv_cJUN <- resBacTran_05_df_FULL[grepl("c-jun",ignore.case= TRUE, resBacTran_05_df_FULL$Protein.names),]
 
-RIF_IFI44 <- resRIFTran_05_FULL_ENTREZGENE_DATA[grepl("interferon", resRIFTran_05_FULL_ENTREZGENE_DATA$description) & grepl("44", resRIFTran_05_FULL_ENTREZGENE_DATA$description),]
+
+oshv_AP1 <- resBacTran_05_df_FULL[grepl("AP-1", ignore.case= TRUE,resBacTran_05_df_FULL$Protein.names) &
+                                  grepl("transcription",ignore.case= TRUE,resBacTran_05_df_FULL$Protein.names),]
+#no CD151
+oshv_CD151 <- resBacTran_05_df_FULL[grepl("CD151", ignore.case = TRUE, resBacTran_05_df_FULL$Protein.names),]
+
+#oshv_BTG1 <- resBacTran_05_df_FULL[grepl("B",ignore.case= TRUE, resBacTran_05_df_FULL$Protein.names) & grepl("translocation", ignore.case= TRUE,resBacTran_05_df_FULL$Protein.names),]
+
+oshv_BTG2 <- resBacTran_05_df_FULL[grepl("BTG", ignore.case= TRUE,resBacTran_05_df_FULL$Protein.names) ,]
+
+oshv_IAP <- resBacTran_05_df_FULL[grepl("inhibitor", ignore.case= TRUE,resBacTran_05_df_FULL$Protein.names) &
+                                grepl("apoptosis", ignore.case=TRUE, resBacTran_05_df_FULL$Protein.names) &
+                                !grepl("death-associated", ignore.case = TRUE, resBacTran_05_df_FULL$Protein.names) &
+                                !grepl("caspase", ignore.case= TRUE,resBacTran_05_df_FULL$Protein.names) &
+                                !grepl("5-like", ignore.case= TRUE,resBacTran_05_df_FULL$Protein.names) &
+                                !grepl("TP53",resBacTran_05_df_FULL$Protein.names),]
+
+oshv_IAP2 <- resBacTran_05_df_FULL[grepl("baculoviral", ignore.case = TRUE, resBacTran_05_df_FULL$Protein.names) &
+                                 grepl("IAP", ignore.case = TRUE,resBacTran_05_df_FULL$Protein.names),]
+
+#none
+oshv_API <- resBacTran_05_df_FULL[grepl("inhibitor",ignore.case= TRUE, resBacTran_05_df_FULL$Protein.names) &
+                                grepl("apoptosis", ignore.case=TRUE, resBacTran_05_df_FULL$Protein.names) &
+                                  !grepl("death", ignore.case = TRUE, resBacTran_05_df_FULL$Protein.names) &
+                                !grepl("caspase",ignore.case = TRUE, resBacTran_05_df_FULL$Protein.names) &
+                                grepl("5", ignore.case = TRUE,resBacTran_05_df_FULL$Protein.names),]
+#none
+oshv_DIAP <- resBacTran_05_df_FULL[grepl("inhibitor", ignore.case= TRUE,resBacTran_05_df_FULL$Protein.names) &
+                                 grepl("apoptosis", ignore.case=TRUE, resBacTran_05_df_FULL$Protein.names) &
+                                 grepl("death", ignore.case = TRUE, resBacTran_05_df_FULL$Protein.names),]
+#none
+oshv_CAAP <- resBacTran_05_df_FULL[grepl("inhibitor", ignore.case= TRUE,resBacTran_05_df_FULL$Protein.names) &
+                                 grepl("apoptosis", ignore.case=TRUE, resBacTran_05_df_FULL$Protein.names) &
+                                 !grepl("death", ignore.case = TRUE, resBacTran_05_df_FULL$Protein.names) &
+                                 grepl("caspase", ignore.case= TRUE,resBacTran_05_df_FULL$Protein.names),]
+
+oshv_PCD <- resBacTran_05_df_FULL[grepl("programmed",ignore.case= TRUE, resBacTran_05_df_FULL$Protein.names) & 
+                                grepl("death",ignore.case= TRUE, resBacTran_05_df_FULL$Protein.names) &
+                                grepl("cell", ignore.case= TRUE,resBacTran_05_df_FULL$Protein.names) &
+                                !grepl("interacting",ignore.case= TRUE, resBacTran_05_df_FULL$Protein.names),]
+#none
+oshv_NR13 <- resBacTran_05_df_FULL[grepl("NR13", ignore.case= TRUE,resBacTran_05_df_FULL$Protein.names),]
+
+
+oshv_PAWR <- resBacTran_05_df_FULL[grepl("WT1", ignore.case= TRUE,resBacTran_05_df_FULL$Protein.names) & grepl("regulator", ignore.case= TRUE,resBacTran_05_df_FULL$Protein.names),]
+
+oshv_IFI44 <- resBacTran_05_df_FULL[grepl("interferon", ignore.case= TRUE,resBacTran_05_df_FULL$Protein.names) & grepl("44",ignore.case= TRUE, resBacTran_05_df_FULL$Protein.names),]
 
 #no IFI6
-RIF_IFI6 <- resRIFTran_05_FULL_ENTREZGENE_DATA[grepl("interferon", resRIFTran_05_FULL_ENTREZGENE_DATA$description) & grepl("6", resRIFTran_05_FULL_ENTREZGENE_DATA$description),]
+oshv_IFI6 <- resBacTran_05_df_FULL[grepl("interferon",ignore.case= TRUE, resBacTran_05_df_FULL$Protein.names) & grepl("6",ignore.case= TRUE, resBacTran_05_df_FULL$Protein.names),]
 
-RIF_TLR <- resRIFTran_05_FULL_ENTREZGENE_DATA[grepl("toll", resRIFTran_05_FULL_ENTREZGENE_DATA$description) & grepl("receptor", resRIFTran_05_FULL_ENTREZGENE_DATA$description),]
+oshv_TLR <- resBacTran_05_df_FULL[grepl("toll",ignore.case= TRUE, resBacTran_05_df_FULL$Protein.names) & grepl("receptor", ignore.case= TRUE,resBacTran_05_df_FULL$Protein.names),]
 
-RIF_MyD88 <-resRIFTran_05_FULL_ENTREZGENE_DATA[grepl("myeloid", resRIFTran_05_FULL_ENTREZGENE_DATA$description) & grepl("differentiation", resRIFTran_05_FULL_ENTREZGENE_DATA$description),]
+oshv_MyD88 <-resBacTran_05_df_FULL[grepl("myeloid", ignore.case= TRUE,resBacTran_05_df_FULL$Protein.names) & grepl("differentiation",ignore.case= TRUE, resBacTran_05_df_FULL$Protein.names),]
 
-#no CCAR
-RIF_CCAR <- resRIFTran_05_FULL_ENTREZGENE_DATA[grepl("cell", resRIFTran_05_FULL_ENTREZGENE_DATA$description) & grepl("division", resRIFTran_05_FULL_ENTREZGENE_DATA$description) &
-                                                 grepl("apoptosis",resRIFTran_05_FULL_ENTREZGENE_DATA$description),]
-#no ASPP
-RIF_ASPP <- resRIFTran_05_FULL_ENTREZGENE_DATA[grepl("apoptosis-stimulating", resRIFTran_05_FULL_ENTREZGENE_DATA$description) & grepl("p53", resRIFTran_05_FULL_ENTREZGENE_DATA$description),]
 
-#
-RIF_GIMAP <- resRIFTran_05_FULL_ENTREZGENE_DATA[grepl("GIMAP", resRIFTran_05_FULL_ENTREZGENE_DATA$description) ,]
-RIF_GIMAP <- resRIFTran_05_FULL_ENTREZGENE_DATA[grepl("GTPase", ignore.case = TRUE, resRIFTran_05_FULL_ENTREZGENE_DATA$description) &
-                                                  grepl("IMAP",resRIFTran_05_FULL_ENTREZGENE_DATA$description),]
+oshv_CCAR <- resBacTran_05_df_FULL[grepl("cell", ignore.case= TRUE,resBacTran_05_df_FULL$Protein.names) & grepl("division", ignore.case= TRUE,resBacTran_05_df_FULL$Protein.names) &
+                                 grepl("apoptosis",ignore.case= TRUE,resBacTran_05_df_FULL$Protein.names),]
+
+#none
+oshv_ASPP <- resBacTran_05_df_FULL[grepl("apoptosis-stimulating",ignore.case= TRUE, resBacTran_05_df_FULL$Protein.names) & grepl("p53",ignore.case= TRUE, resBacTran_05_df_FULL$Protein.names),]
+
+
+#oshv_GIMAP <- resBacTran_05_df_FULL[grepl("GIMAP",ignore.case= TRUE, resBacTran_05_df_FULL$Protein.names) ,]
+oshv_GIMAP <- resBacTran_05_df_FULL[grepl("GTPase", ignore.case = TRUE, resBacTran_05_df_FULL$Protein.names) &
+                                  grepl("IMAP",ignore.case= TRUE,resBacTran_05_df_FULL$Protein.names),]
 
 
 #Combine all lists from above into one new big table
 #only include those that have hits and are confirmed to be correct
-resRIFTran_05_FULL_ENTREZGENE_DATA_APOPTOSIS_ALL_TERMS_COMBINED <- rbind(RIF_IP3R, RIF_Rho, RIF_Rac1, RIF_cdc42, RIF_PKCiota, RIF_PKCdelta, RIF_IkB,
-                                                                         RIF_NFkB, RIF_GPCRsevenpass, RIF_GPCR, RIF_RIP, RIF_AC, RIF_CREB, RIF_Fas,
-                                                                         RIF_TNF, RIF_FAIM,RIF_FADD,RIF_caspase, RIF_TRAF, RIF_ICAD, RIF_CAD, RIF_cytoc,
-                                                                         RIF_AIF, RIF_bcl, RIF_BAX, RIF_BAG, RIF_ceramide, RIF_MEKK_MAPK, RIF_endoG,
-                                                                         RIF_PI3, RIF_p35, RIF_CD151, RIF_BTG2, RIF_IAP, RIF_IAP2, RIF_API, RIF_DIAP,
-                                                                         RIF_PCD, RIF_PAWR, RIF_TLR, RIF_IFI44, RIF_MyD88, RIF_GIMAP)
-write.csv(resRIFTran_05_FULL_ENTREZGENE_DATA_APOPTOSIS_ALL_TERMS_COMBINED, file="resRIFTran_05_FULL_ENTREZGENE_DATA_APOPTOSIS_ALL_TERMS_COMBINED.csv")
+resBacTran_05_FULL_APOPTOSIS_ALL_TERMS_COMBINED <- rbind(oshv_IP3R, oshv_Rho, oshv_Rac1, oshv_cdc42, oshv_PKC, 
+                                                          oshv_PKCdelta, oshv_IkB, oshv_GPCRsevenpass, oshv_GPCR,
+                                                          oshv_RIPK, oshv_PKA, oshv_AC, oshv_CREB, oshv_Fas, 
+                                                          oshv_TNF, oshv_TNFL, oshv_TNFR, oshv_caspase, oshv_TRAF, 
+                                                          oshv_NuMa, oshv_BI, oshv_cytoc, oshv_AIF, oshv_myc, 
+                                                          oshv_bcl, oshv_bclw, oshv_BAG, oshv_MEKK_MAPK, 
+                                                          oshv_PI3, oshv_cJUN, oshv_AP1, oshv_BTG2, oshv_IAP, 
+                                                          oshv_IAP2, oshv_PCD, oshv_PAWR, oshv_IFI44, oshv_TLR, 
+                                                          oshv_MyD88, oshv_CCAR, oshv_GIMAP)
+
 #subset only those that are significant
-resRIFTran_05_FULL_ENTREZGENE_DATA_APOPTOSIS_ALL_TERMS_COMBINED_significant <- resRIFTran_05_FULL_ENTREZGENE_DATA_APOPTOSIS_ALL_TERMS_COMBINED[which(resRIFTran_05_FULL_ENTREZGENE_DATA_APOPTOSIS_ALL_TERMS_COMBINED$padj < 0.05),]
-
+resBacTran_05_FULL_APOPTOSIS_ALL_TERMS_COMBINED_significant <- resBacTran_05_FULL_APOPTOSIS_ALL_TERMS_COMBINED %>%
+  filter(Significance == "significant")
 #add column with apoptosis pathwway and label genes with same name with extra (#)
-write.csv(resRIFTran_05_FULL_ENTREZGENE_DATA_APOPTOSIS_ALL_TERMS_COMBINED_significant, file="resRIFTran_05_FULL_ENTREZGENE_DATA_APOPTOSIS_ALL_TERMS_COMBINED_significant.csv")
-resRIFTran_05_FULL_ENTREZGENE_DATA_APOPTOSIS_ALL_TERMS_COMBINED_significant_path <- read.csv(file="resRIFTran_05_FULL_ENTREZGENE_DATA_APOPTOSIS_ALL_TERMS_COMBINED_significant.csv", header=TRUE)
+write.csv(resBacTran_05_FULL_APOPTOSIS_ALL_TERMS_COMBINED_significant, file="resBacTran_05_FULL_APOPTOSIS_ALL_TERMS_COMBINED_significant.csv")
+resBacTran_05_FULL_APOPTOSIS_ALL_TERMS_COMBINED_significant_path <- read.csv(file="resBacTran_05_FULL_APOPTOSIS_ALL_TERMS_COMBINED_significant.csv", header=TRUE)
 
-####Graph Significantly differentially expressed proteins from ROD challenge, with log2 fold change assessed across time points ####
-cbbPalette <- c("#000000", "#E69F00", "#56B4E9", "#009E73", "#F0E442", "#0072B2", "#D55E00", "#CC79A7")
-#color based on their known pathway
+####Graphing Significant BAC apoptosis genes p <0.05 ####
+#labels for signifiance with *= p <0.05
+label.Bac.sig.df <- data.frame(Protein.names= c("Rho-related GTP-binding protein RhoU",
+                                                "Rho-related GTP-binding protein RhoJ",
+                                                "Transmembrane BAX inhibitor motif-containing protein 4",
+                                                "Phosphatidylinositol-4,5-bisphosphate 3-kinase catalytic subunit alpha isoform",
+                                                "Apoptosis 2 inhibitor",
+                                                "Baculoviral IAP repeat-containing protein 7-A",
+                                                "Baculoviral IAP repeat-containing protein 7-B"), log2FoldChange=c(2.5,4.5,23,23.5,22,19.5,9.5))
 
-#padj less than 10^-5
-label.RIF.df <- data.frame(description= c("mitogen-activated protein kinase kinase kinase 7-like",
-                                          "GTPase IMAP family member 4-like"), log2FoldChange=c(-13.5, 11.0))
-RIF_Sig_PLOT <- ggplot(resRIFTran_05_FULL_ENTREZGENE_DATA_APOPTOSIS_ALL_TERMS_COMBINED_significant_path) + 
-  geom_col(aes(x=description, y=log2FoldChange, fill=Pathway)) + 
+Bac_sig_05_1 <- ggplot(resBacTran_05_FULL_APOPTOSIS_ALL_TERMS_COMBINED_significant_path) + 
+  geom_col(aes(x=Protein.names, y=log2FoldChange, fill=Type)) + 
   theme(axis.text.x = element_text(angle = 75, hjust = 1)) + geom_hline(yintercept=0.0) +
   scale_y_continuous(name ="log2 Fold Change", breaks = scales::pretty_breaks(n = 20)) + 
-  ggtitle("Significantly Differentially Expressed Apoptosis Genes in C. virginica after RIF Challenge") + 
+  ggtitle("Apoptosis Genes in M. gigas after Bacterial Challenge") + 
   theme(plot.title = element_text(size=10)) + theme(plot.title = element_text(hjust = 0.5))
 
-RIF_Sig_PLOT2 <- RIF_Sig_PLOT + geom_text(data=label.RIF.df, aes(x=description, y=log2FoldChange), label = c("***")) +
+Bac_sig_05_2 <- Bac_sig_05_1 +
+  geom_text(data=label.Bac.sig.df, aes(x=Protein.names, y=log2FoldChange), label = c("*")) +
   theme(axis.line = element_line(colour = "black", size = 0.5, linetype = "solid")) +
-  scale_x_discrete(name="Description", limits=c("leucine-rich repeat-containing G-protein coupled receptor 4-like",
-                                                "receptor-interacting serine/threonine-protein kinase 4-like",
-                                                "fatty acid synthase-like",
-                                                "mitogen-activated protein kinase kinase kinase 7-like",
-                                                "GTPase IMAP family member 4-like"), 
-                   label=c("leucine-rich repeat-containing G-protein coupled receptor 4-like"="GPCR 4-like",
-                           "receptor-interacting serine/threonine-protein kinase 4-like"="RIPK 4-like",
-                           "fatty acid synthase-like"="Fas-like",
-                           "mitogen-activated protein kinase kinase kinase 7-like"="MEKK/MAPK 7-like",
-                           "GTPase IMAP family member 4-like"="GIMAP4-like"))
+  scale_x_discrete(name="Transcript Annotation", limits=c("Rho-related GTP-binding protein RhoU",
+                                                          "Rho-related GTP-binding protein RhoJ",
+                                                          "Transmembrane BAX inhibitor motif-containing protein 4",
+                                                          "Phosphatidylinositol-4,5-bisphosphate 3-kinase catalytic subunit alpha isoform",
+                                                          "Apoptosis 2 inhibitor",
+                                                          "Baculoviral IAP repeat-containing protein 7-A",
+                                                          "Baculoviral IAP repeat-containing protein 7-B"), labels=c("Rho-related GTP-binding protein RhoU"="RhoU",
+                                                                                                                     "Rho-related GTP-binding protein RhoJ"="RhoJ",
+                                                                                                                     "Transmembrane BAX inhibitor motif-containing protein 4"="BAX motif-containing protein 4",
+                                                                                                                     "Phosphatidylinositol-4,5-bisphosphate 3-kinase catalytic subunit alpha isoform"="PI3K catalytic subunit alpha isoform",
+                                                                                                                     "Apoptosis 2 inhibitor"="IAP2",
+                                                                                                                     "Baculoviral IAP repeat-containing protein 7-A"="BIR IAP repeat-containing protein 7-A",
+                                                                                                                     "Baculoviral IAP repeat-containing protein 7-B"="BIR IAP repeat-containing protein 7-B"))
 
-
-####Add to graph those with p value of < 0.1 rather than 0.05 ####
-
-resRIFTran_05_FULL_ENTREZGENE_DATA_APOPTOSIS_ALL_TERMS_COMBINED_01 <- resRIFTran_05_FULL_ENTREZGENE_DATA_APOPTOSIS_ALL_TERMS_COMBINED[which(resRIFTran_05_FULL_ENTREZGENE_DATA_APOPTOSIS_ALL_TERMS_COMBINED$padj < 0.1),]
-write.csv(resRIFTran_05_FULL_ENTREZGENE_DATA_APOPTOSIS_ALL_TERMS_COMBINED_01, file="resRIFTran_05_FULL_ENTREZGENE_DATA_APOPTOSIS_ALL_TERMS_COMBINED_01.csv")
-resRIFTran_05_FULL_ENTREZGENE_DATA_APOPTOSIS_ALL_TERMS_COMBINED_01_path <- read.csv("resRIFTran_05_FULL_ENTREZGENE_DATA_APOPTOSIS_ALL_TERMS_COMBINED_01.csv", header=TRUE)
-
-#Significance level of <=0.1 = *, less than 0.05= **, less than 10^-5= ***
-label.RIF.df <- data.frame(description= c("mitogen-activated protein kinase kinase kinase 7-like",
-                                          "GTPase IMAP family member 4-like"), log2FoldChange=c(-13.5, 11.0)) #less than 10^-5
-label.RIF.df2 <- data.frame(description=c("apoptosis regulator BAX-like", "toll-like receptor 6"), log2FoldChange=c(2.5, 3.5)) #less than 0.1
-label.RIF.df3 <- data.frame(description=c("leucine-rich repeat-containing G-protein coupled receptor 4-like",
-                                          "fatty acid synthase-like",
-                                          "receptor-interacting serine/threonine-protein kinase 4-like"), log2FoldChange=c(7.5, 3.0, 6.0)) #less than 0.05
-
-RIF_Sig_PLOT_01 <- ggplot(resRIFTran_05_FULL_ENTREZGENE_DATA_APOPTOSIS_ALL_TERMS_COMBINED_01_path) + 
-  geom_col(aes(x=description, y=log2FoldChange, fill=Pathway)) + 
-  theme(axis.text.x = element_text(angle = 75, hjust = 1)) + geom_hline(yintercept=0.0) +
-  scale_y_continuous(name ="log2 Fold Change", breaks = scales::pretty_breaks(n = 20)) + 
-  ggtitle("Significantly Differentially Expressed Apoptosis Genes in C. virginica after RIF Challenge (p < 0.1)") + 
-  theme(plot.title = element_text(size=10)) + theme(plot.title = element_text(hjust = 0.5))
-
-RIF_Sig_PLOT2_01<- RIF_Sig_PLOT_01 + geom_text(data=label.RIF.df, aes(x=description, y=log2FoldChange), label = c("***")) +
-  geom_text(data=label.RIF.df2, aes(x=description, y=log2FoldChange), label = c("*")) +
-  geom_text(data=label.RIF.df3, aes(x=description, y=log2FoldChange), label = c("**")) +
-  theme(axis.line = element_line(colour = "black", size = 0.5, linetype = "solid")) +
-  scale_x_discrete(name="Description", limits=c("leucine-rich repeat-containing G-protein coupled receptor 4-like",
-                                                "receptor-interacting serine/threonine-protein kinase 4-like",
-                                                "fatty acid synthase-like",
-                                                "apoptosis regulator BAX-like",
-                                                "mitogen-activated protein kinase kinase kinase 7-like",
-                                                "toll-like receptor 6",
-                                                "GTPase IMAP family member 4-like"), 
-                   label=c("leucine-rich repeat-containing G-protein coupled receptor 4-like"="GPCR 4-like",
-                           "receptor-interacting serine/threonine-protein kinase 4-like"="RIPK 4-like",
-                           "fatty acid synthase-like"="Fas-like",
-                           "apoptosis regulator BAX-like"="BAX-like",
-                           "mitogen-activated protein kinase kinase kinase 7-like"="MEKK/MAPK 7-like",
-                           "toll-like receptor 6"="TLR6",
-                           "GTPase IMAP family member 4-like"="GIMAP4-like"))
-
-####ROD GIMAP and IAP transcripts ####
-
-RIF_GIMAP_IAP_combined <- rbind(RIF_GIMAP, RIF_IAP, RIF_IAP2)
-#put two columns together to make the description column unique for the graphing process, use tidyr unite()
-RIF_GIMAP_IAP_combined_2 <- unite(RIF_GIMAP_IAP_combined, description2, c(description, GeneID), remove=FALSE)
-write.csv(RIF_GIMAP_IAP_combined_2, file= "RIF_GIMAP_IAP_combined_2.csv")
-RIF_GIMAP_IAP_combined_3<- read.csv(file="RIF_GIMAP_IAP_combined_2.csv", header=TRUE) #make a new type column
+#Apoptosis genes with p <0.1
+resBacTran_05_FULL_APOPTOSIS_ALL_TERMS_COMBINED_01 <- resBacTran_05_FULL_APOPTOSIS_ALL_TERMS_COMBINED  %>% filter(padj < 0.1)
+#add pathway type to this
+resBacTran_05_FULL_APOPTOSIS_ALL_TERMS_COMBINED_01
+#add column with apoptosis pathwway and label genes with same name with extra (#)
+write.csv(resBacTran_05_FULL_APOPTOSIS_ALL_TERMS_COMBINED_01, file="resBacTran_05_FULL_APOPTOSIS_ALL_TERMS_COMBINED_01.csv")
+resBacTran_05_FULL_APOPTOSIS_ALL_TERMS_COMBINED_01_path <- read.csv(file="resBacTran_05_FULL_APOPTOSIS_ALL_TERMS_COMBINED_01.csv", header=TRUE)
 
 #labels for signifiance with *= p <0.05
-label.RIF.GIMAP_IAP.df <- data.frame(description2= c("GTPase IMAP family member 4-like_111105744"), log2FoldChange=c(10.5))
-RIF_GIMAP_IAP_1 <- ggplot(RIF_GIMAP_IAP_combined_3) + 
-  geom_col(aes(x=description2, y=log2FoldChange, fill=Type)) + 
+label.Bac.01.df <- data.frame(Protein.names= c("Rho-related GTP-binding protein RhoU",
+                                               "Rho-related GTP-binding protein RhoJ",
+                                               "Transmembrane BAX inhibitor motif-containing protein 4",
+                                               "Phosphatidylinositol-4,5-bisphosphate 3-kinase catalytic subunit alpha isoform",
+                                               "Apoptosis 2 inhibitor",
+                                               "Baculoviral IAP repeat-containing protein 7-A",
+                                               "Baculoviral IAP repeat-containing protein 7-B"), log2FoldChange=c(2.5,4.5,23,23.5,22,19.5,9.5))
+Bac_sig_01 <- ggplot(resBacTran_05_FULL_APOPTOSIS_ALL_TERMS_COMBINED_01_path) + 
+  geom_col(aes(x=Protein.names, y=log2FoldChange, fill=Type)) + 
   theme(axis.text.x = element_text(angle = 75, hjust = 1)) + geom_hline(yintercept=0.0) +
   scale_y_continuous(name ="log2 Fold Change", breaks = scales::pretty_breaks(n = 20)) + 
-  ggtitle("GIMAP and IAP Apoptosis Genes in C. virginica after RIF Challenge") + 
+  ggtitle("Apoptosis Genes in M. gigas after Bacterial Challenge") + 
   theme(plot.title = element_text(size=10)) + theme(plot.title = element_text(hjust = 0.5))
 
-RIF_GIMAP_IAP_2 <- RIF_GIMAP_IAP_1 +
-  geom_text(data=label.RIF.GIMAP_IAP.df, aes(x=description2, y=log2FoldChange), label = c("*")) +
+Bac_sig01_2 <- Bac_sig_01 +
+  geom_text(data=label.Bac.01.df, aes(x=Protein.names, y=log2FoldChange), label = c("*")) +
   theme(axis.line = element_line(colour = "black", size = 0.5, linetype = "solid")) +
-  scale_x_discrete(name="Transcript Annotation", limits=c("baculoviral IAP repeat-containing protein 2-like_111100408 (1)",
-                                                          "baculoviral IAP repeat-containing protein 2-like_111100408 (2)",
-                                                          "baculoviral IAP repeat-containing protein 2-like_111100443",
-                                                          "baculoviral IAP repeat-containing protein 2-like_111101035",
-                                                          "baculoviral IAP repeat-containing protein 2-like_111101689 (1)",
-                                                          "baculoviral IAP repeat-containing protein 2-like_111101689 (2)",
-                                                          "baculoviral IAP repeat-containing protein 2-like_111101689 (2)",
-                                                          "baculoviral IAP repeat-containing protein 2-like_111102770 (1)",
-                                                          "baculoviral IAP repeat-containing protein 2-like_111102770 (2)",
-                                                          "baculoviral IAP repeat-containing protein 2-like_111102858",
-                                                          "baculoviral IAP repeat-containing protein 2-like_111102964",
-                                                          "baculoviral IAP repeat-containing protein 2-like_111103826 (1)",
-                                                          "baculoviral IAP repeat-containing protein 2-like_111103826 (2)",
-                                                          "baculoviral IAP repeat-containing protein 2-like_111105503",
-                                                          "baculoviral IAP repeat-containing protein 2-like_111106726",
-                                                          "baculoviral IAP repeat-containing protein 2-like_111123894",
-                                                          "baculoviral IAP repeat-containing protein 3-like_111100470 (1)",
-                                                          "baculoviral IAP repeat-containing protein 3-like_111100470 (2)",
-                                                          "baculoviral IAP repeat-containing protein 3-like_111100471 (1)",
-                                                          "baculoviral IAP repeat-containing protein 3-like_111100471 (2)",
-                                                          "baculoviral IAP repeat-containing protein 3-like_111100471 (3)",
-                                                          "baculoviral IAP repeat-containing protein 3-like_111101018",
-                                                          "baculoviral IAP repeat-containing protein 3-like_111101864",
-                                                          "baculoviral IAP repeat-containing protein 3-like_111103155",
-                                                          "baculoviral IAP repeat-containing protein 3-like_111103270 (1)",
-                                                          "baculoviral IAP repeat-containing protein 3-like_111103270 (2)",
-                                                          "baculoviral IAP repeat-containing protein 3-like_111103270 (3)",
-                                                          "baculoviral IAP repeat-containing protein 3-like_111103270 (4)",
-                                                          "baculoviral IAP repeat-containing protein 3-like_111103392 (1)",
-                                                          "baculoviral IAP repeat-containing protein 3-like_111103392 (2)",
-                                                          "baculoviral IAP repeat-containing protein 3-like_111103427 (1)",
-                                                          "baculoviral IAP repeat-containing protein 3-like_111103427 (2)",
-                                                          "baculoviral IAP repeat-containing protein 3-like_111103816",
-                                                          "baculoviral IAP repeat-containing protein 3-like_111104430 (1)",
-                                                          "baculoviral IAP repeat-containing protein 3-like_111104430 (2)",
-                                                          "baculoviral IAP repeat-containing protein 3-like_111104430 (3)",
-                                                          "baculoviral IAP repeat-containing protein 3-like_111105157",
-                                                          "baculoviral IAP repeat-containing protein 6-like_111129365 (1)",
-                                                          "baculoviral IAP repeat-containing protein 6-like_111129365 (2)",
-                                                          "baculoviral IAP repeat-containing protein 6-like_111129365 (3)",
-                                                          "baculoviral IAP repeat-containing protein 6-like_111129365 (4)",
-                                                          "baculoviral IAP repeat-containing protein 6-like_111130310 (1)",
-                                                          "baculoviral IAP repeat-containing protein 6-like_111130310 (2)",
-                                                          "baculoviral IAP repeat-containing protein 6-like_111130310 (3)",
-                                                          "baculoviral IAP repeat-containing protein 6-like_111130310 (4)",
-                                                          "baculoviral IAP repeat-containing protein 7-A-like_111100432",
-                                                          "baculoviral IAP repeat-containing protein 7-A-like_111103982",
-                                                          "baculoviral IAP repeat-containing protein 7-A-like_111104279",
-                                                          "baculoviral IAP repeat-containing protein 7-A-like_111104280",
-                                                          "baculoviral IAP repeat-containing protein 7-B-like_111105148",
-                                                          "baculoviral IAP repeat-containing protein 7-like_111100416",
-                                                          "baculoviral IAP repeat-containing protein 7-like_111100417",
-                                                          "baculoviral IAP repeat-containing protein 7-like_111100633 (1)",
-                                                          "baculoviral IAP repeat-containing protein 7-like_111100633 (2)",
-                                                          "baculoviral IAP repeat-containing protein 7-like_111105494 (1) ",
-                                                          "baculoviral IAP repeat-containing protein 7-like_111105494 (2)",
-                                                          "baculoviral IAP repeat-containing protein 7-like_111105494 (3)",
-                                                          "baculoviral IAP repeat-containing protein 8-like_111103158",
-                                                          "baculoviral IAP repeat-containing protein 8-like_111104229",
-                                                          "baculoviral IAP repeat-containing protein 8-like_111109770 (1)",
-                                                          "baculoviral IAP repeat-containing protein 8-like_111109770 (2)",
-                                                          "GTPase IMAP family member 4-like_111100020 (1)",
-                                                          "GTPase IMAP family member 4-like_111100020 (2)",
-                                                          "GTPase IMAP family member 4-like_111105195",
-                                                          "GTPase IMAP family member 4-like_111105333 (1)",
-                                                          "GTPase IMAP family member 4-like_111105333 (2)",
-                                                          "GTPase IMAP family member 4-like_111105333 (3)",
-                                                          "GTPase IMAP family member 4-like_111105335",
-                                                          "GTPase IMAP family member 4-like_111105336",
-                                                          "GTPase IMAP family member 4-like_111105339",
-                                                          "GTPase IMAP family member 4-like_111105744",
-                                                          "GTPase IMAP family member 4-like_111105930",
-                                                          "GTPase IMAP family member 4-like_111106079",
-                                                          "GTPase IMAP family member 4-like_111106328",
-                                                          "GTPase IMAP family member 4-like_111106343",
-                                                          "GTPase IMAP family member 4-like_111107002",
-                                                          "GTPase IMAP family member 4-like_111108253",
-                                                          "GTPase IMAP family member 4-like_111109344",
-                                                          "GTPase IMAP family member 4-like_111109667",
-                                                          "GTPase IMAP family member 4-like_111109737",
-                                                          "GTPase IMAP family member 4-like_111111775",
-                                                          "GTPase IMAP family member 4-like_111119582 (1)",
-                                                          "GTPase IMAP family member 4-like_111119582 (2)",
-                                                          "GTPase IMAP family member 4-like_111119582 (3)",
-                                                          "GTPase IMAP family member 4-like_111129930 (1)",
-                                                          "GTPase IMAP family member 4-like_111129930 (2)",
-                                                          "GTPase IMAP family member 4-like_111129932 (1)",
-                                                          "GTPase IMAP family member 4-like_111129932 (2)",
-                                                          "GTPase IMAP family member 4-like_111130153 (1)",
-                                                          "GTPase IMAP family member 4-like_111130153 (2)",
-                                                          "GTPase IMAP family member 4-like_111130153 (3)",
-                                                          "GTPase IMAP family member 4-like_111130153 (4)",
-                                                          "GTPase IMAP family member 4-like_111130153 (5)",
-                                                          "GTPase IMAP family member 4-like_111130153 (6)",
-                                                          "GTPase IMAP family member 4-like_111130155 (1)",
-                                                          "GTPase IMAP family member 4-like_111130155 (2)",
-                                                          "GTPase IMAP family member 7-like_111108121",
-                                                          "GTPase IMAP family member 7-like_111108220",
-                                                          "GTPase IMAP family member 7-like_111108559",
-                                                          "GTPase IMAP family member 7-like_111109557 (1)",
-                                                          "GTPase IMAP family member 7-like_111109557 (2)",
-                                                          "GTPase IMAP family member 7-like_111110321",
-                                                          "GTPase IMAP family member 8-like_111119581",
-                                                          "GTPase IMAP family member 8-like_111120314",
-                                                          "inhibitor of apoptosis protein-like_111133238",
-                                                          "putative inhibitor of apoptosis_111100893",
-                                                          "putative inhibitor of apoptosis_111100894",
-                                                          "putative inhibitor of apoptosis_111101016 (1)",
-                                                          "putative inhibitor of apoptosis_111101016 (2)",
-                                                          "putative inhibitor of apoptosis_111102106",
-                                                          "putative inhibitor of apoptosis_111102451",
-                                                          "putative inhibitor of apoptosis_111103790",
-                                                          "putative inhibitor of apoptosis_111104637",
-                                                          "putative inhibitor of apoptosis_111132489"), label=c("baculoviral IAP repeat-containing protein 2-like_111100408 (1)"= "BIR IAP 2-like",
-                                                                                                                "baculoviral IAP repeat-containing protein 2-like_111100408 (2)"= "BIR IAP 2-like",
-                                                                                                                "baculoviral IAP repeat-containing protein 2-like_111100443"= "BIR IAP 2-like",
-                                                                                                                "baculoviral IAP repeat-containing protein 2-like_111101035"="BIR IAP 2-like",
-                                                                                                                "baculoviral IAP repeat-containing protein 2-like_111101689 (1)"="BIR IAP 2-like",
-                                                                                                                "baculoviral IAP repeat-containing protein 2-like_111101689 (2)"="BIR IAP 2-like",
-                                                                                                                "baculoviral IAP repeat-containing protein 2-like_111101689 (2)"="BIR IAP 2-like",
-                                                                                                                "baculoviral IAP repeat-containing protein 2-like_111102770 (1)"="BIR IAP 2-like",
-                                                                                                                "baculoviral IAP repeat-containing protein 2-like_111102770 (2)"="BIR IAP 2-like",
-                                                                                                                "baculoviral IAP repeat-containing protein 2-like_111102858"="BIR IAP 2-like",
-                                                                                                                "baculoviral IAP repeat-containing protein 2-like_111102964"="BIR IAP 2-like",
-                                                                                                                "baculoviral IAP repeat-containing protein 2-like_111103826 (1)"="BIR IAP 2-like",
-                                                                                                                "baculoviral IAP repeat-containing protein 2-like_111103826 (2)"="BIR IAP 2-like",
-                                                                                                                "baculoviral IAP repeat-containing protein 2-like_111105503"="BIR IAP 2-like",
-                                                                                                                "baculoviral IAP repeat-containing protein 2-like_111106726"="BIR IAP 2-like",
-                                                                                                                "baculoviral IAP repeat-containing protein 2-like_111123894"="BIR IAP 2-like",
-                                                                                                                "baculoviral IAP repeat-containing protein 3-like_111100470 (1)"="BIR IAP 3-like",
-                                                                                                                "baculoviral IAP repeat-containing protein 3-like_111100470 (2)"="BIR IAP 3-like",
-                                                                                                                "baculoviral IAP repeat-containing protein 3-like_111100471 (1)"="BIR IAP 3-like",
-                                                                                                                "baculoviral IAP repeat-containing protein 3-like_111100471 (2)"="BIR IAP 3-like",
-                                                                                                                "baculoviral IAP repeat-containing protein 3-like_111100471 (3)"="BIR IAP 3-like",
-                                                                                                                "baculoviral IAP repeat-containing protein 3-like_111101018"="BIR IAP 3-like",
-                                                                                                                "baculoviral IAP repeat-containing protein 3-like_111101864"="BIR IAP 3-like",
-                                                                                                                "baculoviral IAP repeat-containing protein 3-like_111103155"="BIR IAP 3-like",
-                                                                                                                "baculoviral IAP repeat-containing protein 3-like_111103270 (1)"="BIR IAP 3-like",
-                                                                                                                "baculoviral IAP repeat-containing protein 3-like_111103270 (2)"="BIR IAP 3-like",
-                                                                                                                "baculoviral IAP repeat-containing protein 3-like_111103270 (3)"="BIR IAP 3-like",
-                                                                                                                "baculoviral IAP repeat-containing protein 3-like_111103270 (4)"="BIR IAP 3-like",
-                                                                                                                "baculoviral IAP repeat-containing protein 3-like_111103392 (1)"="BIR IAP 3-like",
-                                                                                                                "baculoviral IAP repeat-containing protein 3-like_111103392 (2)"="BIR IAP 3-like",
-                                                                                                                "baculoviral IAP repeat-containing protein 3-like_111103427 (1)"="BIR IAP 3-like",
-                                                                                                                "baculoviral IAP repeat-containing protein 3-like_111103427 (2)"="BIR IAP 3-like",
-                                                                                                                "baculoviral IAP repeat-containing protein 3-like_111103816"="BIR IAP 3-like",
-                                                                                                                "baculoviral IAP repeat-containing protein 3-like_111104430 (1)"="BIR IAP 3-like",
-                                                                                                                "baculoviral IAP repeat-containing protein 3-like_111104430 (2)"="BIR IAP 3-like",
-                                                                                                                "baculoviral IAP repeat-containing protein 3-like_111104430 (3)"="BIR IAP 3-like",
-                                                                                                                "baculoviral IAP repeat-containing protein 3-like_111105157"="BIR IAP 3-like",
-                                                                                                                "baculoviral IAP repeat-containing protein 6-like_111129365 (1)"="BIR IAP 6-like",
-                                                                                                                "baculoviral IAP repeat-containing protein 6-like_111129365 (2)"="BIR IAP 6-like",
-                                                                                                                "baculoviral IAP repeat-containing protein 6-like_111129365 (3)"="BIR IAP 6-like",
-                                                                                                                "baculoviral IAP repeat-containing protein 6-like_111129365 (4)"="BIR IAP 6-like",
-                                                                                                                "baculoviral IAP repeat-containing protein 6-like_111130310 (1)"="BIR IAP 6-like",
-                                                                                                                "baculoviral IAP repeat-containing protein 6-like_111130310 (2)"="BIR IAP 6-like",
-                                                                                                                "baculoviral IAP repeat-containing protein 6-like_111130310 (3)"="BIR IAP 6-like",
-                                                                                                                "baculoviral IAP repeat-containing protein 6-like_111130310 (4)"="BIR IAP 6-like",
-                                                                                                                "baculoviral IAP repeat-containing protein 7-A-like_111100432"="BIR IAP 7-A-like",
-                                                                                                                "baculoviral IAP repeat-containing protein 7-A-like_111103982"="BIR IAP 7-A-like",
-                                                                                                                "baculoviral IAP repeat-containing protein 7-A-like_111104279"="BIR IAP 7-A-like",
-                                                                                                                "baculoviral IAP repeat-containing protein 7-A-like_111104280"="BIR IAP 7-A-like",
-                                                                                                                "baculoviral IAP repeat-containing protein 7-B-like_111105148"="BIR IAP 7-B-like",
-                                                                                                                "baculoviral IAP repeat-containing protein 7-like_111100416"="BIR IAP 7-like",
-                                                                                                                "baculoviral IAP repeat-containing protein 7-like_111100417"="BIR IAP 7-like",
-                                                                                                                "baculoviral IAP repeat-containing protein 7-like_111100633 (1)"="BIR IAP 7-like",
-                                                                                                                "baculoviral IAP repeat-containing protein 7-like_111100633 (2)"="BIR IAP 7-like",
-                                                                                                                "baculoviral IAP repeat-containing protein 7-like_111105494 (1) "="BIR IAP 7-like",
-                                                                                                                "baculoviral IAP repeat-containing protein 7-like_111105494 (2)"="BIR IAP 7-like",
-                                                                                                                "baculoviral IAP repeat-containing protein 7-like_111105494 (3)"="BIR IAP 7-like",
-                                                                                                                "baculoviral IAP repeat-containing protein 8-like_111103158"="BIR IAP 8-like",
-                                                                                                                "baculoviral IAP repeat-containing protein 8-like_111104229"="BIR IAP 8-like",
-                                                                                                                "baculoviral IAP repeat-containing protein 8-like_111109770 (1)"="BIR IAP 8-like",
-                                                                                                                "baculoviral IAP repeat-containing protein 8-like_111109770 (2)"="BIR IAP 8-like",
-                                                                                                                "GTPase IMAP family member 4-like_111100020 (1)"="GIMAP 4-like",
-                                                                                                                "GTPase IMAP family member 4-like_111100020 (2)"="GIMAP 4-like",
-                                                                                                                "GTPase IMAP family member 4-like_111105195"="GIMAP 4-like",
-                                                                                                                "GTPase IMAP family member 4-like_111105333 (1)"="GIMAP 4-like",
-                                                                                                                "GTPase IMAP family member 4-like_111105333 (2)"="GIMAP 4-like",
-                                                                                                                "GTPase IMAP family member 4-like_111105333 (3)"="GIMAP 4-like",
-                                                                                                                "GTPase IMAP family member 4-like_111105335"="GIMAP 4-like",
-                                                                                                                "GTPase IMAP family member 4-like_111105336"="GIMAP 4-like",
-                                                                                                                "GTPase IMAP family member 4-like_111105339"="GIMAP 4-like",
-                                                                                                                "GTPase IMAP family member 4-like_111105744"="GIMAP 4-like",
-                                                                                                                "GTPase IMAP family member 4-like_111105930"="GIMAP 4-like",
-                                                                                                                "GTPase IMAP family member 4-like_111106079"="GIMAP 4-like",
-                                                                                                                "GTPase IMAP family member 4-like_111106328"="GIMAP 4-like",
-                                                                                                                "GTPase IMAP family member 4-like_111106343"="GIMAP 4-like",
-                                                                                                                "GTPase IMAP family member 4-like_111107002"="GIMAP 4-like",
-                                                                                                                "GTPase IMAP family member 4-like_111108253"="GIMAP 4-like",
-                                                                                                                "GTPase IMAP family member 4-like_111109344"="GIMAP 4-like",
-                                                                                                                "GTPase IMAP family member 4-like_111109667"="GIMAP 4-like",
-                                                                                                                "GTPase IMAP family member 4-like_111109737"="GIMAP 4-like",
-                                                                                                                "GTPase IMAP family member 4-like_111111775"="GIMAP 4-like",
-                                                                                                                "GTPase IMAP family member 4-like_111119582 (1)"="GIMAP 4-like",
-                                                                                                                "GTPase IMAP family member 4-like_111119582 (2)"="GIMAP 4-like",
-                                                                                                                "GTPase IMAP family member 4-like_111119582 (3)"="GIMAP 4-like",
-                                                                                                                "GTPase IMAP family member 4-like_111129930 (1)"="GIMAP 4-like",
-                                                                                                                "GTPase IMAP family member 4-like_111129930 (2)"="GIMAP 4-like",
-                                                                                                                "GTPase IMAP family member 4-like_111129932 (1)"="GIMAP 4-like",
-                                                                                                                "GTPase IMAP family member 4-like_111129932 (2)"="GIMAP 4-like",
-                                                                                                                "GTPase IMAP family member 4-like_111130153 (1)"="GIMAP 4-like",
-                                                                                                                "GTPase IMAP family member 4-like_111130153 (2)"="GIMAP 4-like",
-                                                                                                                "GTPase IMAP family member 4-like_111130153 (3)"="GIMAP 4-like",
-                                                                                                                "GTPase IMAP family member 4-like_111130153 (4)"="GIMAP 4-like",
-                                                                                                                "GTPase IMAP family member 4-like_111130153 (5)"="GIMAP 4-like",
-                                                                                                                "GTPase IMAP family member 4-like_111130153 (6)"="GIMAP 4-like",
-                                                                                                                "GTPase IMAP family member 4-like_111130155 (1)"="GIMAP 4-like",
-                                                                                                                "GTPase IMAP family member 4-like_111130155 (2)"="GIMAP 4-like",
-                                                                                                                "GTPase IMAP family member 7-like_111108121"="GIMAP 7-like",
-                                                                                                                "GTPase IMAP family member 7-like_111108220"="GIMAP 7-like",
-                                                                                                                "GTPase IMAP family member 7-like_111108559"="GIMAP 7-like",
-                                                                                                                "GTPase IMAP family member 7-like_111109557 (1)"="GIMAP 7-like",
-                                                                                                                "GTPase IMAP family member 7-like_111109557 (2)"="GIMAP 7-like",
-                                                                                                                "GTPase IMAP family member 7-like_111110321"="GIMAP 7-like",
-                                                                                                                "GTPase IMAP family member 8-like_111119581"="GIMAP 8-like",
-                                                                                                                "GTPase IMAP family member 8-like_111120314"="GIMAP 8-like",
-                                                                                                                "inhibitor of apoptosis protein-like_111133238"="IAP-like",
-                                                                                                                "putative inhibitor of apoptosis_111100893"="putative IAP",
-                                                                                                                "putative inhibitor of apoptosis_111100894"="putative IAP",
-                                                                                                                "putative inhibitor of apoptosis_111101016 (1)"="putative IAP",
-                                                                                                                "putative inhibitor of apoptosis_111101016 (2)"="putative IAP",
-                                                                                                                "putative inhibitor of apoptosis_111102106"="putative IAP",
-                                                                                                                "putative inhibitor of apoptosis_111102451"="putative IAP",
-                                                                                                                "putative inhibitor of apoptosis_111103790"="putative IAP",
-                                                                                                                "putative inhibitor of apoptosis_111104637"="putative IAP",
-                                                                                                                "putative inhibitor of apoptosis_111132489"="putative IAP"))
+  scale_x_discrete(name="Transcript Annotation", limits=c("Inositol 1,4,5-trisphosphate receptor type 1",
+                                                          "Rho-related GTP-binding protein RhoU",
+                                                          "Rho-related GTP-binding protein RhoJ",
+                                                          "Cadherin EGF LAG seven-pass G-type receptor 3",
+                                                          "Fatty acid synthase",
+                                                          "Lipopolysaccharide-induced tumor necrosis factor-alpha factor-like protein",
+                                                          "Transmembrane BAX inhibitor motif-containing protein 4",
+                                                          "Bcl-2-like protein 13",
+                                                          "Phosphatidylinositol-4,5-bisphosphate 3-kinase catalytic subunit alpha isoform",
+                                                          "Apoptosis 2 inhibitor",
+                                                          "Baculoviral IAP repeat-containing protein 7-A",
+                                                          "Baculoviral IAP repeat-containing protein 7-B",
+                                                          "Myeloid differentiation primary response protein MyD88"), labels=c("Inositol 1,4,5-trisphosphate receptor type 1"="IP3R",
+                                                                                                                              "Rho-related GTP-binding protein RhoU"="RhoU",
+                                                                                                                              "Rho-related GTP-binding protein RhoJ"="RhoJ",
+                                                                                                                              "Cadherin EGF LAG seven-pass G-type receptor 3"="Cadherin EGF LAG seven-pass GPCR3",
+                                                                                                                              "Fatty acid synthase"="Fas",
+                                                                                                                              "Lipopolysaccharide-induced tumor necrosis factor-alpha factor-like protein"="LPS-induced TNF-alpha factor-like",
+                                                                                                                              "Transmembrane BAX inhibitor motif-containing protein 4"="BAX motif-containing protein 4",
+                                                                                                                              "Bcl-2-like protein 13"="Bcl-2-like protein 13",
+                                                                                                                              "Phosphatidylinositol-4,5-bisphosphate 3-kinase catalytic subunit alpha isoform"="PI3K catalytic subunit alpha isoform",
+                                                                                                                              "Apoptosis 2 inhibitor"="IAP2",
+                                                                                                                              "Baculoviral IAP repeat-containing protein 7-A"="BIR IAP repeat-containing protein 7-A",
+                                                                                                                              "Baculoviral IAP repeat-containing protein 7-B"="BIR IAP repeat-containing protein 7-A",
+                                                                                                                              "Myeloid differentiation primary response protein MyD88"="MyD88"))
 
+####GIMAP IAP graphing for Bacterial challenge ####
+# graphing all of them regardless of significance
+Bac_GIMAP_IAP <- rbind(oshv_GIMAP, oshv_IAP, oshv_IAP2)
+ncol(Bac_GIMAP_IAP) 
+write.csv(Bac_GIMAP_IAP, file="Bac_GIMAP_IAP.csv") # add Type column
+Bac_GIMAP_IAP_updated <- read.csv(file="Bac_GIMAP_IAP_type.csv",header =TRUE)
+label.Bac.GIMAP.IAP.01.df <- data.frame(Protein.names= c("Apoptosis 2 inhibitor (3)",
+                                                         "Baculoviral IAP repeat-containing protein 7-A (2)",
+                                                         "Baculoviral IAP repeat-containing protein 7-B (2)"), log2FoldChange=c(22,19.5,9.5))
+Bac_GIMAP_IAP_1 <- ggplot(Bac_GIMAP_IAP_updated) + 
+  geom_col(aes(x=Protein.names, y=log2FoldChange, fill=Type)) + 
+  theme(axis.text.x = element_text(angle = 75, hjust = 1)) + geom_hline(yintercept=0.0) +
+  scale_y_continuous(name ="log2 Fold Change", breaks = scales::pretty_breaks(n = 20)) + 
+  ggtitle("GIMAP and IAP Apoptosis Genes in M. gigas after Bacterial Challenge") + 
+  theme(plot.title = element_text(size=10)) + theme(plot.title = element_text(hjust = 0.5))
 
-
-#### Side by side graphing of the shared significantly differentially expressed apoptosis genes from both ####
-# this is wrong
-Shared_apoptosis <- merge(resRIFTran_05_FULL_ENTREZGENE_DATA_APOPTOSIS_ALL_TERMS_COMBINED, resRODTran_05_FULL_ENTREZGENE_DATA_APOPTOSIS_ALL_TERMS_COMBINED, by="description")  
-resRIFTran_05_FULL_ENTREZGENE_DATA_APOPTOSIS_ALL_TERMS_COMBINED$source <- "X"
-resRODTran_05_FULL_ENTREZGENE_DATA_APOPTOSIS_ALL_TERMS_COMBINED$source <- "Y"
-C_Vir_Merged <- merge(x = resRIFTran_05_FULL_ENTREZGENE_DATA_APOPTOSIS_ALL_TERMS_COMBINED, y = resRODTran_05_FULL_ENTREZGENE_DATA_APOPTOSIS_ALL_TERMS_COMBINED,
-                      all = TRUE, by = c("description"))
-C_Vir_Merged$rowSource <- apply(C_Vir_Merged[c("source.x", "source.y")], 1, 
-                                function(x) paste(na.omit(x), collapse = ""))
-C_Vir_Merged
-
-
-#### Compare the number of transcripts of each one of interest
-
+#2 and 6 are too small to show up 
+Bac_GIMAP_IAP_2 <- Bac_GIMAP_IAP_1  +
+  geom_text(data=label.Bac.GIMAP.IAP.01.df, aes(x=Protein.names, y=log2FoldChange), label = c("*")) +
+  theme(axis.line = element_line(colour = "black", size = 0.5, linetype = "solid")) +
+  scale_x_discrete(name="Transcript Annotation", limits=c("Apoptosis 1 inhibitor (1)",
+                                                          "Apoptosis 1 inhibitor (2)",
+                                                          "Apoptosis 2 inhibitor (1)",
+                                                          "Apoptosis 2 inhibitor (2)",
+                                                          "Apoptosis 2 inhibitor (3)",
+                                                          "Baculoviral IAP repeat-containing protein 2",
+                                                          "Baculoviral IAP repeat-containing protein 3 (1)",
+                                                          "Baculoviral IAP repeat-containing protein 3 (2)",
+                                                          "Baculoviral IAP repeat-containing protein 3 (Fragment)",
+                                                          "Baculoviral IAP repeat-containing protein 6",
+                                                          "Baculoviral IAP repeat-containing protein 7",
+                                                          "Baculoviral IAP repeat-containing protein 7-A (1)",
+                                                          "Baculoviral IAP repeat-containing protein 7-A (2)",
+                                                          "Baculoviral IAP repeat-containing protein 7-B (1)",
+                                                          "Baculoviral IAP repeat-containing protein 7-B (2)",
+                                                          "GTPase IMAP family member 4 (1)",
+                                                          "GTPase IMAP family member 4 (2)",
+                                                          "GTPase IMAP family member 4 (3)",
+                                                          "GTPase IMAP family member 4 (4)",
+                                                          "GTPase IMAP family member 4 (5)",
+                                                          "GTPase IMAP family member 4 (6)",
+                                                          "GTPase IMAP family member 4 (7)",
+                                                          "GTPase IMAP family member 4 (8)",
+                                                          "GTPase IMAP family member 4  (9)",
+                                                          "GTPase IMAP family member 7 (1)",
+                                                          "GTPase IMAP family member 7 (2)",
+                                                          "Putative apoptosis inhibitor ORF42",
+                                                          "Putative inhibitor of apoptosis (1)",
+                                                          "Putative inhibitor of apoptosis (2)",
+                                                          "Putative inhibitor of apoptosis (3)"), labels= c("Apoptosis 1 inhibitor (1)" ="IAP1",
+                                                                                                            "Apoptosis 1 inhibitor (2)"="IAP1",
+                                                                                                            "Apoptosis 2 inhibitor (1)"="IAP2",
+                                                                                                            "Apoptosis 2 inhibitor (2)"="IAP2",
+                                                                                                            "Apoptosis 2 inhibitor (3)"="IAP2",
+                                                                                                            "Baculoviral IAP repeat-containing protein 2"="BIR IAP repeat-containing 2",
+                                                                                                            "Baculoviral IAP repeat-containing protein 3 (1)"="BIR IAP repeat-containing 3",
+                                                                                                            "Baculoviral IAP repeat-containing protein 3 (2)"="BIR IAP repeat-containing 3",
+                                                                                                            "Baculoviral IAP repeat-containing protein 3 (Fragment)"="BIR IAP repeat-containing 3 (fragment)",
+                                                                                                            "Baculoviral IAP repeat-containing protein 6"="BIR IAP repeat-containing 6",
+                                                                                                            "Baculoviral IAP repeat-containing protein 7"="BIR IAP repeat-containing 7",
+                                                                                                            "Baculoviral IAP repeat-containing protein 7-A (1)"="BIR IAP repeat-containing 7-A",
+                                                                                                            "Baculoviral IAP repeat-containing protein 7-A (2)"="BIR IAP repeat-containing 7-A",
+                                                                                                            "Baculoviral IAP repeat-containing protein 7-B (1)"="BIR IAP repeat-containing 7-B",
+                                                                                                            "Baculoviral IAP repeat-containing protein 7-B (2)"="BIR IAP repeat-containing 7-B",
+                                                                                                            "GTPase IMAP family member 4 (1)"="GIMAP4",
+                                                                                                            "GTPase IMAP family member 4 (2)"="GIMAP4",
+                                                                                                            "GTPase IMAP family member 4 (3)"="GIMAP4",
+                                                                                                            "GTPase IMAP family member 4 (4)"="GIMAP4",
+                                                                                                            "GTPase IMAP family member 4 (5)"="GIMAP4",
+                                                                                                            "GTPase IMAP family member 4 (6)"="GIMAP4",
+                                                                                                            "GTPase IMAP family member 4 (7)"="GIMAP4",
+                                                                                                            "GTPase IMAP family member 4 (8)"="GIMAP4",
+                                                                                                            "GTPase IMAP family member 4  (9)"="GIMAP4",
+                                                                                                            "GTPase IMAP family member 7 (1)"="GIMAP7",
+                                                                                                            "GTPase IMAP family member 7 (2)"="GIMAP7",
+                                                                                                            "Putative apoptosis inhibitor ORF42"="putative IAP ORF42",
+                                                                                                            "Putative inhibitor of apoptosis (1)"="putative IAP",
+                                                                                                            "Putative inhibitor of apoptosis (2)"="putative IAP",
+                                                                                                            "Putative inhibitor of apoptosis (3)"="putative IAP"))
 
 #references: 
 #https://github.com/sr320/LabDocs/tree/master/code/DESeq
