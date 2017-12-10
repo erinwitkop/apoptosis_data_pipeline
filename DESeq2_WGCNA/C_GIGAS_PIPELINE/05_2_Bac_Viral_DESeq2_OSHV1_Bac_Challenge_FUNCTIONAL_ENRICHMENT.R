@@ -41,6 +41,7 @@ head(Bac_GO_table)
 OsHV1_data_noblanks <- oshv_GO_table[!(oshv_GO_table$ Gene.ontology.IDs == ""), ] #7958 rows
 Bac_data_noblanks <- Bac_GO_table[!(Bac_GO_table$ Gene.ontology.IDs == ""), ] #5518 rows
 
+
 #Create topGO object
 #This object will contain all information necessary for the GO analysis, 
 # namely the list of genes, the list of interesting genes, the gene
@@ -231,6 +232,13 @@ Bac_sigGO_gene_names_index <- Bac_GO_table$ID %in% Bac_sigGO_name_lookup$ID
 Bac_sigGO_gene_names <- Bac_GO_table[Bac_sigGO_gene_names_index, ]
 write.csv(Bac_sigGO_gene_names, file="Bac_sigGO_gene_names_NEW.csv")
 
+
+#### list to use for REVIGO analysis ####
+OsHV1_REVIGO <- score(OsHV1Fisher_weight)
+write.csv(OsHV1_REVIGO, file="OsHV1_REVIGO.csv")
+Bac_REVIGO <- score(BacFisher_weight)
+write.csv(Bac_REVIGO, file="Bac_REVIGO.csv")
+
 ####COMPILED RESULTS TABLES ####
 Bac_numsignif_Res["Challenge"] <- "Bac"
 OsHV1_numsignif_Res["Challenge"] <- "OsHV1"
@@ -246,6 +254,8 @@ COMBINED_TOPGO_RES_SIGGO_GENE_NAMES <- rbind(Bac_sigGO_gene_names,OsHV1_sigGO_ge
 COMBINED_TOPGO_RES_SIGGO_GENE_NAMES <- COMBINED_TOPGO_RES_SIGGO_GENE_NAMES %>%
   filter(Protein.names !="Uncharacterized protein")
 write.csv(COMBINED_TOPGO_RES_SIGGO_GENE_NAMES, file="COMBINED_TOPGO_RES_SIGGO_GENE_NAMES_NEW.csv")
+
+#graph results with topGO
 
 #References: Gene set enrichment analysis with topGO
 #Adrian Alexa, Jorg Rahnenfuhrer, April 24, 2017, http://www.mpi-sb.mpg.de/alexa
