@@ -8,7 +8,6 @@ This pipeline includes scripts for the following processes for both C. gigas and
 3. Alignment with Stringtie to the reference annotation
 4. Differential Transcript analysis of count data with DESeq2
 5. Gene set enrichment analysis (GSEA) with topGO
-6. Asses gene networks via WGCNA
 
 The /SCRIPTS folder contains bash scripts to be executed from a cluster computing environment. The /Bac_Viral_Subset
 folder contains scripts to process C. gigas transcriptomes. The /C_Virginica_Subset folder contains scripts to process
