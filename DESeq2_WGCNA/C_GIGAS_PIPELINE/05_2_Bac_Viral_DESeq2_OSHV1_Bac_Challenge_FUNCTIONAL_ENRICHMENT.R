@@ -4,8 +4,8 @@
 #downloaded the Generic GO slim from the GO consortium, http://www.geneontology.org/page/go-slim-and-subset-guide
 
 #Load packages
-source("http://bioconductor.org/biocLite.R")
-biocLite(c("topGO","ALL","Rgraphviz"))
+#source("http://bioconductor.org/biocLite.R")
+#biocLite(c("topGO","ALL","Rgraphviz"))
 library(topGO)
 #install.packages("tm")
 library(tm)
@@ -41,8 +41,12 @@ head(Bac_GO_table)
 OsHV1_data_noblanks <- oshv_GO_table[!(oshv_GO_table$ Gene.ontology.IDs == ""), ] #7958 rows
 Bac_data_noblanks <- Bac_GO_table[!(Bac_GO_table$ Gene.ontology.IDs == ""), ] #5518 rows
 
+#write files to .csv with all relevant columns so that they can be used in WGCNA analysis
+OsHV1_WGCNA <- resoshvTran_05_df_FULL[,c("ID","padj","log2FoldChange", "Protein.names", "Gene.ontology.IDs")]
+Bac_WGCNA <- resBacTran_05_df_FULL[,c("ID","padj", "Protein.names","log2FoldChange", "Gene.ontology.IDs")]
+write.csv(OsHV1_WGCNA, file="OsHV1_WGCNA.csv")
+write.csv(Bac_WGCNA, file="Bac_WGCNA.csv")
 
-#Create topGO object
 #This object will contain all information necessary for the GO analysis, 
 # namely the list of genes, the list of interesting genes, the gene
 #scores (if available) and the part of the GO ontology (the GO graph) 
@@ -190,7 +194,11 @@ BacFisherParentchild <- runTest(Bac_GOdata, algorithm="parentchild", statistic="
 Bacsummary <- summary(attributes(BacFisher_weight)$score <= 0.05)
 Bac_numsignif <- as.integer(Bacsummary[[3]]) # how many terms is it true that P <= 0.05
 Bac_numsignif # = 2 
-  
+
+Bacsummary_classic <- summary(attributes(BacFisher)$score <= 0.05)
+Bac_numsignif_classic <- as.integer(Bacsummary_classic[[3]]) # how many terms is it true that P <= 0.05
+Bac_numsignif_classic # = 7
+
 #print out the top 'numsignif' results:
 Bac_numsignif_Res <- GenTable(Bac_GOdata, classicFisher = BacFisher,
                                   elimFisher = BacFisherElim, topgoFisher = BacFisher_weight,
