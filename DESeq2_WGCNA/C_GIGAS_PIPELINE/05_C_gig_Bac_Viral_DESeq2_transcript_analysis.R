@@ -1491,7 +1491,12 @@ Bac_GIMAP_IAP_2 <- Bac_GIMAP_IAP_1  +
                                                                                                             "Putative apoptosis inhibitor ORF42"="putative IAP ORF42",
                                                                                                             "Putative inhibitor of apoptosis (1)"="putative IAP",
                                                                                                             "Putative inhibitor of apoptosis (2)"="putative IAP",
-                                                                                                            "Putative inhibitor of apoptosis (3)"="putative IAP"))
+                                                                                                      "Putative inhibitor of apoptosis (3)"="putative IAP"))
+#### GIMAP and IAP across challenges ####
+Bac_GIMAP_IAP <- droplevels(Bac_GIMAP_IAP)
+as.data.frame(table(Bac_GIMAP_IAP$Protein.names))
+oshv_GIMAP_IAP <- droplevels(oshv_GIMAP_IAP)
+as.data.frame(table(oshv_GIMAP_IAP$Protein.names))
 
 #references: 
 #https://github.com/sr320/LabDocs/tree/master/code/DESeq
