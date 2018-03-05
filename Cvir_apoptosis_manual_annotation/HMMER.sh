@@ -2,15 +2,15 @@
 #SBATCH -t 1:00:00
 #SBATCH --nodes 1
 #SBATCH --mail-user=erin_roberts@my.uri.edu
-#SBATCH -o /data3/marine_diseases_lab/erin/HHMER_analysis/HMM_output
-#SBATCH -e /data3/marine_diseases_lab/erin/HHMER_analysis/HMM_error
-#SBATCH -D /data3/marine_diseases_lab/erin/HHMER_analysis
+#SBATCH -o /data3/marine_diseases_lab/erin/HMMER_analysis/HMM_output
+#SBATCH -e /data3/marine_diseases_lab/erin/HMMER_analysis/HMM_error
+#SBATCH -D /data3/marine_diseases_lab/erin/HMMER_analysis
 
 #-D submits the start path
 echo "START $(date)"
 
 module load HMMER/3.1b2-foss-2016b
-F=/data3/marine_diseases_lab/erin/HHMER_analysis
+F=/data3/marine_diseases_lab/erin/HMMER_analysis
 
 #Step 1: build a profile HMM with hmmbuild
 #input file as Stockholm or FASTA alignments
