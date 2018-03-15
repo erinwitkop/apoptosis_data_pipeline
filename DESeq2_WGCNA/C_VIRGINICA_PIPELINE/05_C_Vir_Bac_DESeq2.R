@@ -348,6 +348,9 @@ TRAILb <- resRODTran_05_FULL_ENTREZGENE_DATA[grepl("TNF-related", ignore.case= T
                                              grepl("apoptosis",ignore.case= TRUE, resRODTran_05_FULL_ENTREZGENE_DATA$description) &  grepl("ligand",ignore.case= TRUE,  resRODTran_05_FULL_ENTREZGENE_DATA$description),]
 #0 hits
 TRAILc <- resRODTran_05_FULL_ENTREZGENE_DATA[grepl("TNFSF12",ignore.case= TRUE, resRODTran_05_FULL_ENTREZGENE_DATA$description),]
+
+TRAIL_MANUAL_ANNOTATION <- resRODTran_05_FULL_ENTREZGENE_DATA[grepl("LOC111133752", ignore.cas=TRUE,resRODTran_05_FULL_ENTREZGENE_DATA$description),]
+  
 # 0 hits
 cFLIP <- resRODTran_05_FULL_ENTREZGENE_DATA[grepl("c-FLIP",ignore.case= TRUE, resRODTran_05_FULL_ENTREZGENE_DATA$description),]
 # 0 hits
@@ -371,6 +374,10 @@ cAMP <-  resRODTran_05_FULL_ENTREZGENE_DATA[grepl("cAMP",ignore.case= TRUE, resR
 #no hits
 cAMP2 <-  resRODTran_05_FULL_ENTREZGENE_DATA[grepl("cyclic",ignore.case= TRUE, resRODTran_05_FULL_ENTREZGENE_DATA$description) 
                                              & grepl("adenosine", ignore.case = TRUE,resRODTran_05_FULL_ENTREZGENE_DATA$description),]
+cAMP_MANUAL_ANNOTATION <- resRODTran_05_FULL_ENTREZGENE_DATA[grepl("adenylate", ignore.case=TRUE, resRODTran_05_FULL_ENTREZGENE_DATA$description) & 
+                                                               grepl("cyclase", ignore.case=TRUE,resRODTran_05_FULL_ENTREZGENE_DATA$description),]
+cAMP_MANUAL_ANNOTATION
+
 #none are PKA
 PKA <- resRODTran_05_FULL_ENTREZGENE_DATA[grepl("protein", resRODTran_05_FULL_ENTREZGENE_DATA$description) & 
                                                 grepl("kinase", resRODTran_05_FULL_ENTREZGENE_DATA$description) & grepl("A", resRODTran_05_FULL_ENTREZGENE_DATA$description),]
@@ -453,6 +460,8 @@ APIP <- resRODTran_05_FULL_ENTREZGENE_DATA[grepl("apoptotic", resRODTran_05_FULL
 APIPb <- resRODTran_05_FULL_ENTREZGENE_DATA[grepl("apoptotic", resRODTran_05_FULL_ENTREZGENE_DATA$description) & grepl( "protease", resRODTran_05_FULL_ENTREZGENE_DATA$description),]
 APIPc <- resRODTran_05_FULL_ENTREZGENE_DATA[grepl("APAF", ignore.case = TRUE, resRODTran_05_FULL_ENTREZGENE_DATA$description) ,]
 APIPc <- resRODTran_05_FULL_ENTREZGENE_DATA[grepl("APIP", ignore.case=TRUE, resRODTran_05_FULL_ENTREZGENE_DATA$description) ,]
+APIP_MANUAL_ANNOTATION <- resRODTran_05_FULL_ENTREZGENE_DATA[grepl("methylthioribulose", ignore.case=TRUE, resRODTran_05_FULL_ENTREZGENE_DATA$description) &
+                                                               grepl("dehydratase", ignore.case=TRUE,resRODTran_05_FULL_ENTREZGENE_DATA$description),]
 
 #no sAC
 sAC <- resRODTran_05_FULL_ENTREZGENE_DATA[grepl("adenylyl", resRODTran_05_FULL_ENTREZGENE_DATA$description) & grepl( "cyclase", resRODTran_05_FULL_ENTREZGENE_DATA$description),]
@@ -473,15 +482,21 @@ Blkb <- resRODTran_05_FULL_ENTREZGENE_DATA[grepl("B", ignore.case=TRUE, resRODTr
 Blkc <- resRODTran_05_FULL_ENTREZGENE_DATA[grepl("p55", ignore.case=TRUE, resRODTran_05_FULL_ENTREZGENE_DATA$description),]
 
 #no myc
-myc <- resRODTran_05_FULL_ENTREZGENE_DATA[grepl("myc", resRODTran_05_FULL_ENTREZGENE_DATA$description),]
+myc <- resRODTran_05_FULL_ENTREZGENE_DATA[grepl("myc-a", resRODTran_05_FULL_ENTREZGENE_DATA$description),]
 myc <-  resRODTran_05_FULL_ENTREZGENE_DATA[grepl("oncogene", resRODTran_05_FULL_ENTREZGENE_DATA$description),]
+myc_MANUAL_ANNOTATION <- resRODTran_05_FULL_ENTREZGENE_DATA[grepl("LOC111121429", resRODTran_05_FULL_ENTREZGENE_DATA),]
 
-aven <-   resRODTran_05_FULL_ENTREZGENE_DATA[grepl("aven", resRODTran_05_FULL_ENTREZGENE_DATA$description) &
-                                               !grepl("scavenger", resRODTran_05_FULL_ENTREZGENE_DATA$description),]
+aven <-   resRODTran_05_FULL_ENTREZGENE_DATA[grepl("aven", resRODTran_05_FULL_ENTREZGENE_DATA$description),]
+
 #no p53..
 p53 <- resRODTran_05_FULL_ENTREZGENE_DATA[grepl("tumor", resRODTran_05_FULL_ENTREZGENE_DATA$description) & grepl( "antigen", resRODTran_05_FULL_ENTREZGENE_DATA$description),]
 p53 <- resRODTran_05_FULL_ENTREZGENE_DATA[grepl("p53", resRODTran_05_FULL_ENTREZGENE_DATA$description) ,]
 p53 <- resRODTran_05_FULL_ENTREZGENE_DATA[grepl("tumor", resRODTran_05_FULL_ENTREZGENE_DATA$description) & grepl( "protein", resRODTran_05_FULL_ENTREZGENE_DATA$description),]
+p63_MANUAL_ANNOTATION <- p53 <- resRODTran_05_FULL_ENTREZGENE_DATA[grepl("tumor", resRODTran_05_FULL_ENTREZGENE_DATA$description) & 
+                                                                     grepl( "protein", resRODTran_05_FULL_ENTREZGENE_DATA$description) &
+                                                                     grepl("63",resRODTran_05_FULL_ENTREZGENE_DATA$description) &
+                                                                     !grepl("regulated", resRODTran_05_FULL_ENTREZGENE_DATA$description),]
+
 
 #no smac
 smac <- resRODTran_05_FULL_ENTREZGENE_DATA[grepl("low", resRODTran_05_FULL_ENTREZGENE_DATA$description) & grepl( "PI", resRODTran_05_FULL_ENTREZGENE_DATA$description),]
@@ -501,6 +516,7 @@ A1 <- resRODTran_05_FULL_ENTREZGENE_DATA[grepl("bcl-2",ignore.case = TRUE, resRO
 #no Bak
 Bak <- resRODTran_05_FULL_ENTREZGENE_DATA[grepl("antagonist", resRODTran_05_FULL_ENTREZGENE_DATA$description) & grepl( " killer", resRODTran_05_FULL_ENTREZGENE_DATA$description),]
 Bak2 <- resRODTran_05_FULL_ENTREZGENE_DATA[grepl("bcl2l7",ignore.case = TRUE, resRODTran_05_FULL_ENTREZGENE_DATA$description),]
+BAK_MANUAL_ANNOTATION <- resRODTran_05_FULL_ENTREZGENE_DATA[grepl("LOC111105030",ignore.case = TRUE, resRODTran_05_FULL_ENTREZGENE_DATA$description),]
 
 BAX <- resRODTran_05_FULL_ENTREZGENE_DATA[grepl("bax-like",ignore.case = TRUE, resRODTran_05_FULL_ENTREZGENE_DATA$description),]
 
@@ -554,13 +570,15 @@ AKTB <- resRODTran_05_FULL_ENTREZGENE_DATA[grepl("protein", ignore.case = TRUE, 
                                              grepl("B",resRODTran_05_FULL_ENTREZGENE_DATA$description),]
 #no protein kinase B!
 akt <- resRODTran_05_FULL_ENTREZGENE_DATA[grepl("akt", ignore.case = TRUE, resRODTran_05_FULL_ENTREZGENE_DATA$description),]
+AKT_MANUAL_ANNOTATION <- resRODTran_05_FULL_ENTREZGENE_DATA[grepl("RAC-alpha", ignore.case=TRUE, resRODTran_05_FULL_ENTREZGENE_DATA$description),]
 
-JNK <- resRODTran_05_FULL_ENTREZGENE_DATA[grepl("stress-activated", resRODTran_05_FULL_ENTREZGENE_DATA$description) & grepl( "JNK", resRODTran_05_FULL_ENTREZGENE_DATA$description),]
+  JNK <- resRODTran_05_FULL_ENTREZGENE_DATA[grepl("stress-activated", resRODTran_05_FULL_ENTREZGENE_DATA$description) & grepl( "JNK", resRODTran_05_FULL_ENTREZGENE_DATA$description),]
 
 
 p35 <- resRODTran_05_FULL_ENTREZGENE_DATA[grepl("cyclin", resRODTran_05_FULL_ENTREZGENE_DATA$description) & grepl( "dependent", resRODTran_05_FULL_ENTREZGENE_DATA$description) &
                                            grepl( "5", resRODTran_05_FULL_ENTREZGENE_DATA$description) &
                                             grepl("activator",resRODTran_05_FULL_ENTREZGENE_DATA$description),]
+
 #none
 cJUN <- resRODTran_05_FULL_ENTREZGENE_DATA[grepl("proto", resRODTran_05_FULL_ENTREZGENE_DATA$description) & grepl( "oncogene", resRODTran_05_FULL_ENTREZGENE_DATA$description) &
                                              grepl("jun", resRODTran_05_FULL_ENTREZGENE_DATA$description),]
@@ -621,6 +639,7 @@ CCAR <- resRODTran_05_FULL_ENTREZGENE_DATA[grepl("cell", resRODTran_05_FULL_ENTR
                                             grepl("apoptosis",resRODTran_05_FULL_ENTREZGENE_DATA$description),]
 
 ASPP <- resRODTran_05_FULL_ENTREZGENE_DATA[grepl("apoptosis-stimulating", resRODTran_05_FULL_ENTREZGENE_DATA$description) & grepl("p53", resRODTran_05_FULL_ENTREZGENE_DATA$description),]
+
 
 #none
 GIMAP <- resRODTran_05_FULL_ENTREZGENE_DATA[grepl("GIMAP", resRODTran_05_FULL_ENTREZGENE_DATA$description) ,]
@@ -841,6 +860,7 @@ ROD_GIMAP_IAP_1 <- ggplot(ROD_GIMAP_IAP_combined_3) +
 ROD_GIMAP_IAP_2 <- ROD_GIMAP_IAP_1 +
   geom_text(data=label.GIMAP_IAP.df, aes(x=description3, y=log2FoldChange), label = c("*")) +
   theme(axis.line = element_line(colour = "black", size = 0.5, linetype = "solid")) +
+  theme(text= element_textsize(8.5))) +
   scale_x_discrete(name="Transcript Annotation", limits=c("baculoviral IAP repeat-containing protein 2-like_111100408 (1)",
 "baculoviral IAP repeat-containing protein 2-like_111100408 (2)",
                                                           "baculoviral IAP repeat-containing protein 2-like_111100443",
@@ -1351,6 +1371,8 @@ RIF_TRAIL <- resRIFTran_05_FULL_ENTREZGENE_DATA[grepl("TRAIL",ignore.case= TRUE,
 # 0 hits
 RIF_TRAILb <- resRIFTran_05_FULL_ENTREZGENE_DATA[grepl("TNF-related", ignore.case= TRUE,  resRIFTran_05_FULL_ENTREZGENE_DATA$description) & 
                                                grepl("apoptosis",ignore.case= TRUE, resRIFTran_05_FULL_ENTREZGENE_DATA$description) &  grepl("ligand",ignore.case= TRUE,  resRIFTran_05_FULL_ENTREZGENE_DATA$description),]
+RIF_TRAIL_MANUAL_ANNOTATION <- resRIFTran_05_FULL_ENTREZGENE_DATA[grepl("LOC111133752", ignore.case= TRUE, resRIFTran_05_FULL_ENTREZGENE_DATA$description),]
+
 #0 hits
 RIF_TRAILc <- resRIFTran_05_FULL_ENTREZGENE_DATA[grepl("TNFSF12",ignore.case= TRUE, resRIFTran_05_FULL_ENTREZGENE_DATA$description),]
 # 0 hits
@@ -1376,6 +1398,9 @@ RIF_cAMP <-  resRIFTran_05_FULL_ENTREZGENE_DATA[grepl("cAMP",ignore.case= TRUE, 
 #no hits
 RIF_cAMP2 <-  resRIFTran_05_FULL_ENTREZGENE_DATA[grepl("cyclic",ignore.case= TRUE, resRIFTran_05_FULL_ENTREZGENE_DATA$description) 
                                              & grepl("adenosine", ignore.case = TRUE,resRIFTran_05_FULL_ENTREZGENE_DATA$description),]
+RIF_CAMP_MANUAL_ANNOTATION <- resRIFTran_05_FULL_ENTREZGENE_DATA[grepl("adenylate", ignore.case=TRUE,resRIFTran_05_FULL_ENTREZGENE_DATA$description)
+                                                                 & grepl("cyclase", ignore.case=TRUE, resRIFTran_05_FULL_ENTREZGENE_DATA$description),]
+
 #none are PKA
 RIF_PKA <- resRIFTran_05_FULL_ENTREZGENE_DATA[grepl("protein", resRIFTran_05_FULL_ENTREZGENE_DATA$description) & 
                                             grepl("kinase", resRIFTran_05_FULL_ENTREZGENE_DATA$description) & grepl("A", resRIFTran_05_FULL_ENTREZGENE_DATA$description),]
@@ -1459,6 +1484,8 @@ RIF_APIP <- resRIFTran_05_FULL_ENTREZGENE_DATA[grepl("apoptotic", resRIFTran_05_
 RIF_APIPb <- resRIFTran_05_FULL_ENTREZGENE_DATA[grepl("apoptotic", resRIFTran_05_FULL_ENTREZGENE_DATA$description) & grepl( "protease", resRIFTran_05_FULL_ENTREZGENE_DATA$description),]
 RIF_APIPc <- resRIFTran_05_FULL_ENTREZGENE_DATA[grepl("APAF", ignore.case = TRUE, resRIFTran_05_FULL_ENTREZGENE_DATA$description) ,]
 RIF_APIPc <- resRIFTran_05_FULL_ENTREZGENE_DATA[grepl("APIP", ignore.case=TRUE, resRIFTran_05_FULL_ENTREZGENE_DATA$description) ,]
+RIF_APIP_MANUAL_ANNOTATION <- resRIFTran_05_FULL_ENTREZGENE_DATA[grepl("methylthioribulose", ignore.case=TRUE, resRIFTran_05_FULL_ENTREZGENE_DATA$description) &
+                                                                   grepl("dehydratase",ignore.case=TRUE, resRIFTran_05_FULL_ENTREZGENE_DATA$description),]
 
 #no sAC
 RIF_sAC <- resRIFTran_05_FULL_ENTREZGENE_DATA[grepl("adenylyl", resRIFTran_05_FULL_ENTREZGENE_DATA$description) & grepl( "cyclase", resRIFTran_05_FULL_ENTREZGENE_DATA$description),]
@@ -1481,6 +1508,7 @@ RIF_Blkc <- resRIFTran_05_FULL_ENTREZGENE_DATA[grepl("p55", ignore.case=TRUE, re
 #no myc
 RIF_myc <- resRIFTran_05_FULL_ENTREZGENE_DATA[grepl("myc", resRIFTran_05_FULL_ENTREZGENE_DATA$description),]
 RIF_myc <-  resRIFTran_05_FULL_ENTREZGENE_DATA[grepl("oncogene", resRIFTran_05_FULL_ENTREZGENE_DATA$description),]
+RIF_MYC_MANUAL_ANNOTATION <- resRIFTran_05_FULL_ENTREZGENE_DATA[grepl("LOC111121429", ignore.case = TRUE, resRIFTran_05_FULL_ENTREZGENE_DATA$description),]
 
 #no aven
 RIF_aven <-   resRIFTran_05_FULL_ENTREZGENE_DATA[grepl("aven", resRIFTran_05_FULL_ENTREZGENE_DATA$description) &
@@ -1489,6 +1517,8 @@ RIF_aven <-   resRIFTran_05_FULL_ENTREZGENE_DATA[grepl("aven", resRIFTran_05_FUL
 RIF_p53 <- resRIFTran_05_FULL_ENTREZGENE_DATA[grepl("tumor", resRIFTran_05_FULL_ENTREZGENE_DATA$description) & grepl( "antigen", resRIFTran_05_FULL_ENTREZGENE_DATA$description),]
 RIF_p53 <- resRIFTran_05_FULL_ENTREZGENE_DATA[grepl("p53", resRIFTran_05_FULL_ENTREZGENE_DATA$description) ,]
 RIF_p53 <- resRIFTran_05_FULL_ENTREZGENE_DATA[grepl("tumor", resRIFTran_05_FULL_ENTREZGENE_DATA$description) & grepl( "protein", resRIFTran_05_FULL_ENTREZGENE_DATA$description),]
+RIF_p63 <- resRIFTran_05_FULL_ENTREZGENE_DATA[grepl("tumor",resRIFTran_05_FULL_ENTREZGENE_DATA$description) & grepl("protein",resRIFTran_05_FULL_ENTREZGENE_DATA$description) 
+                                              & grepl("63",resRIFTran_05_FULL_ENTREZGENE_DATA$description),]
 
 #no smac
 RIF_smac <- resRIFTran_05_FULL_ENTREZGENE_DATA[grepl("low", resRIFTran_05_FULL_ENTREZGENE_DATA$description) & grepl( "PI", resRIFTran_05_FULL_ENTREZGENE_DATA$description),]
@@ -1509,6 +1539,7 @@ RIF_A1 <- resRIFTran_05_FULL_ENTREZGENE_DATA[grepl("bcl-2",ignore.case = TRUE, r
 #no Bak
 RIF_Bak <- resRIFTran_05_FULL_ENTREZGENE_DATA[grepl("antagonist", resRIFTran_05_FULL_ENTREZGENE_DATA$description) & grepl( " killer", resRIFTran_05_FULL_ENTREZGENE_DATA$description),]
 RIF_Bak2 <- resRIFTran_05_FULL_ENTREZGENE_DATA[grepl("bcl2l7",ignore.case = TRUE, resRIFTran_05_FULL_ENTREZGENE_DATA$description),]
+RIF_BAK_MANUAL_ANNOTATION <- resRIFTran_05_FULL_ENTREZGENE_DATA[grepl("LOC111105030", ignore.case = TRUE, resRIFTran_05_FULL_ENTREZGENE_DATA$description),]
 
 RIF_BAX <- resRIFTran_05_FULL_ENTREZGENE_DATA[grepl("bax-like",ignore.case = TRUE, resRIFTran_05_FULL_ENTREZGENE_DATA$description),]
 
@@ -1565,6 +1596,8 @@ RIF_AKTB <- resRIFTran_05_FULL_ENTREZGENE_DATA[grepl("protein", ignore.case = TR
                                              grepl("B",resRIFTran_05_FULL_ENTREZGENE_DATA$description),]
 #no protein kinase B!
 RIF_akt <- resRIFTran_05_FULL_ENTREZGENE_DATA[grepl("akt", ignore.case = TRUE, resRIFTran_05_FULL_ENTREZGENE_DATA$description),]
+RIF_AKT_MANUAL_ANNOTATION <- resRIFTran_05_FULL_ENTREZGENE_DATA[grepl("RAC-alpha", ignore.case=TRUE,resRIFTran_05_FULL_ENTREZGENE_DATA$description),]
+
 
 RIF_JNK <- resRIFTran_05_FULL_ENTREZGENE_DATA[grepl("stress-activated", resRIFTran_05_FULL_ENTREZGENE_DATA$description) & grepl( "JNK", resRIFTran_05_FULL_ENTREZGENE_DATA$description),]
 
@@ -1746,6 +1779,7 @@ RIF_GIMAP_IAP_1 <- ggplot(RIF_GIMAP_IAP_combined_3) +
 RIF_GIMAP_IAP_2 <- RIF_GIMAP_IAP_1 +
   geom_text(data=label.RIF.GIMAP_IAP.df, aes(x=description2, y=log2FoldChange), label = c("*")) +
   theme(axis.line = element_line(colour = "black", size = 0.5, linetype = "solid")) +
+  theme(text = element_text(size=8.5)) +
   scale_x_discrete(name="Transcript Annotation", limits=c("baculoviral IAP repeat-containing protein 2-like_111100408 (1)",
                                                           "baculoviral IAP repeat-containing protein 2-like_111100408 (2)",
                                                           "baculoviral IAP repeat-containing protein 2-like_111100443",
@@ -1985,16 +2019,35 @@ ggplot(RIF_GIMAP) +  geom_col(aes(x=description, y=log2FoldChange)) + theme(axis
   scale_y_continuous(name ="log2 Fold Change", breaks = scales::pretty_breaks(n = 20))
 
 
-#### GIMAP and IAP across challenges ####
+#### Get Data for Heatmap of GIMAP, IAP, TLR across challenges, to be done in the combined Stats R workspace ####
 
-GIMAP_IAP_total <- rbind(RIF_IAP_genes, RIF_GIMAP, ROD_GIMAP_IAP_combined)
+GIMAP_IAP_TLR_total <- rbind(RIF_IAP_genes, RIF_GIMAP, ROD_GIMAP_IAP_combined, RIF_TLR, TLR)
+#Add columns for challenge type
+RIF_TLR["Challenge_Type"] <- "RIF"
+RIF_IAP_genes["Challenge_Type"] <- "RIF"
+RIF_GIMAP["Challenge_Type"] <- "RIF"
+GIMAP["Challenge_Type"] <- "ROD"
+TLR["Challenge_Type"] <- "ROD"
+ROD_IAP_combined <- rbind(IAP, IAP2)
+ROD_IAP_combined["Challenge_Type"] <- "ROD"
+
+
+#combine gene family types
+TLR_total <- rbind(RIF_TLR, TLR)
+GIMAP_total <- rbind(RIF_GIMAP, GIMAP)
+IAP_total <- rbind(ROD_IAP_combined, RIF_IAP_genes)
+write.csv(TLR_total, file="C_vir_TLR_total.csv")
+write.csv(GIMAP_total, file="C_vir_GIMAP_total.csv")
+write.csv(IAP_total, file="C_vir_IAP_total.csv")
+
+#export the data
+
 
 #find number of duplicates of each, using the R table function
 table(RIF_IAP_genes$description)
 as.data.frame(table(RIF_IAP_genes$description))
 as.data.frame(table(RIF_GIMAP$description))
 as.data.frame(table(ROD_GIMAP_IAP_combined$description))
-
 
 #### Side by side graphing of the shared significantly differentially expressed apoptosis genes from both ####
 # this is wrong
@@ -2007,8 +2060,7 @@ C_Vir_Merged$rowSource <- apply(C_Vir_Merged[c("source.x", "source.y")], 1,
                           function(x) paste(na.omit(x), collapse = ""))
 C_Vir_Merged
 
-  
-#### Compare the number of transcripts of each one of interest
+
 
 
 
