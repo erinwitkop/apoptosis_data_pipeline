@@ -23,7 +23,7 @@ SRR5357626 | SRX2652898     | RIF                    | PE             | 18449441
 
 ## Overall pipeline 
 ```{r, out.width="400px", out.height="400px", echo=FALSE, fig.align='center'}
-knitr::include_graphics("/apoptosis_data_pipeline/Streamlined\ Pipeline\ Tutorial/Transcriptome_pipeline.png")
+knitr::include_graphics("./Transcriptome_pipeline.png")
 ```
 
 ## Step 1: Find the data on NCBI
