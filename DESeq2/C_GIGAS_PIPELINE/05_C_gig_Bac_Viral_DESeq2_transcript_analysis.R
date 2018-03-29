@@ -1492,11 +1492,32 @@ Bac_GIMAP_IAP_2 <- Bac_GIMAP_IAP_1  +
                                                                                                             "Putative inhibitor of apoptosis (1)"="putative IAP",
                                                                                                             "Putative inhibitor of apoptosis (2)"="putative IAP",
                                                                                                       "Putative inhibitor of apoptosis (3)"="putative IAP"))
-#### GIMAP and IAP across challenges ####
+#### GIMAP and IAP across challenges #### FIXED ERROR FROM HERE DOWN
 Bac_GIMAP_IAP <- droplevels(Bac_GIMAP_IAP)
 as.data.frame(table(Bac_GIMAP_IAP$Protein.names))
 oshv_GIMAP_IAP <- droplevels(oshv_GIMAP_IAP)
 as.data.frame(table(oshv_GIMAP_IAP$Protein.names))
+
+
+####Gather GIMAP, TLR, and IAP gene family information 
+head(GIMAP)
+GIMAP["Challenge_Type"] <- "Bac"
+TLR["Challenge_Type"] <- "Bac"
+Bac_IAP_combined <- rbind(oshv_IAP, oshv_IAP2)
+Bac_IAP_combined["Challenge_Type"] <- "Bac"
+
+oshv_GIMAP["Challenge_Type"] <- "oshv"
+oshv_TLR["Challenge_Type"] <- "oshv"
+oshv_IAP_combined <- rbind(IAP, IAP2)
+oshv_IAP_combined["Challenge_Type"] <- "oshv" 
+
+TLR_total <- rbind(TLR, oshv_TLR[,c(1,2,3,4,5,6,7,8,9,10,11,13)])
+GIMAP_total <- rbind(GIMAP, oshv_GIMAP[,c(1,2,3,4,5,6,7,8,9,10,11,13)])
+IAP_total <- rbind(Bac_IAP_combined, oshv_IAP_combined[,c(1,2,3,4,5,6,7,8,9,10,11,13)])
+
+write.csv(TLR_total, file="M_gig_TLR_total.csv")
+write.csv(GIMAP_total, file="M_gig_GIMAP_total.csv")
+write.csv(IAP_total, file="M_gig_IAP_total.csv")
 
 #references: 
 #https://github.com/sr320/LabDocs/tree/master/code/DESeq
