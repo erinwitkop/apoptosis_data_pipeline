@@ -2,7 +2,7 @@
 title: "Apoptosis Pipeline Tutorial with Reduced Dataset"
 author: "Erin Roberts"
 date: "3/29/2018"
-output: html_document
+output: github_document
 ---
 
 # Introduction
