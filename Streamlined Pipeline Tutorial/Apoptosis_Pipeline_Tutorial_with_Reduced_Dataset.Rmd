@@ -22,9 +22,7 @@ SRR5357626 | SRX2652898     | RIF                    | PE             | 18449441
 
 
 ## Overall pipeline 
-```{r, out.width="400px", out.height="400px", echo=FALSE, fig.align='center'}
-knitr::include_graphics("apoptosis_data_pipeline/Streamlined Pipeline Tutorial/Transcriptome_pipeline.png"")
-```
+
 ![Transcriptome pipeline](https://github.com/erinroberts/apoptosis_data_pipeline/blob/master/Streamlined%20Pipeline%20Tutorial/Transcriptome_pipeline.png)
 
 ## Step 1: Find the data on NCBI
@@ -32,14 +30,10 @@ knitr::include_graphics("apoptosis_data_pipeline/Streamlined Pipeline Tutorial/T
 NCBI houses a repository of sequence data in their Sequence Read Archive (SRA). This site stores information from high throughput sequencing platforms. SRA files are often part of a larger data structure in NCBI called BioProjects, which are a collection of bioligical data related to a single project. The BioProject record can store several different data types relevant to an experiment. There are often several "SRA Experiments" in a single BioProject. 
 
 The NCBI page for the project to sequence the whole genome of eastern oyster is shown below. 14 SRA experiments are included. 
-```{r, out.width="400px", out.height="400px", echo=FALSE, fig.align='center'}
-knitr::include_graphics("apoptosis_data_pipeline/Streamlined Pipeline Tutorial/Genome_sequencing_bioproject.png")
-```
-
+![Genome bioproject](https://github.com/erinroberts/apoptosis_data_pipeline/blob/master/Streamlined%20Pipeline%20Tutorial/Genome_sequencing_bioproject.png)
 Sadly, we cannot directly download the SRA data from this page. We need to click on the linked number *14* next to *SRA Experiments*. This takes us to this page. We first use the check box next to each to select which experiments we are interested in. To populate a list with the list of the Accessions we click *Send to* > *Format* > *Accession List* which produces a text file with the name of all experiments we wish to download.Today however, we will only select the Experiments listed in the table above. 
-```{r, out.width="400px", out.height="400px", echo=FALSE, fig.align='center'}
-knitr::include_graphics("apoptosis_data_pipeline/Streamlined Pipeline Tutorial/SRA_accession_list.png")
-```
+
+![SRA list](https://github.com/erinroberts/apoptosis_data_pipeline/blob/master/Streamlined%20Pipeline%20Tutorial/SRA_accession_list.png)
 
 ## Step 2: Download the data 
 
