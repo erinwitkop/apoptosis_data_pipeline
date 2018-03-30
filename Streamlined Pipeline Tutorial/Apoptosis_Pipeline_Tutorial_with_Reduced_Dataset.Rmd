@@ -81,11 +81,6 @@ Create a bash script via `$ nano bbtools.sh` that contains the following command
 # Specify current path (just for extra security)
 F=/path/to/folder
 
-#changing PE file endings to fq because the program prefers those endings
-for f in *.fastq; do 
-  mv -- "$f" "$f.fq"
-done
-
 #going to make two array variables and then iterate through them as an index
 array1=($(ls $F/*_1.fq))
 array2=($(ls $F/*_2.fq))
