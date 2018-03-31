@@ -139,7 +139,7 @@ done
 
 ## Step 4: Aligning transcriptome reads to the reference eastern oyster genome
 
-Now that our files have been preprocessed it is time to align them to the reference genome. The genome fasta file can be downloaded from NCBI [here](https://www.ncbi.nlm.nih.gov/genome/?term=txid6565[orgn]). Download the **genome** file. There are several popular RNA-seq read aligners, each with different algorithms and pitfalls^[2]^. One of the most popular pipelines however in recent years has been the "Tuxedo Suite" pipeline including **Bowtie** > **TopHat** > and **Cufflinks** (*cute right?*). In this suite Bowtie is a fast short read aligner, TopHat uses information from Bowtie to align short reads to the reference, and Cufflinks performs differential expression analysis. This software was first created in 2009 by Trapnell et al.^[3]^. This pipeline is now outdated and has been replaced by the **HISAT2** > **StringTie** > **Ballgown** Suite by [Pertea et al., 2016](https://search-proquest-com.uri.idm.oclc.org/docview/1815346347?OpenUrlRefId=info:xri/sid:primo&accountid=28991) (*the names aren't as clever IMO*). Software for this full pipeline is available on this site by the [Johns Hopkins University Center for Computational Biology](http://ccb.jhu.edu/software.shtml). Pertea et al. (2016) describe their full pipeline in this paper and include a very helpful tutorial. I recommend going through that if you are interested in using this software. For addition information on the all the parameters available for HISAT2 please read [Kim et al., 2015. HISAT: a fast spliced aligner with low memory requirements](https://www.nature.com/articles/nmeth.3317).
+Now that our files have been preprocessed it is time to align them to the reference genome. The genome fasta file can be downloaded from NCBI [here](https://www.ncbi.nlm.nih.gov/genome/?term=txid6565[orgn]). Download the **genome** file. There are several popular RNA-seq read aligners, each with different algorithms and pitfalls^[2]^. One of the most popular pipelines however in recent years has been the "Tuxedo Suite" pipeline including **Bowtie** > **TopHat** > and **Cufflinks** (*cute right?*). In this suite Bowtie is a fast short read aligner, TopHat uses information from Bowtie to align short reads to the reference, and Cufflinks performs differential expression analysis. This software was first created in 2009 by Trapnell et al.^[3]^. This pipeline is now outdated and has been replaced by the 'new Tuxedo' suite **HISAT2** > **StringTie** > **Ballgown** Suite by [Pertea et al., 2016](https://search-proquest-com.uri.idm.oclc.org/docview/1815346347?OpenUrlRefId=info:xri/sid:primo&accountid=28991) (*the names aren't as clever IMO*). Software for this full pipeline is available on this site by the [Johns Hopkins University Center for Computational Biology](http://ccb.jhu.edu/software.shtml). Pertea et al. (2016) describe their full pipeline in this paper and include a very helpful tutorial. I recommend going through that if you are interested in using this software. For addition information on the all the parameters available for HISAT2 please read [Kim et al., 2015. HISAT: a fast spliced aligner with low memory requirements](https://www.nature.com/articles/nmeth.3317).
 
 I have chosen to only use the **HISAT2** and **StringTie** from this pipeline, which I'll get into later in this tutorial. For HISAT2 you can choose to either create an index using a reference genome (or transcriptome) with no annotation file, or with an annotation file. If you do not use an annotation file you are allowing for novel transcripts to be discovered in the alignment step. **However, if you choose to use an annotation file in the StringTie step (which we will) you need to make sure the header information between the genome and the annotation file match or this causes errors**.
 
@@ -205,10 +205,99 @@ array4=($(ls $F/*.bam))
 
 ```
 
-## Step 6: Assemble reads to the reference annotation using StringTie
+## Step 6: Assemble reads to the reference annotation and quantify using StringTie
+
+The next step in the pipeline following alignment of short reads to the genome is to assemble those reads. and perform read quantification. After initial assembly, a *merge* step is performed where assembled transcripts are merged together with a StringTie module that will create a uniform set of transcripts for all samples. StringTie can use the annotation file in both of these steps. StringTie then processes the transcripts following the merge step and then uses this to re-calculate abundances. The function gffcompare can then be used to compare the genes and transcripts with the annotation file and report out statistics.  
+
+The outputs of StringTie are tables with the transcript and gene abundance. **NOTE: to get both gene abundance tables and not just transcript tables `-A` in the StringTie `--merge` must be used.** The output of StringTie is produced in a format for use with the Ballgown program. However, the data can also be converted into a format for use with DESeq2. DESeq2 is a widely used R package for differential gene expression analysis and has a large base of users as well as a lot of helpful information online for its use. The ease of use, availability, and wealth of studies comparing the performanc of DESeq2 with other tools like edgeR (which performs similarly well for <12 replicates) that made me chose to use DESeq2^[5]^. There  This is described in the next step of the pipeline.
+
+Create and run a bash script with the following commands. 
+
+```
+#!/bin/bash
+
+#This script takes bam files from HISAT (processed by SAMtools) and performs StringTie assembly and quantification and converts
+# data into a format that is readable as count tables for DESeq2 usage
+
+F=/data3/marine_diseases_lab/erin/Bio_project_SRA/pipeline_files/C_Vir_subset
+
+# StringTie to assemble transcripts for each sample with the GFF3 annotation file
+array1=($(ls $F/*.bam))
+
+for i in ${array1[@]}; do
+	stringtie -G $F/ref_C_virginica-3.0_top_level.gff3 -o ${i}.gtf -l $(echo ${i}|sed "s/\..*//") ${i}
+	echo "${i}"
+done 
+	# command structure: $ stringtie <options> -G <reference.gtf or .gff> -o outputname.gtf -l prefix_for_transcripts input_filename.bam
+	# -o specifies the output name
+	# -G specifies you are aligning with an option GFF or GTF file as well to perform novel transcript discovery 
+	# -l Sets <label> as the prefix for the name of the output transcripts. Default: STRG
+	# don't use -e here if you want it to assemble any novel transcripts
+	
+#StringTie Merge, will merge all GFF files and assemble transcripts into a non-redundant set of transcripts, after which re-run StringTie with -e
+	
+	#create mergelist.txt in nano, names of all the GTF files created in the last step with each on its own line
+	#ls *.gtf > C_Vir_mergelist.txt
+
+	#check to sure one file per line
+	#cat C_Vir_mergelist.txt
+
+#Run StringTie merge, merge transcripts from all samples (across all experiments, not just for a single experiment)
+
+ 	stringtie --merge -A -G $F/ref_C_virginica-3.0_top_level.gff3 -o C_Vir_stringtie_merged.gtf C_Vir_mergelist.txt
+	#-A here creates a gene table output with genomic locations and compiled information that I will need later to fetch gene sequences
+		#FROM MANUAL: "If StringTie is run with the -A <gene_abund.tab> option, it returns a file containing gene abundances. "
+	#-G is a flag saying to use the .gff annotation file
+
+#gffcompare to compare how transcripts compare to reference annotation
+
+ 	gffcompare -r $F/ref_C_virginica-3.0_top_level.gff3 -G -o c_vir_merged C_Vir_stringtie_merged.gtf
+	# -o specifies prefix to use for output files
+	# -r followed by the annotation file to use as a reference
+ 	# merged.annotation.gtf tells you how well the predicted transcripts track to the reference annotation file
+ 	# merged.stats file shows the sensitivity and precision statistics and total number for different features (genes, exons, transcripts)
+
+#Re-estimate transcript abundance after merge step
+	for i in ${array1[@]}; do
+		stringtie -e -G $F/C_Vir_stringtie_merged.gtf -o $(echo ${i}|sed "s/\..*//").merge.gtf ${i}
+		echo "${i}"
+	done 
+	# input here is the original set of alignment files
+	# here -G refers to the merged GTF files
+	# -e creates more accurate abundance estimations with input transcripts, needed when converting to DESeq2 tables
+
+echo "DONE" $(date)
+```
+
+## Step 7: Prepare StringTie output for use in DESeq2
+
+The output tables with transcript of StringTie needs to be formatted for use in DESeq2. The "new Tuxedo" suite developers have provided a helpful script called `prepDE.py` for this purpose. The only input needed to run this script is a text file where each line lists the fullpath to the file being used. This first loop in the script below performs this task. Download the prepDE.py script is available from [this website made available by the Johns Hopkins Center for Computational Biology](https://ccb.jhu.edu/software/stringtie/dl/prepDE.py). 
+
+Create a script with the following commands and run it. 
+
+```
+#!/bin/bash
+
+F=/data3/marine_diseases_lab/erin/Bio_project_SRA/pipeline_files/C_Vir_subset
+
+
+array2=($(ls *.merged.gtf))
+
+for i in ${array2[@]}; do
+	echo "$(echo ${i}|sed "s/\..*//") $F/${i}" >> C_vir_sample_list.txt
+done
+
+#python prepDE.py -i C_vir_sample_list.txt
+			
+echo "STOP" $(date)
+```
+
+## Step 8: Perform differential expression of transcripts in DESeq2
+
 
 
 [1]: https://genomebiology.biomedcentral.com/articles/10.1186/s13059-016-0881-8 "Conesa et al., 2016. A survey of best practices for RNA-seq data analysis"
 [2]: https://www.nature.com/articles/nmeth.4106 "Baruzzo et al., 2016. Simulation-based comprehensive benchmarking of RNA-seq aligners"
 [3]: https://www.ncbi.nlm.nih.gov/pubmed/19289445 "Trapnell et al., 2009. TopHat: discovering splice junctions with RNA-Seq."
 [4]: https://www.ncbi.nlm.nih.gov/pubmed/21903627 "Li. 2011. A statistical framework for SNP calling, mutation discovery, association mapping and population genetical parameter estimation from sequencing data."
+[5]: http://rnajournal.cshlp.org/content/22/6/839.short "Schurch et al., 2016. How many biological replicates are needed in an RNA-seq experiment and which differential expression tool should you use?"
