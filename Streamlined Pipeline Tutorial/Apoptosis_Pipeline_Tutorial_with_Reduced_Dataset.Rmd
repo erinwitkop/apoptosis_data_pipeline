@@ -16,9 +16,8 @@ Sample ID  | SRA Experiment | Experimental Condition | Library Layout | Number B
 SRR5357617 | SRX2652894     | control                | PE             | 21804530162.00 | C. virginica  | larvae     |
 SRR5357618 | SRX2652899     | RIF                    | PE             | 20356460396.00 | C. virginica  | larvae     |
 SRR5357619 | SRX2652896     | RIF                    | PE             | 22691300916.00 | C. virginica  | larvae     |
-SRR5357622 | SRX2652895     | control                | PE             | 22956419468.00 | C. virginica  | larvae     |
-SRR5357623 | SRX2652900     | control                | PE             | 24004328060.00 | C. virginica  | larvae     |
-SRR5357626 | SRX2652898     | RIF                    | PE             | 18449441230.00 | C. virginica  | larvae     |
+SRR5357622 | SRX2652895	    | control	               | PE	            | 22956419468.00 | C. virginica	 | larvae     |
+SRR5357623 | SRX2652900	    | control	               | PE	            | 24004328060.00 | C. virginica	 | larvae     |
 
 
 ## Overall pipeline 
@@ -79,38 +78,38 @@ Create a bash script via `$ nano bbtools.sh` that contains the following command
 #Commands for Paired End Read Preprocessing, all files are in the home directory and either have ending 
 # _1.fq or _2.fq
 # Specify current path (just for extra security)
-F=/path/to/folder
+F=/home/eroberts/RNA-seq #or whatever your PATH is
 
 #going to make two array variables and then iterate through them as an index
 array1=($(ls $F/*_1.fq))
 array2=($(ls $F/*_2.fq))
 
 #Output file that tells you the adapter stats, incase you're interested, output file stats.txt will list the names of adapter sequences found, and their frequency
-for i in ${array1[@]}; do  # @ symbol tells it to go through each item in the array  
-   bbduk.sh in1=${i} in2=$(echo ${i}|sed s/_1/_2/) k=23 ref=/opt/software/BBMap/37.36-foss-2016b-Java-1.8.0_131/resources/adapters.fa stats=${i}.stat out=${i}.out
-done
+#for i in ${array1[@]}; do  # @ symbol tells it to go through each item in the array  
+#   /usr/local/bin/bbmap/bbduk.sh in1=${i} in2=$(echo ${i}|sed s/_1/_2/) k=23 ref=$F/adapters.fa stats=${i}.stat out=${i}.out
+#done
 
 #Trimming of adaptors found in the previous command
 for i in ${array1[@]}; do 
-	bbduk.sh in1=${i} out1=${i}.clean in2=$(echo ${i}|sed s/_1/_2/) out2=$(echo ${i}|sed s/_1/_2/).clean ref=/opt/software/BBMap/37.36-foss-2016b-Java-1.8.0_131/resources/adapters.fa ktrim=r k=23 mink=11 hdist=1 tpe tbo
+	/usr/local/bin/bbmap/bbduk.sh in1=${i} out1=${i}.clean in2=$(echo ${i}|sed s/_1/_2/) out2=$(echo ${i}|sed s/_1/_2/).clean ref=$F/adapters.fa ktrim=r k=23 mink=11 hdist=1 tpe tbo
 	echo "adapter trimming ${i}" $(date)
 done
 
 	#ktrim = r means it will only trim from right side, which is where the adapter should be. (ktrim=l would trim from left)
 	#hdist = hamming distance, hdist =1 allows for 1 mismatch
-	#flag -tbo specifies to also trim adaptors based on pir overlap detection using BBMerge 
-	#which does not require known adapter sequences)
+	#flag -tbo specifies to also trim adaptors based on pair overlap detection using BBMerge 
+	#which does not require known adapter sequences
 	#flag -tpe specified to trim both reads to the same length (if the adapter kmer was only detected in one of them and not other)
 
 #Quality trimming, of both the left and the right sides to get rid of reads that are less than quality 20
 for i in ${array1[@]}; do 
-	bbduk.sh in1=${i}.clean out1=${i}.clean.trim in2=$(echo ${i}|sed s/_1/_2/).clean out2=$(echo ${i}|sed s/_1/_2/).clean.trim qtrim=rl trimq=20
+	/usr/local/bin/bbmap/bbduk.sh in1=${i}.clean out1=${i}.clean.trim in2=$(echo ${i}|sed s/_1/_2/).clean out2=$(echo ${i}|sed s/_1/_2/).clean.trim qtrim=rl trimq=20
  	echo "quality trimming ${i}" $(date)
 done
 
 #Quality filtering to get rid of entire low quality reads. maq=10 will trim reads that have average quality of less than 10
 for i in ${array1[@]}; do 
-	bbduk.sh in1=${i}.clean.trim out1=${i}.clean.trim.filter in2=$(echo ${i}|sed s/_1/_2/).clean.trim out2=$(echo ${i}|sed s/_1/_2/).clean.trim.filter maq=10
+	/usr/local/bin/bbmap/bbduk.sh in1=${i}.clean.trim out1=${i}.clean.trim.filter in2=$(echo ${i}|sed s/_1/_2/).clean.trim out2=$(echo ${i}|sed s/_1/_2/).clean.trim.filter maq=10
 	echo "STOP" $(date)
 	echo "quality filtering ${i}" $(date)
 done
@@ -118,7 +117,7 @@ done
 #Histogram generation, only generating for one of the pair (assuming that similar stats will be present). 
 #All histogram output contents are combined into one file
 for i in ${array1[@]}; do
- 	 bbduk.sh in1=${i}.clean.trim.filter in2=$(echo ${i}|sed s/_1/_2/).clean.trim.filter  bhist=${i}.b.hist qhist=${i}.q.hist gchist=${i}.gc.hist lhist=${i}.l.hist gcbins=auto
+ 	 /usr/local/bin/bbmap/bbduk.sh in1=${i}.clean.trim.filter in2=$(echo ${i}|sed s/_1/_2/).clean.trim.filter  bhist=${i}.b.hist qhist=${i}.q.hist gchist=${i}.gc.hist lhist=${i}.l.hist gcbins=auto
 	 echo "STOP" $(date)
      echo ${i} > ${i}.hist.all
      echo "bhist" >> ${i}.hist.all
@@ -154,7 +153,7 @@ Once you have HISAT2 downloaded, create new directory for the HISAT index called
 #!/bin/bash
 
 #Specify working directory 
-F=/data3/marine_diseases_lab/erin/Bio_project_SRA/pipeline_files/C_Vir_subset
+F=/home/eroberts/RNA-seq
 
 #Indexing a reference genome and no annotation file (allowing for novel transcript discovery)
 #Build HISAT index with Cvirginica genome file (make sure beforehand to remove extra spaces in header so that genome and annotation don't conflict, the header names are important)
@@ -187,6 +186,8 @@ As before, create a bash script containing the following commands.
 
 #SAMTOOLS sort to convert the SAM file into a BAM file to be used with StringTie
 #SHOULD NOT PERFORM FILTERING ON HISAT2 OUTPUT
+F=/home/eroberts/RNA-seq
+
 array3=($(ls $F/*.sam))
 	for i in ${array3[@]}; do
 		samtools sort ${i} > ${i}.bam #Stringtie takes as input only sorted bam files
@@ -219,7 +220,7 @@ Create and run a bash script with the following commands.
 #This script takes bam files from HISAT (processed by SAMtools) and performs StringTie assembly and quantification and converts
 # data into a format that is readable as count tables for DESeq2 usage
 
-F=/data3/marine_diseases_lab/erin/Bio_project_SRA/pipeline_files/C_Vir_subset
+F=/home/eroberts/RNA-seq
 
 # StringTie to assemble transcripts for each sample with the GFF3 annotation file
 array1=($(ls $F/*.bam))
@@ -293,6 +294,8 @@ echo "STOP" $(date)
 ```
 
 ## Step 8: Perform differential expression of transcripts in DESeq2
+
+
 
 
 
