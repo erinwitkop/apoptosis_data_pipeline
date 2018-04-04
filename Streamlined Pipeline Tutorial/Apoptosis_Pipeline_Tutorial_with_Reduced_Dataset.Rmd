@@ -308,7 +308,7 @@ maximum likelihood estimate of log2 fold changes.
 **Summary**: DESeq2 relies on negative binomial distribution to make estimates, and uses Cook’s distance to
 estimate how much fitted coefficients change if samples are removed.
 
-#Similarities and Differences between DESeq2 and edgeR, and which one should I choose? 
+# Similarities and Differences between DESeq2 and edgeR, and which one should I choose? 
 
 As told by Michael Love, a co-creator of DESeq2:
 1. Both use a GLM framework to shrink dispersion estimates toward a central value 
@@ -325,12 +325,12 @@ As told by Michael Love, a co-creator of DESeq2:
 
 6. Limma-voom and the QL functions in edgeR do better at always being under the nominal FDR, although they can have reduced sensitivity compared to DESeq2 and edgeR when the sample sizes are small (n=3 per group), or fold changes and counts are small. 
 
-#Conclusion
+# Conclusion
 Both methods are good for gene-level DE analysis, often find overlapping gene sets. For small experiments (n<6) DESeq2 may be more appropriate than edgeR. For very large experiments (n>100) limma-voom may be a more appropriate option.
 
-##Performing differential gene expression analysis
+## Performing differential gene expression analysis
 
-#Step. 1 Load the data
+# Step. 1 Load the data
 *Data objects in DESeq2*
 
 Like edgeR, DESeq2 has its own list-based object, which stores read counts, called a DESeqDataObject().
@@ -354,6 +354,7 @@ install.packages("data.table")
 library(data.table)
 ```
 
+# Step 2: Prepare the count matrix and metadata table
 
 
 
