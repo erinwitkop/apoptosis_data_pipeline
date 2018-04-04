@@ -159,14 +159,14 @@ F=/home/eroberts/RNA-seq
 #Indexing a reference genome and no annotation file (allowing for novel transcript discovery)
 #Build HISAT index with Cvirginica genome file (make sure beforehand to remove extra spaces in header so that genome and annotation don't conflict, the header names are important)
 
-hisat2-build -f $F/cvir_edited.fa cvir_edited 
+hisat2-build -f $F/cvir_edited.fa $F/cvir_edited 
 #-f indicates that the reference input files are FASTA files
 
 #Aligning paired end reads
 array1=($(ls $F/*_1.fq.clean.trim.filter))
 
 for i in ${array1[@]}; do
-	hisat2 --dta -x $F/cvir  -1 ${i} -2 $(echo ${i}|sed s/_1/_2/) -S ${i}.sam
+	hisat2 --dta -x $F/cvir_edited -1 ${i} -2 $(echo ${i}|sed s/_1/_2/) -S ${i}.sam
 	echo "HISAT2 PE ${i}" $(date)
 done
  	#don't need -f because the reads are fastq
@@ -175,6 +175,26 @@ done
 	#With this option, HISAT2 requires longer anchor lengths for de novo discovery of splice sites. 
 	#This leads to fewer alignments with short-anchors, which helps transcript assemblers improve significantly in computation and memory usage.
 
+```
+The output of the alignment is also printed to the screen at the end. Here is an example output. 
+
+```
+67531914 reads; of these:
+  67531914 (100.00%) were paired; of these:
+    12505221 (18.52%) aligned concordantly 0 times
+    45911691 (67.99%) aligned concordantly exactly 1 time
+    9115002 (13.50%) aligned concordantly >1 times
+    ----
+    12505221 pairs aligned concordantly 0 times; of these:
+      458574 (3.67%) aligned discordantly 1 time
+    ----
+    12046647 pairs aligned 0 times concordantly or discordantly; of these:
+      24093294 mates make up the pairs; of these:
+        18637806 (77.36%) aligned 0 times
+        4695600 (19.49%) aligned exactly 1 time
+        759888 (3.15%) aligned >1 times
+86.20% overall alignment rate
+HISAT2 PE /home/eroberts/RNA-seq/SRR5357617_1.fq.clean.trim.filter Wed Apr 4 11:37:18 EDT 2018
 ```
 
 ## Step 5: Convert SAM to BAM with SAMTools
@@ -364,13 +384,80 @@ library(reshape2)
 
 #### Step 2: Prepare the count matrix and metadata table
 
+``` {r load, echo =TRUE}
+#load transcript count matrix and metadatata 
+#PHENO_DATA.csv file contains metadata on the count table's samples
+###Make sure PHENODATA is in the same order or these commands will change data to be wrong!!!!###
+
+#Load Pheno data
+C_vir_TranColData <- read.csv("PHENO_DATA.csv", header=TRUE, sep=",")
+print(C_vir_TranColData)
+
+#change rownames to match
+rownames(C_vir_TranColData) <- C_vir_TranColData$sampleID
+colnames(C_vir_TranscriptCountData) <- C_vir_TranColData$sampleID
+head(C_vir_TranColData)
+head(C_vir_TranscriptCountData)
+
+#Load transcript count data
+C_vir_TranscriptCountData <- as.data.frame(read.csv("C_vir_transcript_count_matrix.csv", row.names="transcript_id"))
+head(C_vir_TranscriptCountData)
+
+#change rownames to match (check order before doing this)
+rownames(C_vir_TranColData) <- C_vir_TranColData$sampleID
+colnames(C_vir_TranscriptCountData) <- C_vir_TranColData$sampleID
+head(C_vir_TranColData)
+head(C_vir_TranscriptCountData)
+
+# Check all sample IDs in C_vir_TranColData are also in C_vir_TranscriptCountData and match their orders
+all(rownames(C_vir_TranColData) %in% colnames(C_vir_TranscriptCountData))  #Should return TRUE
+# returns TRUE
+all(rownames(C_vir_TranColData) == colnames(C_vir_TranscriptCountData))    # should return TRUE
+#returns TRUE
+
+```
+
 #### Step 3: Relevel condition to put the wild-type controls at the top
 
 It is important to supply levels (otherwise the levels are chosen in alphabetical order) and to put the control
 or untreated level as the first element (“base level”), so that the log2 fold changes produced by default will be
 the expected comparison against the base level. An R function for easily changing the base level is relevel.
 
+```{r levels, echo=TRUE}
+#Give the condition column levels
+C_vir_TranColData$condition <- factor(C_vir_TranColData$condition)
+levels(C_vir_TranColData$condition) #check to see that it has levels 
+
+#give the treatment column levels
+C_vir_TranColData$treatment <- factor(C_vir_TranColData$treatment)
+levels(C_vir_TranColData$treatment)
+```
+
 #### Step 4: Construct DESeqDataSetFromMatrix
+
+
+``` {r datamatrix, echo=TRUE}
+# DESeqDataSet from count matrix and labels, separate into resistant and susceptible 
+#add an interaction term to compare treatment between two conditions 
+#layout used for interactions: https://support.bioconductor.org/p/58162/
+
+ddsS4 <- DESeqDataSetFromMatrix(countData = C_vir_TranscriptCountData, 
+                                       colData = C_vir_TranColData, 
+                                       design =  ~ condition + treatment + condition:treatment)
+
+ddsS4<- ddsS4[ rowSums(counts(ddsS4)) > 1, ]
+
+# review how the data set looks
+head(ddsS4)
+
+#Relevel each to make sure that control is the first level in the treatment factor for each
+ddsS4$condition <- relevel(ddsS4$condition, "A")
+
+
+#Check we're looking at the right samples
+as.data.frame( colData(ddsS4) )
+
+```
 
 Unlike edgeR where we needed to perform individual contrasts for each variable we want to compare, using
 the DESeq formula you can tell it the variable that models will be run with, and then later when manipulating
@@ -389,11 +476,53 @@ Main steps of the DESeq2 function: 1. estimation of size factors (s) by estimate
 of dispersion (a) by estimateDispersions 3. negative binomial GLM fitting for (B) and Wald statistics by
 nbinomWaldTest
 
+``` {r DEG, echo=TRUE}
+#Running the DEG pipeline
+ddsddsS4<- DESeq(ddsS4, betaPrior = FALSE) #for designs with interactions, recommends setting betaPrior=FALSE
+
+#Inspect results
+#extract contrasts between control and treatment values for interaction
+resS4<- results(ddsS4)
+head(resS4)
+```
+
 #### Step 6: Preliminary Analysis and Exploring Results
 
 Summarize results using the summary() function.
 
+```{r summary, echo =TRUE}
+#summary is just printing a table for you, you need to tell it what threshold you want
+help("summary",package="DESeq2")
+alpha <- 0.05 #set alpha to 0.05, this will control FDR
+summary(resS4) #default FDR is still 0.1
+summary(resS4, alpha) #no showing all genes with FRD < 0.05
+
+#To get the significant genes
+#The independent filtering in results() has an argument 'alpha'
+#which is used to optimize a cutoff on mean normalized count
+#to maximize the number of genes with padj < alpha
+resS4_05 <- results(ddsS4, alpha= alpha) #set FDR to 0.05 now
+resS4_05_Sig <- resS4[which(resS4$padj < alpha),]
+summary(resS4_05) #this is all the genes
+summary(resS4_05_Sig) #this is the significant ones!
+sum(resRODTran_05$padj < 0.05, na.rm=TRUE) #4121 tells you how many genes have expected FDR ≤ 0.05
+sum(resS4_05_Sig$padj < 0.05, na.rm=TRUE) #4102, differ by 19 genes only 
+sig="significant"
+resS4_05_Sig$Significance <- sig
+resS4_05_nonSig <- resS4[which(resS4$padj > alpha),] #create list of nonsig
+nonsig <- "non-significant"
+
+```
+
+
 Order the results tables by their adjusted pvalue.
+```{r pval, echo= TRUE}
+#Order by Log2FC
+head( resS4_05[ order( resS4_05$log2FoldChange ), ] ) #head for strongest downregulation
+tail( resS4_05[ order( resS4_05$log2FoldChange ), ] ) #tail for strongest up regulation
+
+```
+
 
 ###### MA Plots 
 
@@ -401,8 +530,18 @@ The function plotMA shows the log2 fold changes attributable to a given variable
 counts. Points will be colored red if the adjusted p value is less than 0.1. Points which fall out of the window
 are plotted as open triangles pointing either up or down.
 
-Results are extracted using the function results(). This function extracts a results table with log2 fold changes,
-p values and adjusted p values. Supply arguments to results to extract the comparisons you wish to make.
+```{r MA, echo=TRUE}
+#Visualize Results with Diagnostic Plots#
+#MA plot, useful overview for experiment with two-group comparison. Plots log2FC over mean of normalized counts
+#genes with adjusted p value 
+plotMA(resS4_05)
+plotMA(resS4_05_Sig)
+```
+
+
+## Wrap up
+
+Thanks for following along! PLease refer to my other DESeq2 scripts for the full analysis I performed. Email me (erin_roberts@my.uri.edu) if you have any questions.
 
 [1]: https://genomebiology.biomedcentral.com/articles/10.1186/s13059-016-0881-8 "Conesa et al., 2016. A survey of best practices for RNA-seq data analysis"
 [2]: https://www.nature.com/articles/nmeth.4106 "Baruzzo et al., 2016. Simulation-based comprehensive benchmarking of RNA-seq aligners"
