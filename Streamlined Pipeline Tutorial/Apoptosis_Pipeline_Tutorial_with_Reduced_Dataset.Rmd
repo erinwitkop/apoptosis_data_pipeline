@@ -346,12 +346,20 @@ NOTE: Always put the variable of interest at the end of the formula and make sur
 first level.
 
 ``` {r load, echo =TRUE}
-#Install and load packages 
+#Install  packages 
 source("http://bioconductor.org/biocLite.R")
 biocLite(c("DESeq2"))
-library(DESeq2)
 install.packages("data.table")
+install.packages("dplyr")
+install.packages("tidyr")
+install.packages("reshape2")
+
+#Load packages
+library(DESeq2)
 library(data.table)
+library(dplyr)
+library(tidyr)
+library(reshape2)
 ```
 
 #### Step 2: Prepare the count matrix and metadata table
