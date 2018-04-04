@@ -416,9 +416,8 @@ p values and adjusted p values. Supply arguments to results to extract the compa
 3. "Trapnell et al., 2009. TopHat: discovering splice junctions with RNA-Seq."  https://www.ncbi.nlm.nih.gov/pubmed/19289445
 4. "Li. 2011. A statistical framework for SNP calling, mutation discovery, association mapping and population genetical parameter estimation from sequencing data." https://www.ncbi.nlm.nih.gov/pubmed/21903627. 
 5. "Schurch et al., 2016. How many biological replicates are needed in an RNA-seq experiment and which differential expression tool should you use?" http://rnajournal.cshlp.org/content/22/6/839.short
-
-Differential analysis of count data - the DESeq2 package Michael Love, Simon Anders, Wolfgang
+6. Differential analysis of count data - the DESeq2 package Michael Love, Simon Anders, Wolfgang
 Huber, Department of Biostatistics, Dana Farber Cancer Institute and Harvard School of Public Health,
 Boston, US; European Molecular Biology Laboratory (EMBL), Heidelberg, Germany. December 16, 2014
-Klaus, Bernd. 2014.“Differential expression analysis of RNA-Seq data using DESeq2”. European Molecular
+7. Klaus, Bernd. 2014.“Differential expression analysis of RNA-Seq data using DESeq2”. European Molecular
 Biology Laboratory (EMBL). Heidelberg, Germany.
