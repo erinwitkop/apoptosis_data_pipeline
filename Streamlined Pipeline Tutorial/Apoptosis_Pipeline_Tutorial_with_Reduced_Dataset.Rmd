@@ -7,7 +7,7 @@ output: rmarkdown::github_document
 
 # Introduction
 
-This markdown walks users through the data analysis pipeline I used to analyze differential expression of apoptosis genes from transcriptomes gathered following challenge of oysters with the Virus OsHV-1, strains of Vibrio sp., and probiotic. For simplicity, this tutorial only analyzes 6 transcriptomes, from NCBI Samples SRR5357617, SRR5357618, SRR5357619, SRR5357622, SRR5357623, SRR5357626. Three control samples were used and three probiotic samples were used. Codes used for all other analyses are available in the DESeq2 folder in this repository. For any further questions, please email me at erin_roberts@my.uri.edu. 
+This markdown walks users through the data analysis pipeline I created to analyze differential expression of apoptosis genes from transcriptomes. Data was gathered following challenge of Pacific oysters with the Virus *OsHV-1* and strains of *Vibrio* sp., and challenge of eastern oysters with Roseovarius Oyster Disease and the probiotic RI06-95. For simplicity, this tutorial only analyzes 4 transcriptomes, from NCBI Samples SRR5357617, SRR5357618, SRR5357619, and SRR5357622. Two control samples were used and two probiotic-challenged samples were used. Codes used for all other analyses are available in the DESeq2 folder in this repository. For any further questions, please email me at erin_roberts@my.uri.edu. 
 
 ## The Data 
 
@@ -17,7 +17,7 @@ SRR5357617 | SRX2652894     | control                | PE             | 21804530
 SRR5357618 | SRX2652899     | RIF                    | PE             | 20356460396.00 | C. virginica  | larvae     |
 SRR5357619 | SRX2652896     | RIF                    | PE             | 22691300916.00 | C. virginica  | larvae     |
 SRR5357622 | SRX2652895	    | control	               | PE	            | 22956419468.00 | C. virginica	 | larvae     |
-SRR5357623 | SRX2652900	    | control	               | PE	            | 24004328060.00 | C. virginica	 | larvae     |
+
 
 
 ## Overall pipeline 
@@ -96,7 +96,8 @@ for i in ${array1[@]}; do
 done
 
 	#ktrim = r means it will only trim from right side, which is where the adapter should be. (ktrim=l would trim from left)
-	#hdist = hamming distance, hdist =1 allows for 1 mismatch
+	#hdist = hamming distance, hdist =1 allows for 1 mismatch 
+	#the Hamming distance between two strings of equal length is the number of positions at which the corresponding symbols are different
 	#flag -tbo specifies to also trim adaptors based on pair overlap detection using BBMerge 
 	#which does not require known adapter sequences
 	#flag -tpe specified to trim both reads to the same length (if the adapter kmer was only detected in one of them and not other)
@@ -138,7 +139,7 @@ done
 
 ## Step 4: Aligning transcriptome reads to the reference eastern oyster genome
 
-Now that our files have been preprocessed it is time to align them to the reference genome. The genome fasta file can be downloaded from NCBI [here](https://www.ncbi.nlm.nih.gov/genome/?term=txid6565[orgn]). Download the **genome** file. There are several popular RNA-seq read aligners, each with different algorithms and pitfalls^[2]^. One of the most popular pipelines however in recent years has been the "Tuxedo Suite" pipeline including **Bowtie** > **TopHat** > and **Cufflinks** (*cute right?*). In this suite Bowtie is a fast short read aligner, TopHat uses information from Bowtie to align short reads to the reference, and Cufflinks performs differential expression analysis. This software was first created in 2009 by Trapnell et al.^[3]^. This pipeline is now outdated and has been replaced by the 'new Tuxedo' suite **HISAT2** > **StringTie** > **Ballgown** Suite by [Pertea et al., 2016](https://search-proquest-com.uri.idm.oclc.org/docview/1815346347?OpenUrlRefId=info:xri/sid:primo&accountid=28991) (*the names aren't as clever IMO*). Software for this full pipeline is available on this site by the [Johns Hopkins University Center for Computational Biology](http://ccb.jhu.edu/software.shtml). Pertea et al. (2016) describe their full pipeline in this paper and include a very helpful tutorial. I recommend going through that if you are interested in using this software. For addition information on the all the parameters available for HISAT2 please read [Kim et al., 2015. HISAT: a fast spliced aligner with low memory requirements](https://www.nature.com/articles/nmeth.3317).
+Now that our files have been preprocessed it is time to align them to the reference genome. The genome fasta file can be downloaded from NCBI [here](https://www.ncbi.nlm.nih.gov/genome/?term=txid6565[orgn]). Download the **transcript** file. There are several popular RNA-seq read aligners, each with different algorithms and pitfalls^[2]^. One of the most popular pipelines however in recent years has been the "Tuxedo Suite" pipeline including **Bowtie** > **TopHat** > and **Cufflinks** (*cute right?*). In this suite Bowtie is a fast short read aligner, TopHat uses information from Bowtie to align short reads to the reference, and Cufflinks performs differential expression analysis. This software was first created in 2009 by Trapnell et al.^[3]^. This pipeline is now outdated and has been replaced by the 'new Tuxedo' suite **HISAT2** > **StringTie** > **Ballgown** Suite by [Pertea et al., 2016](https://search-proquest-com.uri.idm.oclc.org/docview/1815346347?OpenUrlRefId=info:xri/sid:primo&accountid=28991) (*the names aren't as clever IMO*). Software for this full pipeline is available on this site by the [Johns Hopkins University Center for Computational Biology](http://ccb.jhu.edu/software.shtml). Pertea et al. (2016) describe their full pipeline in this paper and include a very helpful tutorial. I recommend going through that if you are interested in using this software. For addition information on the all the parameters available for HISAT2 please read [Kim et al., 2015. HISAT: a fast spliced aligner with low memory requirements](https://www.nature.com/articles/nmeth.3317).
 
 I have chosen to only use the **HISAT2** and **StringTie** from this pipeline, which I'll get into later in this tutorial. For HISAT2 you can choose to either create an index using a reference genome (or transcriptome) with no annotation file, or with an annotation file. If you do not use an annotation file you are allowing for novel transcripts to be discovered in the alignment step. **However, if you choose to use an annotation file in the StringTie step (which we will) you need to make sure the header information between the genome and the annotation file match or this causes errors**.
 
@@ -158,7 +159,8 @@ F=/home/eroberts/RNA-seq
 #Indexing a reference genome and no annotation file (allowing for novel transcript discovery)
 #Build HISAT index with Cvirginica genome file (make sure beforehand to remove extra spaces in header so that genome and annotation don't conflict, the header names are important)
 
-hisat2-build -f $F/cvir_edited.fa cvir_edited # -f indicates that the reference input files are FASTA files
+hisat2-build -f $F/cvir_edited.fa cvir_edited 
+#-f indicates that the reference input files are FASTA files
 
 #Aligning paired end reads
 array1=($(ls $F/*_1.fq.clean.trim.filter))
@@ -177,7 +179,7 @@ done
 
 ## Step 5: Convert SAM to BAM with SAMTools
 
-Following alignment of our paired end reads the HISAT output is in SAM (Sequence ALignment Map) format, this is the human readable format. A BAM file is the binary format. The input for StringTie requires this binary format. SAMTools is a suite of programs for working with next-gen sequencing data with many capabilities^[4]^. It can be downlaoded from [sourceforge.net](http://samtools.sourceforge.net). It can sort files for you, index fasta files and retrieve sequences with `faidx`, convert files with `import`, merge sorted alignments with `merge`, allow you to view sequences using the `tview`, among other things. It can also provide useful alignment statistics. Analyzing the quality of your alignment is a very important QC step^[1]^. 
+Following alignment of our paired end reads, the HISAT output is in SAM (Sequence Alignment Map) format, this is the human readable format. A BAM file is the binary format. The input for StringTie requires this binary format. SAMTools is a suite of programs for working with next-gen sequencing data with many capabilities^[4]^. It can be downlaoded from [sourceforge.net](http://samtools.sourceforge.net). It can sort files for you, index fasta files and retrieve sequences with `faidx`, convert files with `import`, merge sorted alignments with `merge`, allow you to view sequences using the `tview`, among other things. It can also provide useful alignment statistics. Analyzing the quality of your alignment is a very important QC step^[1]^. 
 
 As before, create a bash script containing the following commands. 
 
@@ -208,9 +210,9 @@ array4=($(ls $F/*.bam))
 
 ## Step 6: Assemble reads to the reference annotation and quantify using StringTie
 
-The next step in the pipeline following alignment of short reads to the genome is to assemble those reads. and perform read quantification. After initial assembly, a *merge* step is performed where assembled transcripts are merged together with a StringTie module that will create a uniform set of transcripts for all samples. StringTie can use the annotation file in both of these steps. StringTie then processes the transcripts following the merge step and then uses this to re-calculate abundances. The function gffcompare can then be used to compare the genes and transcripts with the annotation file and report out statistics.  
+The next step in the pipeline following alignment of short reads to the genome is to assemble those reads and perform read quantification. After initial assembly, a *merge* step is performed where assembled transcripts are merged together with a StringTie module that will create a uniform set of transcripts for all samples. StringTie can use the annotation file in both of these steps. We will be using an annotation file in this case. StringTie then processes the transcripts following the merge step and then uses this to re-calculate abundances. The function gffcompare can then be used to compare the genes and transcripts with the annotation file and report out statistics.  
 
-The outputs of StringTie are tables with the transcript and gene abundance. **NOTE: to get both gene abundance tables and not just transcript tables `-A` in the StringTie `--merge` must be used.** The output of StringTie is produced in a format for use with the Ballgown program. However, the data can also be converted into a format for use with DESeq2. DESeq2 is a widely used R package for differential gene expression analysis and has a large base of users as well as a lot of helpful information online for its use. The ease of use, availability, and wealth of studies comparing the performanc of DESeq2 with other tools like edgeR (which performs similarly well for <12 replicates) that made me chose to use DESeq2^[5]^. There  This is described in the next step of the pipeline.
+The outputs of StringTie are tables with the transcript and gene abundance. **NOTE: to get both gene abundance tables and not just transcript tables `-A` in the StringTie `--merge` must be used.** The output of StringTie is produced in a format for use with the Ballgown program. However, the data can also be converted into a format for use with DESeq2. DESeq2 is a widely used R package for differential gene expression analysis and has a large base of users as well as a lot of helpful information online for its use. The ease of use, availability, and wealth of studies comparing the performance of DESeq2 with other tools like edgeR (which performs similarly well for <12 replicates) made me chose to use DESeq2^[5]^. Preparation of StringTie output for DESeq2 is described in the next step of the pipeline.
 
 Create and run a bash script with the following commands. 
 
@@ -236,23 +238,22 @@ done
 	# don't use -e here if you want it to assemble any novel transcripts
 	
 #StringTie Merge, will merge all GFF files and assemble transcripts into a non-redundant set of transcripts, after which re-run StringTie with -e
-	
-	#create mergelist.txt in nano, names of all the GTF files created in the last step with each on its own line
-	#ls *.gtf > C_Vir_mergelist.txt
+#create mergelist.txt in nano, names of all the GTF files created in the last step with each on its own line
+ls *.gtf > C_Vir_mergelist.txt
 
-	#check to sure one file per line
-	#cat C_Vir_mergelist.txt
+#check to sure one file per line
+cat C_Vir_mergelist.txt
 
 #Run StringTie merge, merge transcripts from all samples (across all experiments, not just for a single experiment)
 
- 	stringtie --merge -A -G $F/ref_C_virginica-3.0_top_level.gff3 -o C_Vir_stringtie_merged.gtf C_Vir_mergelist.txt
-	#-A here creates a gene table output with genomic locations and compiled information that I will need later to fetch gene sequences
-		#FROM MANUAL: "If StringTie is run with the -A <gene_abund.tab> option, it returns a file containing gene abundances. "
-	#-G is a flag saying to use the .gff annotation file
+stringtie --merge -A -G $F/ref_C_virginica-3.0_top_level.gff3 -o C_Vir_stringtie_merged.gtf C_Vir_mergelist.txt
+#-A here creates a gene table output with genomic locations and compiled information that I will need later to fetch gene sequences
+#FROM MANUAL: "If StringTie is run with the -A <gene_abund.tab> option, it returns a file containing gene abundances. "
+#-G is a flag saying to use the .gff annotation file
 
 #gffcompare to compare how transcripts compare to reference annotation
 
- 	gffcompare -r $F/ref_C_virginica-3.0_top_level.gff3 -G -o c_vir_merged C_Vir_stringtie_merged.gtf
+gffcompare -r $F/ref_C_virginica-3.0_top_level.gff3 -G -o c_vir_merged C_Vir_stringtie_merged.gtf
 	# -o specifies prefix to use for output files
 	# -r followed by the annotation file to use as a reference
  	# merged.annotation.gtf tells you how well the predicted transcripts track to the reference annotation file
@@ -279,8 +280,7 @@ Create a script with the following commands and run it.
 ```
 #!/bin/bash
 
-F=/data3/marine_diseases_lab/erin/Bio_project_SRA/pipeline_files/C_Vir_subset
-
+F=/home/eroberts/RNA-seq
 
 array2=($(ls *.merged.gtf))
 
@@ -294,6 +294,67 @@ echo "STOP" $(date)
 ```
 
 ## Step 8: Perform differential expression of transcripts in DESeq2
+
+We are finally nearing the finish line. Now we have to simply load our data into R, format it correctly, and perform differential expression analysis. DESeq2 provides several detailed vignettes to help train users in how to correctly use their software (see one such tutorial [here](https://bioconductor.org/packages/3.7/bioc/vignettes/DESeq2/inst/doc/DESeq2.html). The trickiest part of using DESeq2 in my opinion, and perhaps the most critical, is writing the formula that sets up the unique comparisons to perform between transcriptomes. For simplicity today we will only be comparing control to treatment. Please see tutorials by the package developers for more information. Additionally, one author, Michael Love is awesome at responding to online posts on Bioinformatics help websites like [https://www.biostars.org](https://www.biostars.org). Seriously, I have read his responses to so many posts...it's great! When in doubt, post on those websites and the odds are good you'll get a response (perhaps not very quickly).
+
+# DESeq2 Theory
+
+Differential sequence analysis with DESeq uses a generalized linear model, where counts for a gene in a sample
+are modeled with a negative binomial distribution with fitted mean and a gene specific dispersion parameter.
+The fitted mean is calculated by multiplying sample specific size factors and a parameter proportional to the
+“expected true concentrations of fragments”. Dispersions are estimated from expected mean values from the
+maximum likelihood estimate of log2 fold changes.
+
+**Summary**: DESeq2 relies on negative binomial distribution to make estimates, and uses Cook’s distance to
+estimate how much fitted coefficients change if samples are removed.
+
+#Similarities and Differences between DESeq2 and edgeR, and which one should I choose? 
+
+As told by Michael Love, a co-creator of DESeq2:
+1. Both use a GLM framework to shrink dispersion estimates toward a central value 
+
+2. Both typically report overlapping gene sets 
+
+3. 4. If you have many samples (overll 100) use limma-voom for increased speeds. 
+
+4. Differences in default settings
+  -DESeq2: finds an optimal value at which to filter low count genes, flags or removes genes with large outlier counts or removes when there are enough samples per group (n>6), excludes from the estimation of the dispersion prior and dispersion moderation those genes with very high within-group variance, and moderates log fold changes which have small statistical support (e.g. from low count genes)."
+  -edgeR: Similar functionality. "It offers a robust dispersion estimation function, estimateGLMRobustDisp, which reduces the effect of individual outlier counts, and a robust argument to estimateDisp so that hyperparameters are not overly affected by genes with very high within-group variance. And the default steps in the edgeR User Guide for filtering low counts genes both increases power by reducing multiple testing burden and removes genes with uninformative log fold changes."
+
+5. edgeR and DESeq2 perform more similarly to each other than either does to limma-voom. The GLM methods in edgeR and the quasi-likelihood (QL) methods in edgeR are more different than comparing edgeR to DESeq2.  
+
+6. Limma-voom and the QL functions in edgeR do better at always being under the nominal FDR, although they can have reduced sensitivity compared to DESeq2 and edgeR when the sample sizes are small (n=3 per group), or fold changes and counts are small. 
+
+#Conclusion
+Both methods are good for gene-level DE analysis, often find overlapping gene sets. For small experiments (n<6) DESeq2 may be more appropriate than edgeR. For very large experiments (n>100) limma-voom may be a more appropriate option.
+
+##Performing differential gene expression analysis
+
+#Step. 1 Load the data
+*Data objects in DESeq2*
+
+Like edgeR, DESeq2 has its own list-based object, which stores read counts, called a DESeqDataObject().
+Unlike edgeR, this object includes an associated design formula for the downstream data analysis with the
+DESeq() function. The design formula tells the DESeq() function which variables will be used in modeling. It
+uses a tilde (~), followed by the variables with plus signs between them. This formula can be later changed,
+but afterward all analysis steps must be repeated because the formula is used to estimate dispersion and log2
+fold changes.
+For use with a count matrix, the function DESeqDataSetFromMatrix() should be used. For this function
+you should provide the counts matrix, the column information as a DataFrame or data.frame and the design
+formula.
+NOTE: Always put the variable of interest at the end of the formula and make sure the control level is the
+first level.
+
+``` {r load, echo =TRUE}
+#Install and load packages 
+source("http://bioconductor.org/biocLite.R")
+biocLite(c("DESeq2"))
+library(DESeq2)
+install.packages("data.table")
+library(data.table)
+```
+
+
 
 
 
