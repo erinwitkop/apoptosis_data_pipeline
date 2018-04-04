@@ -364,13 +364,61 @@ library(reshape2)
 
 #### Step 2: Prepare the count matrix and metadata table
 
+#### Step 3: Relevel condition to put the wild-type controls at the top
 
+It is important to supply levels (otherwise the levels are chosen in alphabetical order) and to put the control
+or untreated level as the first element (“base level”), so that the log2 fold changes produced by default will be
+the expected comparison against the base level. An R function for easily changing the base level is relevel.
 
+#### Step 4: Construct DESeqDataSetFromMatrix
 
+Unlike edgeR where we needed to perform individual contrasts for each variable we want to compare, using
+the DESeq formula you can tell it the variable that models will be run with, and then later when manipulating
+the Results object you will pull out the comparisons you want.
 
+For experiments with more replicates, DESeq2 can handle collapsing technical replicates. A wide variety of
+design formulas are possible here depending on the complexity of the experiment.
+
+#### Step 5: Differential Gene Expression Analysis
+
+Standard steps to perform differential expression analysis are all rolled into a single function in DESeq2,
+unlike in edgeR where these steps are performed manually in a sequence. These steps can be performed
+manually, however, in DESeq2 if the user prefers. For experiments with a larger number of samples parallelized
+computing can be used.
+Main steps of the DESeq2 function: 1. estimation of size factors (s) by estimateSizeFactors 2. estimation
+of dispersion (a) by estimateDispersions 3. negative binomial GLM fitting for (B) and Wald statistics by
+nbinomWaldTest
+
+#### Step 6: Preliminary Analysis and Exploring Results
+
+Summarize results using the summary() function.
+
+Order the results tables by their adjusted pvalue.
+
+###### MA Plots 
+
+The function plotMA shows the log2 fold changes attributable to a given variable over the mean of normalized
+counts. Points will be colored red if the adjusted p value is less than 0.1. Points which fall out of the window
+are plotted as open triangles pointing either up or down.
+
+Results are extracted using the function results(). This function extracts a results table with log2 fold changes,
+p values and adjusted p values. Supply arguments to results to extract the comparisons you wish to make.
 
 [1]: https://genomebiology.biomedcentral.com/articles/10.1186/s13059-016-0881-8 "Conesa et al., 2016. A survey of best practices for RNA-seq data analysis"
 [2]: https://www.nature.com/articles/nmeth.4106 "Baruzzo et al., 2016. Simulation-based comprehensive benchmarking of RNA-seq aligners"
 [3]: https://www.ncbi.nlm.nih.gov/pubmed/19289445 "Trapnell et al., 2009. TopHat: discovering splice junctions with RNA-Seq."
 [4]: https://www.ncbi.nlm.nih.gov/pubmed/21903627 "Li. 2011. A statistical framework for SNP calling, mutation discovery, association mapping and population genetical parameter estimation from sequencing data."
 [5]: http://rnajournal.cshlp.org/content/22/6/839.short "Schurch et al., 2016. How many biological replicates are needed in an RNA-seq experiment and which differential expression tool should you use?"
+
+## References
+1. "Conesa et al., 2016. A survey of best practices for RNA-seq data analysis". https://genomebiology.biomedcentral.com/articles/10.1186/s13059-016-0881-8
+2. "Baruzzo et al., 2016. Simulation-based comprehensive benchmarking of RNA-seq aligners". https://www.nature.com/articles/nmeth.4106 
+3. "Trapnell et al., 2009. TopHat: discovering splice junctions with RNA-Seq."  https://www.ncbi.nlm.nih.gov/pubmed/19289445
+4. "Li. 2011. A statistical framework for SNP calling, mutation discovery, association mapping and population genetical parameter estimation from sequencing data." https://www.ncbi.nlm.nih.gov/pubmed/21903627. 
+5. "Schurch et al., 2016. How many biological replicates are needed in an RNA-seq experiment and which differential expression tool should you use?" http://rnajournal.cshlp.org/content/22/6/839.short
+
+Differential analysis of count data - the DESeq2 package Michael Love, Simon Anders, Wolfgang
+Huber, Department of Biostatistics, Dana Farber Cancer Institute and Harvard School of Public Health,
+Boston, US; European Molecular Biology Laboratory (EMBL), Heidelberg, Germany. December 16, 2014
+Klaus, Bernd. 2014.“Differential expression analysis of RNA-Seq data using DESeq2”. European Molecular
+Biology Laboratory (EMBL). Heidelberg, Germany.
