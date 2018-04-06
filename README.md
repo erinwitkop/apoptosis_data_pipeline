@@ -20,7 +20,7 @@ folder contains scripts to process *C. gigas* transcriptomes. The /C_Virginica_S
 The DESeq2 folder contains R scripts to perform DESeq2 differential transcript analysis and GSEA (Gene Set Enrichment Analysis).
 Scripts again are separated into separate folders by species. 
 
-Adidtionally, I have provided a folder called "Streamlined Pipeline Tutorial" where I provide a Markdown file with resources for where to find each tool, step by step instructions of how to use the pipeline, and rationale for how I set up the pipeline. I also include relevant papers. 
+Adidtionally, I have provided a folder called "Streamlined Pipeline Tutorial" where I provide a Markdown file with resources for where to find each tool, step by step instructions of how to use the pipeline, and rationale for how I set up the pipeline. I also include relevant papers as well as a powerpoint providing an introduction to reference-based RNA-seq in general.
 
 To cite this work: Roberts, E.M. 2017. "Pipeline to perform differential expression analysis with transcriptomes".
 https://github.com/erinroberts/apoptosis_data_pipeline. The University of Rhode Island. 
