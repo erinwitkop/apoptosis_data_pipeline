@@ -42,7 +42,7 @@ Cvir_reference_transcripts_exons_separated_gene_name_LOC <-Cvir_reference_transc
 Cvir_reference_transcripts_exons_separated_clean <- data.frame(lapply(Cvir_reference_transcripts_exons_separated_gene_name_LOC, trimws),stringsAsFactors = FALSE)
 ```
 
-### Step 2: Load the GFF file from bluewaves (/data3/marine_diseases_lab/shared/ref_C_virginica-3.0_top_level.gff3)
+### Step 2: Load the Stringtie -merged GTF file from bluewaves 
 
 ```
 # Read in stringtie merged file
