@@ -75,7 +75,7 @@ Cvir_stringtie_combined_clean <- data.frame(lapply(Cvir_stringtie_combined, trim
 Cvir_stringtie_combined_LOC <- Cvir_stringtie_combined_clean %>% separate(gene_name, into= c("gene", "LOC"), sep = " ")
 ```
 
-#### Step 3: Find the entries in the Stringtie file that match to the reference GFF file#### 
+### Step 3: Find the entries in the Stringtie file that match to the reference GFF file 
 
 ```
 # Merge columns from gtf with columns from GFF3 based on match in the "LOC" column
@@ -89,7 +89,7 @@ Cvir_stringtie_merged_GFF_combined_split <- Cvir_stringtie_merged_GFF_combined %
 Cvir_stringtie_merged_GFF_combined_split <- Cvir_stringtie_merged_GFF_combined_split[,-13]
 ```
 
-#### Step 4: LOAD in Interproscan files (from IP5 out) and Merge BLAST2GO information from Interproscan file #### 
+### Step 4: LOAD in Interproscan files (from IP5 out) and Merge BLAST2GO information from Interproscan file
 
 ```
 # 1. remove all lines starting with # in bash using `for i in *.gff3; do sed '/^#/ d' $i > edited.$i`; done in bash
