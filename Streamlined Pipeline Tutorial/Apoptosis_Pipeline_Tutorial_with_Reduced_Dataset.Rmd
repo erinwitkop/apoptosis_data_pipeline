@@ -70,7 +70,7 @@ There are several popular tools to perform these tasks (like Trimmomatic or CutA
 
 I have again chosen to use bash scripts here to create loops that process all the data at each step, generating files that are then used in the following step in the analysis. **NOTE:There are many different ways this could have been coded.** 
 
-Create a bash script via `$ nano bbtools.sh` that contains the following commands below. **NOTE: The `--split-files` option when downloading data with the SRA Toolkit added the *_1.fq* and *_2.fq* **. Run your command afterwards using `$ bash bbtools.sh`. 
+Create a bash script via `$ nano bbtools.sh` that contains the following commands below. **NOTE: The `--split-files` option when downloading data with the SRA Toolkit added the *_1.fq* and *_2.fq* **. Run your command afterwards using `$ bash bbtools.sh`. There are two available scripts. The first has each step split apart into multiple loops if you would like to examine the output at each step. The second script performs all BBTools actions in a single loop on files that are in a compressed format. 
 
 ```
 #!/bin/bash
@@ -83,6 +83,7 @@ F=/home/eroberts/RNA-seq #or whatever your PATH is
 #going to make two array variables and then iterate through them as an index
 array1=($(ls $F/*_1.fq))
 array2=($(ls $F/*_2.fq))
+
 
 #Output file that tells you the adapter stats, incase you're interested, output file stats.txt will list the names of adapter sequences found, and their frequency
 #for i in ${array1[@]}; do  # @ symbol tells it to go through each item in the array  
@@ -135,6 +136,35 @@ done
         #qhist = per base average quality
         #bhist = output a per-base composition histogram
         #gchist = output a gc content histogram
+```
+
+Script to perform BBTools commands on all files in a single loop.
+
+```
+#Commands for Paired End Read Preprocessing using BBTools
+#This script runs all of BBTools steps in a single loop for each file and is formatted for zipped files
+
+# Specify current path (just for extra security)
+F=/home/eroberts/RNA-seq #or whatever your PATH is
+
+#going to make one array variables and then iterate through them as an index
+array1=($(ls $F/*_1.fastq | sed 's/_1.fastq//g'))
+
+for i in ${array1[@]}; do
+	gunzip ${i}_1.fastq.gz
+	gunzip ${i}_2.fastq.gz
+	/usr/local/bin/bbmap/bbduk.sh in1=${i}_1.fastq  out1=${i}_1.fastq.clean in2=${i}_2.fastq out2=${i}_2.fastq.clean ref=$F/adapters.fa ktrim=r k=23 mink=11 hdist=1 tpe tbo
+	echo "adapter trimming ${i}" $(date)
+	/usr/local/bin/bbmap/bbduk.sh in1=${i}_1.fastq.clean out1=${i}_1.fastq.clean.trim in2=${i}_2.fastq.clean out2=${i}_2.fastq.clean.trim qtrim=rl trimq=20
+	echo "quality trimming ${i}" $(date)
+  /usr/local/bin/bbmap/bbduk.sh in1=${i}_1.fastq.clean.trim out1=${i}_1.fastq.clean.trim.filter in2=${i}_2.fastq.clean.trim out2=${i}_2.fastq.clean.trim.filter maq=10
+  echo "STOP" $(date)
+  echo "quality filtering ${i}" $(date)
+  /usr/local/bin/bbmap/bbduk.sh in1=${i}_1.fastq.clean.trim.filter in2=${i}_2.fastq.clean.trim.filter  bhist=${i}.b.hist qhist=${i}.q.hist gchist=${i}.gc.hist lhist=${i}.l.hist gcbins=auto
+  echo "histogram DONE" $(date)
+	gzip ${i}_1.fastq
+	gzip ${i}_2.fastq
+done
 ```
 
 ## Step 4: Aligning transcriptome reads to the reference eastern oyster genome
