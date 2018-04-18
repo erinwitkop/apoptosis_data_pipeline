@@ -18,16 +18,6 @@ for i in ${array1[@]}; do
   echo "STOP" $(date)
   echo "quality filtering ${i}" $(date)
   /usr/local/bin/bbmap/bbduk.sh in1=${i}_1.fastq.clean.trim.filter in2=${i}_2.fastq.clean.trim.filter  bhist=${i}.b.hist qhist=${i}.q.hist gchist=${i}.gc.hist lhist=${i}.l.hist gcbins=auto
-    echo "STOP" $(date)
-    echo ${i} > ${i}.hist.all
-    echo "bhist" >> ${i}.hist.all
-    cat ${i}.b.hist >> ${i}.hist.all
-    echo "qhist" >> ${i}.hist.all
-    cat ${i}.q.hist >> ${i}.hist.all
-    echo "gchist" >> ${i}.hist.all
-    cat ${i}.gc.hist >> ${i}.hist.all
-    echo "lhist" >> ${i}.hist.all
-    cat ${i}.l.hist >> ${i}.hist.all
   echo "histogram DONE" $(date)
 	gzip ${i}_1.fastq
 	gzip ${i}_2.fastq
