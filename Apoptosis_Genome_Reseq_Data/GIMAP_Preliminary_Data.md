@@ -244,7 +244,7 @@ done'
 ```
 
 # Step 5. Read Mapping to Reference using BWA-MEM
-BWA-MEM is recommended for longer sequences that range from 70bp to 1Mbp. It is recommended over BWA-SW and BWA-backtrak because it is faster and more accurate.
+BWA-MEM is recommended for longer sequences that range from 70bp to 1Mbp.
 
 From here down the codes are only presented for the natural population files. The same analysis was repeated for the selected populations.
 
