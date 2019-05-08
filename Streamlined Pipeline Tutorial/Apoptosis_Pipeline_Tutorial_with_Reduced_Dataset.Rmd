@@ -299,6 +299,7 @@ cat C_Vir_mergelist.txt
 stringtie --merge -A -G $F/ref_C_virginica-3.0_top_level.gff3 -o C_Vir_stringtie_merged.gtf C_Vir_mergelist.txt
 #-A here creates a gene table output with genomic locations and compiled information that I will need later to fetch gene sequences
 #FROM MANUAL: "If StringTie is run with the -A <gene_abund.tab> option, it returns a file containing gene abundances. "
+#-A is not required 
 #-G is a flag saying to use the .gff annotation file
 
 #gffcompare to compare how transcripts compare to reference annotation
@@ -314,7 +315,7 @@ gffcompare -r $F/ref_C_virginica-3.0_top_level.gff3 -G -o c_vir_merged C_Vir_str
 		stringtie -e -G $F/C_Vir_stringtie_merged.gtf -o $(echo ${i}|sed "s/\..*//").merge.gtf ${i}
 		echo "${i}"
 	done 
-	# input here is the original set of alignment files
+	# input here is the original set of BAM alignment files
 	# here -G refers to the merged GTF files
 	# -e creates more accurate abundance estimations with input transcripts, needed when converting to DESeq2 tables
 
@@ -342,6 +343,11 @@ done
 			
 echo "STOP" $(date)
 ```
+
+The C_vir_sample_list.txt file looks like the following, with just the header ID of the file, following by a space and the full path.
+
+![C_vir_sample_list.txt](https://github.com/erinroberts/apoptosis_data_pipeline/blob/master/Streamlined%20Pipeline%20Tutorial/C_vir_sample_list.txt.png)
+
 
 ## Step 8: Perform differential expression of transcripts in DESeq2
 
