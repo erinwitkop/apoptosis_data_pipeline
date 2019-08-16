@@ -10,7 +10,7 @@
 #BiocManager::install("apeglm")
 
 library(DESeq2)  
-library(ggplot)
+library(ggplot2)
 library(magrittr)
 library(dplyr)
 library(pheatmap)
@@ -26,6 +26,9 @@ library(UpSetR)
 library(reshape2)
 library(plyr)
 library(Repitools)
+library(purrr)
+library(Vennerable)
+library(tibble)
   
 ### Versions
 # R version 3.6.1
@@ -54,6 +57,7 @@ head(Dermo_counts)
 #Load in sample metadata
 Dermo_coldata <- read.csv("/Users/erinroberts/Documents/PhD_Research/Chapter_1_Apoptosis Paper/Chapter1_Apoptosis_Transcriptome_Analyses_2019/DATA ANALYSIS/apoptosis_data_pipeline/DESeq2/C_VIRGINICA_PIPELINE/Dermo 2015 Analysis/DATA/6h_36h_7d_DA_LB_metadata.csv",row.names=1 )
 head(Dermo_coldata)  
+nrow(Dermo_coldata) 
 
 # Make sure the columns of the count matrix and rows of the column data (sample metadata)
 # are in the same order. Both of the following should return true
@@ -66,6 +70,7 @@ all(rownames(Dermo_coldata) == colnames(Dermo_counts))    # should return TRUE
 # add column that is specifically rownames
 Dermo_coldata$rownames <- rownames(Dermo_coldata)
 head(Dermo_coldata)
+
 
 ##### Splitting up the data for each different comparison ####
 
@@ -109,6 +114,8 @@ SampleID_DA_middle_late <- Dermo_coldata_DA_middle_late$rownames
 # subset counts matrix
 Dermo_counts_LB_middle_late <- Dermo_counts[,names(Dermo_counts) %in% SampleID_LB_middle_late]
 Dermo_counts_DA_middle_late <- Dermo_counts[,names(Dermo_counts) %in% SampleID_DA_middle_late]
+
+
 
 ####### Check levels #######
 # It is prefered in R that the first level of a factor be the reference level for comparison
@@ -200,7 +207,6 @@ Dermo_dds_DA_middle_late <- DESeqDataSetFromMatrix(countData = Dermo_counts_DA_m
                                                    colData = Dermo_coldata_DA_middle_late,
                                                    design = ~Library_Prep_Date + Timepoint + Treat)
 
-
 # About looking at contrasts: "Alternatively you can group the strain (with its different levels) and time ((with its different levels)
 # into one factor, lets call it ALL. and by using contrast () you can look for the difference in log2 fold change between any combination of levels."
 
@@ -236,6 +242,7 @@ Dermo_dds_LB_time_vsd <- vst(Dermo_dds_LB_time, blind=FALSE)
 Dermo_dds_LB_middle_late_vsd <- vst(Dermo_dds_LB_middle_late, blind=FALSE)
 Dermo_dds_DA_middle_late_vsd <- vst(Dermo_dds_DA_middle_late , blind=FALSE)
 
+
 # Calculate sample distances to assess overall sample similarity
   # use function dist to calculate the Euclidean distance between samples. 
   # To ensure we have a roughly equal contribution from all genes, we use it on the VST data. 
@@ -249,7 +256,7 @@ Dermo_dds_family_vsd_dist
   # make the column names of the matrix the family and the individual
 Dermo_dds_family_vsd_dist_matrix <- as.matrix(Dermo_dds_family_vsd_dist)
 rownames(Dermo_dds_family_vsd_dist_matrix) <- paste(Dermo_dds_family_vsd$FamCode, Dermo_dds_family_vsd$Ind, sep="-")
-colnames(Dermo_dds_family_vsd_dist_matrix) <- NULL
+#colnames(Dermo_dds_family_vsd_dist_matrix) <- NULL
 colors <- colorRampPalette( rev(brewer.pal(9, "Blues")) )(255)
 pheatmap(Dermo_dds_family_vsd_dist_matrix,
          clustering_distance_rows = Dermo_dds_family_vsd_dist,
@@ -298,19 +305,19 @@ resultsNames(Dermo_dds_DA_middle_late_deseq) # "Intercept" "Library_Prep_Date_17
   # use mcols to look at metadata for each table
 
 # Full Family DESeq
-Dermo_dds_family_res <- results(Dermo_dds_family_deseq, alpha=0.05)
+Dermo_dds_family_res <- results(Dermo_dds_family_deseq, alpha=0.05, name="FamCode_LB_vs_DA")
 Dermo_dds_family_res # comparison is log2 fold change (MLE): FamCode LB vs DA
 
 # 6h both family DESeq
-Dermo_dds_6h_res <- results(Dermo_dds_6h_deseq, alpha=0.05)
+Dermo_dds_6h_res <- results(Dermo_dds_6h_deseq, alpha=0.05, name="FamCode_LB_vs_DA")
 mcols(Dermo_dds_6h_res, use.names = TRUE) # mcols pulls up the dataframe object metadat about the meaning of each column
 
 # 36h both family DESeq
-Dermo_dds_36h_res <- results(Dermo_dds_36h_deseq, alpha=0.05)
+Dermo_dds_36h_res <- results(Dermo_dds_36h_deseq, alpha=0.05, name="FamCode_LB_vs_DA")
 mcols(Dermo_dds_36h_res, use.names = TRUE)
 
 # 7d both family DESeq
-Dermo_dds_7d_res <- results(Dermo_dds_7d_deseq, alpha=0.05)
+Dermo_dds_7d_res <- results(Dermo_dds_7d_deseq, alpha=0.05, name="FamCode_LB_vs_DA")
 mcols(Dermo_dds_7d_res, use.names = TRUE)
 
 # All times DA family
@@ -538,21 +545,21 @@ Dermo_dds_6h_res_LFC_sig$transcript_id <- row.names(Dermo_dds_6h_res_LFC_sig)
 Dermo_dds_6h_res_LFC_sig <- as.data.frame(Dermo_dds_6h_res_LFC_sig)
 Dermo_dds_6h_res_LFC_sig <- Dermo_dds_6h_res_LFC_sig %>% filter(abs(log2FoldChange) >=1.0)
 nrow(Dermo_dds_6h_res_LFC) # 46991
-nrow(Dermo_dds_6h_res_LFC_sig) # 906
+nrow(Dermo_dds_6h_res_LFC_sig) # 954
 
 Dermo_dds_36h_res_LFC_sig <- subset(Dermo_dds_36h_res_LFC,padj < 0.05)
 Dermo_dds_36h_res_LFC_sig$transcript_id <- row.names(Dermo_dds_36h_res_LFC_sig)
 Dermo_dds_36h_res_LFC_sig <- as.data.frame(Dermo_dds_36h_res_LFC_sig)
 Dermo_dds_36h_res_LFC_sig <- Dermo_dds_36h_res_LFC_sig %>% filter(abs(log2FoldChange) >=1.0)
 nrow(Dermo_dds_36h_res_LFC) # 49408
-nrow(Dermo_dds_36h_res_LFC_sig) # 4261
+nrow(Dermo_dds_36h_res_LFC_sig) # 4258
 
 Dermo_dds_7d_res_LFC_sig <- subset(Dermo_dds_7d_res_LFC,padj < 0.05)
 Dermo_dds_7d_res_LFC_sig$transcript_id <- row.names(Dermo_dds_7d_res_LFC_sig)
 Dermo_dds_7d_res_LFC_sig <- as.data.frame(Dermo_dds_7d_res_LFC_sig)
 Dermo_dds_7d_res_LFC_sig<- Dermo_dds_7d_res_LFC_sig  %>% filter(abs(log2FoldChange) >=1.0)
 nrow(Dermo_dds_7d_res_LFC) # 49681
-nrow(Dermo_dds_7d_res_LFC_sig) # 4419
+nrow(Dermo_dds_7d_res_LFC_sig) # 4299
 
 Dermo_dds_LB_time_res_early_late_LFC_sig   <- subset(Dermo_dds_LB_time_res_early_late_LFC, padj < 0.05)
 Dermo_dds_LB_time_res_early_late_LFC_sig$transcript_id <- row.names(Dermo_dds_LB_time_res_early_late_LFC_sig)
@@ -601,29 +608,29 @@ nrow(Dermo_dds_DA_time_res_middle_late_LFC_sig) # 168
 ## Comparison of transcripts within families
 # Transcripts in DA in the 6 vs 7d comparison not in the 6 vs 36r comparison
 DA_early_late_not_early_middle <- Dermo_dds_DA_time_res_early_late_LFC_sig$transcript_id[!(Dermo_dds_DA_time_res_early_late_LFC_sig$transcript_id %in% Dermo_dds_DA_time_res_early_middle_LFC_sig$transcript_id)] 
-length(DA_early_late_not_early_middle) #1532 , DA_early_late has 4828
+length(DA_early_late_not_early_middle) #1561 , DA_early_late has 4828
 
 # Transcripts in DA 6 vs 36hr not in 6 vs 7d
 DA_early_middle_not_early_late <- Dermo_dds_DA_time_res_early_middle_LFC_sig$transcript_id[!(Dermo_dds_DA_time_res_early_middle_LFC_sig$transcript_id %in% Dermo_dds_DA_time_res_early_late_LFC_sig$transcript_id)] 
-length(DA_early_middle_not_early_late) #1079, DA_early_middle has 4375
+length(DA_early_middle_not_early_late) #1111, DA_early_middle has 4375
 
 # Transcripts in LB in the 6 vs 7d comparison not in the 6 vs 36r comparison
 LB_early_late_not_early_middle <- Dermo_dds_LB_time_res_early_late_LFC_sig$transcript_id[!(Dermo_dds_LB_time_res_early_late_LFC_sig$transcript_id %in% Dermo_dds_LB_time_res_early_middle_LFC_sig$transcript_id)] 
-length(LB_early_late_not_early_middle) #1112 , LB_early_late has 5305
+length(LB_early_late_not_early_middle) #1139 , LB_early_late has 5305
 
 # Transcripts in LB 6 vs 36hr not in 6 vs 7d
 LB_early_middle_not_early_late <- Dermo_dds_LB_time_res_early_middle_LFC_sig$transcript_id[!(Dermo_dds_LB_time_res_early_middle_LFC_sig$transcript_id %in% Dermo_dds_LB_time_res_early_late_LFC_sig$transcript_id)] 
-length(LB_early_middle_not_early_late) #1452, LB_early_middle has 5644
+length(LB_early_middle_not_early_late) #1602, LB_early_middle has 5644
 
 ## Comparison of transcripts BETWEEN families at different timepoints
 sixhr_vs_36hr <- Dermo_dds_6h_res_LFC_sig$transcript_id[!(Dermo_dds_6h_res_LFC_sig$transcript_id %in% Dermo_dds_36h_res_LFC_sig$transcript_id)] 
-length(sixhr_vs_36hr) #410
+length(sixhr_vs_36hr) #445
 
 sixhr_vs_7d <- Dermo_dds_6h_res_LFC_sig$transcript_id[!(Dermo_dds_6h_res_LFC_sig$transcript_id %in% Dermo_dds_7d_res_LFC_sig$transcript_id)] 
-length(sixhr_vs_7d ) #361
+length(sixhr_vs_7d ) #378
 
 thirtysix_vs_7d <- Dermo_dds_36h_res_LFC_sig$transcript_id[!(Dermo_dds_36h_res_LFC_sig$transcript_id %in% Dermo_dds_7d_res_LFC_sig$transcript_id)] 
-length(thirtysix_vs_7d) # 2033 
+length(thirtysix_vs_7d) # 2133
 
 
 #### Graphing Significant Genes Between Timepoints ####
@@ -813,6 +820,26 @@ ggplot(Comparison_LB, aes(x=Timepoint_Compared, y=Value, fill = Value_type)) + g
 C_vir_rtracklayer <- import("/Users/erinroberts/Documents/PhD_Research/Chapter_1_Apoptosis Paper/Chapter1_Apoptosis_Transcriptome_Analyses_2019/DATA ANALYSIS/apoptosis_data_pipeline/DESeq2/C_VIRGINICA_PIPELINE/ref_C_virginica-3.0_top_level.gff3")
 C_vir_rtracklayer <- as.data.frame(C_vir_rtracklayer)
 
+# Isolate transcript lines in GFF annotation so that I can use Batch Entrez lookup for their parent proteins
+C_vir_rtracklayer_transcripts <- filter(C_vir_rtracklayer, grepl("XM", transcript_id))
+C_vir_rtracklayer_transcripts_unique <- subset(C_vir_rtracklayer_transcripts, !duplicated(transcript_id))
+write.table(file="./Dermo_2015_Analysis/OUTPUT/C_vir_unique_transcripts.txt", C_vir_rtracklayer_transcripts_unique$transcript_id) 
+  # remove first column and row with the rownames: cut -d' ' -f2 C_vir_unique_transcripts.txt | tail -n +2 > C_vir_unique_transcripts_cut.txt
+  # remove quotes: sed 's/\"//g' C_vir_unique_transcripts_cut.txt > C_vir_unique_transcripts_cut_no_quotes.txt
+  # Split in terminal to multiple files: split -l 10000 C_vir_unique_transcripts_cut_no_quotes.txt
+  # mv output to C_vir_unique_transcripts*.txt
+  # In batch entrez select the nucleotide format ,and then don't highlight anything and click on "send to" and select, "complete record" then "file" then "GFF3"
+  # extract XM and XP information
+  # Combined all files using 'for i in x*_batch.txt ; do cat $i >> combined_batch_lookup.txt; done'
+  # Extracting Gnomon CDS entry for each transcript by grepping for "cds-" which comes before the XP name for every line: grep "cds-" combined_batch_lookup.txt > combined_batch_lookup_cds.txt
+  # changing file suffix to gff3 so it can be imported 
+
+#upload Batch entrez NCBI gff2 format 
+C_vir_XM_with_XP <- import("/Users/erinroberts/Documents/PhD_Research/Chapter_1_Apoptosis Paper/Chapter1_Apoptosis_Transcriptome_Analyses_2019/DATA ANALYSIS/apoptosis_data_pipeline/DESeq2/C_VIRGINICA_PIPELINE/Dermo_2015_Analysis/OUTPUT/combined_batch_lookup_cds.gff")
+C_vir_XM_with_XP <- as.data.frame(C_vir_XM_with_XP)
+C_vir_XM_with_XP_index <- C_vir_XM_with_XP[,c("seqnames","protein_id")]
+colnames(C_vir_XM_with_XP_index)[1] <- "transcript_id"
+
 # Load in Interproscan GO annotation from LSU Kevin using Rtracklayer
 # cat all the edited header removed files from Interproscan Kevin LSU files Import gff file with rtracklayer
 # for i in edited*.gff3; do cat $i >> combined_CV_prot_id_interproscan.gff3 ; done
@@ -830,7 +857,7 @@ Cvir_Interproscan_DF$Ontology_term <- as.character(Cvir_Interproscan_DF$Ontology
 C_vir_Interproscan_GO <- Cvir_Interproscan_DF %>% filter(Ontology_term !="character(0)")
 head(C_vir_Interproscan_GO)
 
-# keep lines with unique protein and GO terms and then merge GO terms with the same protein names
+# keep lines with unique protein and GO terms 
 C_vir_Interproscan_GO_unique <- C_vir_Interproscan_GO[!duplicated(C_vir_Interproscan_GO[,c("chr","Ontology_term")]),]
 
 # Format GO term column correctly 
@@ -843,70 +870,63 @@ class(C_vir_Interproscan_GO_unique)
 # merge GO terms with the same protein name so there aren't multiple lines for a transcript
 C_vir_Interproscan_GO_unique <- ddply(C_vir_Interproscan_GO_unique, "chr", summarize, Combined_ontology = toString(Ontology_term))
 
-# Remove duplicate strings in the same column 
+# Remove duplicate GO strings in the same column and create new column
+C_vir_Interproscan_GO_unique$Combined_ontology <- gsub(" ", "", C_vir_Interproscan_GO_unique$Combined_ontology)
+C_vir_Interproscan_GO_unique <- mutate(C_vir_Interproscan_GO_unique, unique_go = map(str_split(Combined_ontology, ","), unique))
 
 # make new column that removes the "_ORF" from the end of the seqnames columns
 C_vir_Interproscan_GO_unique$protein_id <- str_remove(C_vir_Interproscan_GO_unique$chr, "_ORF")
 
-# Find rows in annotation with unique XM and XP combination (even though)
-C_vir_rtracklayer_XM_uniq <- subset(C_vir_rtracklayer, !duplicated(transcript_id))
-head(C_vir_rtracklayer_XM_uniq)
+# merge XM and XP list with Interproscan list
+C_vir_Interproscan_GO_unique_XM_merged <- C_vir_Interproscan_GO_unique %>% left_join(select(C_vir_XM_with_XP_index, "transcript_id","protein_id"), by = "protein_id")
 
-# Need a list of all the XM's for every XP
+# Merge Interproscan list onto transcript annotation using left_join of the TRANSCRIPT ID so that it joins correctly at the level of transcripts
+# non unique file
+C_vir_rtracklayer_GO <-  C_vir_rtracklayer %>% left_join(select(C_vir_Interproscan_GO_unique_XM_merged,"unique_go","transcript_id"), by = "transcript_id")
 
-# Join LOC column from annotation to Interproscan 
-C_vir_Interproscan_LOC <- C_vir_Interproscan_GO_unique %>% left_join(select(C_vir_rtracklayer_XM_uniq ,"gene", "protein_id"), by = "protein_id")
-head(C_vir_Interproscan_LOC)
-class(C_vir_Interproscan_LOC)
+#unique file with one line per transcript
+C_vir_rtracklayer_transcripts_GO <- C_vir_rtracklayer_transcripts_unique %>% left_join(select(C_vir_Interproscan_GO_unique_XM_merged,"unique_go","transcript_id"), by = "transcript_id")
 
-# Merge GO annotation onto main annotation using left_join of the PROTEIN ID from the original file 
-C_vir_rtracklayer_GO <-  C_vir_rtracklayer %>% left_join(select(C_vir_Interproscan_LOC,"Combined_ontology","transcript_id"), by = "transcript_id")
-C_vir_rtracklayer_GO$Combined_ontology
-
-# Isolate transcript lines in GFF annotation
-C_vir_rtracklayer_transcripts <- filter(C_vir_rtracklayer, grepl("XM", transcript_id))
-C_vir_rtracklayer_transcripts_unique <- subset(C_vir_rtracklayer_transcripts, !duplicated(transcript_id))
-
-
-#check again that there are no duplicate row names
-C_vir_rtracklayer_GO[duplicated(C_vir_rtracklayer_GO$transcript_id),]
+# are they all NULL?
+C_vir_rtracklayer_GO %>% filter(unique_go !="NULL") # nope they are not!!
 
 #### Annotate significant genes in each results data frame ####
 
-Dermo_dds_family_res_LFC_sig_annot <- Dermo_dds_family_res_LFC_sig %>% left_join(select(C_vir_rtracklayer_GO, transcript_id, product, gene), by = "transcript_id")
+Dermo_dds_family_res_LFC_sig_annot <- Dermo_dds_family_res_LFC_sig %>% left_join(C_vir_rtracklayer_transcripts_GO[,c("transcript_id", "product", "gene")], by = "transcript_id")
 head(arrange(Dermo_dds_family_res_LFC_sig_annot,-log2FoldChange),n=50) # arrange in descending order
 
-Dermo_dds_6h_res_LFC_sig_annot <- Dermo_dds_6h_res_LFC_sig %>% left_join(select(C_vir_rtracklayer_GO, transcript_id, product, gene), by = "transcript_id")
+Dermo_dds_6h_res_LFC_sig_annot <- Dermo_dds_6h_res_LFC_sig %>% left_join(C_vir_rtracklayer_transcripts_GO[,c("transcript_id", "product", "gene")], by = "transcript_id")
 head(arrange(Dermo_dds_6h_res_LFC_sig_annot,-log2FoldChange),n=50) #most differentially expressed compared between families at 6hr
 
-Dermo_dds_36h_res_LFC_sig_annot <- Dermo_dds_36h_res_LFC_sig %>% left_join(select(C_vir_rtracklayer_GO, transcript_id, product, gene), by = "transcript_id")
+Dermo_dds_36h_res_LFC_sig_annot <- Dermo_dds_36h_res_LFC_sig %>% left_join(C_vir_rtracklayer_transcripts_GO[,c("transcript_id", "product", "gene")], by = "transcript_id")
 head(arrange(Dermo_dds_36h_res_LFC_sig_annot ,-log2FoldChange),n=50) #most differentially expressed compared between families at 36hr
 
-Dermo_dds_7d_res_LFC_sig_annot <- Dermo_dds_7d_res_LFC_sig %>% left_join(select(C_vir_rtracklayer_GO, transcript_id, product, gene), by = "transcript_id")
+Dermo_dds_7d_res_LFC_sig_annot <- Dermo_dds_7d_res_LFC_sig %>% left_join(C_vir_rtracklayer_transcripts_GO[,c("transcript_id", "product", "gene")], by = "transcript_id")
 head(arrange(Dermo_dds_7d_res_LFC_sig_annot, -log2FoldChange),n=50) #most differentially expressed compared between families at 36hr
 
-Dermo_dds_LB_time_res_early_late_LFC_sig_annot <- Dermo_dds_LB_time_res_early_late_LFC_sig %>% left_join(select(C_vir_rtracklayer_GO, transcript_id, product, gene), by = "transcript_id")
+Dermo_dds_LB_time_res_early_late_LFC_sig_annot <- Dermo_dds_LB_time_res_early_late_LFC_sig %>% left_join(C_vir_rtracklayer_transcripts_GO[,c("transcript_id", "product", "gene")], by = "transcript_id")
 head(arrange(Dermo_dds_LB_time_res_early_late_LFC_sig_annot, -log2FoldChange),n=50)
 
-Dermo_dds_LB_time_res_early_middle_LFC_sig_annot <- Dermo_dds_LB_time_res_early_middle_LFC_sig %>% left_join(select(C_vir_rtracklayer_GO, transcript_id, product, gene), by = "transcript_id")
+Dermo_dds_LB_time_res_early_middle_LFC_sig_annot <- Dermo_dds_LB_time_res_early_middle_LFC_sig %>% left_join(C_vir_rtracklayer_transcripts_GO[,c("transcript_id", "product", "gene")], by = "transcript_id")
 head(arrange(Dermo_dds_LB_time_res_early_middle_LFC_sig_annot,-log2FoldChange),n=50)
 
-Dermo_dds_LB_time_res_middle_late_LFC_sig_annot <- Dermo_dds_LB_time_res_middle_late_LFC_sig %>% left_join(select(C_vir_rtracklayer_GO, transcript_id, product, gene), by = "transcript_id")
+Dermo_dds_LB_time_res_middle_late_LFC_sig_annot <- Dermo_dds_LB_time_res_middle_late_LFC_sig %>% left_join(C_vir_rtracklayer_transcripts_GO[,c("transcript_id", "product", "gene")], by = "transcript_id")
 head(arrange(Dermo_dds_LB_time_res_middle_late_LFC_sig_annot,-log2FoldChange),n=50)
 
-Dermo_dds_DA_time_res_early_late_LFC_sig_annot <- Dermo_dds_DA_time_res_early_late_LFC_sig %>% left_join(select(C_vir_rtracklayer_GO, transcript_id, product, gene), by = "transcript_id")
+Dermo_dds_DA_time_res_early_late_LFC_sig_annot <- Dermo_dds_DA_time_res_early_late_LFC_sig %>% left_join(C_vir_rtracklayer_transcripts_GO[,c("transcript_id", "product", "gene")], by = "transcript_id")
 head(arrange(Dermo_dds_DA_time_res_early_late_LFC_sig_annot, -log2FoldChange),n=50)
 
-Dermo_dds_DA_time_res_early_middle_LFC_sig_annot <- Dermo_dds_DA_time_res_early_middle_LFC_sig %>% left_join(select(C_vir_rtracklayer_GO, transcript_id, product, gene), by = "transcript_id")
+Dermo_dds_DA_time_res_early_middle_LFC_sig_annot <- Dermo_dds_DA_time_res_early_middle_LFC_sig %>% left_join(C_vir_rtracklayer_transcripts_GO[,c("transcript_id", "product", "gene")], by = "transcript_id")
 head(arrange(Dermo_dds_DA_time_res_early_middle_LFC_sig_annot, -log2FoldChange),n=50)
 
-Dermo_dds_DA_time_res_middle_late_LFC_sig_annot <- Dermo_dds_DA_time_res_middle_late_LFC_sig %>% left_join(select(C_vir_rtracklayer_GO, transcript_id, product, gene), by = "transcript_id")
+Dermo_dds_DA_time_res_middle_late_LFC_sig_annot <- Dermo_dds_DA_time_res_middle_late_LFC_sig %>% left_join(C_vir_rtracklayer_transcripts_GO[,c("transcript_id", "product", "gene")], by = "transcript_id")
 head(arrange(Dermo_dds_DA_time_res_middle_late_LFC_sig_annot,-log2FoldChange),n=50)
 
 
 #### Upset plots of overall gene expression changes between samples ####
 # helpful tutorial for doing this: http://genomespot.blogspot.com/2017/09/upset-plots-as-replacement-to-venn.html
 # http://crazyhottommy.blogspot.com/2016/01/upset-plot-for-overlapping-chip-seq.html
+# UpsetR vignette: https://cran.r-project.org/web/packages/UpSetR/vignettes/basic.usage.html
 # first extract gene list for each set
 Dermo_dds_family_res_LFC_sig_id <- Dermo_dds_family_res_LFC_sig$transcript_id
 Dermo_dds_6h_res_LFC_sig_id  <-Dermo_dds_6h_res_LFC_sig$transcript_id
@@ -925,39 +945,39 @@ Dermo_dds_family_res_LFC_sig_id$Comparison <- "Family_Comparison_all_timepoints"
 colnames(Dermo_dds_family_res_LFC_sig_id)[1] <- "Transcript_id"
 
 Dermo_dds_6h_res_LFC_sig_id <- as.data.frame(Dermo_dds_6h_res_LFC_sig_id)
-Dermo_dds_6h_res_LFC_sig_id$Comparison <- "6hr_LB_vs_DA"
+Dermo_dds_6h_res_LFC_sig_id$Comparison <- "Dermo_6hr_LB_vs_DA"
 colnames(Dermo_dds_6h_res_LFC_sig_id)[1] <- "Transcript_id"
   
 Dermo_dds_36h_res_LFC_sig_id <- as.data.frame(Dermo_dds_36h_res_LFC_sig_id)
-Dermo_dds_36h_res_LFC_sig_id$Comparison <- "36hr_LB_vs_DA"
+Dermo_dds_36h_res_LFC_sig_id$Comparison <- "Dermo_36hr_LB_vs_DA"
 colnames(Dermo_dds_36h_res_LFC_sig_id)[1] <- "Transcript_id"
 
 Dermo_dds_7d_res_LFC_sig_id <- as.data.frame(Dermo_dds_7d_res_LFC_sig_id)
-Dermo_dds_7d_res_LFC_sig_id$Comparison <- "7d_LB_vs_DA"
+Dermo_dds_7d_res_LFC_sig_id$Comparison <- "Dermo_7d_LB_vs_DA"
 colnames(Dermo_dds_7d_res_LFC_sig_id)[1] <- "Transcript_id"
 
 Dermo_dds_DA_time_res_early_middle_LFC_sig_id <- as.data.frame(Dermo_dds_DA_time_res_early_middle_LFC_sig_id)
-Dermo_dds_DA_time_res_early_middle_LFC_sig_id$Comparison <- "DA_6hr_vs_36hr"
+Dermo_dds_DA_time_res_early_middle_LFC_sig_id$Comparison <- "Dermo_DA_6hr_vs_36hr"
 colnames(Dermo_dds_DA_time_res_early_middle_LFC_sig_id)[1] <- "Transcript_id"
 
 Dermo_dds_DA_time_res_early_late_LFC_sig_id <- as.data.frame(Dermo_dds_DA_time_res_early_late_LFC_sig_id)
-Dermo_dds_DA_time_res_early_late_LFC_sig_id$Comparison <- "DA_6hr_vs_7d"
+Dermo_dds_DA_time_res_early_late_LFC_sig_id$Comparison <- "Dermo_DA_6hr_vs_7d"
 colnames(Dermo_dds_DA_time_res_early_late_LFC_sig_id)[1] <- "Transcript_id"
 
 Dermo_dds_LB_time_res_early_middle_LFC_sig_id <- as.data.frame(Dermo_dds_LB_time_res_early_middle_LFC_sig_id)
-Dermo_dds_LB_time_res_early_middle_LFC_sig_id$Comparison <- "LB_6hr_vs_36hr"
+Dermo_dds_LB_time_res_early_middle_LFC_sig_id$Comparison <- "Dermo_LB_6hr_vs_36hr"
 colnames(Dermo_dds_LB_time_res_early_middle_LFC_sig_id)[1] <- "Transcript_id"
 
 Dermo_dds_LB_time_res_early_late_LFC_sig_id <- as.data.frame(Dermo_dds_LB_time_res_early_late_LFC_sig_id)
-Dermo_dds_LB_time_res_early_late_LFC_sig_id$Comparison <- "LB_6hr_vs_7d"
+Dermo_dds_LB_time_res_early_late_LFC_sig_id$Comparison <- "Dermo_LB_6hr_vs_7d"
 colnames(Dermo_dds_LB_time_res_early_late_LFC_sig_id)[1] <- "Transcript_id"
 
 Dermo_dds_DA_time_res_middle_late_LFC_sig_id <- as.data.frame(Dermo_dds_DA_time_res_middle_late_LFC_sig_id)
-Dermo_dds_DA_time_res_middle_late_LFC_sig_id$Comparison <- "DA_36hr_vs_7d"
+Dermo_dds_DA_time_res_middle_late_LFC_sig_id$Comparison <- "Dermo_DA_36hr_vs_7d"
 colnames(Dermo_dds_DA_time_res_middle_late_LFC_sig_id)[1] <- "Transcript_id"
 
 Dermo_dds_LB_time_res_middle_late_LFC_sig_id <- as.data.frame(Dermo_dds_LB_time_res_middle_late_LFC_sig_id)
-Dermo_dds_LB_time_res_middle_late_LFC_sig_id$Comparison <- "LB_36hr_vs_7d"
+Dermo_dds_LB_time_res_middle_late_LFC_sig_id$Comparison <- "Dermo_LB_36hr_vs_7d"
 colnames(Dermo_dds_LB_time_res_middle_late_LFC_sig_id)[1] <- "Transcript_id"
 
 # Combine the data frames using rbind()
@@ -975,6 +995,89 @@ upset(upset_all_sig_wide,  mainbar.y.label = "Transcript id Intersections",
       sets.x.label = "# Significantly Differentially Expressed Transcripts", text.scale = c(1.3, 1.3, 1.3, 1.3, 2, 1.0),
       sets= c("Family_Comparison_all_timepoints","6hr_LB_vs_DA", "36hr_LB_vs_DA","7d_LB_vs_DA","DA_6hr_vs_36hr","DA_6hr_vs_7d",
       "DA_36hr_vs_7d","LB_6hr_vs_36hr","LB_6hr_vs_7d","LB_36hr_vs_7d"), order.by="freq")
+
+# Make upset plot prettier with complex heatmap
+
+##### Isolate Annotated Genes from Different Comparisons #####
+# Find matches between groups below in their genes using inner join of transcript id 
+# how can I export interactions from my upset plots?
+# inner join won't work because though it will show me common things, it won't show me what in unique as compared to all other comparisons
+
+# Code written at https://github.com/hms-dbmi/UpSetR/issues/85 to help get the list of all intersections 
+# to format for code I need a binary table from my data first
+
+# example data set
+movies <- read.csv(system.file("extdata", "movies.csv", package = "UpSetR"), 
+                   header = T, sep = ";")
+
+upset_all_sig_binary <- upset_all_sig %>% mutate(value=1) %>% spread(Comparison, value, fill=0)
+class(upset_all_sig_binary )
+row.names(upset_all_sig_binary) <- upset_all_sig_binary$Transcript_id
+
+# Get intersections from Binary table using the following function formatted for numerical input 
+# get_intersect_members() takes as arguments a dataframe that has been formatted as a binary 
+#     table, such as movies from the UpSetR vignette; as well as a series of strings with the names of 
+#     columns you wish to test membership for.
+get_intersect_members <- function (x, ...){
+  require(dplyr)
+  require(tibble)
+  # the following makes sure that we don't have any weird values in the dataframe
+  x <- x[,sapply(x, is.numeric)][,0<=colMeans(x[,sapply(x, is.numeric)],na.rm=T) & colMeans(x[,sapply(x, is.numeric)],na.rm=T)<=1]
+  n <- names(x)
+  #convert rownames to a column to prevent mulching by tidyr
+  x %>% rownames_to_column() -> x
+  l <- c(...)
+  a <- intersect(names(x), l)
+  ar <- vector('list',length(n)+1)
+  ar[[1]] <- x
+  i=2
+  for (item in n) {
+    if (item %in% a){
+      if (class(x[[item]])=='numeric'){   #Now uses numeric instead of integer
+        ar[[i]] <- paste(item, '>= 1')
+        i <- i + 1
+      }
+    } else {
+      if (class(x[[item]])=='numeric'){
+        ar[[i]] <- paste(item, '== 0')
+        i <- i + 1
+      }
+    }
+  }
+  do.call(filter_, ar) %>% column_to_rownames() -> x
+  return(x)
+}
+
+
+# Comparison 1 6hr_LB_vs_DA, 7d_LB_vs_DA, 36hr_LB_vs_DA 
+comp1 <- get_intersect_members(upset_all_sig_binary, "Dermo_6hr_LB_vs_DA", "Dermo_36hr_LB_vs_DA","Dermo_7d_LB_vs_DA")
+comp1_id <- row.names(comp1)  
+comp1_id <- as.data.frame(comp1_id)
+colnames(comp1_id)[1] <- "transcript_id"
+comp1_annot <- left_join(comp1_id, C_vir_rtracklayer_transcripts_GO[,c("transcript_id", "product","gene")], by = "transcript_id")
+
+# Comparison 2 6hr_LB_vs_DA, 7d_LB_vs_DA
+comp2 <- get_intersect_members(upset_all_sig_binary, "Dermo_6hr_LB_vs_DA","Dermo_7d_LB_vs_DA")
+comp2_id <- row.names(comp2)  
+comp2_id <- as.data.frame(comp2_id)
+colnames(comp2_id)[1] <- "transcript_id"
+comp2_annot <- left_join(comp2_id, C_vir_rtracklayer_transcripts_GO[,c("transcript_id", "product","gene")], by = "transcript_id")
+
+# Comparison 3 LB_6hr_vs_7d, LB_6hr_vs_36hr
+
+comp3 <- get_intersect_members(upset_all_sig_binary, "Dermo_LB_6hr_vs_7d","Dermo_LB_6hr_vs_36hr")
+comp3_id <- row.names(comp3)  
+comp3_id <- as.data.frame(comp3_id)
+colnames(comp3_id)[1] <- "transcript_id"
+comp3_annot <- left_join(comp3_id, C_vir_rtracklayer_transcripts_GO[,c("transcript_id", "product","gene")], by = "transcript_id")
+nrow(comp3_annot) # 1298, these are the genes shared between both timepoint comparisons
+# Heatmaps for specific comparisons of vsd data 
+
+comp3_annot_APOP <- comp3_annot[grepl(paste(Apoptosis_names,collapse="|"), 
+                                      comp3_annot$product, ignore.case = TRUE),]
+nrow(comp3_annot_APOP ) # 35
+
+# These are the significantly differentially expressed genes unique to the LB 6hr vs 36hr nd 6hr vs 7d comparison. 
 
 ##### Gene Clustering Analysis Heatmaps ####
 
@@ -1002,7 +1105,7 @@ family_heatmap_reorder <-rownames(family_res_mat[family_heatmap$tree_row[["order
 # annotate the row.names
 family_res_mat_prot <- as.data.frame(family_heatmap_reorder)
 colnames(family_res_mat_prot)[1] <- "transcript_id"
-family_res_mat_prot_annot <- family_res_mat_prot %>% left_join(select(C_vir_rtracklayer_GO, transcript_id, product, gene), by = "transcript_id")
+family_res_mat_prot_annot <- family_res_mat_prot %>% left_join(select(C_vir_rtracklayer_transcripts_GO, transcript_id, product, gene), by = "transcript_id")
 #isolate interesting clusters
 
 # LB vs. DA cluster
@@ -1025,7 +1128,7 @@ six_hr_heatmap_reorder <-rownames(Res_mat_6hr[six_hr_heatmap$tree_row[["order"]]
 # annotate the row.names
 Res_mat_6hr_prot <- as.data.frame(six_hr_heatmap_reorder)
 colnames(Res_mat_6hr_prot)[1] <- "transcript_id"
-Res_mat_6hr_prot_annot <- Res_mat_6hr_prot %>% left_join(select(C_vir_rtracklayer_GO, transcript_id, product, gene), by = "transcript_id")
+Res_mat_6hr_prot_annot <- Res_mat_6hr_prot %>% left_join(select(C_vir_rtracklayer_transcripts_GO, transcript_id, product, gene), by = "transcript_id")
 #isolate interesting clusters
 six_hr_comparison_cluster <- c("XM_022455505.1", "XM_022484575.1", "XM_022461506.1", "XM_022430618.1", "XM_022490512.1",
                               "XM_022461508.1", "XM_022464459.1", "XM_022483469.1", "XM_022483473.1", "XM_022442223.1", "XM_022457463.1", "XM_022442224.1")
@@ -1044,7 +1147,7 @@ thirty_six_hr_heatmap_reorder <-rownames(Res_mat_36hr[thirty_six_hr_heatmap$tree
 # annotate the row.names
 Res_mat_36hr_prot <- as.data.frame(thirty_six_hr_heatmap_reorder)
 colnames(Res_mat_36hr_prot)[1] <- "transcript_id"
-Res_mat_36hr_prot_annot <- Res_mat_36hr_prot %>% left_join(select(C_vir_rtracklayer_GO, transcript_id, product, gene), by = "transcript_id")
+Res_mat_36hr_prot_annot <- Res_mat_36hr_prot %>% left_join(select(C_vir_rtracklayer_transcripts_GO, transcript_id, product, gene), by = "transcript_id")
 #isolate interesting clusters
 thirty_six_cluster <- c("XM_022474564.1", "XM_022473887.1", "XM_022477354.1", "XM_022477356.1")
 thirty_six_cluster <- as.data.frame(thirty_six_cluster)
@@ -1221,13 +1324,13 @@ Apoptosis_names <- c('bcl-2-related protein A1',
                      'apoptosis-stimulating of p53 protein 1',
                      'apoptosis-stimulating of p53 protein 2',
                      'apoptosis inhibitory protein 5',
-                     'apoptotic chromatin condensation inducer in the nucleus')
+                     'apoptotic chromatin condensation inducer in the nucleus') # made some additions of interleukins 
 
 #### Extract list of significant Apoptosis Genes ####
 Dermo_dds_family_res_LFC_sig_annot_APOP <- Dermo_dds_family_res_LFC_sig_annot[grepl(paste(Apoptosis_names,collapse="|"), 
       Dermo_dds_family_res_LFC_sig_annot$product, ignore.case = TRUE),]
 arrange(Dermo_dds_family_res_LFC_sig_annot_APOP, -log2FoldChange) 
-nrow(Dermo_dds_family_res_LFC_sig_annot_APOP) # 94
+nrow(Dermo_dds_family_res_LFC_sig_annot_APOP) # 78
 
 Dermo_dds_6h_res_LFC_sig_annot_APOP <- Dermo_dds_6h_res_LFC_sig_annot[grepl(paste(Apoptosis_names,collapse="|"), 
 Dermo_dds_6h_res_LFC_sig_annot$product, ignore.case = TRUE),]
@@ -1238,40 +1341,40 @@ nrow(Dermo_dds_6h_res_LFC_sig_annot_APOP) # 25
 Dermo_dds_36h_res_LFC_sig_annot_APOP <- Dermo_dds_36h_res_LFC_sig_annot[grepl(paste(Apoptosis_names,collapse="|"), 
 Dermo_dds_36h_res_LFC_sig_annot$product, ignore.case = TRUE),]
 arrange(Dermo_dds_36h_res_LFC_sig_annot_APOP , -log2FoldChange) 
-nrow(Dermo_dds_36h_res_LFC_sig_annot_APOP) # 107
+nrow(Dermo_dds_36h_res_LFC_sig_annot_APOP) # 102
 
 #94
 Dermo_dds_7d_res_LFC_sig_annot_APOP <- Dermo_dds_7d_res_LFC_sig_annot[grepl(paste(Apoptosis_names,collapse="|"), 
 Dermo_dds_7d_res_LFC_sig_annot$product, ignore.case = TRUE),]
 arrange(Dermo_dds_7d_res_LFC_sig_annot_APOP  , -log2FoldChange) 
-nrow(Dermo_dds_7d_res_LFC_sig_annot_APOP) #105
+nrow(Dermo_dds_7d_res_LFC_sig_annot_APOP) #94
 
 #DA comparisons (Capturing more the changes through time), #103 rows
 Dermo_dds_DA_time_res_early_late_LFC_sig_annot_APOP <- Dermo_dds_DA_time_res_early_late_LFC_sig_annot[grepl(paste(Apoptosis_names,collapse="|"), 
 Dermo_dds_DA_time_res_early_late_LFC_sig_annot$product, ignore.case = TRUE),]
 arrange(Dermo_dds_DA_time_res_early_late_LFC_sig_annot_APOP  , -log2FoldChange) 
-nrow(Dermo_dds_DA_time_res_early_late_LFC_sig_annot_APOP) #113
+nrow(Dermo_dds_DA_time_res_early_late_LFC_sig_annot_APOP) #97
 
 #106
 Dermo_dds_DA_time_res_early_middle_LFC_sig_annot_APOP <- Dermo_dds_DA_time_res_early_middle_LFC_sig_annot[grepl(paste(Apoptosis_names,collapse="|"), 
 Dermo_dds_DA_time_res_early_middle_LFC_sig_annot$product, ignore.case = TRUE),]
 arrange(Dermo_dds_DA_time_res_early_middle_LFC_sig_annot_APOP  , -log2FoldChange) 
-nrow(Dermo_dds_DA_time_res_early_middle_LFC_sig_annot_APOP)
+nrow(Dermo_dds_DA_time_res_early_middle_LFC_sig_annot_APOP) #87
 
 #4, reiterating that the major changes happening are not between 36 and 7d, its early 
 Dermo_dds_DA_time_res_middle_late_LFC_sig_annot_APOP <- Dermo_dds_DA_time_res_middle_late_LFC_sig_annot[grepl(paste(Apoptosis_names,collapse="|"), 
 Dermo_dds_DA_time_res_middle_late_LFC_sig_annot$product, ignore.case = TRUE),]
 arrange(Dermo_dds_DA_time_res_middle_late_LFC_sig_annot_APOP  , -log2FoldChange) 
-nrow(Dermo_dds_DA_time_res_middle_late_LFC_sig_annot_APOP )
+nrow(Dermo_dds_DA_time_res_middle_late_LFC_sig_annot_APOP ) # 4
 
 ##LB comparisons
-# 138 genes
+# 126 genes
 Dermo_dds_LB_time_res_early_late_LFC_sig_annot_APOP <- Dermo_dds_LB_time_res_early_late_LFC_sig_annot[grepl(paste(Apoptosis_names,collapse="|"), 
 Dermo_dds_LB_time_res_early_late_LFC_sig_annot$product, ignore.case = TRUE),]
 arrange(Dermo_dds_LB_time_res_early_late_LFC_sig_annot_APOP  , -log2FoldChange) 
-nrow(Dermo_dds_LB_time_res_early_late_LFC_sig_annot_APOP)
+nrow(Dermo_dds_LB_time_res_early_late_LFC_sig_annot_APOP) 
 
-# 148
+# 136
 Dermo_dds_LB_time_res_early_middle_LFC_sig_annot_APOP <- Dermo_dds_LB_time_res_early_middle_LFC_sig_annot[grepl(paste(Apoptosis_names,collapse="|"), 
 Dermo_dds_LB_time_res_early_middle_LFC_sig_annot$product, ignore.case = TRUE),]
 arrange(Dermo_dds_LB_time_res_early_middle_LFC_sig_annot_APOP  , -log2FoldChange) 
@@ -1366,7 +1469,6 @@ upset(upset_all_sig_wide_APOP,  mainbar.y.label = "Apoptosis Pathway Transcript 
 
 # Use sig_annot_APOP data to subset the vsd dataframe for each comparison, then plot heatmap of it for each column 
 
-
 #### TIMECOURSE ANALYSIS ####
 
 # The following chunk of code performs a likelihood ratio test,
@@ -1388,25 +1490,42 @@ resultsNames(Dermo_dds_timecourse_family_deseq) # "Intercept", "FamCode_LB_vs_DA
 # Perform LFC shrinkage with apeglm for contrasts
 resTC_LB_vs_DA <- results(Dermo_dds_timecourse_family_deseq, name="FamCode_LB_vs_DA", test="Wald")
 resTC_LB_vs_DA_LFC <- lfcShrink(Dermo_dds_timecourse_family_deseq, coef="FamCode_LB_vs_DA", res=resTC_LB_vs_DA, type="apeglm")
-  
+
+# Annotate full list
+resTC_LB_vs_DA_LFC$transcript_id <- row.names(resTC_LB_vs_DA_LFC)
+resTC_LB_vs_DA_LFC <- as.data.frame(resTC_LB_vs_DA_LFC)
+resTC_LB_vs_DA_LFC_annot <- left_join(resTC_LB_vs_DA_LFC, C_vir_rtracklayer_transcripts_GO[,c("transcript_id", "product", "unique_go")], by ="transcript_id")
+head(resTC_LB_vs_DA_LFC_annot)
+
 # Extract significant results
 
 resTC_LB_vs_DA_LFC_sig <- subset(resTC_LB_vs_DA_LFC, padj < 0.05)
 resTC_LB_vs_DA_LFC_sig$transcript_id <- row.names(resTC_LB_vs_DA_LFC_sig)
 resTC_LB_vs_DA_LFC_sig <- as.data.frame(resTC_LB_vs_DA_LFC_sig)
 resTC_LB_vs_DA_LFC_sig <- resTC_LB_vs_DA_LFC_sig %>% filter(abs(log2FoldChange) >= 1.0)
-nrow(resTC_LB_vs_DA_LFC_sig) #2391
+nrow(resTC_LB_vs_DA_LFC_sig) #4059
 nrow(resTC_LB_vs_DA_LFC) # 53379
      
 # Annotate all significant genes and pull out apoptosis genes
 
-resTC_LB_vs_DA_LFC_sig_annot <- left_join(resTC_LB_vs_DA_LFC_sig, C_vir_rtracklayer_GO[,c("transcript_id", "product")], by ="transcript_id")
+resTC_LB_vs_DA_LFC_sig_annot <- left_join(resTC_LB_vs_DA_LFC_sig, C_vir_rtracklayer_transcripts_GO[,c("transcript_id", "product", "unique_go")], by ="transcript_id")
 head(arrange(resTC_LB_vs_DA_LFC_sig_annot ,-log2FoldChange),n=50) # arrange in descending order
 
 resTC_LB_vs_DA_LFC_sig_annot_apop <- resTC_LB_vs_DA_LFC_sig_annot[grepl(paste(Apoptosis_names,collapse="|"), 
                                                                         resTC_LB_vs_DA_LFC_sig_annot$product, ignore.case = TRUE),]
 arrange(resTC_LB_vs_DA_LFC_sig_annot_apop , -log2FoldChange) 
 nrow(resTC_LB_vs_DA_LFC_sig_annot_apop ) # 100
+
+# Terms to remove
+
+Terms_to_remove <- c("peptidyl-prolyl cis-trans isomerase G-like",
+                     "peptidyl-prolyl cis-trans isomerase B-like",                                          
+                     "endothelial zinc finger protein induced by tumor necrosis factor alpha",
+                     "cAMP-dependent protein kinase type II regulatory subunit",
+                     "scavenger receptor class F member")                    
+
+resTC_LB_vs_DA_LFC_sig_annot_apop <- resTC_LB_vs_DA_LFC_sig_annot_apop[!grepl(paste(Terms_to_remove,collapse="|"), 
+                                                                        resTC_LB_vs_DA_LFC_sig_annot_apop$product, ignore.case = TRUE),]
 
 # Perform vsd calculation for gene clustering analysis 
 
@@ -1424,7 +1543,7 @@ TC_heatmap_reorder <-rownames(TC_res_mat[TC_heatmap$tree_row[["order"]],])
 # annotate the row.names
 TC_res_mat_prot <- as.data.frame(TC_heatmap_reorder)
 colnames(TC_res_mat_prot)[1] <- "transcript_id"
-TC_res_mat_prot_annot <- TC_res_mat_prot %>% left_join(select(C_vir_rtracklayer_GO, transcript_id, product, gene), by = "transcript_id")
+TC_res_mat_prot_annot <- TC_res_mat_prot %>% left_join(select(C_vir_rtracklayer_transcripts_GO, transcript_id, product, gene), by = "transcript_id")
 
 # Heatmap of apoptosis genes 
   # Subset vsd data frame based on transcript_id of apop genes because vsd rownames are the transcript_id names
@@ -1436,7 +1555,7 @@ apop_TC_heatmap_reorder <-rownames(apop_TC_res_mat[apop_TC_heatmap$tree_row[["or
 # annotate the row.names
 apop_TC_res_mat_prot <- as.data.frame(apop_TC_heatmap_reorder)
 colnames(apop_TC_res_mat_prot)[1] <- "transcript_id"
-apop_TC_res_mat_prot_annot <- apop_TC_res_mat_prot %>% left_join(select(C_vir_rtracklayer_GO, transcript_id, product, gene), by = "transcript_id")
+apop_TC_res_mat_prot_annot <- apop_TC_res_mat_prot %>% left_join(select(C_vir_rtracklayer_transcripts_GO, transcript_id, product, gene), by = "transcript_id")
 apop_TC_res_mat_prot_annot_list <- apop_TC_res_mat_prot_annot$product
 
 ## Apoptosis gene pathway analysis 
@@ -1454,8 +1573,477 @@ apop_TC_res_mat_prot_annot_list[grepl("alpha-induced", apop_TC_res_mat_prot_anno
 apop_TC_res_mat_prot_annot_list[grepl("kinase", apop_TC_res_mat_prot_annot_list)] 
 apop_TC_res_mat_prot_annot_list[grepl("cathepsin", apop_TC_res_mat_prot_annot_list)] 
 
+# split heatmaps into separate based on pathways
+
+TC_intrinsic <- c("IAP","mitogen-activated protein kinase","interferon-induced protein 44-like","interferon alpha-inducible protein 27-like",
+                  "CD151","GTPase IMAP","nuclear apoptosis-inducing factor","cytochrome c1-2")
+  
+res_TC_intrinsic <- resTC_LB_vs_DA_LFC_sig_annot[grepl(paste(TC_intrinsic,collapse="|"), 
+                                                       resTC_LB_vs_DA_LFC_sig_annot$product, ignore.case = TRUE),]
+
+TC_extrinsic <- c("toll-like receptor","caspase-8-like")
+res_TC_extrinsic <- resTC_LB_vs_DA_LFC_sig_annot[grepl(paste(TC_extrinsic,collapse="|"), 
+                                                       resTC_LB_vs_DA_LFC_sig_annot$product, ignore.case = TRUE),]
+TC_inflammation <- c("TNF receptor-associated factor","NF-kappa-B inhibitor","caspase-1-like")
+res_TC_inflammation <- resTC_LB_vs_DA_LFC_sig_annot[grepl(paste(TC_inflammation,collapse="|"), 
+                                                          resTC_LB_vs_DA_LFC_sig_annot$product, ignore.case = TRUE),]
+
+TC_alternative <- c("caspase-1-like","macrophage migration inhibitory","cathepsin","complement","netrin","caspase-14-like")
+res_TC_alternative <- resTC_LB_vs_DA_LFC_sig_annot[grepl(paste(TC_alternative,collapse="|"), 
+                                                         resTC_LB_vs_DA_LFC_sig_annot$product, ignore.case = TRUE),]
+
+# individual heatmaps
+
+Tc_intrinsic_res_mat <- assay(Dermo_dds_timecourse_family_deseq_vsd)[res_TC_intrinsic$transcript_id,]
+TC_extrinsic_res_mat <- assay(Dermo_dds_timecourse_family_deseq_vsd)[res_TC_extrinsic$transcript_id,]
+TC_inflammation_res_mat <- assay(Dermo_dds_timecourse_family_deseq_vsd)[res_TC_inflammation$transcript_id,]
+TC_alternative_res_mat <- assay(Dermo_dds_timecourse_family_deseq_vsd)[res_TC_alternative$transcript_id,]
+
+TC_intrinsic_heatmap <- pheatmap(Tc_intrinsic_res_mat, annotation_col = apop_TC_res_anno)
+TC_extrinsic_heatmap <- pheatmap(TC_extrinsic_res_mat, annotation_col = apop_TC_res_anno)
+TC_inflammation_heatmap <- pheatmap(TC_inflammation_res_mat, annotation_col = apop_TC_res_anno)
+TC_alternative_heatmap <- pheatmap(TC_alternative_res_mat, annotation_col = apop_TC_res_anno)
+
+# reorder annotation table to match ordering in heatmap 
+TC_intrinsic_reorder <- rownames(Tc_intrinsic_res_mat[TC_intrinsic_heatmap$tree_row[["order"]],])
+TC_extrinsic_reorder <- rownames(TC_extrinsic_res_mat[TC_extrinsic_heatmap$tree_row[["order"]],])
+TC_inflammation_reorder <- rownames(TC_inflammation_res_mat[TC_inflammation_heatmap$tree_row[["order"]],])
+TC_alternative_reorder <- rownames(TC_alternative_res_mat[TC_alternative_heatmap$tree_row[["order"]],])
+
+# annotate the row.names
+TC_intrinsic_res_mat_prot <- as.data.frame(TC_intrinsic_reorder)
+TC_extrinsic_res_mat_prot <- as.data.frame(TC_extrinsic_reorder )
+TC_inflammation_res_mat_prot <- as.data.frame(TC_inflammation_reorder)
+TC_alternative_res_mat_prot <- as.data.frame(TC_alternative_reorder)
+
+colnames(TC_intrinsic_res_mat_prot)[1] <- "transcript_id"
+colnames(TC_extrinsic_res_mat_prot)[1] <- "transcript_id"
+colnames(TC_inflammation_res_mat_prot)[1] <- "transcript_id"
+colnames(TC_alternative_res_mat_prot)[1] <- "transcript_id"
+
+TC_intrinsic_res_mat_prot_annot <- TC_intrinsic_res_mat_prot %>% left_join(C_vir_rtracklayer_transcripts_GO[,c("transcript_id","product","gene")], by = "transcript_id")
+TC_extrinsic_res_mat_prot_annot <- TC_extrinsic_res_mat_prot %>% left_join(C_vir_rtracklayer_transcripts_GO[,c("transcript_id","product","gene")], by = "transcript_id")
+TC_inflammation_res_mat_prot_annot <- TC_inflammation_res_mat_prot %>% left_join(C_vir_rtracklayer_transcripts_GO[,c("transcript_id","product","gene")], by = "transcript_id")
+TC_alternative_res_mat_prot_annot <- TC_alternative_res_mat_prot %>% left_join(C_vir_rtracklayer_transcripts_GO[,c("transcript_id","product","gene")], by = "transcript_id")
+
+TC_intrinsic_res_mat_prot_annot_list <- TC_intrinsic_res_mat_prot_annot$product
+TC_extrinsic_res_mat_prot_annot_list <- TC_extrinsic_res_mat_prot_annot$product
+TC_inflammation_res_mat_prot_annot_list <- TC_inflammation_res_mat_prot_annot$product
+TC_alternative_res_mat_prot_annot_list <- TC_alternative_res_mat_prot_annot$product
+
+#### 7d INJECTED ANALYSIS ######
+
+# PREPARE AND SUBSET THE DATA
+# Compare 7d injected to one another 
+
+Dermo_coldata_7d_injected <- Dermo_coldata %>% filter(Treat =="Injected" & Timepoint == "7d")
+rownames(Dermo_coldata_7d_injected) <- Dermo_coldata_7d_injected$rownames
+
+# extract list of samples
+SampleID_Dermo_coldata_7d_injected <- Dermo_coldata_7d_injected$rownames
+
+# subset counts matrix
+Dermo_counts_7d_injected <- Dermo_counts[,names(Dermo_counts) %in% SampleID_Dermo_coldata_7d_injected]
+
+# Check all sample IDs in ColData are also in CountData and match their orders
+all(rownames(Dermo_coldata_7d_injected) %in% colnames(Dermo_counts_7d_injected))  #Should return TRUE
+# returns TRUE
+all(rownames(Dermo_coldata_7d_injected) == colnames(Dermo_counts_7d_injected))   # should return TRUE
+#returns TRUE
+
+# Plot Dermo levels in the data set 
+ggplot(Dermo_coldata_7d_injected, aes(x=as.factor(Ind),y=LogConc, color=FamCode)) + geom_point() + ylim(c(0,10))
+# all are between 4 and 5 
+
+# CHECK LEVELS
+# 7 day just injected, 
+levels(Dermo_coldata_7d_injected$FamCode) # "DA" "LB"
+levels(Dermo_coldata_7d_injected$Treat) # "Control"  "Injected"
+Dermo_coldata_7d_injected$Treat <- droplevels(Dermo_coldata_7d_injected$Treat) # drop control level
+levels(Dermo_coldata_7d_injected$Treat)
+
+# MAKE DESEQ DATA SET FROM MATRIX
+# 7 day injected
+Dermo_dds_7d_injected <- DESeqDataSetFromMatrix(countData= Dermo_counts_7d_injected,
+                                                colData = Dermo_coldata_7d_injected,
+                                                design = ~Library_Prep_Date + FamCode)
+# PREFILTER THE DATA
+Dermo_dds_7d_injected <- Dermo_dds_7d_injected[rowSums(counts(Dermo_dds_7d_injected)) >10,]
+
+# VST TRANSFORMATION OF COUNTS FOR VISUALIZATION 
+
+Dermo_dds_7d_injected_vsd <- vst(Dermo_dds_7d_injected, blind=FALSE)
+
+# Calculate sample distances to assess overall sample similarity
+# use function dist to calculate the Euclidean distance between samples. 
+# To ensure we have a roughly equal contribution from all genes, we use it on the VST data. 
+# We need to transpose the matrix of values using t, because the dist function expects the different samples to be rows of its argument, and different dimensions (here, genes) to be columns.
+
+Dermo_dds_7d_injected_vsd_dist <- dist(t(assay(Dermo_dds_7d_injected_vsd)))
+Dermo_dds_7d_injected_vsd_dist
+
+# PCA plot visualization of individuals in the family #
+plotPCA(Dermo_dds_7d_injected_vsd, intgroup=c("FamCode")) # still separation by family 
+#DA and LB are separate but they don't seem to be very highly clustered together
+
+# Calculate Differential expression
+Dermo_dds_7d_injected_deseq <- DESeq(Dermo_dds_7d_injected) 
+
+# Inspect Results names object
+resultsNames(Dermo_dds_7d_injected_deseq) # [1] "Intercept"  "Library_Prep_Date_17_Dec_vs_15_Dec" "FamCode_LB_vs_DA"
+
+# Build Results object
+Dermo_dds_7d_injected_res <- results(Dermo_dds_7d_injected_deseq, alpha=0.05, name="FamCode_LB_vs_DA")
+Dermo_dds_7d_injected_res # comparison is log2 fold change (MLE): FamCode LB vs DA
+
+# LFC Shrinkage with Apeglm
+Dermo_dds_7d_injected_res_LFC <- lfcShrink(Dermo_dds_7d_injected_deseq, coef="FamCode_LB_vs_DA", type="apeglm", res=Dermo_dds_7d_injected_res)
+
+# Inspect results summary
+summary(Dermo_dds_7d_injected_res_LFC)
+#out of 44881 with nonzero total read count
+#adjusted p-value < 0.05
+#LFC > 0 (up)       : 1188, 2.6%
+#LFC < 0 (down)     : 1527, 3.4%
+#outliers [1]       : 1691, 3.8%
+#low counts [2]     : 4207, 9.4%
+#(mean count < 2)
+
+# Susbet results with padj < 0.05 and Logfold change of >1.0 or <-1.0
+# only working with the LFCshrinkage adjusted log fold changes, and with the BH adjusted p-value
+# first make sure to make the rownames with the transcript ID as a new column, then make it a dataframe for filtering
+Dermo_dds_7d_injected_res_LFC_sig <- subset(Dermo_dds_7d_injected_res_LFC, padj < 0.05)
+Dermo_dds_7d_injected_res_LFC_sig$transcript_id <- row.names(Dermo_dds_7d_injected_res_LFC_sig)
+Dermo_dds_7d_injected_res_LFC_sig<- as.data.frame(Dermo_dds_7d_injected_res_LFC_sig)
+Dermo_dds_7d_injected_res_LFC_sig <- Dermo_dds_7d_injected_res_LFC_sig %>% filter(abs(log2FoldChange) >= 1.0)
+nrow(Dermo_dds_7d_injected_res_LFC_sig) #1836
+nrow(Dermo_dds_family_res_LFC) # 53379
+
+# Annotate transcripts
+Dermo_dds_7d_injected_res_LFC_sig_annot <-Dermo_dds_7d_injected_res_LFC_sig %>% left_join(C_vir_rtracklayer_transcripts_GO[,c("transcript_id", "product", "gene","unique_go")], by = "transcript_id")
+head(arrange(Dermo_dds_7d_injected_res_LFC_sig_annot,-log2FoldChange),n=50) # arrange in descending order
+
+# Isolate Apoptosis specific transcripts
+
+Dermo_dds_7d_injected_res_LFC_sig_annot_APOP <- Dermo_dds_7d_injected_res_LFC_sig_annot[grepl(paste(Apoptosis_names,collapse="|"), 
+                                                                                              Dermo_dds_7d_injected_res_LFC_sig_annot$product, ignore.case = TRUE),]
+arrange(Dermo_dds_7d_injected_res_LFC_sig_annot_APOP , -log2FoldChange) 
+nrow(Dermo_dds_7d_injected_res_LFC_sig_annot_APOP) # 102
+
+# terms to remove 
+Terms_to_remove <- c("peptidyl-prolyl cis-trans isomerase G-like",
+                     "peptidyl-prolyl cis-trans isomerase B-like",
+                     "peptidyl-prolyl cis-trans isomerase FKBP8",
+                     "endothelial zinc finger protein induced by tumor necrosis factor alpha",
+                     "cAMP-dependent protein kinase type II regulatory subunit",
+                     "scavenger receptor class F member"
+                     )       
+
+Dermo_dds_7d_injected_res_LFC_sig_annot_APOP <- Dermo_dds_7d_injected_res_LFC_sig_annot_APOP[!grepl(paste(Terms_to_remove,collapse="|"), 
+                                Dermo_dds_7d_injected_res_LFC_sig_annot_APOP$product, ignore.case = TRUE),]
+
+# Heatmap of top 40 most variable genes 
+topVarGenes_Dermo_dds_7d_injected_vsd <-  head(order(rowVars(assay(Dermo_dds_7d_injected_vsd )), decreasing = TRUE), 100)
+Injected_7d_res_mat <- assay(Dermo_dds_7d_injected_vsd)[topVarGenes_Dermo_dds_7d_injected_vsd ,]
+Injected_7d_res_mat <- Injected_7d_res_mat- rowMeans(Injected_7d_res_mat)
+Injected_7d_res_anno <- as.data.frame(colData(Dermo_dds_7d_injected_vsd)[, c("FamCode","Timepoint")]) # needed to take a second column for some reason to get it to work 
+Injected_7d_heatmap <- pheatmap(Injected_7d_res_mat, annotation_col = Injected_7d_res_anno)
+head(Injected_7d_res_mat)
+# reorder annotation table to match ordering in heatmap 
+Injected_7d_reorder <-rownames(Injected_7d_res_mat[Injected_7d_heatmap$tree_row[["order"]],])
+# annotate the row.names
+Injected_7d_res_mat_prot <- as.data.frame(Injected_7d_reorder)
+colnames(Injected_7d_res_mat_prot)[1] <- "transcript_id"
+Injected_7d_res_mat_prot_annot <- Injected_7d_res_mat_prot %>% left_join(C_vir_rtracklayer_transcripts_GO[,c("transcript_id", "product", "gene")], by = "transcript_id")
+Injected_7d_res_mat_prot_annot$product
+
+# Heatmap of apoptosis genes 
+# Subset vsd data frame based on transcript_id of apop genes because vsd rownames are the transcript_id names
+Injected_7d_Res_mat_apop <- assay(Dermo_dds_7d_injected_vsd)[Dermo_dds_7d_injected_res_LFC_sig_annot_APOP$transcript_id,]
+Injected_7d_res_anno <- as.data.frame(colData(Dermo_dds_7d_injected_vsd)[, c("FamCode", "Timepoint")])
+Injected_7d_heatmap <- pheatmap(Injected_7d_Res_mat_apop, annotation_col = Injected_7d_res_anno)
+# reorder annotation table to match ordering in heatmap 
+Injected_7d_heatmap_reorder <-rownames(Injected_7d_Res_mat_apop[Injected_7d_heatmap$tree_row[["order"]],])
+# annotate the row.names
+Injected_7d_Res_mat_apop_prot <- as.data.frame(Injected_7d_heatmap_reorder)
+colnames(Injected_7d_Res_mat_apop_prot)[1] <- "transcript_id"
+Injected_7d_Res_mat_apop_prot_annot <- Injected_7d_Res_mat_apop_prot %>% left_join(C_vir_rtracklayer_transcripts_GO[,c("transcript_id", "product", "gene")], by = "transcript_id")
+Injected_7d_Res_mat_apop_prot_annot_list <- Injected_7d_Res_mat_apop_prot_annot$product
+Injected_7d_Res_mat_apop_prot_annot_list
+
+# Split up genes by pathway 
+
+Injected_7d_intrinsic <- c("IAP","interferon-induced protein 44-like","interferon alpha-inducible protein 27-like",
+                  "CD151","GTPase IMAP","nuclear apoptosis-inducing factor","cytochrome c1-2", "E3 ubiquitin-protein ligase XIAP")
+
+res_Injected_7d_intrinsic <- Dermo_dds_7d_injected_res_LFC_sig_annot_APOP[grepl(paste(Injected_7d_intrinsic,collapse="|"), 
+                                   Dermo_dds_7d_injected_res_LFC_sig_annot_APOP$product, ignore.case = TRUE),]
+
+Injected_7d_extrinsic <- c("toll-like receptor","caspase-8-like","TNF receptor-associated factor 2","ras-like GTP-binding protein RHO", "mitogen-activated protein kinase")
+res_Injected_7d_extrinsic <- Dermo_dds_7d_injected_res_LFC_sig_annot_APOP[grepl(paste(Injected_7d_extrinsic,collapse="|"), 
+                                                                            Dermo_dds_7d_injected_res_LFC_sig_annot_APOP$product, ignore.case = TRUE),]
+Injected_7d_inflammation <- c("TNF receptor-associated factor 3","receptor-interacting serine/threonine-protein kinase 4", "TNF receptor-associated factor 6")
+res_Injected_7d_inflammation <- Dermo_dds_7d_injected_res_LFC_sig_annot_APOP[grepl(paste(Injected_7d_inflammation,collapse="|"), 
+                                                                      Dermo_dds_7d_injected_res_LFC_sig_annot_APOP$product, ignore.case = TRUE),]
+
+Injected_7d_alternative <- c("caspase-1-like","macrophage migration inhibitory","cathepsin","complement","netrin","E3 ubiquitin-protein ligase CHIP")
+res_Injected_7d_alternative <- Dermo_dds_7d_injected_res_LFC_sig_annot_APOP[grepl(paste(Injected_7d_alternative,collapse="|"), 
+                                                                         Dermo_dds_7d_injected_res_LFC_sig_annot_APOP$product, ignore.case = TRUE),]
+# To look for serine protease inhibitors
+Day7_SPI <- Dermo_dds_7d_injected_res_LFC_sig_annot[grepl("serine protease inhibitor", Dermo_dds_7d_injected_res_LFC_sig_annot$product, ignore.case = TRUE),]
+  # 
+
+# Look for superoxide dismutase
+SOD <- Dermo_dds_7d_injected_res_LFC_sig_annot[grepl("superoxide dismutase", Dermo_dds_7d_injected_res_LFC_sig_annot$product, ignore.case = TRUE),]
+  # no sig genes
+# individual heatmaps
+
+Injected_7d_intrinsic_res_mat <- assay(Dermo_dds_7d_injected_vsd)[res_Injected_7d_intrinsic$transcript_id,]
+Injected_7d_extrinsic_res_mat <- assay(Dermo_dds_7d_injected_vsd)[res_Injected_7d_extrinsic$transcript_id,]
+Injected_7d_inflammation_res_mat <- assay(Dermo_dds_7d_injected_vsd)[res_Injected_7d_inflammation$transcript_id,]
+Injected_7d_alternative_res_mat <- assay(Dermo_dds_7d_injected_vsd)[res_Injected_7d_alternative$transcript_id,]
+
+Injected_7d_intrinsic_heatmap <- pheatmap(Injected_7d_intrinsic_res_mat, annotation_col = Injected_7d_res_anno)
+Injected_7d_extrinsic_heatmap <- pheatmap(Injected_7d_extrinsic_res_mat, annotation_col = Injected_7d_res_anno)
+Injected_7d_inflammation_heatmap <- pheatmap(Injected_7d_inflammation_res_mat, annotation_col = Injected_7d_res_anno)
+Injected_7d_alternative_heatmap <- pheatmap(Injected_7d_alternative_res_mat, annotation_col = Injected_7d_res_anno)
+
+# reorder annotation table to match ordering in heatmap 
+Injected_7d_intrinsic_reorder <- rownames(Injected_7d_intrinsic_res_mat[Injected_7d_intrinsic_heatmap$tree_row[["order"]],])
+Injected_7d_extrinsic_reorder <- rownames(Injected_7d_extrinsic_res_mat[Injected_7d_extrinsic_heatmap$tree_row[["order"]],])
+Injected_7d_inflammation_reorder <- rownames(Injected_7d_inflammation_res_mat[Injected_7d_inflammation_heatmap$tree_row[["order"]],])
+Injected_7d_alternative_reorder <- rownames(Injected_7d_alternative_res_mat[Injected_7d_alternative_heatmap$tree_row[["order"]],])
+
+# annotate the row.names
+Injected_7d_intrinsic_res_mat_prot <- as.data.frame(Injected_7d_intrinsic_reorder)
+Injected_7d_extrinsic_res_mat_prot <- as.data.frame(Injected_7d_extrinsic_reorder )
+Injected_7d_inflammation_res_mat_prot <- as.data.frame(Injected_7d_inflammation_reorder)
+Injected_7d_alternative_res_mat_prot <- as.data.frame(Injected_7d_alternative_reorder)
+
+colnames(Injected_7d_intrinsic_res_mat_prot)[1] <- "transcript_id"
+colnames(Injected_7d_extrinsic_res_mat_prot)[1] <- "transcript_id"
+colnames(Injected_7d_inflammation_res_mat_prot)[1] <- "transcript_id"
+colnames(Injected_7d_alternative_res_mat_prot)[1] <- "transcript_id"
+
+Injected_7d_intrinsic_res_mat_prot_annot <-    Injected_7d_intrinsic_res_mat_prot %>% left_join(C_vir_rtracklayer_transcripts_GO[,c("transcript_id","product","gene")], by = "transcript_id")
+Injected_7d_extrinsic_res_mat_prot_annot <-    Injected_7d_extrinsic_res_mat_prot %>% left_join(C_vir_rtracklayer_transcripts_GO[,c("transcript_id","product","gene")], by = "transcript_id")
+Injected_7d_inflammation_res_mat_prot_annot <- Injected_7d_inflammation_res_mat_prot %>% left_join(C_vir_rtracklayer_transcripts_GO[,c("transcript_id","product","gene")], by = "transcript_id")
+Injected_7d_alternative_res_mat_prot_annot <-  Injected_7d_alternative_res_mat_prot %>% left_join(C_vir_rtracklayer_transcripts_GO[,c("transcript_id","product","gene")], by = "transcript_id")
+
+Injected_7d_intrinsic_res_mat_prot_annot_list <-    Injected_7d_intrinsic_res_mat_prot_annot$product
+Injected_7d_extrinsic_res_mat_prot_annot_list <-    Injected_7d_extrinsic_res_mat_prot_annot$product
+Injected_7d_inflammation_res_mat_prot_annot_list <- Injected_7d_inflammation_res_mat_prot_annot$product
+Injected_7d_alternative_res_mat_prot_annot_list <-  Injected_7d_alternative_res_mat_prot_annot$product
+
 
 ##### Test of significant enrichment of apopsois GO terms in the datasets to confirm #####
+#if (!requireNamespace("BiocManager", quietly = TRUE))
+#install.packages("BiocManager")
+#BiocManager::install("topGO")
+# install.packages("genefilter")
+#if (!requireNamespace("BiocManager", quietly = TRUE))
+#  + install.packages("BiocManager")
+# BiocManager::install("Rgraphviz")
+library(topGO)
+library(genefilter)
+library(Rgraphviz)
+library(GO.db)
+library(qdapTools)
 
 
+# GO ENRICHMENT IN THE TIMECOURSE ANALYSIS DATA SET 
+
+# Prepare two input data tables, input is a table that contains the genes, the GO mappings, and the p-values
+  # one table will be the full list of GO annotated genes
+  # second table will be the significant genes that I have decided above 
+
+# Use timecourse all significant annotated genes and subset the columns for GO, padj, and XM_name
+resTC_LB_vs_DA_LFC_sig_annot_GO_analysis <- resTC_LB_vs_DA_LFC_sig_annot[,c("transcript_id","unique_go","padj")]
+resTC_LB_vs_DA_LFC_annot_GO_analysis <- resTC_LB_vs_DA_LFC_annot[,c("transcript_id","unique_go","padj")]
+#only 62 lines with significant GO terms, not quite enough to make any interesting conclusions
+
+# Extract only the lines that have a GO annotation
+resTC_LB_vs_DA_LFC_sig_annot_GO_analysis <- resTC_LB_vs_DA_LFC_sig_annot_GO_analysis %>% filter(unique_go != "NULL")
+nrow(resTC_LB_vs_DA_LFC_sig_annot_GO_analysis ) #62
+resTC_LB_vs_DA_LFC_annot_GO_analysis <- resTC_LB_vs_DA_LFC_annot_GO_analysis %>% filter(unique_go != "NULL")
+nrow(resTC_LB_vs_DA_LFC_annot_GO_analysis) #1691
+
+# use resTC_LB_vs_DA_LFC_sig_annot_GO_analysis GO terms column and p value column to load into REVIGO
+resTC_LB_vs_DA_LFC_sig_annot_GO_analysis[,c("unique_go","padj")]
+write.csv()
+
+#Create topGO objects
+#This object will contain all information necessary for the GO analysis, 
+# namely the list of genes, the list of interesting genes, the gene
+#scores (if available) and the part of the GO ontology (the GO graph) 
+#which needs to be used in the analysis. The topGOdata object will be the
+#input of the testing procedures, the evaluation and visualisation functions.
+#Can input custom annotations already found, need a gene to GO mapping approach
+#parse the annotations file with function readMappings()
+#file format required by readMappings = gene_ID<TAB>GO_ID1, GO_ID2, GO_ID3,
+
+#format GO mapping files to readMapping format
+TC_GO_readmapping_sig <- resTC_LB_vs_DA_LFC_sig_annot_GO_analysis[,c("transcript_id", "unique_go")]
+class(TC_GO_readmapping_sig$transcript_id)
+class(TC_GO_readmapping_sig$unique_go)
+class(TC_GO_readmapping_sig)
+
+TC_GO_readmapping <- resTC_LB_vs_DA_LFC_annot_GO_analysis[,c("transcript_id", "unique_go")]
+class(TC_GO_readmapping$transcript_id)
+class(TC_GO_readmapping$unique_go)
+class(TC_GO_readmapping)
+
+# First coerce the data.frame to all-character
+TC_GO_readmapping = TC_GO_readmapping %>% mutate(unique_go = sapply(unique_go, toString))
+class(TC_GO_readmapping$transcript_id)
+class(TC_GO_readmapping$unique_go)
+class(TC_GO_readmapping)
+write.table(TC_GO_readmapping, file="TC_GO_readMapping.txt", row.names=FALSE, sep= "\t")
+
+TC_GO_readmapping_sig = TC_GO_readmapping_sig %>% mutate(unique_go = sapply(unique_go, toString))
+class(TC_GO_readmapping_sig$transcript_id)
+class(TC_GO_readmapping_sig$unique_go)
+class(TC_GO_readmapping_sig)
+write.table(TC_GO_readmapping_sig, file="TC_GO_readMapping_sig.txt", row.names=FALSE, sep= "\t")
+
+#must be tab delimited
+#remove first line in bash:
+#tail -n +2 TC_GO_readMapping.txt > TC_GO_readMapping_header_gone.txt
+#tail -n +2 TC_GO_readMapping_sig.txt > TC_GO_readMapping_sig_header_gone.txt 
+#sed 's/\"//g' TC_GO_readMapping_header_gone.txt > TC_GO_readMapping_header_gone_nocommas.txt
+#sed 's/\"//g' TC_GO_readMapping_sig_header_gone.txt > TC_GO_readMapping_sig_header_gone_nocommas.txt
+
+#Use readMappings() to great gene to GO mapping, you have to import it as a file. It won't let you not import it as an outside file
+# Use the full list and not the sig list
+TC_GO_geneID2GO <- readMappings(file="TC_GO_readMapping_header_gone_nocommas.txt")
+str(head(TC_GO_geneID2GO))
+
+# define gene universe and gene list (gene list)
+TC_GO_Gene_Universe <- names(TC_GO_geneID2GO) # gene universe is the full file
+TC_GO_genes_of_interest <- TC_GO_readmapping_sig$transcript_id  
+TC_GO_genelist <- factor(as.integer(TC_GO_Gene_Universe %in% TC_GO_genes_of_interest))
+names(TC_GO_genelist) <- TC_GO_Gene_Universe
+nrow(TC_GO_genelist)
+
+TC_GOdata <- new("topGOdata", description = "Timecourse Dermo Gene Enrichment", ontology = "BP",
+                   allGenes = TC_GO_genelist,  annot = annFUN.gene2GO, gene2GO = TC_GO_geneID2GO)
+      # Node size trims the GO hierarchy, we don't need this 
+TC_GOdata
+
+## Enrichment Analysis
+# Run Fisher's exact test using Weight01 algorithm which takes into account the GO hierarchy, "classic" does not
+resultWeight <- runTest(TC_GOdata, algorithm="weight01", statistic="fisher")
+resultFisher <- runTest(TC_GOdata, algorithm = "classic", statistic = "fisher")
+score(resultFisher)
+# Print out resultsing significant node 
+allRes <- GenTable(TC_GOdata, classicFisher = resultFisher, orderBy = "resultFisher", ranksOf = "classicFisher")
+allRes
+
+#GO.ID                                        Term Annotated Significant Expected classicFisher
+#1  GO:0010647 positive regulation of cell communicatio...         1           1     0.03         0.026
+#2  GO:0023056            positive regulation of signaling         1           1     0.03         0.026
+#3  GO:0046928    regulation of neurotransmitter secretion         1           1     0.03         0.026
+#4  GO:0048167           regulation of synaptic plasticity         1           1     0.03         0.026
+#5  GO:0050806 positive regulation of synaptic transmis...         1           1     0.03         0.026
+#6  GO:0051588    regulation of neurotransmitter transport         1           1     0.03         0.026
+#7  GO:0060291             long-term synaptic potentiation         1           1     0.03         0.026
+#8  GO:0060341         regulation of cellular localization         1           1     0.03         0.026
+#9  GO:0016567                      protein ubiquitination        11           2     0.28         0.030
+#10 GO:0032446 protein modification by small protein co...        11           2     0.28         0.030
+
+# REVIGO input will be the result of the score(resultFisher) named vector after converting to data frame
+  # p-values here are a value of the enrichment
+
+resultsFisher_score <- score(resultFisher)
+TC_REVIGO_input <- as.data.frame(resultsFisher_score)
+head(TC_REVIGO_input)
+TC_REVIGO_input$GO_term <- row.names(TC_REVIGO_input)
+head(TC_REVIGO_input)
+TC_REVIGO_input <- TC_REVIGO_input[,c(2,1)]
+
+# filter out everything with p value not below 0.1
+TC_REVIGO_input_subset <- TC_REVIGO_input %>% filter(resultsFisher_score <= 0.1)
+#only 27 GO terms fit this criteria 
+
+write.table(file="./Dermo_2015_Analysis/OUTPUT/TC_REVIGO_input_subset.txt", TC_REVIGO_input_subset)
+# in terminal remove quotes are the GO term: sed 's/\"//g' TC_REVIGO_input_subset.txt > TC_REVIGO_input_subset_noquotes.txt
+# cut -d' ' -f2,3 TC_REVIGO_input_subset_noquotes.txt
+# select in REVIGO that the numbers associated with the GO term are p-values 
+
+# REVIGO plotting script
+library( ggplot2 )
+library( scales )
+
+# Here is your data from REVIGO. Scroll down for plot configuration options.
+revigo.names <- c("term_ID","description","frequency_%","plot_X","plot_Y","plot_size","log10_p_value","uniqueness","dispensability");
+revigo.data <- rbind(c("GO:0008152","metabolic process",75.387, 2.930, 5.930, 6.986,-1.1957,0.980,0.000),
+                     c("GO:0010647","positive regulation of cell communication", 0.359, 5.010,-3.587, 4.663,-1.5904,0.555,0.000),
+                     c("GO:0051259","protein oligomerization", 0.188,-0.246, 5.372, 4.382,-1.1239,0.843,0.027),
+                     c("GO:0016567","protein ubiquitination", 0.523,-4.761,-4.523, 4.827,-1.5246,0.726,0.030),
+                     c("GO:0043170","macromolecule metabolic process",39.491,-5.313, 0.579, 6.705,-1.3178,0.879,0.073),
+                     c("GO:0006807","nitrogen compound metabolic process",38.744,-4.571, 3.506, 6.696,-1.1008,0.920,0.074),
+                     c("GO:0044238","primary metabolic process",53.743,-2.464, 3.058, 6.839,-1.1115,0.929,0.090),
+                     c("GO:0006310","DNA recombination", 1.641,-2.302,-7.167, 5.323,-1.3258,0.764,0.150),
+                     c("GO:0019538","protein metabolic process",18.489,-4.191,-2.479, 6.375,-1.1537,0.814,0.194),
+                     c("GO:0060341","regulation of cellular localization", 0.194, 5.627, 0.013, 4.396,-1.5904,0.688,0.223),
+                     c("GO:0023051","regulation of signaling", 0.934, 6.431,-2.774, 5.079,-1.2947,0.681,0.257),
+                     c("GO:0055085","transmembrane transport", 8.916, 5.459, 3.623, 6.058,-1.0856,0.866,0.318),
+                     c("GO:0006508","proteolysis", 5.223,-4.446,-3.656, 5.826,-1.0456,0.781,0.335),
+                     c("GO:0006259","DNA metabolic process", 5.607,-2.912,-6.126, 5.857,-1.5069,0.770,0.346),
+                     c("GO:0070647","protein modification by small protein conjugation or removal", 0.821,-4.258,-4.759, 5.023,-1.2188,0.752,0.470),
+                     c("GO:0010646","regulation of cell communication", 0.929, 4.502,-2.760, 5.076,-1.2947,0.668,0.473),
+                     c("GO:0015074","DNA integration", 0.682,-1.862,-7.628, 4.942,-1.1661,0.775,0.598),
+                     c("GO:0051588","regulation of neurotransmitter transport", 0.014, 5.643, 0.660, 3.240,-1.5904,0.704,0.645),
+                     c("GO:0048167","regulation of synaptic plasticity", 0.027, 5.547,-4.148, 3.543,-1.5904,0.515,0.670),
+                     c("GO:0051260","protein homooligomerization", 0.106,-0.553, 5.354, 4.132,-1.1239,0.844,0.701),
+                     c("GO:0023056","positive regulation of signaling", 0.356, 5.892,-3.537, 4.660,-1.5904,0.569,0.706),
+                     c("GO:0050804","modulation of synaptic transmission", 0.057, 5.478,-3.772, 3.866,-1.2947,0.525,0.800),
+                     c("GO:0060291","long-term synaptic potentiation", 0.010, 5.317,-4.500, 3.124,-1.5904,0.533,0.858),
+                     c("GO:0046928","regulation of neurotransmitter secretion", 0.012, 5.537,-1.951, 3.184,-1.5904,0.456,0.865),
+                     c("GO:0050806","positive regulation of synaptic transmission", 0.020, 5.190,-4.213, 3.415,-1.5904,0.521,0.893));
+
+one.data <- data.frame(revigo.data);
+names(one.data) <- revigo.names;
+one.data <- one.data [(one.data$plot_X != "null" & one.data$plot_Y != "null"), ];
+one.data$plot_X <- as.numeric( as.character(one.data$plot_X) );
+one.data$plot_Y <- as.numeric( as.character(one.data$plot_Y) );
+one.data$plot_size <- as.numeric( as.character(one.data$plot_size) );
+one.data$log10_p_value <- as.numeric( as.character(one.data$log10_p_value) );
+one.data$frequency <- as.numeric( as.character(one.data$frequency) );
+one.data$uniqueness <- as.numeric( as.character(one.data$uniqueness) );
+one.data$dispensability <- as.numeric( as.character(one.data$dispensability) );
+head(one.data)
+
+# Names of the axes, sizes of the numbers and letters, names of the columns, etc. can be changed below
+
+p1 <- ggplot( data = one.data );
+p1 <- p1 + geom_point( aes( plot_X, plot_Y, colour = log10_p_value, size = plot_size), alpha = I(0.6) ) + scale_size_area();
+p1 <- p1 + scale_colour_gradientn( colours = c("blue", "green", "yellow", "red"), limits = c( min(one.data$log10_p_value), 0) );
+p1 <- p1 + geom_point( aes(plot_X, plot_Y, size = plot_size), shape = 21, fill = "transparent", colour = I (alpha ("black", 0.6) )) + scale_size_area();
+p1 <- p1 + scale_size( range=c(5, 30)) + theme_bw(); # + scale_fill_gradientn(colours = heat_hcl(7), limits = c(-300, 0) );
+ex <- one.data [ one.data$dispensability < 0.15, ]; 
+p1 <- p1 + geom_text( data = ex, aes(plot_X, plot_Y, label = description), colour = I(alpha("black", 0.85)), size = 3 );
+p1 <- p1 + labs (y = "semantic space x", x = "semantic space y");
+p1 <- p1 + theme(legend.key = element_blank()) ;
+one.x_range = max(one.data$plot_X) - min(one.data$plot_X);
+one.y_range = max(one.data$plot_Y) - min(one.data$plot_Y);
+p1 <- p1 + xlim(min(one.data$plot_X)-one.x_range/10,max(one.data$plot_X)+one.x_range/10);
+p1 <- p1 + ylim(min(one.data$plot_Y)-one.y_range/10,max(one.data$plot_Y)+one.y_range/10);
+p1 <- p1 + ggtitle("Significantly Encriched terms over time LB vs DA")
+
+# Output the plot to screen
+
+p1
+
+# Uncomment the line below to also save the plot to a file.
+# The file type depends on the extension (default=pdf).
+
+# ggsave("C:/Users/path_to_your_file/revigo-plot.pdf");
+
+# CONCLUSION: GO enrichment is not extremely informative because so few genes have GO terms
+
+##### Perkinsus Differential Expression Analysis ######
+
+
+#### Perkinsus Co-Expression with WGCNA ######
 

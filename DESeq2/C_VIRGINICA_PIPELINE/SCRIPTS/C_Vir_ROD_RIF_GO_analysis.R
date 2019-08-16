@@ -4,7 +4,7 @@
 #source("http://bioconductor.org/biocLite.R")
 #biocLite(c("topGO","ALL","Rgraphviz"))
 library(topGO)
-install.packages("tm")
+#install.packages("tm")
 library(tm)
 library(ALL)
 library(GO.db)
@@ -13,7 +13,7 @@ library(dplyr)
 library(plyr)
 library(genefilter)
 library(Rgraphviz)
-install.packages("org.Hs.egGO")
+#install.packages("org.Hs.egGO")
 library()
 
 #Using GO slim and my subset of GO terms. Go slims give a broad overview of content without the fine grained terms
