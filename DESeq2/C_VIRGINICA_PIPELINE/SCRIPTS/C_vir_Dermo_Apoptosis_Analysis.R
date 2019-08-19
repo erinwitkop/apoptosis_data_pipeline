@@ -27,7 +27,6 @@ library(reshape2)
 library(plyr)
 library(Repitools)
 library(purrr)
-library(Vennerable)
 library(tibble)
   
 ### Versions
@@ -921,7 +920,6 @@ head(arrange(Dermo_dds_DA_time_res_early_middle_LFC_sig_annot, -log2FoldChange),
 
 Dermo_dds_DA_time_res_middle_late_LFC_sig_annot <- Dermo_dds_DA_time_res_middle_late_LFC_sig %>% left_join(C_vir_rtracklayer_transcripts_GO[,c("transcript_id", "product", "gene")], by = "transcript_id")
 head(arrange(Dermo_dds_DA_time_res_middle_late_LFC_sig_annot,-log2FoldChange),n=50)
-
 
 #### Upset plots of overall gene expression changes between samples ####
 # helpful tutorial for doing this: http://genomespot.blogspot.com/2017/09/upset-plots-as-replacement-to-venn.html
@@ -1835,6 +1833,136 @@ Injected_7d_extrinsic_res_mat_prot_annot_list <-    Injected_7d_extrinsic_res_ma
 Injected_7d_inflammation_res_mat_prot_annot_list <- Injected_7d_inflammation_res_mat_prot_annot$product
 Injected_7d_alternative_res_mat_prot_annot_list <-  Injected_7d_alternative_res_mat_prot_annot$product
 
+# Plots of apop log2fold change
+
+Dermo_dds_7d_injected_res_LFC_sig_annot_APOP
+
+head(Dermo_dds_7d_injected_res_LFC_sig_annot_APOP)
+
+
+# Expand ggplot color plot 
+colourCount = length(unique(Dermo_dds_7d_injected_res_LFC_sig_annot_APOP$transcript_id))
+getPalette = colorRampPalette(brewer.pal(11, "RdYlBu"))
+
+Day7_injected_log2foldchange <- ggplot(Dermo_dds_7d_injected_res_LFC_sig_annot_APOP, aes(x=product, y = log2FoldChange, fill=log2FoldChange)) + geom_col(position="dodge") +
+  coord_flip() + scale_fill_gradient2(low="purple",mid = "grey", high="darkgreen") + ggtitle("Day 7 Injected Regulated Cell Death Transcript \nLog2 Fold Change LB vs DA") +
+  ylab("Log2 Fold Change between LB and DA")
+
+
+##### ANALYZING THE DAY 7 SUSCEPTIBLE RESPONSE #######
+
+# Comparing the Day 7 control to day 7 injected will give a better idea of the response of susceptible oysters alone,
+# this may help me better plan my assays, as now the "resitant" family is out
+
+# PREPARE AND SUBSET THE DATA
+# Compare 7d injected to one another 
+
+Dermo_coldata_7d_suscept <- Dermo_coldata %>% filter(FamCode =="DA" & Timepoint == "7d")
+rownames(Dermo_coldata_7d_suscept) <- Dermo_coldata_7d_suscept$rownames
+
+# extract list of samples
+SampleID_Dermo_coldata_7d_suscept <- Dermo_coldata_7d_suscept$rownames
+
+# subset counts matrix
+Dermo_counts_7d_suscept <- Dermo_counts[,names(Dermo_counts) %in% SampleID_Dermo_coldata_7d_suscept]
+
+# Check all sample IDs in ColData are also in CountData and match their orders
+all(rownames(Dermo_coldata_7d_suscept) %in% colnames(Dermo_counts_7d_suscept))  #Should return TRUE
+# returns TRUE
+all(rownames(Dermo_coldata_7d_suscept) == colnames(Dermo_counts_7d_suscept))   # should return TRUE
+#returns TRUE
+
+# Plot Dermo levels in the data set 
+ggplot(Dermo_coldata_7d_suscept, aes(x=as.factor(Ind),y=LogConc, color=Treat)) + geom_point() + ylim(c(0,10))
+# all are between 4 and 5 
+
+# CHECK LEVELS
+# 7 day just susceptible, 
+levels(Dermo_coldata_7d_suscept$FamCode) # "DA" "LB"
+levels(Dermo_coldata_7d_suscept$Treat) # "Control"  "Injected"
+Dermo_coldata_7d_suscept$FamCode <- droplevels(Dermo_coldata_7d_suscept$FamCode) # drop control level
+levels(Dermo_coldata_7d_suscept$FamCode) # DA
+
+# MAKE DESEQ DATA SET FROM MATRIX
+# 7 day injected
+Dermo_dds_7d_suscept <- DESeqDataSetFromMatrix(countData= Dermo_counts_7d_suscept,
+                                                colData = Dermo_coldata_7d_suscept,
+                                                design = ~Library_Prep_Date + Treat)
+# PREFILTER THE DATA
+Dermo_dds_7d_suscept <- Dermo_dds_7d_suscept[rowSums(counts(Dermo_dds_7d_suscept)) >10,]
+
+# VST TRANSFORMATION OF COUNTS FOR VISUALIZATION 
+
+Dermo_dds_7d_suscept_vsd <- vst(Dermo_dds_7d_suscept, blind=FALSE)
+
+# Calculate sample distances to assess overall sample similarity
+# use function dist to calculate the Euclidean distance between samples. 
+# To ensure we have a roughly equal contribution from all genes, we use it on the VST data. 
+# We need to transpose the matrix of values using t, because the dist function expects the different samples to be rows of its argument, and different dimensions (here, genes) to be columns.
+
+Dermo_dds_7d_suscept_vsd_dist <- dist(t(assay(Dermo_dds_7d_suscept_vsd)))
+Dermo_dds_7d_suscept_vsd_dist
+
+# PCA plot visualization of individuals in DA
+plotPCA(Dermo_dds_7d_suscept_vsd, intgroup=c("FamCode", "Treat")) # some clustering by treatment, explains about 40% of the  variance
+#DA and LB are separate but they don't seem to be very highly clustered together
+
+# Calculate Differential expression
+Dermo_dds_7d_suscept_deseq <- DESeq(Dermo_dds_7d_suscept) 
+
+# Inspect Results names object
+resultsNames(Dermo_dds_7d_suscept_deseq) # [1] "Intercept"  "Library_Prep_Date_17_Dec_vs_15_Dec" "Treat_Injected_vs_Control" 
+
+# Build Results object
+Dermo_dds_7d_suscept_res <- results(Dermo_dds_7d_suscept_deseq, alpha=0.05, name="Treat_Injected_vs_Control")
+Dermo_dds_7d_suscept_res # comparison is log2 fold change (MLE): Treat Injected vs Control
+
+# LFC Shrinkage with Apeglm
+Dermo_dds_7d_suscept_res_LFC <- lfcShrink(Dermo_dds_7d_suscept_deseq, coef="Treat_Injected_vs_Control", type="apeglm", res=Dermo_dds_7d_suscept_res)
+
+# Inspect results summary
+#summary(Dermo_dds_7d_suscept_res_LFC)
+#out of 44740 with nonzero total read count
+#adjusted p-value < 0.05
+#LFC > 0 (up)       : 59, 0.13%
+#LFC < 0 (down)     : 110, 0.25%
+#outliers [1]       : 1614, 3.6%
+#low counts [2]     : 13736, 31%
+#(mean count < 10)
+
+# Susbet results with padj < 0.05 and Logfold change of >1.0 or <-1.0
+# only working with the LFCshrinkage adjusted log fold changes, and with the BH adjusted p-value
+# first make sure to make the rownames with the transcript ID as a new column, then make it a dataframe for filtering
+Dermo_dds_7d_suscept_res_LFC_sig <- subset(Dermo_dds_7d_suscept_res_LFC, padj < 0.05)
+Dermo_dds_7d_suscept_res_LFC_sig$transcript_id <- row.names(Dermo_dds_7d_suscept_res_LFC_sig)
+Dermo_dds_7d_suscept_res_LFC_sig<- as.data.frame(Dermo_dds_7d_suscept_res_LFC_sig)
+Dermo_dds_7d_suscept_res_LFC_sig <- Dermo_dds_7d_suscept_res_LFC_sig%>% filter(abs(log2FoldChange) >= 1.0)
+nrow(Dermo_dds_7d_suscept_res_LFC_sig) #61
+nrow(Dermo_dds_7d_suscept_res_LFC) # 44740
+
+# Annotate transcripts
+Dermo_dds_7d_suscept_res_LFC_sig_annot <-Dermo_dds_7d_suscept_res_LFC_sig %>% left_join(C_vir_rtracklayer_transcripts_GO[,c("transcript_id", "product", "gene","unique_go")], by = "transcript_id")
+head(arrange(Dermo_dds_7d_suscept_res_LFC_sig_annot ,-log2FoldChange),n=50) # arrange in descending order
+
+# Isolate Apoptosis specific transcripts
+
+Dermo_dds_7d_suscept_res_LFC_sig_annot_APOP <- Dermo_dds_7d_suscept_res_LFC_sig_annot[grepl(paste(Apoptosis_names,collapse="|"), 
+                                                                                            Dermo_dds_7d_suscept_res_LFC_sig_annot$product, ignore.case = TRUE),]
+arrange(Dermo_dds_7d_suscept_res_LFC_sig_annot_APOP , -log2FoldChange) 
+nrow(Dermo_dds_7d_injected_res_LFC_sig_annot_APOP) # 1 
+
+# terms to remove 
+Terms_to_remove <- c("peptidyl-prolyl cis-trans isomerase G-like",
+                     "peptidyl-prolyl cis-trans isomerase B-like",
+                     "peptidyl-prolyl cis-trans isomerase FKBP8",
+                     "endothelial zinc finger protein induced by tumor necrosis factor alpha",
+                     "cAMP-dependent protein kinase type II regulatory subunit",
+                     "scavenger receptor class F member"
+)       
+
+Dermo_dds_7d_suscept_res_LFC_sig_annot_APOP <- Dermo_dds_7d_suscept_res_LFC_sig_annot_APOP[!grepl(paste(Terms_to_remove,collapse="|"), 
+                                                                                                  Dermo_dds_7d_suscept_res_LFC_sig_annot_APOP$product, ignore.case = TRUE),]
+## no significant apoptosis genes 
 
 ##### Test of significant enrichment of apopsois GO terms in the datasets to confirm #####
 #if (!requireNamespace("BiocManager", quietly = TRUE))
@@ -2042,8 +2170,121 @@ p1
 
 # CONCLUSION: GO enrichment is not extremely informative because so few genes have GO terms
 
+#### Import Perkinsus marinus genome ######
+
+# Import Perkinsus gff file from NCBI 
+PMG_annotation <- import("/Users/erinroberts/Documents/PhD_Research/Chapter_1_Apoptosis Paper/Chapter1_Apoptosis_Transcriptome_Analyses_2019/DATA ANALYSIS/apoptosis_data_pipeline/DESeq2/C_VIRGINICA_PIPELINE/GCF_000006405.1_JCVI_PMG_1.0_genomic.gff")
+PMG_annotation <- as.data.frame(PMG_annotation)
+
+# Isolate the lines with Transcripts
+PMG_annotation_transcripts <- PMG_annotation %>% filter(transcript_id != "NA")
+head(PMG_annotation_transcripts)
+
+# Isolate unique transcript lines
+PMG_annotation_transcripts_unique <- PMG_annotation_transcripts[!duplicated(PMG_annotation_transcripts$transcript_id),]
+head(PMG_annotation_transcripts_unique)
+
 ##### Perkinsus Differential Expression Analysis ######
 
+# Load counts Matrix file
+Perkinsus_counts_data <- read.csv("/Users/erinroberts/Documents/PhD_Research/Chapter_1_Apoptosis Paper/Chapter1_Apoptosis_Transcriptome_Analyses_2019/RAW DATA AND INFO/2015 Dermo Challenge /2015_transcriptomes_CLC_PMG_mapping/Perkinsus_mapping_TE_Counts_Matrix.csv", header=TRUE)
+rownames(Perkinsus_counts_data) <- Perkinsus_counts_data$X # loading in from csv made the rownames a column
+Perkinsus_counts_data <- Perkinsus_counts_data[,-1]
+head(Perkinsus_counts_data)
 
-#### Perkinsus Co-Expression with WGCNA ######
+# PREPARE AND SUBSET THE DATA
+# Use the same coldata as the all the C. virginica samples 
+Dermo_coldata_7d_injected <- Dermo_coldata %>% filter(Treat =="Injected" & Timepoint == "7d")
+rownames(Dermo_coldata_7d_injected) <- Dermo_coldata_7d_injected$rownames
+
+# extract list of samples
+SampleID_Dermo_coldata_7d_injected <- Dermo_coldata_7d_injected$rownames
+
+# subset counts matrix
+Perkinsus_counts_7d_injected <- Perkinsus_counts_data[,names(Perkinsus_counts_data) %in% SampleID_Dermo_coldata_7d_injected]
+
+# Check all sample IDs in ColData are also in CountData and match their orders
+all(rownames(Dermo_coldata_7d_injected) %in% colnames(Perkinsus_counts_7d_injected))  #Should return TRUE
+# returns TRUE
+all(rownames(Dermo_coldata_7d_injected) == colnames(Perkinsus_counts_7d_injected))   # should return TRUE
+#returns TRUE! 
+
+# CHECK LEVELS
+# 7 day just injected, 
+levels(Dermo_coldata_7d_injected$FamCode) # "DA" "LB"
+levels(Dermo_coldata_7d_injected$Treat) # "Control"  "Injected"
+Dermo_coldata_7d_injected$Treat <- droplevels(Dermo_coldata_7d_injected$Treat) # drop control level
+levels(Dermo_coldata_7d_injected$Treat) # Injected
+
+# MAKE DESEQ DATA SET FROM MATRIX
+# Perkinsus 7 day injected
+Perkinsus_dds_7d_injected <- DESeqDataSetFromMatrix(countData= Perkinsus_counts_7d_injected,
+                                                colData = Dermo_coldata_7d_injected,
+                                                design = ~Library_Prep_Date + FamCode)
+# PREFILTER THE DATA
+Perkinsus_dds_7d_injected <- Perkinsus_dds_7d_injected[rowSums(counts(Perkinsus_dds_7d_injected)) >10,] 
+nrow(Perkinsus_dds_7d_injected) # changing to less than 10 doesn't make a difference
+
+# VST TRANSFORMATION OF COUNTS FOR VISUALIZATION 
+# Need to use the varianceStabilizingTransformation directly because nsub rows because the default is 1000 and there are only 738
+Perkinsus_dds_7d_injected_vsd <- varianceStabilizingTransformation(Perkinsus_dds_7d_injected)
+
+# Calculate sample distances to assess overall sample similarity
+# use function dist to calculate the Euclidean distance between samples. 
+# To ensure we have a roughly equal contribution from all genes, we use it on the VST data. 
+# We need to transpose the matrix of values using t, because the dist function expects the different samples to be rows of its argument, and different dimensions (here, genes) to be columns.
+
+Perkinsus_dds_7d_injected_vsd_dist <- dist(t(assay(Perkinsus_dds_7d_injected_vsd)))
+Perkinsus_dds_7d_injected_vsd_dist
+
+# PCA plot visualization of individuals in the family #
+plotPCA(Perkinsus_dds_7d_injected_vsd, intgroup=c("FamCode")) # There is separation by family! 
+#DA and LB are separate but they don't seem to be very highly clustered together
+
+# Calculate Differential expression
+Perkinsus_dds_7d_injected_deseq <- DESeq(Perkinsus_dds_7d_injected ) 
+
+# Inspect Results names object
+resultsNames(Perkinsus_dds_7d_injected_deseq) # [1] "Intercept"  "Library_Prep_Date_17_Dec_vs_15_Dec" "FamCode_LB_vs_DA"
+
+# Build Results object
+Perkinsus_dds_7d_injected_res <- results(Perkinsus_dds_7d_injected_deseq, alpha=0.05, name="FamCode_LB_vs_DA")
+Perkinsus_dds_7d_injected_res # comparison is log2 fold change (MLE): FamCode LB vs DA
+
+# LFC Shrinkage with Apeglm
+Perkinsus_dds_7d_injected_res_LFC <- lfcShrink(Perkinsus_dds_7d_injected_deseq, coef="FamCode_LB_vs_DA", type="apeglm", res=Perkinsus_dds_7d_injected_res)
+
+# Inspect results summary
+#summary(Perkinsus_dds_7d_injected_res_LFC)
+#out of 738 with nonzero total read count
+#adjusted p-value < 0.05
+#LFC > 0 (up)       : 9, 1.2%
+#LFC < 0 (down)     : 13, 1.8%
+#outliers [1]       : 6, 0.81%
+#low counts [2]     : 401, 54%
+#(mean count < 3)
+
+# Susbet results with padj < 0.05 and Logfold change of >1.0 or <-1.0
+# only working with the LFCshrinkage adjusted log fold changes, and with the BH adjusted p-value
+# first make sure to make the rownames with the transcript ID as a new column, then make it a dataframe for filtering
+Perkinsus_dds_7d_injected_res_LFC_sig <- subset(Perkinsus_dds_7d_injected_res_LFC, padj < 0.05)
+Perkinsus_dds_7d_injected_res_LFC_sig$transcript_id <- row.names(Perkinsus_dds_7d_injected_res_LFC_sig)
+Perkinsus_dds_7d_injected_res_LFC_sig<- as.data.frame(Perkinsus_dds_7d_injected_res_LFC_sig)
+Perkinsus_dds_7d_injected_res_LFC_sig <- Perkinsus_dds_7d_injected_res_LFC_sig %>% filter(abs(log2FoldChange) >= 1.0)
+nrow(Perkinsus_dds_7d_injected_res_LFC_sig) #16
+nrow(Perkinsus_dds_7d_injected_res_LFC) # 738
+
+# Annotate transcripts
+Perkinsus_dds_7d_injected_res_LFC_sig_annot <- Perkinsus_dds_7d_injected_res_LFC_sig %>% left_join(PMG_annotation_transcripts_unique[,c("transcript_id", "product")], by = "transcript_id")
+head(arrange(Perkinsus_dds_7d_injected_res_LFC_sig_annot,-log2FoldChange),n=50) # arrange in descending order
+
+# Log2 Fold Change 
+Day7_PMG_injected_log2foldchange <- ggplot(Perkinsus_dds_7d_injected_res_LFC_sig_annot, aes(x=product, y = log2FoldChange, fill=log2FoldChange)) + geom_col(position="dodge") +
+  coord_flip() + scale_fill_gradient2(low="purple",mid = "grey", high="darkgreen") + ggtitle("Day 7 Injected Significant Perkinsus expression \nLog2 Fold Change LB vs DA") +
+  ylab("Log2 Fold Change between LB and DA")
+
+##### WGCNA Analysis between Resistant, Susceptible and P. marinus #####
+
+# Input data is variance stabilizing transformation counts 
+# Removing batch effects in the data 
 
