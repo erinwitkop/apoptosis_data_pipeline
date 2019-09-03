@@ -3151,7 +3151,69 @@ Perkinsus_dds_infected_LB_vs_DA_res_LFC_sig_annot[!(Perkinsus_dds_infected_LB_vs
   # the differences between full variance stabilization and a simple log transformation are small.
   # Counts datatable needs to be in same format as DESeq2, each row is a transcript and each column is a sample
 
-# Load in Data as vst transformed counts that have been filtered for low counts (see https://support.bioconductor.org/p/115583/)
-Dermo_dds_LB_treat_vsd
-Dermo_dds_DA_treat_vsd
+# run this options first 
+options(stringsAsFactors = FALSE)
+Dermo_counts
+Dermo_coldata
 
+
+# Load in Data as one vst transformed count matrix that have been filtered for low counts (see https://support.bioconductor.org/p/115583/)
+Dermo_dds_family <- DESeqDataSetFromMatrix(countData = Dermo_counts,
+                                           colData = Dermo_coldata,
+                                           design = ~Library_Prep_Date + Treat +FamCode)
+Dermo_dds_family <- Dermo_dds_family[ rowSums(counts(Dermo_dds_family)) > 10, ] 
+Dermo_dds_family_vsd <- vst(Dermo_dds_family, blind=FALSE)
+Dermo_dds_family_vsd_matrix <- assay(Dermo_dds_family_vsd)
+
+# Re-cluster samples
+sampleTree2 = hclust(dist(datExpr), method = "average")
+# Convert traits to a color representation: white means low, red means high, grey means missing entry
+traitColors = numbers2colors(datTraits, signed = FALSE);
+# Plot the sample dendrogram and the colors underneath.
+plotDendroAndColors(sampleTree2, traitColors,
+                    groupLabels = names(datTraits),
+                    main = "Sample dendrogram and trait heatmap")
+
+
+# Correlating general network properties 
+  # (doesn't need to be done in our case since we know the data came from the same experiment)
+
+# Run WGCNA on the datasets with large number of genes 
+
+# Choose a set of soft-thresholding powers
+powers = c(c(1:10), seq(from = 12, to=20, by=2))
+
+# Call the network topology analysis function
+sft = pickSoftThreshold(Dermo_dds_LB_treat_vsd_common, powerVector = powers, verbose = 5)
+
+# Plot the results:
+sizeGrWindow(9, 5)
+par(mfrow = c(1,2));
+cex1 = 0.9;
+# Scale-free topology fit index as a function of the soft-thresholding power
+plot(sft$fitIndices[,1], -sign(sft$fitIndices[,3])*sft$fitIndices[,2],
+     xlab="Soft Threshold (power)",ylab="Scale Free Topology Model Fit,signed R^2",type="n",
+     main = paste("Scale independence"));
+text(sft$fitIndices[,1], -sign(sft$fitIndices[,3])*sft$fitIndices[,2],
+     labels=powers,cex=cex1,col="red");
+# this line corresponds to using an R^2 cut-off of h
+abline(h=0.90,col="red")
+# Mean connectivity as a function of the soft-thresholding power
+plot(sft$fitIndices[,1], sft$fitIndices[,5],
+     xlab="Soft Threshold (power)",ylab="Mean Connectivity", type="n",
+     main = paste("Mean connectivity"))
+text(sft$fitIndices[,1], sft$fitIndices[,5], labels=powers, cex=cex1,col="red")
+
+# on full data "Error: vector memory exhausted (limit reached?)" read Tutorial section 2.c on working with 
+  # large datasets https://horvath.genetics.ucla.edu/html/CoexpressionNetwork/Rpackages/WGCNA/Tutorials/FemaleLiver-02-networkConstr-blockwise.pdf
+adjacency <- adjacency(t(Dermo_dds_LB_treat_vsd_common), power=softPower, type="signed")
+
+diag()
+
+bwnet = blockwiseModules(datExpr, maxBlockSize = 2000,
+                         power = 6, TOMType = "unsigned", minModuleSize = 30,
+                         reassignThreshold = 0, mergeCutHeight = 0.25,
+                         numericLabels = TRUE,
+                         saveTOMs = TRUE,
+                         saveTOMFileBase = "femaleMouseTOM-blockwise",
+                         verbose = 3)
