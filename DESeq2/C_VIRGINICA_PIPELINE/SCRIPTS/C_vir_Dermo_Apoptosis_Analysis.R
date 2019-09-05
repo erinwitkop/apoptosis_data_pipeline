@@ -2239,10 +2239,11 @@ nrow(Dermo_dds_DA_treat_deseq_res_LFC) # 49827
 
 # Annotate transcripts
 Dermo_dds_LB_treat_deseq_res_LFC_sig_annot <- Dermo_dds_LB_treat_deseq_res_LFC_sig %>% left_join(C_vir_rtracklayer_transcripts_GO[,c("transcript_id", "product", "gene","unique_go")], by = "transcript_id")
-head(arrange(Dermo_dds_LB_treat_deseq_res_LFC_sig_annot ,-log2FoldChange),n=50) # arrange in descending order
+head(arrange(Dermo_dds_LB_treat_deseq_res_LFC_sig_annot ,-log2FoldChange),n=50) # arrange in descending order by absolute value 
+Dermo_dds_LB_treat_deseq_res_LFC_sig_annot[sort(abs(Dermo_dds_LB_treat_deseq_res_LFC_sig_annot$log2FoldChange),decreasing=T,index.return=T)[[2]],]
 
 Dermo_dds_DA_treat_deseq_res_LFC_sig_annot <-Dermo_dds_DA_treat_deseq_res_LFC_sig %>% left_join(C_vir_rtracklayer_transcripts_GO[,c("transcript_id", "product", "gene","unique_go")], by = "transcript_id")
-head(arrange(Dermo_dds_DA_treat_deseq_res_LFC_sig_annot ,-log2FoldChange),n=50) # arrange in descending order
+Dermo_dds_DA_treat_deseq_res_LFC_sig_annot[sort(abs(Dermo_dds_DA_treat_deseq_res_LFC_sig_annot$log2FoldChange),decreasing=T,index.return=T)[[2]],] # arrange in descending order by absolute value
 
 # Isolate Apoptosis specific transcripts
 Dermo_dds_LB_treat_deseq_res_LFC_sig_annot_APOP <- Dermo_dds_LB_treat_deseq_res_LFC_sig_annot[grepl(paste(Apoptosis_names,collapse="|"), 
@@ -2267,6 +2268,43 @@ Dermo_dds_LB_treat_deseq_res_LFC_sig_annot_APOP <- Dermo_dds_LB_treat_deseq_res_
                                                                                                           Dermo_dds_LB_treat_deseq_res_LFC_sig_annot_APOP$product, ignore.case = TRUE),]
 Dermo_dds_DA_treat_deseq_res_LFC_sig_annot_APOP <- Dermo_dds_DA_treat_deseq_res_LFC_sig_annot_APOP[!grepl(paste(Terms_to_remove,collapse="|"), 
                                                                                                           Dermo_dds_DA_treat_deseq_res_LFC_sig_annot_APOP$product, ignore.case = TRUE),]
+# Plot LogFC for significant genes
+# create new column with product and XM id combined to make unique for factor levels using unite
+Dermo_dds_LB_treat_deseq_res_LFC_sig_annot <- unite(Dermo_dds_LB_treat_deseq_res_LFC_sig_annot, product_unite, c(7,6), sep="_", remove=FALSE)
+
+# create new column with product and XM id combined to make unique for factor levels using unite
+Dermo_dds_DA_treat_deseq_res_LFC_sig_annot <- unite(Dermo_dds_DA_treat_deseq_res_LFC_sig_annot, product_unite, c(7,6), sep="_", remove=FALSE)
+
+# arrange in descending order with absolute value
+Dermo_dds_LB_treat_deseq_res_LFC_sig_annot_sorted <- Dermo_dds_LB_treat_deseq_res_LFC_sig_annot[sort(abs(Dermo_dds_LB_treat_deseq_res_LFC_sig_annot$log2FoldChange),decreasing=T,index.return=T)[[2]],]
+Dermo_dds_DA_treat_deseq_res_LFC_sig_annot_sorted <- Dermo_dds_DA_treat_deseq_res_LFC_sig_annot[sort(abs(Dermo_dds_DA_treat_deseq_res_LFC_sig_annot$log2FoldChange),decreasing=T,index.return=T)[[2]],]
+
+# set factor levels explicitly
+Dermo_dds_LB_treat_deseq_res_LFC_sig_annot_sorted$product_unite <- factor(Dermo_dds_LB_treat_deseq_res_LFC_sig_annot_sorted$product_unite, levels = Dermo_dds_LB_treat_deseq_res_LFC_sig_annot_sorted$product_unite[order(Dermo_dds_LB_treat_deseq_res_LFC_sig_annot_sorted$log2FoldChange)])
+# not all would fit on one graph 
+Dermo_dds_LB_treat_deseq_res_LFC_sig_annot_sorted_up <- Dermo_dds_LB_treat_deseq_res_LFC_sig_annot_sorted %>% filter(log2FoldChange >= 0.0) 
+Dermo_dds_LB_treat_deseq_res_LFC_sig_annot_sorted_up$direction <- "up"
+Dermo_dds_LB_treat_deseq_res_LFC_sig_annot_sorted_down <- Dermo_dds_LB_treat_deseq_res_LFC_sig_annot_sorted %>% filter(log2FoldChange < 0.0) 
+Dermo_dds_LB_treat_deseq_res_LFC_sig_annot_sorted_down$direction <- "down"
+Dermo_dds_LB_treat_deseq_res_LFC_sig_annot_sorted_combined <- rbind(Dermo_dds_LB_treat_deseq_res_LFC_sig_annot_sorted_up, Dermo_dds_LB_treat_deseq_res_LFC_sig_annot_sorted_down)
+
+Dermo_dds_DA_treat_deseq_res_LFC_sig_annot_sorted$product_unite <- factor(Dermo_dds_DA_treat_deseq_res_LFC_sig_annot_sorted$product_unite, levels = Dermo_dds_DA_treat_deseq_res_LFC_sig_annot_sorted$product_unite[order(Dermo_dds_DA_treat_deseq_res_LFC_sig_annot_sorted$log2FoldChange)])
+
+LB_treat_log2foldchange <- ggplot(Dermo_dds_LB_treat_deseq_res_LFC_sig_annot_sorted_combined, aes(x=product_unite, y = log2FoldChange, fill=log2FoldChange)) + geom_col(position="dodge") +
+  coord_flip() + scale_fill_gradient2(low="purple",mid = "grey", high="darkgreen") + ggtitle("LB control vs. challenge LogFC") +
+  ylab("Log2 Fold Change between control and challenge") + theme(axis.text.x = element_text(size=1) ) + facet_grid(direction~., scales="free")
+
+LB_treat_log2foldchange_up <- ggplot(Dermo_dds_LB_treat_deseq_res_LFC_sig_annot_sorted_up, aes(x=product_unite, y = log2FoldChange, fill=log2FoldChange)) + geom_col(position="dodge") +
+  coord_flip() + scale_fill_gradient2(low="purple",mid = "grey", high="darkgreen") + ggtitle("LB control vs. challenge LogFC") +
+  ylab("Log2 Fold Change between control and challenge") + theme(axis.text.x = element_text(size=1) ) 
+
+LB_treat_log2foldchange_down <- ggplot(Dermo_dds_LB_treat_deseq_res_LFC_sig_annot_sorted_down, aes(x=product_unite, y = log2FoldChange, fill=log2FoldChange)) + geom_col(position="dodge") +
+  coord_flip() + scale_fill_gradient2(low="purple",mid = "grey", high="darkgreen") + ggtitle("LB control vs. challenge LogFC") +
+  ylab("Log2 Fold Change between control and challenge") + theme(axis.text.x = element_text(size=1) ) 
+
+DA_treat_log2foldchange <- ggplot(Dermo_dds_DA_treat_deseq_res_LFC_sig_annot_sorted, aes(x=product_unite, y = log2FoldChange, fill=log2FoldChange)) + geom_col(position="dodge") +
+  coord_flip() + scale_fill_gradient2(low="purple",mid = "grey", high="darkgreen") + ggtitle("DA control vs. challenge LogFC") +
+  ylab("Log2 Fold Change between control and challenge") + theme_bw()
 
 ##### Test of significant enrichment of apopsois GO terms in the datasets to confirm #####
 #if (!requireNamespace("BiocManager", quietly = TRUE))
