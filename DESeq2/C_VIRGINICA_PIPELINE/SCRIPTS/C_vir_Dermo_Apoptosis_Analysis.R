@@ -3453,7 +3453,6 @@ nrow(FamCode_lightcyan_annot) #77
 View(FamCode_lightcyan_annot)
 FamCode_lightcyan_annot_apop <- FamCode_lightcyan_annot[grepl(paste(Apoptosis_names,collapse="|"), 
                                                               FamCode_lightcyan_annot$product, ignore.case = TRUE),]
-FamCode_lightcyan_annot_apop
 
 ## Gene significance and module membership FAMILY MODULE 2 
 # Identifying genes with high GS and MM
@@ -3588,10 +3587,25 @@ gene_info_combined_significance_Treat <- gene_info_combined_significance %>% fil
 gene_info_combined_significance_FamCode <- gene_info_combined_significance %>% filter(p.GS.FamCode <= 0.05)
 
 nrow(gene_info_combined_significance_Treat)
-gene_info_combined_significance_Treat_apop <- 
+gene_info_combined_significance_Treat_apop <-gene_info_combined_significance_Treat[grepl(paste(Apoptosis_names,collapse="|"), 
+                                                 gene_info_combined_significance_Treat$product, ignore.case = TRUE),]
+gene_info_combined_significance_FamCode_apop <-gene_info_combined_significance_FamCode[grepl(paste(Apoptosis_names,collapse="|"), 
+                                                                                         gene_info_combined_significance_FamCode$product, ignore.case = TRUE),]
+nrow(gene_info_combined_significance_Treat_apop )
+nrow(gene_info_combined_significance_FamCode_apop)
 
 # plot gene significance of significant genes
-ggplot(gene_info_combined_significance_Treat, aes(x=transcript_id, y=))
+ggplot(gene_info_combined_significance_Treat_apop, aes(x=product, y=GS.Treat)) + geom_col(position="dodge") + coord_flip()
+
+gene_info_combined_significance_Treat_apop_plot <- ggplot(gene_info_combined_significance_Treat_apop,
+              aes(x=product, y=GS.Treat, fill=GS.Treat)) + geom_col(position="dodge") +
+  coord_flip() + scale_fill_gradient2(low="purple",mid = "grey", high="darkgreen") + ggtitle("Gene Significance for Treatment") +
+  ylab("WGCNA Gene Significance") + theme(axis.text.x = element_text(size=1) ) 
+
+gene_info_combined_significance_FamCode_apop_plot <- ggplot(gene_info_combined_significance_FamCode_apop,
+    aes(x=product, y=GS.FamCode, fill=GS.FamCode)) + geom_col(position="dodge") +
+  coord_flip() + scale_fill_gradient2(low="purple",mid = "grey", high="darkgreen") + ggtitle("Gene Significance for Treatment") +
+  ylab("WGCNA Gene Significance") + theme(axis.text.x = element_text(size=1) ) 
 
 #### Exporting WGCNA results to Cytoscape ####
 
@@ -3639,3 +3653,6 @@ cyt = exportNetworkToCytoscape(modTOM,
                                nodeNames = modProbes,
                                altNodeNames = modGenes,
                                nodeAttr = moduleColors[inModule])
+
+###### WGCNA split up family analysis control vs. treatment and then Compare #### 
+
