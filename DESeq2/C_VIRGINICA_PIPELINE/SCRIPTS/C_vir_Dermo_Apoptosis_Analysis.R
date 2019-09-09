@@ -889,6 +889,15 @@ C_vir_rtracklayer_transcripts_GO <- C_vir_rtracklayer_transcripts_unique %>% lef
 # are they all NULL?
 C_vir_rtracklayer_GO %>% filter(unique_go !="NULL") # nope they are not!!
 
+# Export for use in cluster later
+class(C_vir_rtracklayer_transcripts_GO)
+# coerce data frame to be all character
+# First coerce the data.frame to all-character
+C_vir_rtracklayer_transcripts_GO_2 = data.frame(lapply(C_vir_rtracklayer_transcripts_GO, as.character), stringsAsFactors=FALSE)
+head(C_vir_rtracklayer_transcripts_GO_2)
+# now write to csv
+write.csv(C_vir_rtracklayer_transcripts_GO_2, file="C_vir_rtracklayer_transcripts_GO.csv")
+
 #### Annotate significant genes in each results data frame ####
 
 Dermo_dds_family_res_LFC_sig_annot <- Dermo_dds_family_res_LFC_sig %>% left_join(C_vir_rtracklayer_transcripts_GO[,c("transcript_id", "product", "gene")], by = "transcript_id")
@@ -3166,6 +3175,10 @@ PMG_infected_DA_LB_subset_log2foldchange <- ggplot(Perkinsus_dds_infected_LB_vs_
 Perkinsus_dds_infected_LB_vs_DA_res_LFC_sig_annot[!(Perkinsus_dds_infected_LB_vs_DA_res_LFC_sig_annot %in% Perkinsus_dds_All_injected_res_LFC_sig_annot ),]
 
 ##### WGCNA Analysis between LB control vs challenge and DA control vs. challenge #####
+library(WGCNA)
+library(limma)
+cor <- WGCNA::cor
+options(stringsAsFactors = FALSE)
 # WGCNA analysis resources
   # https://horvath.genetics.ucla.edu/html/CoexpressionNetwork/Rpackages/WGCNA/Tutorials/
   # https://horvath.genetics.ucla.edu/html/CoexpressionNetwork/JMiller/
@@ -3189,45 +3202,109 @@ Perkinsus_dds_infected_LB_vs_DA_res_LFC_sig_annot[!(Perkinsus_dds_infected_LB_vs
   # the differences between full variance stabilization and a simple log transformation are small.
   # Counts datatable needs to be in same format as DESeq2, each row is a transcript and each column is a sample
 
-# run this options first 
-options(stringsAsFactors = FALSE)
+#Load expression data
 Dermo_counts
-Dermo_coldata
 
+# Import subset coldata that has categorical variables as binary 
+Dermo_coldata_binary <- read.csv("/Users/erinroberts/Documents/PhD_Research/Chapter_1_Apoptosis Paper/Chapter1_Apoptosis_Transcriptome_Analyses_2019/RAW DATA AND INFO/2015 Dermo Challenge /DATA/6h_36h_7d_DA_LB_binary.csv", header=TRUE )
+head(Dermo_coldata_binary)
+rownames(Dermo_coldata_binary) <- Dermo_coldata_binary$rownames
+Dermo_coldata_binary <- Dermo_coldata_binary[,-1]
+head(Dermo_coldata_binary)
+class(Dermo_coldata_binary$FamCode)
+class(Dermo_coldata_binary$Treat)
+class(Dermo_coldata_binary$Timepoint)
+class(Dermo_coldata_binary$LogConc)
+Dermo_coldata_binary$FamCode <- as.numeric(Dermo_coldata_binary$FamCode)
+Dermo_coldata_binary$Treat <- as.numeric(Dermo_coldata_binary$Treat)
+Dermo_coldata_binary$Timepoint <- as.numeric(Dermo_coldata_binary$Timepoint)
+
+# check c
+all(rownames(Dermo_coldata_binary) %in% colnames(Dermo_counts))  # Should return TRUE
+# returns TRUE
+all(rownames(Dermo_coldata_binary) == colnames(Dermo_counts))    # Should return TRUE
+# returns FALSE
+
+# Visualize how sample data fits into dendrogram
+  # Can't do because data is too large
 
 # Load in Data as one vst transformed count matrix that have been filtered for low counts (see https://support.bioconductor.org/p/115583/)
-Dermo_dds_family <- DESeqDataSetFromMatrix(countData = Dermo_counts,
-                                           colData = Dermo_coldata,
+Dermo_dds_family_WGCNA <- DESeqDataSetFromMatrix(countData = Dermo_counts,
+                                           colData = Dermo_coldata, # need to use original, then reorder
                                            design = ~Library_Prep_Date + Treat +FamCode)
-Dermo_dds_family <- Dermo_dds_family[ rowSums(counts(Dermo_dds_family)) > 10, ] 
-Dermo_dds_family_vsd <- vst(Dermo_dds_family, blind=FALSE)
-Dermo_dds_family_vsd_matrix <- assay(Dermo_dds_family_vsd)
+Dermo_dds_family_WGCNA <- Dermo_dds_family_WGCNA[ rowSums(counts(Dermo_dds_family_WGCNA)) > 20, ]
 
-# Re-cluster samples
-sampleTree2 = hclust(dist(datExpr), method = "average")
-# Convert traits to a color representation: white means low, red means high, grey means missing entry
-traitColors = numbers2colors(datTraits, signed = FALSE);
-# Plot the sample dendrogram and the colors underneath.
-plotDendroAndColors(sampleTree2, traitColors,
-                    groupLabels = names(datTraits),
-                    main = "Sample dendrogram and trait heatmap")
+# reorder before VST 
+# reorder coldata 
+Dermo_dds_family_WGCNA_reorder <- Dermo_dds_family_WGCNA[, rownames(Dermo_coldata_binary)]
 
+# recheck 
+all(rownames(Dermo_coldata_binary) %in% colnames(Dermo_dds_family_WGCNA_reorder))  #Should return TRUE
+# returns TRUE
+all(rownames(Dermo_coldata_binary) == colnames(Dermo_dds_family_WGCNA_reorder))    # Should return TRUE
+# TRUE
 
-# Correlating general network properties 
-  # (doesn't need to be done in our case since we know the data came from the same experiment)
+# perform VST analysis 
+Dermo_dds_family_WGCNA_vsd <- vst(Dermo_dds_family_WGCNA, blind=FALSE)
+
+# Remove Batch effect from library prep date with limma
+colData(Dermo_dds_family_WGCNA)
+plotPCA(Dermo_dds_family_WGCNA_vsd, "Library_Prep_Date")
+plotPCA(Dermo_dds_family_WGCNA_vsd, "RNA_Extract_Date") # no effect
+plotPCA(Dermo_dds_family_WGCNA_vsd, "RNA.Extracted_by")
+plotPCA(Dermo_dds_family_WGCNA_vsd, "Library_Prep_by")
+plotPCA(Dermo_dds_family_WGCNA_vsd, "FamCode")
+plotPCA(Dermo_dds_family_WGCNA_vsd, "Sequence_Pool") # no effect
+plotPCA(Dermo_dds_family_WGCNA_vsd, "TruSeq_Kit")
+plotPCA(Dermo_dds_family_WGCNA_vsd, "Index") # no effect 
+
+mat <- assay(Dermo_dds_family_WGCNA_vsd)
+mat <- limma::removeBatchEffect(mat, Dermo_dds_family_WGCNA_vsd$Library_Prep_Date)
+mat <- limma::removeBatchEffect(mat, Dermo_dds_family_WGCNA_vsd$RNA.Extracted_by)
+mat <- limma::removeBatchEffect(mat, Dermo_dds_family_WGCNA_vsd$Library_Prep_by)
+mat <- limma::removeBatchEffect(mat, Dermo_dds_family_WGCNA_vsd$TruSeq_Kit)
+
+assay(Dermo_dds_family_WGCNA_vsd) <- mat
+class(Dermo_dds_family_WGCNA_vsd)
+Dermo_dds_family_WGCNA_vsd_matrix <- assay(Dermo_dds_family_WGCNA_vsd)
+plotPCA(Dermo_dds_family_WGCNA_vsd, "Library_Prep_Date")
+plotPCA(Dermo_dds_family_WGCNA_vsd, "RNA_Extract_Date") # no effect
+plotPCA(Dermo_dds_family_WGCNA_vsd, "RNA.Extracted_by")
+plotPCA(Dermo_dds_family_WGCNA_vsd, "Library_Prep_by")
+plotPCA(Dermo_dds_family_WGCNA_vsd, "FamCode")
+plotPCA(Dermo_dds_family_WGCNA_vsd, "Sequence_Pool") # no effect
+plotPCA(Dermo_dds_family_WGCNA_vsd, "TruSeq_Kit")
+plotPCA(Dermo_dds_family_WGCNA_vsd, "Index") # no effect 
+
+# Expression data the columns should be genes and rows should be sample
+head(Dermo_dds_family_WGCNA_vsd_matrix)
+class(Dermo_dds_family_WGCNA_vsd_matrix)
+Dermo_dds_family_WGCNA_vsd_matrix_transpose <- t(Dermo_dds_family_WGCNA_vsd_matrix)
+Dermo_dds_family_WGCNA <- Dermo_dds_family_WGCNA_vsd_matrix_transpose
+
+# export data to be loaded later
+write.table(Dermo_dds_family_WGCNA, file="Dermo_dds_family_WGCNA.txt")
+save(Dermo_dds_family_WGCNA, Dermo_coldata_binary, file = "Dermo_WGCNA.RData")
 
 # Run WGCNA on the datasets with large number of genes 
+  # https://horvath.genetics.ucla.edu/html/CoexpressionNetwork/Rpackages/WGCNA/Tutorials/FemaleLiver-02-networkConstr-blockwise.pdf
+# Choose a set of soft-thresholding powers, # Call the network topology analysis function
 
-# Choose a set of soft-thresholding powers
+# Variation Two
 powers = c(c(1:10), seq(from = 12, to=20, by=2))
-
-# Call the network topology analysis function
-sft = pickSoftThreshold(Dermo_dds_LB_treat_vsd_common, powerVector = powers, verbose = 5)
+sft = pickSoftThreshold(Dermo_dds_family_WGCNA_vsd_matrix_transpose,corFnc = "bicor", corOptions=list(maxPOutliers=0.1),networkType = "signed", powerVector = powers, verbose = 5 )
+  # this setting would suggest power of 14 for the data 
+  # the signed function is the recommended one
+  # the authors suggest the biweight mid-correlation as a robust alternative, the "bicor" corFnc
+  #Bicor note: can produce unwanted results when the data have a bi-modal distribution (e.g., when a gene expression depends heavily on a binary variable 
+    # such as disease status or genotype) or when one of the variables entering the correlation is itself binary (or ordinal).
+    # For this reason, we strongly recommend using the argument maxPOutliers = 0.05 or 0.10 whenever the biweight midcorrelation is used. 
+    # This argument essentially forces bicor to never regard more than the specified proportion of samples as outliers.
 
 # Plot the results:
 sizeGrWindow(9, 5)
-par(mfrow = c(1,2));
-cex1 = 0.9;
+par(mfrow = c(1,2))
+cex1 = 0.9
 # Scale-free topology fit index as a function of the soft-thresholding power
 plot(sft$fitIndices[,1], -sign(sft$fitIndices[,3])*sft$fitIndices[,2],
      xlab="Soft Threshold (power)",ylab="Scale Free Topology Model Fit,signed R^2",type="n",
@@ -3241,17 +3318,324 @@ plot(sft$fitIndices[,1], sft$fitIndices[,5],
      xlab="Soft Threshold (power)",ylab="Mean Connectivity", type="n",
      main = paste("Mean connectivity"))
 text(sft$fitIndices[,1], sft$fitIndices[,5], labels=powers, cex=cex1,col="red")
+abline(h=0.90,col="red")
 
-# on full data "Error: vector memory exhausted (limit reached?)" read Tutorial section 2.c on working with 
-  # large datasets https://horvath.genetics.ucla.edu/html/CoexpressionNetwork/Rpackages/WGCNA/Tutorials/FemaleLiver-02-networkConstr-blockwise.pdf
-adjacency <- adjacency(t(Dermo_dds_LB_treat_vsd_common), power=softPower, type="signed")
+### Selecting 12 as the softthresholding power
 
-diag()
-
-bwnet = blockwiseModules(datExpr, maxBlockSize = 2000,
-                         power = 6, TOMType = "unsigned", minModuleSize = 30,
+# Perform blockwise clustering
+bwnet = blockwiseModules(Dermo_dds_family_WGCNA, maxBlockSize = 5000,
+                         power = 12, TOMType = "signed", minModuleSize = 30, # medium sensitivity 
                          reassignThreshold = 0, mergeCutHeight = 0.25,
+                         corType = "bicor", # suggested by authors
+                         maxPOutliers = 0.05,  # suggested in case of disease status examples
+                         robustY = FALSE, # when dealing with binary variable, turns off robust treatment
                          numericLabels = TRUE,
                          saveTOMs = TRUE,
-                         saveTOMFileBase = "femaleMouseTOM-blockwise",
+                         saveTOMFileBase = "Dermo_family_TOM",
                          verbose = 3)
+
+
+# View modules,  bwnet$colors contains the module assignment, and bwnet$MEs contains the module eigengenes of the modules.
+table(bwnet$colors)
+
+# open a graphics window
+sizeGrWindow(12, 9)
+# Convert labels to colors for plotting
+mergedColors = labels2colors(bwnet$colors)
+# Plot the dendrogram and the module colors underneath
+plotDendroAndColors(bwnet$dendrograms[[1]], mergedColors[bwnet$blockGenes[[1]]],
+                    "Module colors",
+                    dendroLabels = FALSE, hang = 0.03,
+                    addGuide = TRUE, guideHang = 0.05)
+
+# save module assignment and module eigengene information necessary for subsequent analysis
+moduleLabels = bwnet$colors
+moduleColors = labels2colors(bwnet$colors)
+MEs = bwnet$MEs;
+geneTree = bwnet$dendrograms[[1]];
+save(MEs, moduleLabels, moduleColors, geneTree,
+     file = "Dermo_networkConstruction.RData")
+
+## Quantifying module-trait associations
+
+# Load the expression and trait data saved in the first part
+lnames = load(file = "Dermo_WGCNA.RData");
+#The variable lnames contains the names of loaded variables.
+lnames
+# Load network data saved in the second part.
+lnames = load(file = "Dermo_networkConstruction.RData")
+lnames
+
+# Correlate eigengenes with external traits for most significant associations
+# Define numbers of genes and samples
+nGenes = ncol(Dermo_dds_family_WGCNA)
+nSamples = nrow(Dermo_dds_family_WGCNA)
+# Recalculate MEs with color labels
+MEs0 = moduleEigengenes(Dermo_dds_family_WGCNA, moduleColors)$eigengenes
+MEs = orderMEs(MEs0)
+moduleTraitCor = cor(MEs, Dermo_coldata_binary, use = "p")
+moduleTraitPvalue = corPvalueStudent(moduleTraitCor, nSamples)
+
+# Color code each association by the correlation value
+sizeGrWindow(15,10)
+# Will display correlations and their p-values
+textMatrix = paste(signif(moduleTraitCor, 2), "\n(",
+                   signif(moduleTraitPvalue, 1), ")", sep = "")
+dim(textMatrix) = dim(moduleTraitCor)
+par(mar = c(6, 8.5, 3, 3))
+# Display the correlation values within a heatmap plot
+labeledHeatmap(Matrix = moduleTraitCor,
+               xLabels = names(Dermo_coldata_binary),
+               yLabels = names(MEs),
+               ySymbols = names(MEs),
+               colorLabels = FALSE,
+               colors = greenWhiteRed(50),
+               textMatrix = textMatrix,
+               setStdMargins = FALSE,
+               cex.text = 0.45,
+               cex.lab = 0.7,
+               zlim = c(-1,1), 
+               yColorWidth = 0.2, 
+               main = paste("Module-trait relationships"))
+
+## Gene significance and module membership FAMILY 
+# Gene significance is the correlation between gene and trait of interest 
+# Als define a quantitative measure of module membership 
+  # MM as the correlation of the module eigengene and the gene expression profile.
+  # This allows us to quantify the similarity of all genes on the array 
+  # to every module.
+
+# Define variable FamCode containing the Family column of Dermo_coldata_binary
+FamCode = as.data.frame(Dermo_coldata_binary$FamCode)
+names(FamCode) = "FamCode"
+# names (colors) of the modules
+modNames = substring(names(MEs), 3)
+geneModuleMembership = as.data.frame(cor(Dermo_dds_family_WGCNA, MEs, use = "p"))
+MMPvalue = as.data.frame(corPvalueStudent(as.matrix(geneModuleMembership), nSamples))
+names(geneModuleMembership) = paste("MM", modNames, sep="")
+names(MMPvalue) = paste("p.MM", modNames, sep="")
+
+geneTraitSignificance = as.data.frame(cor(Dermo_dds_family_WGCNA, FamCode, use = "p"))
+GSPvalue = as.data.frame(corPvalueStudent(as.matrix(geneTraitSignificance), nSamples))
+
+names(geneTraitSignificance) = paste("GS.", names(FamCode), sep="")
+names(GSPvalue) = paste("p.GS.", names(FamCode), sep="")
+
+# Identifying genes with high GS and MM
+# MElightcyan is the module with the greatest positive correlation with Family
+# MEturqoise is the module with greatest negative correlation
+module="lightcyan"
+column = match(module, modNames);
+moduleGenes = moduleColors==module;
+sizeGrWindow(7, 7);
+par(mfrow = c(1,1));
+verboseScatterplot(abs(geneModuleMembership[moduleGenes, column]),
+                   abs(geneTraitSignificance[moduleGenes, 1]),
+                   xlab = paste("Module Membership in", module, "module"),
+                   ylab = "Gene significance for body weight",
+                   main = paste("Module membership vs. gene significance\n"),
+                   cex.main = 1.2, cex.lab = 1.2, cex.axis = 1.2, col = "black")
+# significant positive association between FamCode and this module 
+
+# Summary output of network analysis results 
+# Merge statistical info with gene annotation and write to file
+colnames(Dermo_dds_family_WGCNA)
+FamCode_lightcyan <- colnames(Dermo_dds_family_WGCNA)[moduleColors=="lightcyan"]
+class(FamCode_lightcyan)
+FamCode_lightcyan  <- as.data.frame(FamCode_lightcyan)
+head(FamCode_lightcyan)
+colnames(FamCode_lightcyan)[1] <- "transcript_id"
+head(FamCode_lightcyan)
+
+# Annotate 
+FamCode_lightcyan_annot <- FamCode_lightcyan %>% left_join(C_vir_rtracklayer_transcripts_GO[,c("transcript_id", "product", "gene","unique_go")], by = "transcript_id")
+nrow(FamCode_lightcyan_annot) #77 
+View(FamCode_lightcyan_annot)
+FamCode_lightcyan_annot_apop <- FamCode_lightcyan_annot[grepl(paste(Apoptosis_names,collapse="|"), 
+                                                              FamCode_lightcyan_annot$product, ignore.case = TRUE),]
+FamCode_lightcyan_annot_apop
+
+## Gene significance and module membership FAMILY MODULE 2 
+# Identifying genes with high GS and MM
+# MEpaleturqoise is the module with the greatest positive correlation with Family
+
+module="paleturquoise"
+column = match(module, modNames);
+moduleGenes = moduleColors==module;
+sizeGrWindow(7, 7);
+par(mfrow = c(1,1));
+verboseScatterplot(abs(geneModuleMembership[moduleGenes, column]),
+                   abs(geneTraitSignificance[moduleGenes, 1]),
+                   xlab = paste("Module Membership in", module, "module"),
+                   ylab = "Gene significance for body weight",
+                   main = paste("Module membership vs. gene significance\n"),
+                   cex.main = 1.2, cex.lab = 1.2, cex.axis = 1.2, col = "black")
+# Not significant 
+
+## Gene significance and module membership TREATMENT
+# Gene significance is the correlation between gene and trait of interest 
+# Als define a quantitative measure of module membership 
+# MM as the correlation of the module eigengene and the gene expression profile.
+# This allows us to quantify the similarity of all genes on the array 
+# to every module.
+
+# Define variable FamCode containing the Family column of Dermo_coldata_binary
+Treat = as.data.frame(Dermo_coldata_binary$Treat)
+names(Treat) = "Treat"
+# names (colors) of the modules
+modNames = substring(names(MEs), 3)
+geneModuleMembership = as.data.frame(cor(Dermo_dds_family_WGCNA, MEs, use = "p"))
+MMPvalue = as.data.frame(corPvalueStudent(as.matrix(geneModuleMembership), nSamples))
+names(geneModuleMembership) = paste("MM", modNames, sep="")
+names(MMPvalue) = paste("p.MM", modNames, sep="")
+
+geneTraitSignificance = as.data.frame(cor(Dermo_dds_family_WGCNA, Treat, use = "p"))
+GSPvalue = as.data.frame(corPvalueStudent(as.matrix(geneTraitSignificance), nSamples))
+
+names(geneTraitSignificance) = paste("GS.", names(Treat), sep="")
+names(GSPvalue) = paste("p.GS.", names(Treat), sep="")
+
+# Identifying genes with high GS and MM
+# MElightcyan is the module with the greatest positive correlation with Family
+# MEturqoise is the module with greatest negative correlation
+module="orange"
+column = match(module, modNames);
+moduleGenes = moduleColors==module;
+sizeGrWindow(7, 7);
+par(mfrow = c(1,1));
+verboseScatterplot(abs(geneModuleMembership[moduleGenes, column]),
+                   abs(geneTraitSignificance[moduleGenes, 1]),
+                   xlab = paste("Module Membership in", module, "module"),
+                   ylab = "Gene significance for body weight",
+                   main = paste("Module membership vs. gene significance\n"),
+                   cex.main = 1.2, cex.lab = 1.2, cex.axis = 1.2, col = "black")
+# association not significant 
+
+### Create data frame holding information about all probes ###
+probes=colnames(Dermo_dds_family_WGCNA)
+probes2annot = match(probes, C_vir_rtracklayer_transcripts_GO$transcript_id)
+geneTraitSignificance = as.data.frame(cor(Dermo_dds_family_WGCNA, Treat, use = "p"))
+GSPvalue = as.data.frame(corPvalueStudent(as.matrix(geneTraitSignificance), nSamples))
+
+names(geneTraitSignificance) = paste("GS.", names(Treat), sep="")
+names(GSPvalue) = paste("p.GS.", names(Treat), sep="")
+
+# Combine with module color, gene significance for weight, and module membership and p-values in all modules
+# Create the starting data frame
+geneInfo0 = data.frame(transcript_id = probes, 
+                product = C_vir_rtracklayer_transcripts_GO$product[probes2annot],
+  moduleColor = moduleColors,
+  geneTraitSignificance,
+  GSPvalue)
+# Order modules by their significance for FamCode
+modOrder = order(-abs(cor(MEs, FamCode, use = "p")));
+# Add module membership information in the chosen order
+for (mod in 1:ncol(geneModuleMembership))
+{
+  oldNames = names(geneInfo0)
+  geneInfo0 = data.frame(geneInfo0, geneModuleMembership[, modOrder[mod]],
+                         MMPvalue[, modOrder[mod]]);
+  names(geneInfo0) = c(oldNames, paste("MM.", modNames[modOrder[mod]], sep=""),
+                       paste("p.MM.", modNames[modOrder[mod]], sep=""))
+}
+# Order the genes in the geneInfo variable first by module color, then by geneTraitSignificance
+geneOrder = order(geneInfo0$moduleColor, -abs(geneInfo0$GS.Treat));
+geneInfo = geneInfo0[geneOrder, ]
+
+# Write to a file
+write.csv(geneInfo, file = "Dermo_geneInfo_WGCNA_matrix.csv") # this value has the significance by Treatment
+
+# Write table with gene significance for Family 
+probes=colnames(Dermo_dds_family_WGCNA)
+probes2annot = match(probes, C_vir_rtracklayer_transcripts_GO$transcript_id)
+geneFamCodeSignificance = as.data.frame(cor(Dermo_dds_family_WGCNA, FamCode, use = "p"))
+GSPvalue_FamCode = as.data.frame(corPvalueStudent(as.matrix(geneFamCodeSignificance), nSamples));
+names(geneFamCodeSignificance) = paste("GS.", names(FamCode), sep="")
+names(GSPvalue_FamCode) = paste("p.GS.", names(FamCode), sep="")
+
+# Create the starting data frame
+geneInfo1 = data.frame(transcript_id = probes, 
+                       product = C_vir_rtracklayer_transcripts_GO$product[probes2annot],
+                       moduleColor = moduleColors,
+                       geneFamCodeSignificance,
+                       GSPvalue_FamCode)
+# Order modules by their significance for FamCode
+modOrder = order(-abs(cor(MEs, FamCode, use = "p")));
+# Add module membership information in the chosen order
+for (mod in 1:ncol(geneModuleMembership))
+{
+  oldNames = names(geneInfo1)
+  geneInfo1 = data.frame(geneInfo1, geneModuleMembership[, modOrder[mod]],
+                         MMPvalue[, modOrder[mod]]);
+  names(geneInfo1) = c(oldNames, paste("MM.", modNames[modOrder[mod]], sep=""),
+                       paste("p.MM.", modNames[modOrder[mod]], sep=""))
+}
+# Order the genes in the geneInfo variable first by module color, then by geneTraitSignificance
+geneOrder1 = order(geneInfo1$moduleColor, -abs(geneInfo1$GS.FamCode));
+geneInfo1 = geneInfo1[geneOrder1, ]
+
+# Write to a file
+write.csv(geneInfo1, file = "Dermo_geneInfo_WGCNA_matrix_FamCode.csv") # this value has the significance by FamCode
+
+## Create combined gene significance for Treatment and FamCode for each transcript for plotting
+gene_info_combined_significance  <- geneInfo0[,c(1:5)] %>% left_join(geneInfo1[,c("transcript_id", "moduleColor","product","GS.FamCode",
+                                                                         "p.GS.FamCode")], by = c("transcript_id","moduleColor",
+                                                                          "product"))
+head(gene_info_combined_significance)
+
+# Subset significant genes
+gene_info_combined_significance_Treat <- gene_info_combined_significance %>% filter(p.GS.Treat <= 0.05)
+gene_info_combined_significance_FamCode <- gene_info_combined_significance %>% filter(p.GS.FamCode <= 0.05)
+
+nrow(gene_info_combined_significance_Treat)
+gene_info_combined_significance_Treat_apop <- 
+
+# plot gene significance of significant genes
+ggplot(gene_info_combined_significance_Treat, aes(x=transcript_id, y=))
+
+#### Exporting WGCNA results to Cytoscape ####
+
+# Cytoscape wants specific modules to be input into the software. Need to select particular modules of interest
+
+# Recalculate topological overlap using TOMsimilarityFromExpr in bluewaves
+
+  ## in terminal
+  ## scp Dermo_WGCNA.RData erin_roberts@bluewaves:/data3/marine_diseases_lab/erin/2015_Dermo_transcriptome_analysis
+  #  $ cd /data3/marine_diseases_lab/erin/2015_Dermo_transcriptome_analysis
+  #  $ interactive
+  #  $ module load R/3.3.1-foss-2016b
+  # $ module load R-bundle-Bioconductor/3.3-foss-2016b-R-3.3.1
+  # installed dependecies and installed WGCNA using 
+      # > install.packages(c("matrixStats", "Hmisc", "splines", "foreach", "doParallel", "fastcluster", "dynamicTreeCut", "survival")) 
+      #  > source("http://bioconductor.org/biocLite.R") 
+      #  > biocLite(c("GO.db", "preprocessCore", "impute", "WGCNA"))
+  # Wrote script to run in R via sbatch script
+          # library(WGCNA)
+          # lnames = load(file="Dermo_WGCNA.Rdata")
+          # TOM = TOMsimilarityFromExpr(Dermo_dds_family_WGCNA, power=12)
+          # TOM <- as.matrix(TOM)
+          # write.txt(TOM, file ="Dermo_TOM.txt", row.names=TRUE)
+
+  
+
+# Select modules
+modules = c("lightcyan", "paleturqoise", "green", "orange","plum1")
+
+# Select module probes
+inModule = is.finite(match(moduleColors, modules))
+modProbes = probes[inModule]
+modGenes = C_vir_rtracklayer_transcripts_GO$product[match(modProbes, C_vir_rtracklayer_transcripts_GO$transcript_id)]
+
+# Select the corresponding Topological Overlap
+modTOM = TOM[inModule, inModule]
+dimnames(modTOM) = list(modProbes, modProbes)
+
+# Export the network into edge and node list files Cytoscape can read
+cyt = exportNetworkToCytoscape(modTOM,
+                               edgeFile = paste("CytoscapeInput-edges-", paste(modules, collapse="-"), ".txt", sep=""),
+                               nodeFile = paste("CytoscapeInput-nodes-", paste(modules, collapse="-"), ".txt", sep=""),
+                               weighted = TRUE,
+                               threshold = 0.02,
+                               nodeNames = modProbes,
+                               altNodeNames = modGenes,
+                               nodeAttr = moduleColors[inModule])
