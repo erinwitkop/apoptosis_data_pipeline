@@ -26,7 +26,7 @@ F=/data3/marine_diseases_lab/erin/Bio_project_SRA/pipeline_files/C_Vir_subset
 array1=($(ls $F/*_1.fq))
 array2=($(ls $F/*_2.fq))
 
- 
+# Following step not necessary if the adapter sequences are known  
 #for i in ${array1[@]}; do  # @ symbol tells it to go through each item in the array  
    #bbduk.sh in1=${i} in2=$(echo ${i}|sed s/_1/_2/) k=23 ref=/opt/software/BBMap/37.36-foss-2016b-Java-1.8.0_131/resources/adapters.fa stats=${i}.stat out=${i}.out
 #done
