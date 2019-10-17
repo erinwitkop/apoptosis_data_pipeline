@@ -37,7 +37,7 @@ done
 #StringTie Merge, will merge all GFF files and assemble transcripts into a non-redundant set of transcripts, after which re-run StringTie with -e
 	
 	#create mergelist.txt in nano, names of all the GTF files created in the last step with each on its own line
-	#ls *.gtf > C_Vir_mergelist.txt
+	ls *.gtf > C_Vir_mergelist.txt
 
 	#check to sure one file per line
 	#cat C_Vir_mergelist.txt
