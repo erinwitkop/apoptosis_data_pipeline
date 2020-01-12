@@ -2,13 +2,6 @@
 
 # Load packages
 
-#if (!requireNamespace("BiocManager", quietly = TRUE))
-#install.packages("BiocManager")
-#BiocManager::install("DESeq2")
-#if (!requireNamespace("BiocManager", quietly = TRUE))
-#install.packages("BiocManager")
-#BiocManager::install("apeglm")
-
 library(DESeq2)  
 library(ggplot2)
 library(magrittr)
@@ -33,7 +26,7 @@ library(tibble)
 # R version 3.6.1
 # Deseq2 DESeq2_1.24.0.tar.gz
 
-## Helpful, recently updataed resources
+## Helpful, recently updated resources
 # Updated 2018 Vignette of DESeq2 : https://bioconductor.org/packages/3.7/bioc/vignettes/DESeq2/inst/doc/DESeq2.html#differential-expression-analysis
 # Updated Workflow for DESeq2: https://bioconductor.org/packages/release/workflows/vignettes/rnaseqGene/inst/doc/rnaseqGene.html#the-deseqdataset-object-sample-information-and-the-design-formula
 # Deseq2 Manual updated July 18th, 2019: https://www.bioconductor.org/packages/devel/bioc/manuals/DESeq2/man/DESeq2.pdf
@@ -63,8 +56,17 @@ nrow(Dermo_coldata)
 
 all(rownames(Dermo_coldata) %in% colnames(Dermo_counts))  #Should return TRUE
 # returns TRUE
+all(colnames(Dermo_counts) %in% rownames(Dermo_coldata))  
+# returns TRUE
 all(rownames(Dermo_coldata) == colnames(Dermo_counts))    # should return TRUE
-#returns TRUE
+# returns FALSE
+# Fix the order
+Dermo_counts <- Dermo_counts[,colnames(Dermo_counts)]
+colnames(Dermo_counts)
+rownames(Dermo_coldata)
+# recheck the order
+all(rownames(Dermo_coldata) == colnames(Dermo_counts)) # FALSE
+
 
 # add column that is specifically rownames
 Dermo_coldata$rownames <- rownames(Dermo_coldata)
@@ -121,6 +123,8 @@ Dermo_counts_DA_middle_late <- Dermo_counts[,names(Dermo_counts) %in% SampleID_D
 # (e.g. control, or untreated samples), so we can relevel the dex factor like so
 
 # Check factor levels, set it so that comparison group is the first
+levels(Dermo_coldata$FamCode) #"DA" "LB"
+
 
 # LB all timepoints
 levels(Dermo_coldata_LB_all$Timepoint) # #"6h"  "36h" "7d"
@@ -159,8 +163,10 @@ Dermo_coldata_7d$FamCode <- factor(Dermo_coldata_7d$FamCode, levels=c("DA","LB")
 #For this, I will include the library prep date because Mary said there are significant batch effects present.
 #Unlike their analysis, I will set my second design variable as the Family code as it first
 # differences between families that I care about. 
-
 # dds object with all data combined for comparing all sample clustering in exploratory analysis
+
+# Batch effects corrected in the original formula: see this thread https://support.bioconductor.org/p/121408/
+# do not correct counts using the removeBatchEffects from limma based on thread above 
 
 Dermo_dds_family <- DESeqDataSetFromMatrix(countData = Dermo_counts,
                                            colData = Dermo_coldata,
@@ -265,7 +271,7 @@ pheatmap(Dermo_dds_family_vsd_dist_matrix,
 # For the most part, the LB and the DA cluster together
 
 ##### PCA plot visualization of individuals in the family #####
-plotPCA(Dermo_dds_family_vsd, intgroup=c("FamCode","Timepoint"))
+plotPCA(Dermo_dds_family_vsd, intgroup=c("FamCode","Treat"))
   #the DA family samples are closely clustered, while the LB family is less close together,
   # but still falling out in the same location 
 
@@ -3248,21 +3254,19 @@ all(rownames(Dermo_coldata_binary) == colnames(Dermo_dds_family_WGCNA_reorder)) 
 Dermo_dds_family_WGCNA_vsd <- vst(Dermo_dds_family_WGCNA, blind=FALSE)
 
 # Remove Batch effect from library prep date with limma
-colData(Dermo_dds_family_WGCNA)
+colData(Dermo_dds_family_WGCNA_vsd)
 plotPCA(Dermo_dds_family_WGCNA_vsd, "Library_Prep_Date")
 plotPCA(Dermo_dds_family_WGCNA_vsd, "RNA_Extract_Date") # no effect
 plotPCA(Dermo_dds_family_WGCNA_vsd, "RNA.Extracted_by")
 plotPCA(Dermo_dds_family_WGCNA_vsd, "Library_Prep_by")
 plotPCA(Dermo_dds_family_WGCNA_vsd, "FamCode")
 plotPCA(Dermo_dds_family_WGCNA_vsd, "Sequence_Pool") # no effect
-plotPCA(Dermo_dds_family_WGCNA_vsd, "TruSeq_Kit")
 plotPCA(Dermo_dds_family_WGCNA_vsd, "Index") # no effect 
 
 mat <- assay(Dermo_dds_family_WGCNA_vsd)
 mat <- limma::removeBatchEffect(mat, Dermo_dds_family_WGCNA_vsd$Library_Prep_Date)
 mat <- limma::removeBatchEffect(mat, Dermo_dds_family_WGCNA_vsd$RNA.Extracted_by)
 mat <- limma::removeBatchEffect(mat, Dermo_dds_family_WGCNA_vsd$Library_Prep_by)
-mat <- limma::removeBatchEffect(mat, Dermo_dds_family_WGCNA_vsd$TruSeq_Kit)
 
 assay(Dermo_dds_family_WGCNA_vsd) <- mat
 class(Dermo_dds_family_WGCNA_vsd)
@@ -3275,6 +3279,7 @@ plotPCA(Dermo_dds_family_WGCNA_vsd, "FamCode")
 plotPCA(Dermo_dds_family_WGCNA_vsd, "Sequence_Pool") # no effect
 plotPCA(Dermo_dds_family_WGCNA_vsd, "TruSeq_Kit")
 plotPCA(Dermo_dds_family_WGCNA_vsd, "Index") # no effect 
+plotPCA(Dermo_dds_family_WGCNA_vsd, intgroup = c("FamCode",'Treat'))
 
 # Expression data the columns should be genes and rows should be sample
 head(Dermo_dds_family_WGCNA_vsd_matrix)
@@ -3292,7 +3297,7 @@ save(Dermo_dds_family_WGCNA, Dermo_coldata_binary, file = "Dermo_WGCNA.RData")
 
 # Variation Two
 powers = c(c(1:10), seq(from = 12, to=20, by=2))
-sft = pickSoftThreshold(Dermo_dds_family_WGCNA_vsd_matrix_transpose,corFnc = "bicor", corOptions=list(maxPOutliers=0.1),networkType = "signed", powerVector = powers, verbose = 5 )
+#sft = pickSoftThreshold(Dermo_dds_family_WGCNA_vsd_matrix_transpose,corFnc = "bicor", corOptions=list(maxPOutliers=0.1),networkType = "signed", powerVector = powers, verbose = 5 )
   # this setting would suggest power of 14 for the data 
   # the signed function is the recommended one
   # the authors suggest the biweight mid-correlation as a robust alternative, the "bicor" corFnc
@@ -3494,20 +3499,37 @@ GSPvalue = as.data.frame(corPvalueStudent(as.matrix(geneTraitSignificance), nSam
 names(geneTraitSignificance) = paste("GS.", names(Treat), sep="")
 names(GSPvalue) = paste("p.GS.", names(Treat), sep="")
 
-# Identifying genes with high GS and MM
+#### Identifying genes with high GS and MM ###
 # MElightcyan is the module with the greatest positive correlation with Family
 # MEturqoise is the module with greatest negative correlation
+    
+  # Interpreting the heatmap https://support.bioconductor.org/p/111449/
+    # The module-trait heatmap usually represents the correlations of the module eigengenes with traits. 
+    # When that correlation is high, it means the eigengene increases with increasing trait.
+    # In a signed network (where all genes in a module are positively correlated with the eigengene)
+    # it will mean that (again if the eigengene-trait correlation is high) pretty much all genes 
+    # should also follow the same pattern of increasing expression with increasing trait values. 
+    # In an unsigned network you may also have genes that have the opposite behaviour since in an 
+    # unsigned network a module can contain also genes strongly negatively correlated with the eigengene.
+    # The eigengene-trait correlation measures the strength and direction of association between the
+    # module (more precisely, the representative profile) and the trait.
+    # If this is positive (negative), it means the trait increases (decreases) with increasing eigengene "expression".
+    # If this correlation is strong and the network is signed (or signed hybrid) 
+    # it means that most of the genes in the module will also exhibit a correlation with the trait of the same sign as the eigengene.
+    # In an unsigned network, the gene-trait correlations can have the same or opposite sign.
+
 module="orange"
-column = match(module, modNames);
-moduleGenes = moduleColors==module;
-sizeGrWindow(7, 7);
-par(mfrow = c(1,1));
+column = match(module, modNames)
+moduleGenes = moduleColors==module
+sizeGrWindow(7, 7)
+par(mfrow = c(1,1))
 verboseScatterplot(abs(geneModuleMembership[moduleGenes, column]),
                    abs(geneTraitSignificance[moduleGenes, 1]),
                    xlab = paste("Module Membership in", module, "module"),
                    ylab = "Gene significance for body weight",
                    main = paste("Module membership vs. gene significance\n"),
                    cex.main = 1.2, cex.lab = 1.2, cex.axis = 1.2, col = "black")
+
 # association not significant 
 
 ### Create data frame holding information about all probes ###
@@ -3519,7 +3541,7 @@ GSPvalue = as.data.frame(corPvalueStudent(as.matrix(geneTraitSignificance), nSam
 names(geneTraitSignificance) = paste("GS.", names(Treat), sep="")
 names(GSPvalue) = paste("p.GS.", names(Treat), sep="")
 
-# Combine with module color, gene significance for weight, and module membership and p-values in all modules
+### Combine with module color, gene significance for weight, and module membership and p-values in all modules ###
 # Create the starting data frame
 geneInfo0 = data.frame(transcript_id = probes, 
                 product = C_vir_rtracklayer_transcripts_GO$product[probes2annot],
@@ -3607,6 +3629,573 @@ gene_info_combined_significance_FamCode_apop_plot <- ggplot(gene_info_combined_s
   coord_flip() + scale_fill_gradient2(low="purple",mid = "grey", high="darkgreen") + ggtitle("Gene Significance for Treatment") +
   ylab("WGCNA Gene Significance") + theme(axis.text.x = element_text(size=1) ) 
 
+
+#### WGCNA DA control vs challenge LB control vs challenge ####
+library(WGCNA)
+library(limma)
+library(DESeq2)
+cor <- WGCNA::cor
+options(stringsAsFactors = FALSE)
+Dermo_coldata_LB_all <- Dermo_coldata %>% filter(FamCode == "LB")
+row.names(Dermo_coldata_LB_all) <- Dermo_coldata_LB_all$rownames
+Dermo_coldata_DA_all <- Dermo_coldata %>% filter(FamCode == "DA")
+row.names(Dermo_coldata_DA_all) <- Dermo_coldata_DA_all$rownames
+
+# extract list of samples
+SampleID_LB <- Dermo_coldata_LB_all$rownames
+SampleID_DA <- Dermo_coldata_DA_all$rownames
+
+# subset counts matrix
+Dermo_counts_LB_all <- Dermo_counts[,names(Dermo_counts) %in% SampleID_LB]
+Dermo_counts_DA_all <- Dermo_counts[,names(Dermo_counts) %in% SampleID_DA]
+
+# Check all sample IDs in ColData are also in CountData and match their orders
+all(rownames(Dermo_coldata_LB_all) %in% colnames(Dermo_counts_LB_all))  #Should return TRUE
+all(rownames(Dermo_coldata_LB_all) == colnames(Dermo_counts_LB_all))
+# returns TRUE
+all(rownames(Dermo_coldata_DA_all) %in% colnames(Dermo_counts_DA_all))    # should return TRUE
+all(rownames(Dermo_coldata_DA_all) == colnames(Dermo_counts_DA_all))
+#returns TRUE
+
+# Check factor levels, set it so that comparison group is the first
+
+# LB all timepoints
+levels(Dermo_coldata_LB_all$Timepoint) #"6h"  "36h" "7d"
+levels(Dermo_coldata_LB_all$FamCode) # "DA" "LB"
+Dermo_coldata_LB_all$FamCode <- droplevels(Dermo_coldata_LB_all$FamCode)
+levels(Dermo_coldata_LB_all$FamCode) # LB
+
+# DA all timepoints
+levels(Dermo_coldata_DA_all$Timepoint) # #"6h"  "36h" "7d" 
+levels(Dermo_coldata_DA_all$FamCode)
+Dermo_coldata_DA_all$FamCode <- droplevels(Dermo_coldata_DA_all$FamCode)
+levels(Dermo_coldata_DA_all$FamCode) # DA
+
+# Make DESeq data set from matrix
+# The dds objects below looks at the effect of treatment within family
+Dermo_dds_LB_treat <- DESeqDataSetFromMatrix(countData = Dermo_counts_LB_all,
+                                             colData = Dermo_coldata_LB_all,
+                                             design = ~Library_Prep_Date + Treat)
+
+Dermo_dds_DA_treat <- DESeqDataSetFromMatrix(countData = Dermo_counts_DA_all,
+                                             colData = Dermo_coldata_DA_all,
+                                             design = ~Library_Prep_Date  + Treat)
+# PREFILTER THE DATA
+Dermo_dds_LB_treat <- Dermo_dds_LB_treat[rowSums(counts(Dermo_dds_LB_treat)) >10,]
+Dermo_dds_DA_treat <- Dermo_dds_DA_treat[rowSums(counts(Dermo_dds_DA_treat)) >10,]
+
+# VST TRANSFORMATION OF COUNTS FOR VISUALIZATION 
+Dermo_dds_LB_treat_vsd <- vst(Dermo_dds_LB_treat, blind=FALSE)
+Dermo_dds_DA_treat_vsd <- vst(Dermo_dds_DA_treat, blind=FALSE)
+
+# Remove Batch effect from library prep date with limma
+matLB <- assay(Dermo_dds_LB_treat_vsd)
+matLB <- limma::removeBatchEffect(matLB, Dermo_dds_LB_treat_vsd$Library_Prep_Date)
+matLB <- limma::removeBatchEffect(matLB, Dermo_dds_LB_treat_vsd$RNA.Extracted_by)
+matLB <- limma::removeBatchEffect(matLB, Dermo_dds_LB_treat_vsd$Library_Prep_by)
+assay(Dermo_dds_LB_treat_vsd) <- matLB
+Dermo_dds_LB_treat_vsd_matrix <- assay(Dermo_dds_LB_treat_vsd)
+
+matDA <- assay(Dermo_dds_DA_treat_vsd)
+matDA <- limma::removeBatchEffect(matDA, Dermo_dds_DA_treat_vsd$Library_Prep_Date)
+matDA <- limma::removeBatchEffect(matDA, Dermo_dds_DA_treat_vsd$RNA.Extracted_by)
+matDA <- limma::removeBatchEffect(matDA, Dermo_dds_DA_treat_vsd$Library_Prep_by)
+assay(Dermo_dds_DA_treat_vsd) <- matDA
+Dermo_dds_DA_treat_vsd_matrix <- assay(Dermo_dds_DA_treat_vsd)
+
+# Expression data the columns should be genes and rows should be sample
+Dermo_dds_LB_treat_vsd_matrix_transpose <- t(Dermo_dds_LB_treat_vsd_matrix)
+Dermo_dds_LB_treat_WGCNA <- Dermo_dds_LB_treat_vsd_matrix_transpose
+
+Dermo_dds_DA_treat_vsd_matrix_transpose <- t(Dermo_dds_DA_treat_vsd_matrix)
+Dermo_dds_DA_treat_WGCNA <- Dermo_dds_DA_treat_vsd_matrix_transpose
+
+# Subset Dermo_coldata_binary for family
+# LB is 1, DA is 0
+Dermo_coldata_binary_LB <- filter(Dermo_coldata_binary, FamCode == 1)
+Dermo_coldata_binary_DA <- filter(Dermo_coldata_binary, FamCode == 0)
+
+# export data to be loaded later (will go back and add if necessary)
+ write.table(Dermo_dds_DA_treat_WGCNA, file="Dermo_dds_DA_treat_WGCNA.txt")
+ write.table(Dermo_dds_LB_treat_WGCNA, file="Dermo_dds_LB_treat_WGCNA.txt") 
+
+
+# Run WGCNA on the datasets with large number of genes 
+# https://horvath.genetics.ucla.edu/html/CoexpressionNetwork/Rpackages/WGCNA/Tutorials/FemaleLiver-02-networkConstr-blockwise.pdf
+# Choose a set of soft-thresholding powers, # Call the network topology analysis function
+
+
+powers = c(c(1:10), seq(from = 12, to=20, by=2))
+sftLB = pickSoftThreshold(Dermo_dds_LB_treat_WGCNA,corFnc = "bicor", corOptions=list(maxPOutliers=0.1),networkType = "signed", powerVector = powers, verbose = 5 )
+sftDA = pickSoftThreshold(Dermo_dds_DA_treat_WGCNA,corFnc = "bicor", corOptions=list(maxPOutliers=0.1),networkType = "signed", powerVector = powers, verbose = 5 )
+
+# Plot the results of LB
+sizeGrWindow(9, 5)
+par(mfrow = c(1,2))
+cex1 = 0.9
+# Scale-free topology fit index as a function of the soft-thresholding power
+plot(sftLB$fitIndices[,1], -sign(sftLB$fitIndices[,3])*sftLB$fitIndices[,2],
+     xlab="Soft Threshold (power)",ylab="Scale Free Topology Model Fit,signed R^2",type="n",
+     main = paste("Scale independence"));
+text(sftLB$fitIndices[,1], -sign(sftLB$fitIndices[,3])*sftLB$fitIndices[,2],
+     labels=powers,cex=cex1,col="red");
+# this line corresponds to using an R^2 cut-off of h
+abline(h=0.90,col="red")
+# Mean connectivity as a function of the soft-thresholding power
+plot(sftLB$fitIndices[,1], sftLB$fitIndices[,5],
+     xlab="Soft Threshold (power)",ylab="Mean Connectivity", type="n",
+     main = paste("Mean connectivity"))
+text(sftLB$fitIndices[,1], sftLB$fitIndices[,5], labels=powers, cex=cex1,col="red")
+abline(h=0.90,col="red")
+
+# Plot the results of DA
+sizeGrWindow(9, 5)
+par(mfrow = c(1,2))
+cex1 = 0.9
+# Scale-free topology fit index as a function of the soft-thresholding power
+plot(sftDA$fitIndices[,1], -sign(sftDA$fitIndices[,3])*sftDA$fitIndices[,2],
+     xlab="Soft Threshold (power)",ylab="Scale Free Topology Model Fit,signed R^2",type="n",
+     main = paste("Scale independence"));
+text(sftDA$fitIndices[,1], -sign(sftDA$fitIndices[,3])*sftDA$fitIndices[,2],
+     labels=powers,cex=cex1,col="red");
+# this line corresponds to using an R^2 cut-off of h
+abline(h=0.90,col="red")
+# Mean connectivity as a function of the soft-thresholding power
+plot(sftDA$fitIndices[,1], sftDA$fitIndices[,5],
+     xlab="Soft Threshold (power)",ylab="Mean Connectivity", type="n",
+     main = paste("Mean connectivity"))
+text(sftDA$fitIndices[,1], sftDA$fitIndices[,5], labels=powers, cex=cex1,col="red")
+abline(h=0.90,col="red")
+
+# Power of 12 stil works for both
+
+# Perform blockwise clustering for LB and DA networks 
+bwnetLB = blockwiseModules(Dermo_dds_LB_treat_WGCNA, maxBlockSize = 5000,
+                         power = 12, TOMType = "signed", minModuleSize = 30, # medium sensitivity 
+                         reassignThreshold = 0, mergeCutHeight = 0.25,
+                         corType = "bicor", # suggested by authors
+                         maxPOutliers = 0.05,  # suggested in case of disease status examples
+                         robustY = FALSE, # when dealing with binary variable, turns off robust treatment
+                         numericLabels = TRUE,
+                         saveTOMs = TRUE,
+                         saveTOMFileBase = "Dermo_LB_TOM",
+                         verbose = 3)
+
+bwnetDA = blockwiseModules(Dermo_dds_DA_treat_WGCNA, maxBlockSize = 5000,
+                           power = 12, TOMType = "signed", minModuleSize = 30, # medium sensitivity 
+                             reassignThreshold = 0, mergeCutHeight = 0.25,
+                           corType = "bicor", # suggested by authors
+                           maxPOutliers = 0.05,  # suggested in case of disease status examples
+                           robustY = FALSE, # when dealing with binary variable, turns off robust treatment
+                           numericLabels = TRUE,
+                           saveTOMs = TRUE,
+                           saveTOMFileBase = "Dermo_DA_TOM",
+                           verbose = 3)
+
+# View modules,  bwnet$colors contains the module assignment, and bwnet$MEs contains the module eigengenes of the modules.
+table(bwnetLB$colors)
+ table(bwnetDA$colors)
+
+# save module assignment and module eigengene information necessary for subsequent analysis
+moduleLabelsLB = bwnetLB$colors
+moduleColorsLB = labels2colors(bwnetLB$colors)
+MEsLB = bwnetLB$MEs;
+geneTreeLB = bwnetLB$dendrograms[[1]];
+save(MEsLB, moduleLabelsLB, moduleColorsLB, geneTreeLB,
+     file = "Dermo_LB_networkConstruction.RData")
+
+moduleLabelsDA = bwnetDA$colors
+moduleColorsDA = labels2colors(bwnetDA$colors)
+MEsDA = bwnetDA$MEs;
+geneTreeDA = bwnetDA$dendrograms[[1]];
+save(MEsDA, moduleLabelsDA, moduleColorsDA, geneTreeDA,
+     file = "Dermo_DA_networkConstruction.RData")
+
+## Quantifying module-trait associations
+
+# Correlate eigengenes with external traits for most significant associations
+# Define numbers of genes and samples
+nGenesLB = ncol(Dermo_dds_LB_treat_WGCNA)
+nSamplesLB = nrow(Dermo_dds_LB_treat_WGCNA)
+
+nGenesDA = ncol(Dermo_dds_DA_treat_WGCNA)
+nSamplesDA = nrow(Dermo_dds_DA_treat_WGCNA)
+
+# Recalculate MEs with color labels
+Dermo_coldata_binary_LB <- Dermo_coldata_binary_LB[,c(2:4)]
+MEs1 = moduleEigengenes(Dermo_dds_LB_treat_WGCNA, moduleColorsLB)$eigengenes
+MEs2 = orderMEs(MEs1)
+moduleTraitCorLB = cor(MEs2, Dermo_coldata_binary_LB, use = "p")
+moduleTraitPvalueLB = corPvalueStudent(moduleTraitCorLB, nSamplesLB)
+
+Dermo_coldata_binary_DA <- Dermo_coldata_binary_DA[,c(2:4)]
+MEs3 = moduleEigengenes(Dermo_dds_DA_treat_WGCNA, moduleColorsDA)$eigengenes
+MEs4 = orderMEs(MEs3)
+moduleTraitCorDA = cor(MEs4, Dermo_coldata_binary_DA, use = "p")
+moduleTraitPvalueDA = corPvalueStudent(moduleTraitCorDA, nSamplesDA)
+
+# Plot module-trait relationships
+# Color code each association by the correlation value
+sizeGrWindow(15,10)
+# Will display correlations and their p-values
+textMatrixLB = paste(signif(moduleTraitCorLB, 2), "\n(",
+                   signif(moduleTraitPvalueLB, 1), ")", sep = "")
+dim(textMatrixLB) = dim(moduleTraitCorLB)
+par(mar = c(6, 8.5, 3, 3))
+# Display the correlation values within a heatmap plot
+labeledHeatmap(Matrix = moduleTraitCorLB,
+               xLabels = names(Dermo_coldata_binary_LB),
+               yLabels = names(MEs2),
+               ySymbols = names(MEs2),
+               colorLabels = FALSE,
+               colors = greenWhiteRed(50),
+               textMatrix = textMatrixLB,
+               setStdMargins = FALSE,
+               cex.text = 0.3,
+               cex.lab = 0.7,
+               zlim = c(-1,1), 
+               yColorWidth = 0.2, 
+               main = paste("Module-trait relationships"))
+# for LB treat MElightsteelblue1, MEwhite
+
+# Plot DA module-trait relationships 
+sizeGrWindow(15,10)
+# Will display correlations and their p-values
+textMatrixDA = paste(signif(moduleTraitCorDA, 2), "\n(",
+                     signif(moduleTraitPvalueDA, 1), ")", sep = "")
+dim(textMatrixDA) = dim(moduleTraitCorDA)
+par(mar = c(6, 8.5, 3, 3))
+# Display the correlation values within a heatmap plot
+labeledHeatmap(Matrix = moduleTraitCorDA,
+               xLabels = names(Dermo_coldata_binary_DA),
+               yLabels = names(MEs4),
+               ySymbols = names(MEs4),
+               colorLabels = FALSE,
+               colors = greenWhiteRed(50),
+               textMatrix = textMatrixDA,
+               setStdMargins = FALSE,
+               cex.text = 0.3,
+               cex.lab = 0.7,
+               zlim = c(-1,1), 
+               yColorWidth = 0.2, 
+               main = paste("Module-trait relationships"))
+# DA significance with Treat MEpalevioletred3, MEroyalblue
+
+### Gene significance and module membership LB ####
+# Define variable Treat containing the Treat column of Dermo_coldata_binary
+
+# LB family 
+TreatLB = as.data.frame(Dermo_coldata_binary_LB$Treat)
+names(TreatLB) = "Treat"
+# names (colors) of the modules
+modNamesLB = substring(names(MEs2), 3)
+geneModuleMembershipLB = as.data.frame(cor(Dermo_dds_LB_treat_WGCNA, MEs2, use = "p"))
+MMPvalueLB = as.data.frame(corPvalueStudent(as.matrix(geneModuleMembershipLB), nSamplesLB))
+names(geneModuleMembershipLB) = paste("MM", modNamesLB, sep="")
+names(MMPvalueLB) = paste("p.MM", modNamesLB, sep="")
+
+geneTraitSignificanceLB = as.data.frame(cor(Dermo_dds_LB_treat_WGCNA, TreatLB, use = "p"))
+GSPvalueLB = as.data.frame(corPvalueStudent(as.matrix(geneTraitSignificanceLB), nSamplesLB))
+
+names(geneTraitSignificanceLB) = paste("GS.", names(TreatLB), sep="")
+names(GSPvalueLB) = paste("p.GS.", names(TreatLB), sep="")
+
+# DA family 
+TreatDA = as.data.frame(Dermo_coldata_binary_DA$Treat)
+names(TreatDA) = "Treat"
+# names (colors) of the modules
+modNamesDA = substring(names(MEs4), 3)
+geneModuleMembershipDA = as.data.frame(cor(Dermo_dds_DA_treat_WGCNA, MEs4, use = "p"))
+MMPvalueDA = as.data.frame(corPvalueStudent(as.matrix(geneModuleMembershipDA), nSamplesDA))
+names(geneModuleMembershipDA) = paste("MM", modNamesDA, sep="")
+names(MMPvalueDA) = paste("p.MM", modNamesDA, sep="")
+
+geneTraitSignificanceDA = as.data.frame(cor(Dermo_dds_DA_treat_WGCNA, TreatDA, use = "p"))
+GSPvalueDA = as.data.frame(corPvalueStudent(as.matrix(geneTraitSignificanceDA), nSamplesDA))
+
+names(geneTraitSignificanceDA) = paste("GS.", names(TreatDA), sep="")
+names(GSPvalueDA) = paste("p.GS.", names(TreatDA), sep="")
+
+# Identifying genes with high GS and MM
+
+# LB modules of interest for treatment =  lightsteelblue1, white, yellow, skyblue, sienna 3, darkgreen, grey
+# LB significant modules = turquoise, white, darkgreen, grey. Dark green and white have the greatest correlation 
+# LB turqoise significant positive relationship. Cor = 0.077, p=6.3e-07. Very large module membership
+moduleLB="turquoise"
+columnLB = match(moduleLB, modNamesLB);
+moduleGenesLB = moduleColorsLB==moduleLB;
+sizeGrWindow(7, 7);
+par(mfrow = c(1,1));
+verboseScatterplot(abs(geneModuleMembershipLB[moduleGenesLB, column]),
+                   abs(geneTraitSignificanceLB[moduleGenesLB, 1]),
+                   xlab = paste("Module Membership in", moduleLB, "module"),
+                   ylab = "Gene significance for body weight",
+                   main = paste("Module membership vs. gene significance\n"),
+                   cex.main = 1.2, cex.lab = 1.2, cex.axis = 1.2, col = "black")
+# LB White = significant association, cor = -0.24, p = 0.013
+moduleLB="white"
+columnLB = match(moduleLB, modNamesLB);
+moduleGenesLB = moduleColorsLB==moduleLB;
+sizeGrWindow(7, 7);
+par(mfrow = c(1,1));
+verboseScatterplot(abs(geneModuleMembershipLB[moduleGenesLB, column]),
+                   abs(geneTraitSignificanceLB[moduleGenesLB, 1]),
+                   xlab = paste("Module Membership in", moduleLB, "module"),
+                   ylab = "Gene significance for body weight",
+                   main = paste("Module membership vs. gene significance\n"),
+                   cex.main = 1.2, cex.lab = 1.2, cex.axis = 1.2, col = "black")
+
+# LB darkgreen significant negative correlation, cor = -0.3, p = 0.0013
+moduleLB="darkgreen"
+columnLB = match(moduleLB, modNamesLB);
+moduleGenesLB = moduleColorsLB==moduleLB;
+sizeGrWindow(7, 7);
+par(mfrow = c(1,1));
+verboseScatterplot(abs(geneModuleMembershipLB[moduleGenesLB, column]),
+                   abs(geneTraitSignificanceLB[moduleGenesLB, 1]),
+                   xlab = paste("Module Membership in", moduleLB, "module"),
+                   ylab = "Gene significance for body weight",
+                   main = paste("Module membership vs. gene significance\n"),
+                   cex.main = 1.2, cex.lab = 1.2, cex.axis = 1.2, col = "black")
+
+# LB grey significant negative correlation, cor = -0.06, p = 7.6e-27 
+moduleLB="grey"
+columnLB = match(moduleLB, modNamesLB);
+moduleGenesLB = moduleColorsLB==moduleLB;
+sizeGrWindow(7, 7);
+par(mfrow = c(1,1));
+verboseScatterplot(abs(geneModuleMembershipLB[moduleGenesLB, column]),
+                   abs(geneTraitSignificanceLB[moduleGenesLB, 1]),
+                   xlab = paste("Module Membership in", moduleLB, "module"),
+                   ylab = "Gene significance for body weight",
+                   main = paste("Module membership vs. gene significance\n"),
+                   cex.main = 1.2, cex.lab = 1.2, cex.axis = 1.2, col = "black")
+
+
+# LB lightsteelblue 1 not significant 
+moduleLB="lightsteelblue1"
+columnLB = match(moduleLB, modNamesLB);
+moduleGenesLB = moduleColorsLB==moduleLB;
+sizeGrWindow(7, 7);
+par(mfrow = c(1,1));
+verboseScatterplot(abs(geneModuleMembershipLB[moduleGenesLB, column]),
+                   abs(geneTraitSignificanceLB[moduleGenesLB, 1]),
+                   xlab = paste("Module Membership in", moduleLB, "module"),
+                   ylab = "Gene significance for body weight",
+                   main = paste("Module membership vs. gene significance\n"),
+                   cex.main = 1.2, cex.lab = 1.2, cex.axis = 1.2, col = "black")
+# Association is not significant 
+
+# LB yellow not significant
+moduleLB="yellow"
+columnLB = match(moduleLB, modNamesLB);
+moduleGenesLB = moduleColorsLB==moduleLB;
+sizeGrWindow(7, 7);
+par(mfrow = c(1,1));
+verboseScatterplot(abs(geneModuleMembershipLB[moduleGenesLB, column]),
+                   abs(geneTraitSignificanceLB[moduleGenesLB, 1]),
+                   xlab = paste("Module Membership in", moduleLB, "module"),
+                   ylab = "Gene significance for body weight",
+                   main = paste("Module membership vs. gene significance\n"),
+                   cex.main = 1.2, cex.lab = 1.2, cex.axis = 1.2, col = "black")
+
+# LB skyblue not significant
+moduleLB="skyblue"
+columnLB = match(moduleLB, modNamesLB);
+moduleGenesLB = moduleColorsLB==moduleLB;
+sizeGrWindow(7, 7);
+par(mfrow = c(1,1));
+verboseScatterplot(abs(geneModuleMembershipLB[moduleGenesLB, column]),
+                   abs(geneTraitSignificanceLB[moduleGenesLB, 1]),
+                   xlab = paste("Module Membership in", moduleLB, "module"),
+                   ylab = "Gene significance for body weight",
+                   main = paste("Module membership vs. gene significance\n"),
+                   cex.main = 1.2, cex.lab = 1.2, cex.axis = 1.2, col = "black")
+
+# LB sienna3 not significant
+moduleLB="sienna3"
+columnLB = match(moduleLB, modNamesLB);
+moduleGenesLB = moduleColorsLB==moduleLB;
+sizeGrWindow(7, 7);
+par(mfrow = c(1,1));
+verboseScatterplot(abs(geneModuleMembershipLB[moduleGenesLB, column]),
+                   abs(geneTraitSignificanceLB[moduleGenesLB, 1]),
+                   xlab = paste("Module Membership in", moduleLB, "module"),
+                   ylab = "Gene significance for body weight",
+                   main = paste("Module membership vs. gene significance\n"),
+                   cex.main = 1.2, cex.lab = 1.2, cex.axis = 1.2, col = "black")
+
+# LB black not significant
+moduleLB="black"
+columnLB = match(moduleLB, modNamesLB);
+moduleGenesLB = moduleColorsLB==moduleLB;
+sizeGrWindow(7, 7);
+par(mfrow = c(1,1));
+verboseScatterplot(abs(geneModuleMembershipLB[moduleGenesLB, column]),
+                   abs(geneTraitSignificanceLB[moduleGenesLB, 1]),
+                   xlab = paste("Module Membership in", moduleLB, "module"),
+                   ylab = "Gene significance for body weight",
+                   main = paste("Module membership vs. gene significance\n"),
+                   cex.main = 1.2, cex.lab = 1.2, cex.axis = 1.2, col = "black")
+
+# DA analysis of modules 
+# DA modules of interest = MEpalevioletred3, MEroyalblue, salmon, lightcyan, lavenderblush3
+# DA palevioletred3 only significant one
+# DA paleviotletred3 significant negative correlation 
+moduleDA="palevioletred3"
+columnDA = match(moduleDA, modNamesDA);
+moduleGenesDA = moduleColorsDA==moduleDA;
+sizeGrWindow(7, 7);
+par(mfrow = c(1,1));
+verboseScatterplot(abs(geneModuleMembershipDA[moduleGenesDA, column]),
+                   abs(geneTraitSignificanceDA[moduleGenesDA, 1]),
+                   xlab = paste("Module Membership in", moduleDA, "module"),
+                   ylab = "Gene significance for body weight",
+                   main = paste("Module membership vs. gene significance\n"),
+                   cex.main = 1.2, cex.lab = 1.2, cex.axis = 1.2, col = "black")
+# DA lavenderblush3 not significant 
+moduleDA="lavenderblush3"
+columnDA = match(moduleDA, modNamesDA);
+moduleGenesDA = moduleColorsDA==moduleDA;
+sizeGrWindow(7, 7);
+par(mfrow = c(1,1));
+verboseScatterplot(abs(geneModuleMembershipDA[moduleGenesDA, column]),
+                   abs(geneTraitSignificanceDA[moduleGenesDA, 1]),
+                   xlab = paste("Module Membership in", moduleDA, "module"),
+                   ylab = "Gene significance for body weight",
+                   main = paste("Module membership vs. gene significance\n"),
+                   cex.main = 1.2, cex.lab = 1.2, cex.axis = 1.2, col = "black")
+
+# DA lightcyan not significant
+moduleDA="lightcyan"
+columnDA = match(moduleDA, modNamesDA);
+moduleGenesDA = moduleColorsDA==moduleDA;
+sizeGrWindow(7, 7);
+par(mfrow = c(1,1));
+verboseScatterplot(abs(geneModuleMembershipDA[moduleGenesDA, column]),
+                   abs(geneTraitSignificanceDA[moduleGenesDA, 1]),
+                   xlab = paste("Module Membership in", moduleDA, "module"),
+                   ylab = "Gene significance for body weight",
+                   main = paste("Module membership vs. gene significance\n"),
+                   cex.main = 1.2, cex.lab = 1.2, cex.axis = 1.2, col = "black")
+
+# DA salmon not significant
+moduleDA="salmon"
+columnDA = match(moduleDA, modNamesDA);
+moduleGenesDA = moduleColorsDA==moduleDA;
+sizeGrWindow(7, 7);
+par(mfrow = c(1,1));
+verboseScatterplot(abs(geneModuleMembershipDA[moduleGenesDA, column]),
+                   abs(geneTraitSignificanceDA[moduleGenesDA, 1]),
+                   xlab = paste("Module Membership in", moduleDA, "module"),
+                   ylab = "Gene significance for body weight",
+                   main = paste("Module membership vs. gene significance\n"),
+                   cex.main = 1.2, cex.lab = 1.2, cex.axis = 1.2, col = "black")
+
+# DA royalblue  not significant
+moduleDA="royalblue"
+columnDA = match(moduleDA, modNamesDA);
+moduleGenesDA = moduleColorsDA==moduleDA;
+sizeGrWindow(7, 7);
+par(mfrow = c(1,1));
+verboseScatterplot(abs(geneModuleMembershipDA[moduleGenesDA, column]),
+                   abs(geneTraitSignificanceDA[moduleGenesDA, 1]),
+                   xlab = paste("Module Membership in", moduleDA, "module"),
+                   ylab = "Gene significance for body weight",
+                   main = paste("Module membership vs. gene significance\n"),
+                   cex.main = 1.2, cex.lab = 1.2, cex.axis = 1.2, col = "black")
+
+### Create data frame holding information about all DA and LB probes ###
+probesLB=colnames(Dermo_dds_LB_treat_WGCNA)
+probes2annotLB = match(probesLB, C_vir_rtracklayer_transcripts_GO$transcript_id)
+
+# Combine with module color, gene significance for weight, and module membership and p-values in all modules #
+# Create the starting data frame
+geneInfoLB = data.frame(transcript_id = probesLB, 
+                       product = C_vir_rtracklayer_transcripts_GO$product[probes2annotLB],
+                       moduleColor = moduleColorsLB,
+                       geneTraitSignificanceLB,
+                       GSPvalueLB)
+
+# Order modules by their significance for Treat
+modOrderLB = order(-abs(cor(MEs2, TreatLB, use = "p")));
+# Add module membership information in the chosen order
+for (mod in 1:ncol(geneModuleMembershipLB))
+{
+  oldNames = names(geneInfoLB)
+  geneInfoLB = data.frame(geneInfoLB, geneModuleMembershipLB[, modOrderLB[mod]],
+                         MMPvalueLB[, modOrderLB[mod]]);
+  names(geneInfoLB) = c(oldNames, paste("MM.", modNamesLB[modOrderLB[mod]], sep=""),
+                       paste("p.MM.", modNamesLB[modOrderLB[mod]], sep=""))
+}
+# Order the genes in the geneInfo variable first by module color, then by geneTraitSignificance
+geneOrderLB = order(geneInfoLB$moduleColor, -abs(geneInfoLB$GS.Treat))
+geneInfoLB = geneInfoLB[geneOrderLB, ]
+
+## Create output file for DA analysis
+probesDA=colnames(Dermo_dds_DA_treat_WGCNA)
+probes2annotDA = match(probesDA, C_vir_rtracklayer_transcripts_GO$transcript_id)
+
+# Combine with module color, gene significance for weight, and module membership and p-values in all modules #
+# Create the starting data frame
+geneInfoDA = data.frame(transcript_id = probesDA, 
+                        product = C_vir_rtracklayer_transcripts_GO$product[probes2annotDA],
+                        moduleColor = moduleColorsDA,
+                        geneTraitSignificanceDA,
+                        GSPvalueDA)
+
+# Order modules by their significance for Treat
+modOrderDA = order(-abs(cor(MEs4, TreatDA, use = "p")));
+# Add module membership information in the chosen order
+for (mod in 1:ncol(geneModuleMembershipDA))
+{
+  oldNames = names(geneInfoDA)
+  geneInfoDA = data.frame(geneInfoDA, geneModuleMembershipDA[, modOrderDA[mod]],
+                          MMPvalueDA[, modOrderDA[mod]]);
+  names(geneInfoDA) = c(oldNames, paste("MM.", modNamesDA[modOrderDA[mod]], sep=""),
+                        paste("p.MM.", modNamesDA[modOrderDA[mod]], sep=""))
+}
+# Order the genes in the geneInfo variable first by module color, then by geneTraitSignificance
+geneOrderDA = order(geneInfoDA$moduleColor, -abs(geneInfoDA$GS.Treat))
+geneInfoDA = geneInfoLB[geneOrderDA, ]
+
+# Subset data frames for significant modules
+geneInfoLB_sig <- select(geneInfoLB,c("transcript_id", "product","moduleColor",
+                                "GS.Treat", "p.GS.Treat", 
+                                "MM.turquoise",
+                                "p.MM.turquoise",
+                                "MM.white", 
+                                "p.MM.white", 
+                                "MM.darkgreen", 
+                                "p.MM.darkgreen", 
+                                "MM.grey",
+                                "p.MM.grey"))
+geneInfoDA_sig <- select(geneInfoDA, c("transcript_id", "product","moduleColor",
+                                       "GS.Treat", "p.GS.Treat",
+                                       "MM.palevioletred3",
+                                       "p.MM.palevioletred3"))
+# subset genes for modules of interest
+LB_sig_list <- c("turquoise", "white","darkgreen", "grey")
+geneInfoLB_sig_genes <- filter(geneInfoLB_sig, moduleColor %in% LB_sig_list)
+nrow(geneInfoLB_sig_genes) # 36301
+geneInfoDA_sig_genes <- filter(geneInfoDA_sig, moduleColor == "palevioletred3")
+nrow(geneInfoDA_sig_genes) 
+View(geneInfoDA_sig_genes)
+
+# subset apoptosis related genes in both 
+geneInfoLB_sig_genes_apop <-  geneInfoLB_sig_genes[grepl(paste(Apoptosis_names,collapse="|"), 
+                                                         geneInfoLB_sig_genes$product, ignore.case = TRUE),]
+geneInfoDA_sig_genes_apop <- geneInfoDA_sig_genes[grepl(paste(Apoptosis_names,collapse="|"), 
+                                                        geneInfoDA_sig_genes$product, ignore.case = TRUE),]
+
+nrow(geneInfoLB_sig_genes_apop) # 907
+View(geneInfoLB_sig_genes_apop)
+geneInfoLB_sig_genes_apop %>% filter(moduleColor == "white")
+unique(geneInfoLB_sig_genes_apop$moduleColor) # only grey and turqoise have apoptosis genes significantly associated with trait
+
+nrow(geneInfoDA_sig_genes_apop) # 1 
+
+
 #### Exporting WGCNA results to Cytoscape ####
 
 # Cytoscape wants specific modules to be input into the software. Need to select particular modules of interest
@@ -3654,5 +4243,39 @@ cyt = exportNetworkToCytoscape(modTOM,
                                altNodeNames = modGenes,
                                nodeAttr = moduleColors[inModule])
 
-###### WGCNA split up family analysis control vs. treatment and then Compare #### 
+###### Export to Visant  #### 
+## Following code was run in the cluster because it kept crashing my computer
+## wasn't working on cluster so I ran on lab computer
+    # downloaded R 3.6.1 and R studio1.2.1335 onto desktop
+    # saved in erin_roberts desktop folder
+    # computer too old to download XCODE
+# attempting to use external hardrive to boost RAM for processes 
+# Recalculate topological overlap
+TOMLB = TOMsimilarityFromExpr(Dermo_dds_LB_treat_WGCNA, power = 12) # this caused my computer to crash
+# Select module
+module = c("darkgreen","white")
+# Select module probes
+probes = colnames(Dermo_dds_LB_treat_WGCNA)
+inModule = (moduleColors==module);
+modProbes = probes[inModule];
+# Select the corresponding Topological Overlap
+modTOM = TOM[inModule, inModule];
+dimnames(modTOM) = list(modProbes, modProbes)
+# Export the network into an edge list file VisANT can read
+vis = exportNetworkToVisANT(modTOM,
+                            file = paste("VisANTInput-", module, ".txt", sep=""),
+                            weighted = TRUE,
+                            threshold = 0,
+                            probeToGene = data.frame(C_vir_rtracklayer_transcripts_GO$transcript_id, C_vir_rtracklayer_transcripts_GO$product) )
 
+# restrict output genes to top 30 hub genes
+nTop = 30;
+IMConn = softConnectivity(datExpr[, modProbes]);
+top = (rank(-IMConn) <= nTop)
+vis = exportNetworkToVisANT(modTOM[top, top],
+                            file = paste("VisANTInput-", module, "-top30.txt", sep=""),
+                            weighted = TRUE,
+                            threshold = 0,
+                            probeToGene = data.frame(C_vir_rtracklayer_transcripts_GO$transcript_id, C_vir_rtracklayer_transcripts_GO$product) )
+
+# ViSANT run locally on computer
