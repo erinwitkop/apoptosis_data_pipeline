@@ -1,6 +1,6 @@
 # Pipeline to perform differential transcript analysis with transcriptomes
 ## By: Erin M. Roberts
-## 8/22/17
+## 1/29/2020
 
 This pipeline includes scripts I generated to analyze transcriptomes for differential expression with samples from *C. gigas* and *C. virginica*.
 
@@ -22,7 +22,7 @@ Scripts again are separated into separate folders by species.
 
 Adidtionally, I have provided a folder called "Streamlined Pipeline Tutorial" where I provide a Markdown file with resources for where to find each tool, step by step instructions of how to use the pipeline, and rationale for how I set up the pipeline. I also include relevant papers as well as a powerpoint providing an introduction to reference-based RNA-seq in general.
 
-To cite this work: Roberts, E.M. 2017. "Pipeline to perform differential expression analysis with transcriptomes".
+To cite this work: Roberts, E.M. 2020. "Pipeline to perform differential expression analysis with transcriptomes".
 https://github.com/erinroberts/apoptosis_data_pipeline. The University of Rhode Island. 
  
 
