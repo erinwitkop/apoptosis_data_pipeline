@@ -35,6 +35,7 @@ compare apoptosis gene expression between disease challenges.
   ## 4. Make an individual text file for each experiment with the SRA's for each (not for Dermo transcriptomes),
   and Create Full_SRA_PE_list.txt and Full_SRA_SE_list.txt that has full SRA list (with species combined)
 
+```
   $ pwd
   /Users/erinroberts/Documents/PhD_Research/Chapter_1_Apoptosis Paper/Chapter1_Apoptosis_Transcriptome_Analyses_2019/DATA ANALYSIS/apoptosis_data_pipeline/Transcriptome_Bluewaves_Cluster_Analysis_2020/Bio_projects_Sample_Metadata        $ ls *SRA_ID.txt
 
@@ -42,7 +43,7 @@ compare apoptosis gene expression between disease challenges.
       C_gig_He_2015_OsHV1_SRA_ID.txt		C_gig_deLorgeril_OsHV1_SRA_ID.txt	Full_SRA_PE_list.txt
       C_gig_Rubio_Vibrio_SRA_ID.txt		C_vir_Probiotic_SRA_ID.txt		Full_SRA_SE_list.txt
       C_gig_Zhang_Vibrio_SRA_ID.txt		C_vir_ROD_SRA_ID.txt
-
+```
 
   ## 6. Add metadata for all the samples to "Organized_SRA_info.xlsx" spreadsheet for reference later.
 
