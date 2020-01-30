@@ -5,9 +5,9 @@
 This R markdown project notebook details my full analysis steps for performing comparative transcriptomics to
 compare apoptosis gene expression between disease challenges.
 
-# 1/29/2020-1/30/2020 Data Preparation, Data Storage Plan
+## 1/29/2020-1/30/2020 Data Preparation, Data Storage Plan
 
-  ## 1. Review Which SRAs to download and analyze from each full experiment:
+  ### 1. Review Which SRAs to download and analyze from each full experiment:
 
       - C. virginica Probiotic = Download and analyze all available SRAs
       - C. virginica ROD = Download and analyze all available SRAs
@@ -21,18 +21,17 @@ compare apoptosis gene expression between disease challenges.
       21 that were infected with OsHV-1 during a "natural" infection and sequenced. These were all sequenced
       paired end on hiseq 500. 42 total transcriptomes
 
-  ## 2. Create New folders on bluewaves cluster where data will be housed.
+  ### 2. Create New folders on bluewaves cluster where data will be housed.
 
       - Data will be housed in the following folders
 
 
 
-  ## 3.  Merge technical replicates from Proestou et al. 2015 transcriptomes. Do this by concatenating
-  all technical rep 1 and 2 forward reads and technical rep 1 and 2 reverse reads.
+  ### 3.  Merge technical replicates from Proestou et al. 2015 transcriptomes. Do this by concatenating all technical rep 1 and 2 forward reads and technical rep 1 and 2 reverse reads.
 
 
 
-  ## 4. Make an individual text file for each experiment with the SRA's for each (not for Dermo transcriptomes),
+  ### 4. Make an individual text file for each experiment with the SRA's for each (not for Dermo transcriptomes),
   and Create Full_SRA_PE_list.txt and Full_SRA_SE_list.txt that has full SRA list (with species combined)
 
 ```
@@ -45,10 +44,10 @@ compare apoptosis gene expression between disease challenges.
       C_gig_Zhang_Vibrio_SRA_ID.txt		C_vir_ROD_SRA_ID.txt
 ```
 
-  ## 6. Add metadata for all the samples to "Organized_SRA_info.xlsx" spreadsheet for reference later.
+  ### 6. Add metadata for all the samples to "Organized_SRA_info.xlsx" spreadsheet for reference later.
 
         - Complete
 
 
 
-# 1/30/2020 Data Download from SRA database (except for Dermo transcriptomes from Dina)
+## 1/30/2020 Data Download from SRA database (except for Dermo transcriptomes from Dina)
