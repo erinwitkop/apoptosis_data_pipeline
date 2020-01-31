@@ -23,31 +23,42 @@ compare apoptosis gene expression between disease challenges.
 
   ### 2. Create New folders on bluewaves cluster where data will be housed.
 
-      - Data will be housed in the following folders
+      - C. virginica Raw data will be in the following folder, with a separate directory per experiment:
+      ```
+      /data3/marine_diseases_lab/erin/2017_2020_Transcriptome_Analysis/pipeline_files/C_Vir_subset/2020_Raw_Transcriptome_Data
+      ```
+      -C. gigas Raw data will be in the following folder, with a separate directory per experiment:
+      ```
+      /data3/marine_diseases_lab/erin/2017_2020_Transcriptome_Analysis/pipeline_files/Bac_Viral_subset/2020_Raw_Transcriptome_Data
+      ```
 
-
-
-  ### 3.  Merge technical replicates from Proestou et al. 2015 transcriptomes. Do this by concatenating all technical rep 1 and 2 forward reads and technical rep 1 and 2 reverse reads.
-
-
-
-  ### 4. Make an individual text file for each experiment with the SRA's for each (not for Dermo transcriptomes),
+  ### 3. Make an individual text file for each experiment with the SRA's for each (not for Dermo transcriptomes),
   and Create Full_SRA_PE_list.txt and Full_SRA_SE_list.txt that has full SRA list (with species combined)
 
-```
-  $ pwd
-  /Users/erinroberts/Documents/PhD_Research/Chapter_1_Apoptosis Paper/Chapter1_Apoptosis_Transcriptome_Analyses_2019/DATA ANALYSIS/apoptosis_data_pipeline/Transcriptome_Bluewaves_Cluster_Analysis_2020/Bio_projects_Sample_Metadata        $ ls *SRA_ID.txt
+      ```
+        $ pwd
+        /Users/erinroberts/Documents/PhD_Research/Chapter_1_Apoptosis Paper/Chapter1_Apoptosis_Transcriptome_Analyses_2019/DATA ANALYSIS/apoptosis_data_pipeline/Transcriptome_Bluewaves_Cluster_Analysis_2020/Bio_projects_Sample_Metadata        $ ls *SRA_ID.txt
 
-  $ ls *.txt
-      C_gig_He_2015_OsHV1_SRA_ID.txt		C_gig_deLorgeril_OsHV1_SRA_ID.txt	Full_SRA_PE_list.txt
-      C_gig_Rubio_Vibrio_SRA_ID.txt		C_vir_Probiotic_SRA_ID.txt		Full_SRA_SE_list.txt
-      C_gig_Zhang_Vibrio_SRA_ID.txt		C_vir_ROD_SRA_ID.txt
-```
+        $ ls *.txt
+            C_gig_He_2015_OsHV1_SRA_ID.txt		C_gig_deLorgeril_OsHV1_SRA_ID.txt	Full_SRA_PE_list.txt
+            C_gig_Rubio_Vibrio_SRA_ID.txt		C_vir_Probiotic_SRA_ID.txt		Full_SRA_SE_list.txt
+            C_gig_Zhang_Vibrio_SRA_ID.txt		C_vir_ROD_SRA_ID.txt
+      ```
 
   ### 6. Add metadata for all the samples to "Organized_SRA_info.xlsx" spreadsheet for reference later.
 
-        - Complete
+        - Completed
 
+## 1/31/2020 Data Download from SRA database (except for Dermo transcriptomes from Dina)
 
+  ### 1. Write script to download each SRA in a separate loop and place files in correct folder.
 
-## 1/30/2020 Data Download from SRA database (except for Dermo transcriptomes from Dina)
+    - Script added to github.
+      Path: /Users/erinroberts/Documents/PhD_Research/Chapter_1_Apoptosis Paper/Chapter1_Apoptosis_Transcriptome_Analyses_2019/DATA ANALYSIS/apoptosis_data_pipeline/Transcriptome_Bluewaves_Cluster_Analysis_2020/2020_SCRIPTS/fetch_all_SRA_2020.sh
+
+    - Version of SRA toolkit used: SRA-Toolkit/2.9.0-centos_linux64
+    - Out and error files in `/data3/marine_diseases_lab/erin/2017_2020_Transcriptome_Analysis/pipeline_files/2020_Scripts/Script_out_error_files/`
+          a. Outfile named `fetch_SRA_output_1_31_2020`
+          b. Error file named `fetch_SRA_error_1_31_2020`  
+
+  ### 2. Merge technical replicates from Proestou et al. 2015 transcriptomes. Do this by concatenating all technical rep 1 and 2 forward reads and technical rep 1 and 2 reverse reads.
