@@ -19,32 +19,31 @@ G=/data3/marine_diseases_lab/erin/2017_2020_Transcriptome_Analysis/pipeline_file
 ####### Load single end read files #######
 
 # Load C_gig_He_2015_OsHV1_SRA_ID
-for f in $G/C_gig_He_OsHV1_SRA/C_gig_He_2015_OsHV1_SRA_ID.txt
-do
-  prefetch --option-file $f
-  while read -r LINE; do
-    fastq-dump -O $G/C_gig_He_OsHV1_SRA/ --readids --gzip $LINE
-  done < $f
-done
-echo "C_gig_He_2015_OsHV1_SRA_ID download done $(date)"
-
-for f in $G/C_gig_He_OsHV1_SRA/C_gig_He_2015_OsHV1_SRA_ID.txt
-do
-  vdb-validate $f
-done
-
-echo "C_gig_He_2015_OsHV1_SRA_ID validate DONE $(date)"
-
-## Load C_gig_Zhang_Vibrio_SRA_ID
-#for f in $G/C_gig_Zhang_Vibrio_SRA/C_gig_Zhang_Vibrio_SRA_ID.txt
+#for f in $G/C_gig_He_OsHV1_SRA/C_gig_He_2015_OsHV1_SRA_ID.txt
 #do
 #  prefetch --option-file $f
 #  while read -r LINE; do
-#    fastq-dump -O $G/C_gig_Zhang_Vibrio_SRA/ --readids --gzip $LINE
+#    fastq-dump -O $G/C_gig_He_OsHV1_SRA/ --readids --gzip $LINE
 #  done < $f
 #done
+#echo "C_gig_He_2015_OsHV1_SRA_ID download done $(date)"
 
-#echo "C_gig_Zhang_Vibrio_SRA_ID DONE $(date)"
+#vdb-validate --option-file $G/C_gig_He_OsHV1_SRA/C_gig_He_2015_OsHV1_SRA_ID.txt &>  $G/C_gig_He_OsHV1_SRA/OsHV1_He_sra_checksum.txt
+
+#echo "C_gig_He_2015_OsHV1_SRA_ID validate DONE $(date)"
+
+## Load C_gig_Zhang_Vibrio_SRA_ID
+for f in $G/C_gig_Zhang_Vibrio_SRA/C_gig_Zhang_Vibrio_SRA_ID.txt
+do
+  prefetch --option-file $f
+  while read -r LINE; do
+    fastq-dump -O $G/C_gig_Zhang_Vibrio_SRA/ --readids --gzip $LINE
+  done < $f
+done
+
+vdb-validate --option-file $G/C_gig_Zhang_Vibrio_SRA/C_gig_Zhang_Vibrio_SRA_ID.txt &>  $G/C_gig_Zhang_Vibrio_SRA/Zhang_Vibrio_sra_checksum.txt
+
+echo "C_gig_Zhang_Vibrio_SRA_ID DONE $(date)"
 
 ## Load C_vir_ROD_SRA_ID
 #for f in $C/C_vir_ROD_SRA/C_vir_ROD_SRA_ID.txt
