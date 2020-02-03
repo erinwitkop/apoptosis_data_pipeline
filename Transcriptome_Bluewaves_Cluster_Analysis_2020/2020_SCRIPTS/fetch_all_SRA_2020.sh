@@ -54,6 +54,8 @@ echo "C_gig_Zhang_Vibrio_SRA_ID DONE $(date)"
 #  done < $f
 #done
 
+# vdb-validate --option-file $C/C_vir_ROD_SRA/C_vir_ROD_SRA_ID.txt &>  $C/C_vir_ROD_SRA/C_vir_ROD_sra_checksum.txt
+
 #echo "C_vir_ROD_SRA_ID DONE $(date)"
 
 ###### Load paired end read files #####
@@ -67,6 +69,8 @@ echo "C_gig_Zhang_Vibrio_SRA_ID DONE $(date)"
 #  done < $f
 #done
 
+# vdb-validate --option-file $G/C_gig_deLorgeril_OsHV1_SRA/C_gig_deLorgeril_OsHV1_SRA_ID.txt &>  $G/C_gig_deLorgeril_OsHV1_SRA/C_gig_lorgeril_OsHV1_sra_checksum.txt
+
 #echo "C_gig_deLorgeril_OsHV1 DONE $(date)"
 
 ## Load C_gig_Rubio_Vibrio_SRA_ID
@@ -77,6 +81,8 @@ echo "C_gig_Zhang_Vibrio_SRA_ID DONE $(date)"
 #    fastq-dump -O $G/C_gig_Rubio_Vibrio_SRA/ --split-files --readids --gzip $LINE
 #  done < $f
 #done
+
+# vdb-validate --option-file $G/C_gig_Rubio_Vibrio_SRA/C_gig_Rubio_Vibrio_SRA_ID.txt &>  $G/C_gig_Rubio_Vibrio_SRA/C_gig_Rubio_Vibrio_sra_checksum.txt
 
 #echo "C_gig_Rubio_Vibrio_SRA DONE $(date)"
 
@@ -89,7 +95,8 @@ echo "C_gig_Zhang_Vibrio_SRA_ID DONE $(date)"
 #  done < $f
 #done
 
-#echo "C_vir_Probiotic_SRA_ID DONE $(date)"
+# vdb-validate --option-file $C/C_vir_Probiotic_SRA/C_vir_Probiotic_SRA_ID.txt &>  $C/C_vir_Probiotic_SRA/C_vir_Probiotic_sra_checksum.txt
 
+#echo "C_vir_Probiotic_SRA_ID DONE $(date)"
 
 echo "STOP $(date)"
