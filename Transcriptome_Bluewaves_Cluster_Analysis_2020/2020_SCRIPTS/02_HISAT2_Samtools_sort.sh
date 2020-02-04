@@ -28,11 +28,11 @@ GZV=/data3/marine_diseases_lab/erin/2017_2020_Transcriptome_Analysis/pipeline_fi
 
 # C. virginica genome index
 #Build HISAT index with cvir_edited (this file has extra spaces in header removed so that genome and annotation don't conflict)
-hisat2-build -f $CV/cvir_edited.fa cvir_edited_index
+hisat2-build -f $CV/cvir_edited.fa $CV/cvir_edited_index
   # -f indicates that the reference input files are FASTA files
 
 # C. gigas genome index
-hisat2-build -f $CG/GCF_000297895.1_oyster_v9_genomic.fna   GCF_000297895.1_oyster_v9_genomic_index
+hisat2-build -f $CG/GCF_000297895.1_oyster_v9_genomic.fna   $CG/GCF_000297895.1_oyster_v9_genomic_index
   # -f indicates that the reference input files are FASTA files
 
 ############# USE HISAT TO ALIGN RNA-READS TO GENOME ##############
@@ -98,7 +98,7 @@ for i in ${array3[@]}; do
   samtools stats {i} | grep ^SN | cut -f 2- > ${i}.sam.bam.fullstat
 done
 
-echo "C_vir_Probiotic_SRA_ID DONE $(date)"  
+echo "C_vir_Probiotic_SRA_ID DONE $(date)"
 
 # C_vir_Dermo
 array4=($(ls $CD/*_1.fastq.gz.clean.trim.filter))
