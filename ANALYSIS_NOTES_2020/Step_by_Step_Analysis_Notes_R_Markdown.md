@@ -69,9 +69,17 @@ compare apoptosis gene expression between disease challenges.
       -As long as every file receives an output report like below, the download was successful
         `Read 11992053 spots for SRR2002962
         Written 11992053 spots for SRR2002962`
-      -Check that the number of samples read and written in the output file and the number of total files match
+    -Check that the number of samples read and written in the output file and the number of total files match
         `$ grep 'Read' fetch_SRA_output_He_OsHV1_2_3_2020 | wc -l`
-      -Added `vdb-validate --option-file *SRA_ID.txt` for each file in the script
+    -Added `vdb-validate --option-file *SRA_ID.txt` for each file in the script. This file is saved in each folder.
+
+    - Experiments finished downloading and reviewing checksum:
+      1. HE OsHV1 - downloaded and checksum confirmed
+      2. Zhang Vibrio - downloaded and checksum confirmed
+      3. ROD - downloaded and checksum confirmed
+      4. de lorgeril OsHV1- downloaded and confirmed
+      5. Rubio Vibrio - downloading
+      6. Probiotic - downloading
 
   ### 2. Merge technical replicates from Proestou et al. 2015 transcriptomes. (decided to do in DESeq2)
 
@@ -83,7 +91,27 @@ compare apoptosis gene expression between disease challenges.
 ## 2/1/2020 Adapter Trimming, Quality Filtering of data
 
   ### 1. Combined trimming scripts for both C_gig and C_vir into single script. In order to maintain folder organization of files from each experiment, I'm going to run a loop through every filtering and trimming command on all the files for each experiment separately.
-      a. Though I have them all in a single script. I'm commenting out parts of the script and running them individually to check. A separate output file will exist for each. Compressing and then deleting intermediate files between each step.
+      a. Though I have them all in a single script. I'm commenting out parts of the script and running them individually to check. A separate output file will exist for each. Deleting intermediate files between each step.
       b. Starting with the Dermo transcriptomes that I know are fully downloaded, while the other SRAs are finishing being downloaded.  
-      c. Running Dermo transcriptome script alone (because file name format is different). Script called "01_SRA_Trim_Filter_Dermo_only.sh"
-      d. In the script, deleting the intermediate files after each step.
+      c. Running Dermo transcriptome script separately (because file name format is different). Script called "01_SRA_Trim_Filter_Dermo_only.sh"
+          - finished successfully
+          - Checked that all files had been pre-processed. 194 total raw files and processed files.
+          - moved raw data into one lower folder `Dermo_Raw_Transcriptomes`
+          - Compressed the raw data folder in interactive mode
+              `$tar -zcvf Dermo_Raw_Transcriptomes.archive.tar.gz Dermo_Raw_Transcriptomes`
+      d. Running HE OsHV1 preprocessing
+          - Completed
+          - Checked all files had been processed
+             `$ ls *.filter.gz | wc -l ` 32
+             `$ ls ./He_OsHV1_Raw_Transcriptomes/* | wc -l` 32
+          - Moved raw data into `He_OsHV1_Raw_Transcriptomes`
+          - Compressed raw data folder
+      e. Starting Zhang Vibrio Pre-processing
+          - Completed
+          - Checked all files had been processed
+          `[erin_roberts@bluewaves Zhang_Vibrio_Raw_Transcriptomes]$ ls * | wc -l ` 9
+          `[erin_roberts@bluewaves C_gig_Zhang_Vibrio_SRA]$ ls *.gz | wc -l ` 9
+          - Moved raw data into `Zhang_Vibrio_Raw_Transcriptomes`
+          - Compressed Raw data
+            `$ tar -zcvf Zhang_Vibrio_Raw_Transcriptomes.archive.tar.gz Zhang_Vibrio_Raw_Transcriptomes`
+      f. Starting ROD Pre-processing
