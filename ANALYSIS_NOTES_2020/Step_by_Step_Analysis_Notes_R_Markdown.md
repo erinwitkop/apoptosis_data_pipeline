@@ -119,12 +119,14 @@ compare apoptosis gene expression between disease challenges.
             `$ tar -zcvf Zhang_Vibrio_Raw_Transcriptomes.archive.tar.gz Zhang_Vibrio_Raw_Transcriptomes`
       f. Starting ROD Pre-processing
       g. Starting deLorgeril OsHV1 pre-processing
+      h. Starting Rubio Vibrio pre-processing
+      i. Starting Probiotic pre-processing
 
       - All scripts have unique output and error files. Ended up running pre-processing on data subsets one at a time in order to expedite process.
 
-## 2/5/2020 - Building HISAT2 Script and Running HISAT2
+## 2/4/2020 - 2/5/2020 Building HISAT2 Script and Running HISAT2
 
-  1. Building script to run HISAT on all samples, paired end and single end
+  1. Building new HISAT index.
       a. Note, a new version of HISAT is now available on the cluster. I'm going to use this version (HISAT2/2.1.0-foss-2016b)
           - Notes also that the code I'm adding to github is all combined into one script, though I ran the same code in the cluster separated into multiple scripts to aid in running multiple scripts at once. The code used however was not changed.
       a. Checking how HISAT2 genome indexes we made. Creating new indexes for both C_vir and C_gig using updated software version
@@ -144,6 +146,7 @@ compare apoptosis gene expression between disease challenges.
               >NC_035789.1 Crassostrea virginica isolate RU13XGHG1-28 chromosome 10, C_virginica-3.0, whole genome shotgun sequence
               >NC_007175.2 Crassostrea virginica mitochondrion, complete genome`
             - Checking C_gigas genome file. Only on the cluster was `Crassostrea_gigas.gff`. A newer version of C_gigas genome is avaiable on NCBI now. Downloading that version and will use it to create HISAT2 index for C_gigas sequences.
-              - The C. gigas genome file contains all the genomic scaffolds (it has never been assembled to chromosome level like oysters) and the mitochondrial genome.
+                - The C. gigas genome file contains all the genomic scaffolds (it has never been assembled to chromosome level like oysters) and the mitochondrial genome.
 
-            - Creating new indexes using code in `02_Build_Hisat_Indexes.sh`
+            - Creating new indexes using code in `02_Build_Hisat_Indexes.sh`. Indices created!
+  2. Creating script to perform HISAT 2 alignment and SAMtools sorting on files for each experiment.
