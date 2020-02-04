@@ -81,6 +81,9 @@ compare apoptosis gene expression between disease challenges.
       5. Rubio Vibrio - downloading
       6. Probiotic - downloading
 
+    - Download data as several separate scripts. There are individual output and error files for each download for future reference:
+
+
   ### 2. Merge technical replicates from Proestou et al. 2015 transcriptomes. (decided to do in DESeq2)
 
     - Options:
@@ -88,7 +91,7 @@ compare apoptosis gene expression between disease challenges.
       b. Combined in DESeq2 using collapseReplicates() function. See site for details: https://support.bioconductor.org/p/85536/
         1. see the collapseReplicates section of this DESeq tutorial: https://bioc.ism.ac.jp/packages/2.14/bioc/vignettes/DESeq2/inst/doc/beginner.pdf for code. Thus function merges the count tables before proceeeding to calculate DeSeq2.
 
-## 2/1/2020 Adapter Trimming, Quality Filtering of data
+## 2/1/2020-2/4/2020 Adapter Trimming, Quality Filtering of data
 
   ### 1. Combined trimming scripts for both C_gig and C_vir into single script. In order to maintain folder organization of files from each experiment, I'm going to run a loop through every filtering and trimming command on all the files for each experiment separately.
       a. Though I have them all in a single script. I'm commenting out parts of the script and running them individually to check. A separate output file will exist for each. Deleting intermediate files between each step.
@@ -115,3 +118,62 @@ compare apoptosis gene expression between disease challenges.
           - Compressed Raw data
             `$ tar -zcvf Zhang_Vibrio_Raw_Transcriptomes.archive.tar.gz Zhang_Vibrio_Raw_Transcriptomes`
       f. Starting ROD Pre-processing
+      g. Starting deLorgeril OsHV1 pre-processing
+
+      - All scripts have unique output and error files. Ended up running pre-processing on data subsets one at a time in order to expedite process.
+
+## 2/5/2020 - Building HISAT2 Script and Running HISAT2
+
+  1. Building script to run HISAT on all samples, paired end and single end
+      a. Note, a new version of HISAT is now available on the cluster. I'm going to use this version (HISAT2/2.1.0-foss-2016b)
+          - Notes also that the code I'm adding to github is all combined into one script, though I ran the same code in the cluster separated into multiple scripts to aid in running multiple scripts at once. The code used however was not changed.
+      a. Checking how HISAT2 genome indexes we made. Creating new indexes for both C_vir and C_gig using updated software version
+
+          - Checking C_virginica genome file on hand which was edited from `ref_C_virginica-3.0_top_level.gff3` to remove a space from header that was making it incompatible with Stringtie annotation. Checking also that mitochondrial DNA was added.
+
+            `$ grep '^>' cvir_edited.fa
+              >NC_035780.1 Crassostrea virginica isolate RU13XGHG1-28 chromosome 1, C_virginica-3.0, whole genome shotgun sequence
+              >NC_035781.1 Crassostrea virginica isolate RU13XGHG1-28 chromosome 2, C_virginica-3.0, whole genome shotgun sequence
+              >NC_035782.1 Crassostrea virginica isolate RU13XGHG1-28 chromosome 3, C_virginica-3.0, whole genome shotgun sequence
+              >NC_035783.1 Crassostrea virginica isolate RU13XGHG1-28 chromosome 4, C_virginica-3.0, whole genome shotgun sequence
+              >NC_035784.1 Crassostrea virginica isolate RU13XGHG1-28 chromosome 5, C_virginica-3.0, whole genome shotgun sequence
+              >NC_035785.1 Crassostrea virginica isolate RU13XGHG1-28 chromosome 6, C_virginica-3.0, whole genome shotgun sequence
+              >NC_035786.1 Crassostrea virginica isolate RU13XGHG1-28 chromosome 7, C_virginica-3.0, whole genome shotgun sequence
+              >NC_035787.1 Crassostrea virginica isolate RU13XGHG1-28 chromosome 8, C_virginica-3.0, whole genome shotgun sequence
+              >NC_035788.1 Crassostrea virginica isolate RU13XGHG1-28 chromosome 9, C_virginica-3.0, whole genome shotgun sequence
+              >NC_035789.1 Crassostrea virginica isolate RU13XGHG1-28 chromosome 10, C_virginica-3.0, whole genome shotgun sequence
+              >NC_007175.2 Crassostrea virginica mitochondrion, complete genome`
+            - Checking C_gigas genome file. Only on the cluster was `Crassostrea_gigas.gff`. A newer version of C_gigas genome is avaiable on NCBI now. Downloading that version and will use it to create HISAT2 index for C_gigas sequences.
+              - The C. gigas genome file contains all the genomic scaffolds (it has never been assembled to chromosome level like oysters) and the mitochondrial genome.
+
+            - Creating new indexes using following code:
+
+`#!/bin/bash
+#SBATCH -t 1000:00:00
+#SBATCH --nodes=1
+#SBATCH --export=NONE
+#SBATCH -o /data3/marine_diseases_lab/erin/2017_2020_Transcriptome_Analysis/pipeline_files/2020_Scripts/Script_out_error_files/HISAT_index_build_out_2_4_2020
+#SBATCH -e /data3/marine_diseases_lab/erin/2017_2020_Transcriptome_Analysis/pipeline_files/2020_Scripts/Script_out_error_files/ISAT_index_build_error_2_4_2020
+
+echo "START" $(date)
+
+module load HISAT2/2.1.0-foss-2016b
+
+
+# Create variable for each path to trimmed and quality filtered data folder
+CV=/data3/marine_diseases_lab/erin/2017_2020_Transcriptome_Analysis/pipeline_files/C_Vir_subset/Cvir_Genome_and_Indexes
+CG=/data3/marine_diseases_lab/erin/2017_2020_Transcriptome_Analysis/pipeline_files/C_gig_Bac_Viral_subset/Cgig_Genome_and_Indexes
+
+############## BUILDING HISAT2 INDEXES ###################
+#Index will be made with reference genome and no annotation file (allowing for novel transcript discovery)
+        # create new directory for the HISAT index called genome, and put the genome inside it
+        # copy all reads files into this directory as well to ensure easy access by commands
+
+# C. virginica genome index
+#Build HISAT index with cvir_edited (this file has extra spaces in header removed so that genome and annotation don't conflict)
+hisat2-build -f $CV/cvir_edited.fa cvir_edited_index
+  # -f indicates that the reference input files are FASTA files
+
+# C. gigas genome index
+hisat2-build -f $CG/GCF_000297895.1_oyster_v9_genomic.fna   GCF_000297895.1_oyster_v9_genomic_index
+  # -f indicates that the reference input files are FASTA files`
