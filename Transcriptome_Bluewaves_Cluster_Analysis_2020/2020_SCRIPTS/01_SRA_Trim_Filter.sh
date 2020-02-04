@@ -70,71 +70,71 @@ done
 
 ## C_gig_Rubio_Vibrio_SRA_ID: Trimming of adaptors
 #array2=($(ls $GRV/*_1.fastq.gz))
-#for i in ${array2[@]}; do
-#	bbduk.sh in1=${i} out1=${i}.clean in2=$(echo ${i}|sed s/_1/_2/) out2=$(echo ${i}|sed s/_1/_2/).clean ref=/opt/software/BBMap/37.36-foss-2016b-Java-1.8.0_131/resources/adapters.fa ktrim=r k=23 mink=11 hdist=1 tpe tbo
-#	echo "adapter trimming ${i} $(date)"
+for i in ${array2[@]}; do
+	bbduk.sh in1=${i} out1=${i}.clean in2=$(echo ${i}|sed s/_1/_2/) out2=$(echo ${i}|sed s/_1/_2/).clean ref=/opt/software/BBMap/37.36-foss-2016b-Java-1.8.0_131/resources/adapters.fa ktrim=r k=23 mink=11 hdist=1 tpe tbo
+	echo "adapter trimming ${i} $(date)"
 	#Quality trimmming, of both the left and the right sides to get rid of reads that are less than quality 20
-#	bbduk.sh in1=${i}.clean out1=${i}.clean.trim in2=$(echo ${i}|sed s/_1/_2/).clean out2=$(echo ${i}|sed s/_1/_2/).clean.trim qtrim=rl trimq=20
-#	echo "quality trimming ${i} $(date)"
+	bbduk.sh in1=${i}.clean out1=${i}.clean.trim in2=$(echo ${i}|sed s/_1/_2/).clean out2=$(echo ${i}|sed s/_1/_2/).clean.trim qtrim=rl trimq=20
+	echo "quality trimming ${i} $(date)"
 	#Quality filtering to get rid of entire low quality reads. maq=10 will trim reads that have average quality of less than 10
-#	bbduk.sh in1=${i}.clean.trim out1=${i}.clean.trim.filter in2=$(echo ${i}|sed s/_1/_2/).clean.trim out2=$(echo ${i}|sed s/_1/_2/).clean.trim.filter maq=10
-#	rm ${i}.clean
-#	rm $(echo ${i}|sed s/_1/_2/).clean
-#	rm ${i}.clean.trim
-#	rm $(echo ${i}|sed s/_1/_2/).clean.trim
-#	echo "quality filtering ${i} $(date)"
-#done
+	bbduk.sh in1=${i}.clean.trim out1=${i}.clean.trim.filter in2=$(echo ${i}|sed s/_1/_2/).clean.trim out2=$(echo ${i}|sed s/_1/_2/).clean.trim.filter maq=10
+	rm ${i}.clean
+	rm $(echo ${i}|sed s/_1/_2/).clean
+	rm ${i}.clean.trim
+	rm $(echo ${i}|sed s/_1/_2/).clean.trim
+	echo "quality filtering ${i} $(date)"
+done
 
-#for i in ${array2[@]}; do
-#	bbduk.sh in1=${i}.clean.trim.filter in2=$(echo ${i}|sed s/_1/_2/).clean.trim.filter  bhist=${i}.b.hist qhist=${i}.q.hist gchist=${i}.gc.hist lhist=${i}.l.hist gcbins=auto
-#	echo ${i} > ${i}.hist.all
-#	echo "bhist" >> ${i}.hist.all
-#	cat ${i}.b.hist >> ${i}.hist.all
-#	echo "qhist" >> ${i}.hist.all
-#	cat ${i}.q.hist >> ${i}.hist.all
-#	echo "gchist" >> ${i}.hist.all
-#	cat ${i}.gc.hist >> ${i}.hist.all
-#	echo "lhist" >> ${i}.hist.all
-#	cat ${i}.l.hist >> ${i}.hist.all
-#	echo "histogram DONE $(date)"
-#	rm ${i}.*.hist
-#	gzip ${i}.clean.trim.filter
-#	gzip $(echo ${i}|sed s/_1/_2/).clean.trim.filter
-#done
+for i in ${array2[@]}; do
+	bbduk.sh in1=${i}.clean.trim.filter in2=$(echo ${i}|sed s/_1/_2/).clean.trim.filter  bhist=${i}.b.hist qhist=${i}.q.hist gchist=${i}.gc.hist lhist=${i}.l.hist gcbins=auto
+	echo ${i} > ${i}.hist.all
+	echo "bhist" >> ${i}.hist.all
+	cat ${i}.b.hist >> ${i}.hist.all
+	echo "qhist" >> ${i}.hist.all
+	cat ${i}.q.hist >> ${i}.hist.all
+	echo "gchist" >> ${i}.hist.all
+	cat ${i}.gc.hist >> ${i}.hist.all
+	echo "lhist" >> ${i}.hist.all
+	cat ${i}.l.hist >> ${i}.hist.all
+	echo "histogram DONE $(date)"
+	rm ${i}.*.hist
+	gzip ${i}.clean.trim.filter
+	gzip $(echo ${i}|sed s/_1/_2/).clean.trim.filter
+done
 
 ## C_vir_Probiotic_SRA_ID: Trimming of adaptors
-#array3=($(ls $CP/*_1.fastq.gz))
-#for i in ${array3[@]}; do
-#	bbduk.sh in1=${i} out1=${i}.clean in2=$(echo ${i}|sed s/_1/_2/) out2=$(echo ${i}|sed s/_1/_2/).clean ref=/opt/software/BBMap/37.36-foss-2016b-Java-1.8.0_131/resources/adapters.fa ktrim=r k=23 mink=11 hdist=1 tpe tbo
-#	echo "adapter trimming ${i} $(date)"
+array3=($(ls $CP/*_1.fastq.gz))
+for i in ${array3[@]}; do
+	bbduk.sh in1=${i} out1=${i}.clean in2=$(echo ${i}|sed s/_1/_2/) out2=$(echo ${i}|sed s/_1/_2/).clean ref=/opt/software/BBMap/37.36-foss-2016b-Java-1.8.0_131/resources/adapters.fa ktrim=r k=23 mink=11 hdist=1 tpe tbo
+	echo "adapter trimming ${i} $(date)"
 	#Quality trimmming, of both the left and the right sides to get rid of reads that are less than quality 20
-#	bbduk.sh in1=${i}.clean out1=${i}.clean.trim in2=$(echo ${i}|sed s/_1/_2/).clean out2=$(echo ${i}|sed s/_1/_2/).clean.trim qtrim=rl trimq=20
-#	echo "quality trimming ${i} $(date)"
+	bbduk.sh in1=${i}.clean out1=${i}.clean.trim in2=$(echo ${i}|sed s/_1/_2/).clean out2=$(echo ${i}|sed s/_1/_2/).clean.trim qtrim=rl trimq=20
+	echo "quality trimming ${i} $(date)"
 	#Quality filtering to get rid of entire low quality reads. maq=10 will trim reads that have average quality of less than 10
-#	bbduk.sh in1=${i}.clean.trim out1=${i}.clean.trim.filter in2=$(echo ${i}|sed s/_1/_2/).clean.trim out2=$(echo ${i}|sed s/_1/_2/).clean.trim.filter maq=10
-#	rm ${i}.clean
-#	rm $(echo ${i}|sed s/_1/_2/).clean
-#	rm ${i}.clean.trim
-#	rm $(echo ${i}|sed s/_1/_2/).clean.trim
-#	echo "quality filtering ${i} $(date)"
-#done
+	bbduk.sh in1=${i}.clean.trim out1=${i}.clean.trim.filter in2=$(echo ${i}|sed s/_1/_2/).clean.trim out2=$(echo ${i}|sed s/_1/_2/).clean.trim.filter maq=10
+	rm ${i}.clean
+	rm $(echo ${i}|sed s/_1/_2/).clean
+	rm ${i}.clean.trim
+	rm $(echo ${i}|sed s/_1/_2/).clean.trim
+	echo "quality filtering ${i} $(date)"
+done
 
-#for i in ${array3[@]}; do
-#	bbduk.sh in1=${i}.clean.trim.filter in2=$(echo ${i}|sed s/_1/_2/).clean.trim.filter  bhist=${i}.b.hist qhist=${i}.q.hist gchist=${i}.gc.hist lhist=${i}.l.hist gcbins=auto
-#	echo ${i} > ${i}.hist.all
-#	echo "bhist" >> ${i}.hist.all
-#	cat ${i}.b.hist >> ${i}.hist.all
-#	echo "qhist" >> ${i}.hist.all
-#	cat ${i}.q.hist >> ${i}.hist.all
-#	echo "gchist" >> ${i}.hist.all
-#	cat ${i}.gc.hist >> ${i}.hist.all
-#	echo "lhist" >> ${i}.hist.all
-#	cat ${i}.l.hist >> ${i}.hist.all
-#	echo "histogram DONE $(date)"
-#	rm ${i}.*.hist
-#	gzip ${i}.clean.trim.filter
-#	gzip $(echo ${i}|sed s/_1/_2/).clean.trim.filter
-#done
+for i in ${array3[@]}; do
+	bbduk.sh in1=${i}.clean.trim.filter in2=$(echo ${i}|sed s/_1/_2/).clean.trim.filter  bhist=${i}.b.hist qhist=${i}.q.hist gchist=${i}.gc.hist lhist=${i}.l.hist gcbins=auto
+	echo ${i} > ${i}.hist.all
+	echo "bhist" >> ${i}.hist.all
+	cat ${i}.b.hist >> ${i}.hist.all
+	echo "qhist" >> ${i}.hist.all
+	cat ${i}.q.hist >> ${i}.hist.all
+	echo "gchist" >> ${i}.hist.all
+	cat ${i}.gc.hist >> ${i}.hist.all
+	echo "lhist" >> ${i}.hist.all
+	cat ${i}.l.hist >> ${i}.hist.all
+	echo "histogram DONE $(date)"
+	rm ${i}.*.hist
+	gzip ${i}.clean.trim.filter
+	gzip $(echo ${i}|sed s/_1/_2/).clean.trim.filter
+done
 
 ## C_vir_Dermo Ran in script by itself "01_SRA_Trim_Filter_Dermo_only.sh"
 
@@ -142,36 +142,36 @@ done
 # SE experiments: C_gig_He_2015_OsHV1_SRA_ID, C_gig_Zhang_Vibrio_SRA_ID, C_vir_ROD_SRA_ID
 
 ## C_gig_He_2015_OsHV1_SRA_ID
-#array5=($(ls $GHO/*.fastq.gz))
-#for i in ${array5[@]}; do
-#	bbduk.sh in1=${i} out1=${i}.clean ref=/opt/software/BBMap/37.36-foss-2016b-Java-1.8.0_131/resources/adapters.fa ktrim=r k=23 mink=11 hdist=1 tpe tbo
-#	echo "adapter trimming {i} $(date)"
-	#Quality Trimming, of both the left and the right sides to get rid of reads that are less than quality 20
-#	bbduk.sh in1=${i}.clean out1=${i}.clean.trim qtrim=rl trimq=20
-#	echo "quality trimming ${i} $(date)"
+array5=($(ls $GHO/*.fastq.gz))
+for i in ${array5[@]}; do
+	bbduk.sh in1=${i} out1=${i}.clean ref=/opt/software/BBMap/37.36-foss-2016b-Java-1.8.0_131/resources/adapters.fa ktrim=r k=23 mink=11 hdist=1 tpe tbo
+	echo "adapter trimming {i} $(date)"
+  #Quality Trimming, of both the left and the right sides to get rid of reads that are less than quality 20
+	bbduk.sh in1=${i}.clean out1=${i}.clean.trim qtrim=rl trimq=20
+	echo "quality trimming ${i} $(date)"
  #Quality Filtering to get rid of entire low quality reads. maq=10 will trim reads that have average quality of less than 10
-#	bbduk.sh in1=${i}.clean.trim out1=${i}.clean.trim.filter maq=10
-#	rm ${i}.clean
-#	rm ${i}.clean.trim
-#	echo "quality filtering ${i} $(date)"
-#done
+	bbduk.sh in1=${i}.clean.trim out1=${i}.clean.trim.filter maq=10
+	rm ${i}.clean
+	rm ${i}.clean.trim
+	echo "quality filtering ${i} $(date)"
+done
 
 #histogram generation
-#for i in ${array5[@]}; do
-#    bbduk.sh in1=${i}.clean.trim.filter bhist=${i}.b.hist qhist=${i}.q.hist gchist=${i}.gc.hist lhist=${i}.l.hist gcbins=auto
-#    echo ${i} > ${i}.hist.all
-#    echo "bhist" >> ${i}.hist.all
-#    cat ${i}.b.hist >> ${i}.hist.all
-#    echo "qhist" >> ${i}.hist.all
-#    cat ${i}.q.hist >> ${i}.hist.all
-#    echo "gchist" >> ${i}.hist.all
-#    cat ${i}.gc.hist >> ${i}.hist.all
-#    echo "lhist" >> ${i}.hist.all
-#    cat ${i}.l.hist >> ${i}.hist.all
- #   rm ${i}.*.hist
- #	 echo "histogram ${i} $(date)"
-#		gzip ${i}.clean.trim.filter
-#done
+for i in ${array5[@]}; do
+    bbduk.sh in1=${i}.clean.trim.filter bhist=${i}.b.hist qhist=${i}.q.hist gchist=${i}.gc.hist lhist=${i}.l.hist gcbins=auto
+    echo ${i} > ${i}.hist.all
+    echo "bhist" >> ${i}.hist.all
+    cat ${i}.b.hist >> ${i}.hist.all
+    echo "qhist" >> ${i}.hist.all
+    cat ${i}.q.hist >> ${i}.hist.all
+    echo "gchist" >> ${i}.hist.all
+    cat ${i}.gc.hist >> ${i}.hist.all
+    echo "lhist" >> ${i}.hist.all
+    cat ${i}.l.hist >> ${i}.hist.all
+    rm ${i}.*.hist
+  	 echo "histogram ${i} $(date)"
+		gzip ${i}.clean.trim.filter
+done
 
 ## C_gig_Zhang_Vibrio_SRA_ID
 array6=($(ls $GZV/*.fastq.gz))
