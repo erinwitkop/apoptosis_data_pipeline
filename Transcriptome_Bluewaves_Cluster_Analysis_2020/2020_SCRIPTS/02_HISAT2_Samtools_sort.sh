@@ -28,11 +28,11 @@ GZV=/data3/marine_diseases_lab/erin/2017_2020_Transcriptome_Analysis/pipeline_fi
 
 # C. virginica genome index
 #Build HISAT index with cvir_edited (this file has extra spaces in header removed so that genome and annotation don't conflict)
-hisat2-build -f $CV/cvir_edited.fa $CV/cvir_edited_index
+#hisat2-build -f $CV/cvir_edited.fa $CV/cvir_edited_index
   # -f indicates that the reference input files are FASTA files
 
 # C. gigas genome index
-hisat2-build -f $CG/GCF_000297895.1_oyster_v9_genomic.fna   $CG/GCF_000297895.1_oyster_v9_genomic_index
+#hisat2-build -f $CG/GCF_000297895.1_oyster_v9_genomic.fna   $CG/GCF_000297895.1_oyster_v9_genomic_index
   # -f indicates that the reference input files are FASTA files
 
 ############# USE HISAT TO ALIGN RNA-READS TO GENOME ##############
@@ -41,20 +41,19 @@ hisat2-build -f $CG/GCF_000297895.1_oyster_v9_genomic.fna   $CG/GCF_000297895.1_
 # PE experiments: C_gig_deLorgeril_OsHV1, C_gig_Rubio_Vibrio_SRA_ID, C_vir_Probiotic_SRA_ID, C_vir_Dermo
 
 # C_gig_deLorgeril_OsHV1
-array1=($(ls $GLO/*_1.fastq.gz.clean.trim.filter))
-for i in ${array1[@]}; do
+#array1=($(ls $GLO/*_1.fastq.gz.clean.trim.filter.gz))
+#for i in ${array1[@]}; do
   # outputs a single bam file
-	hisat2 --dta -x $CV/cvir_edited_index  -1 ${i} -2 $(echo ${i}|sed s/_1/_2/) -S ${i}.sam
-	echo "HISAT2 PE ${i}" $(date)
+#	hisat2 --dta -x $CG/GCF_000297895.1_oyster_v9_genomic_index -1 ${i} -2 $(echo ${i}|sed s/_1/_2/) -S ${i}.sam
+#	echo "HISAT2 PE ${i} $(date)"
   #SAMTOOLS sort to convert the SAM file into a BAM file to be used with StringTie. Stringtie only take sorted bam
-  samtools sort ${i}.sam > ${i}.sam.bam
-  echo "${i}_bam"
-  echo "${i}_DONE"
+#  samtools sort ${i}.sam > ${i}.bam
   #Get bam file statistics for percentage aligned with flagstat
-  samtools flagstat ${i}.sam.bam > ${i}.sam.bam.stats #get % mapped
+#  samtools flagstat ${i}.bam > ${i}.bam.stats #get % mapped
   # Use $ samtools stats ${i} for more detailed statistics
-  samtools stats {i} | grep ^SN | cut -f 2- > ${i}.sam.bam.fullstat
-done
+#  samtools stats {i} | grep ^SN | cut -f 2- > ${i}.bam.fullstat
+# echo "${i} sorted bam done"
+#done
 
 # -x before the index
 # -U before the file to be aligned
@@ -62,58 +61,55 @@ done
      # With this option, HISAT2 requires longer anchor lengths for de novo discovery of splice sites.
      #This leads to fewer alignments with short-anchors, which helps transcript assemblers improve significantly in computation and memory usage.
 
-echo "C_gig_deLorgeril_OsHV1 DONE $(date)"
+#echo "C_gig_deLorgeril_OsHV1 DONE $(date)"
 
 # C_gig_Rubio_Vibrio_SRA_ID
-array2=($(ls $GRV/*_1.fastq.gz.clean.trim.filter))
-for i in ${array2[@]}; do
+#array2=($(ls $GRV/*_1.fastq.gz.clean.trim.filter.gz))
+#for i in ${array2[@]}; do
   # outputs a single bam file
-	hisat2 --dta -x $CV/cvir_edited_index  -1 ${i} -2 $(echo ${i}|sed s/_1/_2/) -S ${i}.sam
-	echo "HISAT2 PE ${i}" $(date)
+#	hisat2 --dta -x $CG/GCF_000297895.1_oyster_v9_genomic_index -1 ${i} -2 $(echo ${i}|sed s/_1/_2/) -S ${i}.sam
+#	echo "HISAT2 PE ${i} $(date)"
   #SAMTOOLS sort to convert the SAM file into a BAM file to be used with StringTie. Stringtie only take sorted bam
-  samtools sort ${i}.sam > ${i}.sam.bam
-  echo "${i}_bam"
-  echo "${i}_DONE"
+#  samtools sort ${i}.sam > ${i}.bam
   #Get bam file statistics for percentage aligned with flagstat
-  samtools flagstat ${i}.sam.bam > ${i}.sam.bam.stats #get % mapped
+#  samtools flagstat ${i}.bam > ${i}.bam.stats #get % mapped
   # Use $ samtools stats ${i} for more detailed statistics
-  samtools stats {i} | grep ^SN | cut -f 2- > ${i}.sam.bam.fullstat
-done
+#  samtools stats {i} | grep ^SN | cut -f 2- > ${i}.sam.bam.fullstat
+# echo "${i} sorted bam done"
+#done
 
-echo "C_gig_Rubio_Vibrio_SRA_ID DONE $(date)"
+#echo "C_gig_Rubio_Vibrio_SRA_ID DONE $(date)"
 
 # C_vir_Probiotic_SRA_ID
-array3=($(ls $CP/*_1.fastq.gz.clean.trim.filter))
-for i in ${array3[@]}; do
+#array3=($(ls $CP/*_1.fastq.gz.clean.trim.filter.gz))
+#for i in ${array3[@]}; do
   # outputs a single bam file
-	hisat2 --dta -x $CV/cvir_edited_index  -1 ${i} -2 $(echo ${i}|sed s/_1/_2/) -S ${i}.sam
-	echo "HISAT2 PE ${i}" $(date)
+#	hisat2 --dta -x $CV/cvir_edited_index  -1 ${i} -2 $(echo ${i}|sed s/_1/_2/) -S ${i}.sam
+#	echo "HISAT2 PE ${i} $(date)"
   #SAMTOOLS sort to convert the SAM file into a BAM file to be used with StringTie. Stringtie only take sorted bam
-  samtools sort ${i}.sam > ${i}.sam.bam
-  echo "${i}_bam"
-  echo "${i}_DONE"
+#  samtools sort ${i}.sam > ${i}.bam
   #Get bam file statistics for percentage aligned with flagstat
-  samtools flagstat ${i}.sam.bam > ${i}.sam.bam.stats #get % mapped
+#  samtools flagstat ${i}.bam > ${i}.bam.stats #get % mapped
   # Use $ samtools stats ${i} for more detailed statistics
-  samtools stats {i} | grep ^SN | cut -f 2- > ${i}.sam.bam.fullstat
-done
+#  samtools stats {i} | grep ^SN | cut -f 2- > ${i}.bam.fullstat
+# echo "${i} sorted bam done"
+#done
 
-echo "C_vir_Probiotic_SRA_ID DONE $(date)"
+#echo "C_vir_Probiotic_SRA_ID DONE $(date)"
 
 # C_vir_Dermo
-array4=($(ls $CD/*_1.fastq.gz.clean.trim.filter))
+array4=($(ls $CD/*R1.fastq.gz.clean.trim.filter.gz))
 for i in ${array4[@]}; do
   # outputs a single bam file
-	hisat2 --dta -x $CV/cvir_edited_index  -1 ${i} -2 $(echo ${i}|sed s/_1/_2/) -S ${i}.sam
-	echo "HISAT2 PE ${i}" $(date)
+	hisat2 --dta -x $CV/cvir_edited_index  -1 ${i} -2 $(echo ${i}|sed s/R1/R2/) -S ${i}.sam
+	echo "HISAT2 PE ${i} $(date)"
   #SAMTOOLS sort to convert the SAM file into a BAM file to be used with StringTie. Stringtie only take sorted bam
-  samtools sort ${i}.sam > ${i}.sam.bam
-  echo "${i}_bam"
-  echo "${i}_DONE"
+  samtools sort ${i}.sam > ${i}.bam
   #Get bam file statistics for percentage aligned with flagstat
-  samtools flagstat ${i}.sam.bam > ${i}.sam.bam.stats #get % mapped
+  samtools flagstat ${i}.bam > ${i}.bam.stats #get % mapped
   # Use $ samtools stats ${i} for more detailed statistics
-  samtools stats {i} | grep ^SN | cut -f 2- > ${i}.sam.bam.fullstat
+  samtools stats {i} | grep ^SN | cut -f 2- > ${i}.bam.fullstat
+  echo "${i} sorted bam done"
 done
 
 echo "C_vir_Dermo DONE $(date)"
@@ -122,49 +118,47 @@ echo "C_vir_Dermo DONE $(date)"
 # SE experiments: C_gig_He_2015_OsHV1_SRA_ID, C_gig_Zhang_Vibrio_SRA_ID, C_vir_ROD_SRA_ID
 
 # C_gig_He_2015_OsHV1_SRA_ID
-array45=($(ls $GHO/*.filter))
+array5=($(ls $GHO/*.filter.gz))
 for i in ${array5[@]}; do
         hisat2 --dta -x $CG/GCF_000297895.1_oyster_v9_genomic_index -U ${i} -S ${i}.sam
         #SAMTOOLS sort to convert the SAM file into a BAM file to be used with StringTie. Stringtie only take sorted bam
-        samtools sort ${i}.sam > ${i}.sam.bam
-        echo "${i}_bam"
-        echo "${i}_DONE"
+        samtools sort ${i}.sam > ${i}.bam
         #Get bam file statistics for percentage aligned with flagstat
-        samtools flagstat ${i}.sam.bam > ${i}.sam.bam.stats #get % mapped
+        samtools flagstat ${i}.bam > ${i}.bam.stats #get % mapped
     	  # Use $ samtools stats ${i} for more detailed statistics
-    		samtools stats {i} | grep ^SN | cut -f 2- > ${i}.sam.bam.fullstat
+    		samtools stats {i} | grep ^SN | cut -f 2- > ${i}.bam.fullstat
+        echo "${i} sorted bam done"
 done
 
 echo "C_gig_He_2015_OsHV1_SRA_ID DONE $(date)"
 
 # C_gig_Zhang_Vibrio_SRA_ID
-array6=($(ls $GZV/*.filter))
+array6=($(ls $GZV/*.filter.gz))
 for i in ${array6[@]}; do
         hisat2 --dta -x $CG/GCF_000297895.1_oyster_v9_genomic_index -U ${i} -S ${i}.sam
         #SAMTOOLS sort to convert the SAM file into a BAM file to be used with StringTie. Stringtie only take sorted bam
-        samtools sort ${i}.sam > ${i}.sam.bam
-        echo "${i}_bam"
-        echo "${i}_DONE"
+        samtools sort ${i}.sam > ${i}.bam
         #Get bam file statistics for percentage aligned with flagstat
-        samtools flagstat ${i}.sam.bam > ${i}.sam.bam.stats #get % mapped
+        samtools flagstat ${i}.bam > ${i}.bam.stats #get % mapped
     	  # Use $ samtools stats ${i} for more detailed statistics
-    		samtools stats {i} | grep ^SN | cut -f 2- > ${i}.sam.bam.fullstat
+    		samtools stats {i} | grep ^SN | cut -f 2- > ${i}.bam.fullstat
+        echo "${i} sorted bam done"
 done
 
 echo "C_gig_Zhang_Vibrio_SRA_ID DONE $(date)"
 
 # C_vir_ROD_SRA_ID
-array7=($(ls $CR/*.filter))
+array7=($(ls $CR/*.filter.gz))
 for i in ${array7[@]}; do
-        hisat2 --dta -x $CG/GCF_000297895.1_oyster_v9_genomic_index -U ${i} -S ${i}.sam
+        hisat2 --dta -x $CV/cvir_edited_index -U ${i} -S ${i}.sam
         #SAMTOOLS sort to convert the SAM file into a BAM file to be used with StringTie. Stringtie only take sorted bam
-        samtools sort ${i}.sam > ${i}.sam.bam
+        samtools sort ${i}.sam > ${i}.bam
         echo "${i}_bam"
         echo "${i}_DONE"
         #Get bam file statistics for percentage aligned with flagstat
-        samtools flagstat ${i}.sam.bam > ${i}.sam.bam.stats #get % mapped
+        samtools flagstat ${i}.bam > ${i}.bam.stats #get % mapped
     	  # Use $ samtools stats ${i} for more detailed statistics
-    		samtools stats {i} | grep ^SN | cut -f 2- > ${i}.sam.bam.fullstat
+    		samtools stats {i} | grep ^SN | cut -f 2- > ${i}.bam.fullstat
 done
 
 echo "C_vir_ROD_SRA_ID DONE $(date)"
