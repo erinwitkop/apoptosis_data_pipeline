@@ -7,33 +7,27 @@ compare apoptosis gene expression between disease challenges.
 
 ## 1/29/2020-1/30/2020 Data Preparation, Data Storage Plan
 
-  ### 1. Review Which SRAs to download and analyze from each full experiment:
+### 1. Review Which SRAs to download and analyze from each full experiment:
 
-      * C. virginica Probiotic = Download and analyze all available SRAs
-      * C. virginica ROD = Download and analyze all available SRAs
-      * C. virginica Dermo challenge = use all avialable transcriptomes (provided by D. Proestou)
-      but merge technical replicates from samples that had two technical replicates (see below)
-      * C. gigas He et al. 2015 OsHV1 = Download and analyze all available SRAs
-      * C. gigas Zhang et al., 2015 Vibrio = Download and analyze all available SRAs (only the
-      transcriptomes that were challenged with individual strains of Vibrio, LPS, M. lut and PBS on NCBI)
-      * C. gigas Rubio et al. 2019 Vibrio = Download and analyze all available SRAs
-      * C. gigas de Lorgeril et al., 2017 = Download and analyze only the samples from families 11 and
-      21 that were infected with OsHV-1 during a "natural" infection and sequenced. These were all sequenced
-      paired end on hiseq 500. 42 total transcriptomes
+* C. virginica Probiotic = Download and analyze all available SRAs
+* C. virginica ROD = Download and analyze all available SRAs
+* C. virginica Dermo challenge = use all avialable transcriptomes (provided by D. Proestou) but merge technical replicates from samples that had two technical replicates (see below)
+* C. gigas He et al. 2015 OsHV1 = Download and analyze all available SRAs
+* C. gigas Zhang et al., 2015 Vibrio = Download and analyze all available SRAs (only the transcriptomes that were challenged with individual strains of Vibrio, LPS, M. lut and PBS on NCBI)
+* C. gigas Rubio et al. 2019 Vibrio = Download and analyze all available SRAs
+* C. gigas de Lorgeril et al., 2017 = Download and analyze only the samples from families 11 and 21 that were infected with OsHV-1 during a "natural" infection and sequenced. These were all sequenced paired end on hiseq 500. 42 total transcriptomes
 
-  ### 2. Create New folders on bluewaves cluster where data will be housed.
+### 2. Create New folders on bluewaves cluster where data will be housed.
 
-      * C. virginica Raw data will be in the following folder, with a separate directory per experiment:
+* C. virginica Raw data will be in the following folder, with a separate directory per experiment:
 
       `/data3/marine_diseases_lab/erin/2017_2020_Transcriptome_Analysis/pipeline_files/C_Vir_subset/2020_Raw_Transcriptome_Data`
 
-       * C. gigas Raw data will be in the following folder, with a separate directory per experiment:
+* C. gigas Raw data will be in the following folder, with a separate directory per experiment:
 
       `/data3/marine_diseases_lab/erin/2017_2020_Transcriptome_Analysis/pipeline_files/Bac_Viral_subset/2020_Raw_Transcriptome_Data`
 
-
-  ### 3. Make an individual text file for each experiment with the SRA's for each (not for Dermo transcriptomes),
-  and Create Full_SRA_PE_list.txt and Full_SRA_SE_list.txt that has full SRA list (with species combined)
+### 3. Make an individual text file for each experiment with the SRA's for each (not for Dermo transcriptomes), and Create Full_SRA_PE_list.txt and Full_SRA_SE_list.txt that has full SRA list (with species combined)
 
       ```
         $ pwd
@@ -45,24 +39,27 @@ compare apoptosis gene expression between disease challenges.
             C_gig_Zhang_Vibrio_SRA_ID.txt		C_vir_ROD_SRA_ID.txt
       ```
 
-  ### 6. Add metadata for all the samples to "Organized_SRA_info.xlsx" spreadsheet for reference later.
+### 6. Add metadata for all the samples to "Organized_SRA_info.xlsx" spreadsheet for reference later.
 
-        * Completed
+* Completed
 
 ## 1/31/2020 Data Download from SRA database (except for Dermo transcriptomes from Dina)
 
-  ### 1. Write script to download each SRA in a separate loop and place files in correct folder.
+### 1. Write script to download each SRA in a separate loop and place files in correct folder.
 
-    * Script added to github.
+* Script added to github.
       Path: /Users/erinroberts/Documents/PhD_Research/Chapter_1_Apoptosis Paper/Chapter1_Apoptosis_Transcriptome_Analyses_2019/DATA ANALYSIS/apoptosis_data_pipeline/Transcriptome_Bluewaves_Cluster_Analysis_2020/2020_SCRIPTS/fetch_all_SRA_2020.sh
-    * Helpful link regarding use of SRA-toolkit: https://reneshbedre.github.io/blog/fqutil.html
-    * Version of SRA toolkit used: SRA-Toolkit/2.9.0-centos_linux64
-    * Out and error files in `/data3/marine_diseases_lab/erin/2017_2020_Transcriptome_Analysis/pipeline_files/2020_Scripts/Script_out_error_files/`
+* Helpful link regarding use of SRA-toolkit: https://reneshbedre.github.io/blog/fqutil.html
+* Version of SRA toolkit used: SRA-Toolkit/2.9.0-centos_linux64
+* Out and error files in    
+
+      `/data3/marine_diseases_lab/erin/2017_2020_Transcriptome_Analysis/pipeline_files/2020_Scripts/Script_out_error_file/`
           a. Outfile named `fetch_SRA_output_1_31_2020`
           b. Error file named `fetch_SRA_error_1_31_2020`  
-    * After download, check that all SRA's were successfully loaded onto the cluster.
-    * The prefetch command downloads a `*.sra` version of each file in `$HOME/ncbi/public/sra`. You can change the default location of where this data is dowloaded by using `vdb-config`, however changing the config file for a shared cluster resource is not recommended. I'm going to download data for each experiment separately, run a check sum using `vdb-validate`, and then delete the SRA files from home, and then start the next group of transcriptomes in my script and go down the list.
-      -Error messages received during download regarding timeout. Disregard message as long as you receive read and written output.
+
+* After download, check that all SRA's were successfully loaded onto the cluster.
+* The prefetch command downloads a `*.sra` version of each file in `$HOME/ncbi/public/sra`. You can change the default location of where this data is dowloaded by using `vdb-config`, however changing the config file for a shared cluster resource is not recommended. I'm going to download data for each experiment separately, run a check sum using `vdb-validate`, and then delete the SRA files from home, and then start the next group of transcriptomes in my script and go down the list.
+       * Error messages received during download regarding timeout. Disregard message as long as you receive read and written output.
         `2020-02-03T15:54:05 prefetch.2.9.0 sys: timeout exhausted while reading file within network system module - mbedtls_ssl_read returned -76 ( NET - Reading information from the socket failed )
         2020-02-03T15:54:05 prefetch.2.9.0 int: timeout exhausted while reading file within network system module - ?-]: Cannot KStreamRe
         `
@@ -81,49 +78,50 @@ compare apoptosis gene expression between disease challenges.
       5. Rubio Vibrio - downloaded and confirmed. Correct number of files present
       6. Probiotic - downloaded and confirmed. correct number of files present
 
-    * Download data as several separate scripts. There are individual output and error files for each download for future reference:
+* Download data as several separate scripts. There are individual output and error files for each download for future reference:
 
 
-  ### 2. Merge technical replicates from Proestou et al. 2015 transcriptomes. (decided to do in DESeq2)
+### 2. Merge technical replicates from Proestou et al. 2015 transcriptomes. (decided to do in DESeq2)
 
-    * Options:
-      a. Merge raw SRA fastq files for samples with technical replicates
-      b. Combined in DESeq2 using collapseReplicates() function. See site for details: https://support.bioconductor.org/p/85536/
-        1. see the collapseReplicates section of this DESeq tutorial: https://bioc.ism.ac.jp/packages/2.14/bioc/vignettes/DESeq2/inst/doc/beginner.pdf for code. Thus function merges the count tables before proceeeding to calculate DeSeq2.
+* Options:
+      * Merge raw SRA fastq files for samples with technical replicates
+      * Combined in DESeq2 using collapseReplicates() function. See site for details: https://support.bioconductor.org/p/85536/
+          * see the collapseReplicates section of this DESeq tutorial: https://bioc.ism.ac.jp/packages/2.14/bioc/vignettes/DESeq2/inst/doc/beginner.pdf for code. Thus function merges the count tables before proceeeding to calculate DeSeq2.
 
 ## 2/1/2020-2/4/2020 Adapter Trimming, Quality Filtering of data
 
-  ### 1. Combined trimming scripts for both C_gig and C_vir into single script. In order to maintain folder organization of files from each experiment, I'm going to run a loop through every filtering and trimming command on all the files for each experiment separately.
-      a. Though I have them all in a single script. I'm commenting out parts of the script and running them individually to check. A separate output file will exist for each. Deleting intermediate files between each step.
-      b. Starting with the Dermo transcriptomes that I know are fully downloaded, while the other SRAs are finishing being downloaded.  
-      c. Running Dermo transcriptome script separately (because file name format is different). Script called "01_SRA_Trim_Filter_Dermo_only.sh"
-          - finished successfully
-          - Checked that all files had been pre-processed. 194 total raw files and processed files.
-          - moved raw data into one lower folder `Dermo_Raw_Transcriptomes`
-          - Compressed the raw data folder in interactive mode
+### 1. Combined trimming scripts for both C_gig and C_vir into single script. In order to maintain folder organization of files from each experiment, I'm going to run a loop through every filtering and trimming command on all the files for each experiment separately.
+
+* Though I have them all in a single script. I'm commenting out parts of the script and running them individually to check. A separate output file will exist for each. Deleting intermediate files between each step.
+* Starting with the Dermo transcriptomes that I know are fully downloaded, while the other SRAs are finishing being downloaded.  
+* Running Dermo transcriptome script separately (because file name format is different). Script called "01_SRA_Trim_Filter_Dermo_only.sh"
+          * finished successfully
+          * Checked that all files had been pre-processed. 194 total raw files and processed files.
+          * moved raw data into one lower folder `Dermo_Raw_Transcriptomes`
+          * Compressed the raw data folder in interactive mode
               `$tar -zcvf Dermo_Raw_Transcriptomes.archive.tar.gz Dermo_Raw_Transcriptomes`
-      d. Running HE OsHV1 preprocessing
-          - Completed
-          - Checked all files had been processed
+* Running HE OsHV1 preprocessing
+          * Completed
+          * Checked all files had been processed
              `$ ls *.filter.gz | wc -l ` 32
              `$ ls ./He_OsHV1_Raw_Transcriptomes/* | wc -l` 32
-          - Moved raw data into `He_OsHV1_Raw_Transcriptomes`
-          - Compressed raw data folder
-      e. Starting Zhang Vibrio Pre-processing
-          - Completed
-          - Checked all files had been processed
+          * Moved raw data into `He_OsHV1_Raw_Transcriptomes`
+          * Compressed raw data folder
+* Starting Zhang Vibrio Pre-processing
+          * Completed
+          * Checked all files had been processed
           `[erin_roberts@bluewaves Zhang_Vibrio_Raw_Transcriptomes]$ ls * | wc -l ` 9
           `[erin_roberts@bluewaves C_gig_Zhang_Vibrio_SRA]$ ls *.gz | wc -l ` 9
-          - Moved raw data into `Zhang_Vibrio_Raw_Transcriptomes`
-          - Compressed Raw data
+          * Moved raw data into `Zhang_Vibrio_Raw_Transcriptomes`
+          * Compressed Raw data
             `$ tar -zcvf Zhang_Vibrio_Raw_Transcriptomes.archive.tar.gz Zhang_Vibrio_Raw_Transcriptomes`
-      f. Starting ROD Pre-processing
-        -completed
-        -Checking number of files
+* Starting ROD Pre-processing
+         * completed
+         * Checking number of files
         `ls *.gz | wc -l 12` , 12 in both places
-        - compressed raw data and put in `ROD_Raw_Transcriptomes`
+         * compressed raw data and put in `ROD_Raw_Transcriptomes`
           `tar -zcvf ROD_Raw_Transcriptomes.archive.tar.gz ROD_Raw_Transcriptomes/`
-      g. Starting deLorgeril OsHV1 pre-processing
+* Starting deLorgeril OsHV1 pre-processing
         -
         -Checking number of files
 
@@ -136,10 +134,11 @@ compare apoptosis gene expression between disease challenges.
 
 ## 2/4/2020 - 2/5/2020 Building HISAT2 Script and Running HISAT2
 
-  1. Building new HISAT index.
-      a. Note, a new version of HISAT is now available on the cluster. I'm going to use this version (HISAT2/2.1.0-foss-2016b)
+### 1. Building new HISAT index.
+
+* Note, a new version of HISAT is now available on the cluster. I'm going to use this version (HISAT2/2.1.0-foss-2016b)
           * Notes also that the code I'm adding to github is all combined into one script, though I ran the same code in the cluster separated into multiple scripts to aid in running multiple scripts at once. The code used however was not changed.
-      b. Checking how HISAT2 genome indexes we made. Creating new indexes for both C_vir and C_gig using updated software version
+* Checking how HISAT2 genome indexes we made. Creating new indexes for both C_vir and C_gig using updated software version
 
           * Checking C_virginica genome file on hand which was edited from `ref_C_virginica-3.0_top_level.gff3` to remove a space from header that was making it incompatible with Stringtie annotation. Checking also that mitochondrial DNA was added.
 
@@ -161,9 +160,9 @@ compare apoptosis gene expression between disease challenges.
 
             * Creating new indexes using code in `02_Build_Hisat_Indexes.sh`. Indices created!
 
-  2. Creating script to perform HISAT 2 alignment and SAMtools sorting on files for each experiment.
+### 2. Creating script to perform HISAT 2 alignment and SAMtools sorting on files for each experiment.
 
-    a. Dermo transcriptomes, He OsHV1, Zhang Vibrio and ROD transcriptomes are currently finished being preprocessed. Starting HISAT on these transcriptomes. Checked script to make sure correct indexes and paths were used.
+* Dermo transcriptomes, He OsHV1, Zhang Vibrio and ROD transcriptomes are currently finished being preprocessed. Starting HISAT on these transcriptomes. Checked script to make sure correct indexes and paths were used.
 
         * Received error running the script: Checking with kevin about how to resolve conflict
 
