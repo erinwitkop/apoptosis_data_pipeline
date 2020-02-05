@@ -137,10 +137,10 @@ compare apoptosis gene expression between disease challenges.
 ### 1. Building new HISAT index.
 
 * Note, a new version of HISAT is now available on the cluster. I'm going to use this version (HISAT2/2.1.0-foss-2016b)
-          * Notes also that the code I'm adding to github is all combined into one script, though I ran the same code in the cluster separated into multiple scripts to aid in running multiple scripts at once. The code used however was not changed.
+  *  Note also that the code I'm adding to github is all combined into one script, though I ran the same   code in the cluster separated into multiple scripts to aid in running multiple scripts at once. The code used however was not changed.
 * Checking how HISAT2 genome indexes we made. Creating new indexes for both C_vir and C_gig using updated software version
 
-          * Checking C_virginica genome file on hand which was edited from `ref_C_virginica-3.0_top_level.gff3` to remove a space from header that was making it incompatible with Stringtie annotation. Checking also that mitochondrial DNA was added.
+  * Checking C_virginica genome file on hand which was edited from `ref_C_virginica-3.0_top_level.gff3` to remove a space from header that was making it incompatible with Stringtie annotation. Checking also that mitochondrial DNA was added.
 
             `$ grep '^>' cvir_edited.fa
               >NC_035780.1 Crassostrea virginica isolate RU13XGHG1-28 chromosome 1, C_virginica-3.0, whole genome shotgun sequence
@@ -155,19 +155,21 @@ compare apoptosis gene expression between disease challenges.
               >NC_035789.1 Crassostrea virginica isolate RU13XGHG1-28 chromosome 10, C_virginica-3.0, whole genome shotgun sequence
               >NC_007175.2 Crassostrea virginica mitochondrion, complete genome`
 
-            * Checking C_gigas genome file. Only on the cluster was `Crassostrea_gigas.gff`. A newer version of C_gigas genome is avaiable on NCBI now. Downloading that version and will use it to create HISAT2 index for C_gigas sequences.
-                * The C. gigas genome file contains all the genomic scaffolds (it has never been assembled to chromosome level like oysters) and the mitochondrial genome.
+    * Checking C_gigas genome file. Only on the cluster was `Crassostrea_gigas.gff`. A newer version of C_gigas genome is avaiable on NCBI now. Downloading that version and will use it to create HISAT2 index for C_gigas sequences.
+    * The C. gigas genome file contains all the genomic scaffolds (it has never been assembled to chromosome level like oysters) and the mitochondrial genome.
 
-            * Creating new indexes using code in `02_Build_Hisat_Indexes.sh`. Indices created!
+* Creating new indexes using code in `02_Build_Hisat_Indexes.sh`. Indices created!
 
 ### 2. Creating script to perform HISAT 2 alignment and SAMtools sorting on files for each experiment.
 
 * Dermo transcriptomes, He OsHV1, Zhang Vibrio and ROD transcriptomes are currently finished being preprocessed. Starting HISAT on these transcriptomes. Checked script to make sure correct indexes and paths were used.
 
-        * Received error running the script: Checking with kevin about how to resolve conflict
+* Received error running the script: Checking with kevin about how to resolve conflict
 
-`foss/2016b(13):ERROR:150: Module 'foss/2016b' conflicts with the currently loaded module(s) 'foss/2018b'
-foss/2016b(13):ERROR:102: Tcl command execution failed: conflict foss
+        `foss/2016b(13):ERROR:150: Module 'foss/2016b' conflicts with the currently loaded module(s) 'foss/2018b'
+         foss/2016b(13):ERROR:102: Tcl command execution failed: conflict foss
 
-GCCcore/5.4.0(13):ERROR:150: Module 'GCCcore/5.4.0' conflicts with the currently loaded module(s) 'GCCcore/7.3.0'
-GCCcore/5.4.0(13):ERROR:102: Tcl command execution failed: conflict GCCcore`
+         GCCcore/5.4.0(13):ERROR:150: Module 'GCCcore/5.4.0' conflicts with the currently loaded module(s) 'GCCcore/7.3.0'
+         GCCcore/5.4.0(13):ERROR:102: Tcl command execution failed: conflict GCCcore`
+
+* Resolved error. Cannot download simultaneously packages that have different foss toolchains. Kevin downloaded the HISAT2 foss-2018b so that is is compatible with the SAMtools foss-2018b. 
