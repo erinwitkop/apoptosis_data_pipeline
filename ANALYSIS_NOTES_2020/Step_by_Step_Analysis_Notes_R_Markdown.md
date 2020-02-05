@@ -17,6 +17,39 @@ compare apoptosis gene expression between disease challenges.
 * C. gigas Rubio et al. 2019 Vibrio = Download and analyze all available SRAs
 * C. gigas de Lorgeril et al., 2017 = Download and analyze only the samples from families 11 and 21 that were infected with OsHV-1 during a "natural" infection and sequenced. These were all sequenced paired end on hiseq 500. 42 total transcriptomes
 
+* Counting total number of Transcriptome samples (to report in methods) 181 total SRA samples
+
+         `# deLorgeril OsHV1 = 42 samples
+         erin_roberts@bluewaves 2020_Raw_Transcriptome_Data]$ ls ./C_gig_deLorgeril_OsHV1_SRA/*.filter.gz | wc -l # 84
+         erin_roberts@bluewaves C_gig_deLorgeril_OsHV1_SRA]$ cat C_gig_deLorgeril_OsHV1_SRA_ID.txt | wc -l # 42
+
+         # Rubio Vibrio 18
+         $ cat C_gig_Rubio_Vibrio_SRA_ID.txt | wc -l # 17 (actually 18)
+         erin_roberts@bluewaves C_gig_Rubio_Vibrio_SRA]$ ls *_1.fastq.gz | wc -l #18
+
+         # Zhang Vibrio 9
+         $ cat C_gig_Zhang_Vibrio_SRA_ID.txt | wc -l # 9
+         $ ls *.filter.gz | wc -l # 9
+
+         # He OsHV1 32
+         $ ls *.filter.gz | wc -l # 32
+         $ cat C_gig_He_2015_OsHV1_SRA_ID.txt | wc -l # 32
+
+         # ROD 12
+         $ cat C_vir_ROD_SRA_ID.txt | wc -l # 12
+         $ ls *.filter.gz | wc -l # 12
+
+         # Probiotic 6
+         $  ls *_1.fastq.gz | wc -l # 6
+         $ cat C_vir_Probiotic_SRA_ID.txt | wc -l # 6
+
+         # Dermo 62
+          # count ones with Technical replicates first
+          $ ls *TechRep1.R1*filter.gz | wc -l # 35
+          # then count other samples
+          $ ls DCS2015*R1*filter.gz | wc -l # 27
+
+
 ### 2. Create New folders on bluewaves cluster where data will be housed.
 
 * C. virginica Raw data will be in the following folder, with a separate directory per experiment:
@@ -120,7 +153,7 @@ compare apoptosis gene expression between disease challenges.
   * Checking number of files
         `ls *.gz | wc -l 12` , 12 in both places
   * compressed raw data and put in `ROD_Raw_Transcriptomes`
-          `tar -zcvf ROD_Raw_Transcriptomes.archive.tar.gz ROD_Raw_Transcriptomes/`
+        `tar -zcvf ROD_Raw_Transcriptomes.archive.tar.gz ROD_Raw_Transcriptomes/`
 * Starting deLorgeril OsHV1 pre-processing
         -
         -Checking number of files
