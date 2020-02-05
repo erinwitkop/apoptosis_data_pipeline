@@ -78,8 +78,8 @@ compare apoptosis gene expression between disease challenges.
       2. Zhang Vibrio - downloaded and checksum confirmed
       3. ROD - downloaded and checksum confirmed
       4. de lorgeril OsHV1- downloaded and confirmed
-      5. Rubio Vibrio - downloading
-      6. Probiotic - downloading
+      5. Rubio Vibrio - downloaded and confirmed. Correct number of files present
+      6. Probiotic - downloaded and confirmed. correct number of files present
 
     - Download data as several separate scripts. There are individual output and error files for each download for future reference:
 
@@ -118,9 +118,19 @@ compare apoptosis gene expression between disease challenges.
           - Compressed Raw data
             `$ tar -zcvf Zhang_Vibrio_Raw_Transcriptomes.archive.tar.gz Zhang_Vibrio_Raw_Transcriptomes`
       f. Starting ROD Pre-processing
+        -completed
+        -Checking number of files
+        `ls *.gz | wc -l 12` , 12 in both places
+        - compressed raw data and put in `ROD_Raw_Transcriptomes`
+          `tar -zcvf ROD_Raw_Transcriptomes.archive.tar.gz ROD_Raw_Transcriptomes/`
       g. Starting deLorgeril OsHV1 pre-processing
+        -
+        -Checking number of files
+
       h. Starting Rubio Vibrio pre-processing
+
       i. Starting Probiotic pre-processing
+
 
       - All scripts have unique output and error files. Ended up running pre-processing on data subsets one at a time in order to expedite process.
 
@@ -149,4 +159,14 @@ compare apoptosis gene expression between disease challenges.
                 - The C. gigas genome file contains all the genomic scaffolds (it has never been assembled to chromosome level like oysters) and the mitochondrial genome.
 
             - Creating new indexes using code in `02_Build_Hisat_Indexes.sh`. Indices created!
+
   2. Creating script to perform HISAT 2 alignment and SAMtools sorting on files for each experiment.
+
+    a. Dermo transcriptomes, He OsHV1, Zhang Vibrio and ROD transcriptomes are currently finished being preprocessed. Starting HISAT on these transcriptomes. Checked script to make sure correct indexes and paths were used.
+
+        - Received error running the script: Checking with kevin about how to resolve conflict
+`foss/2016b(13):ERROR:150: Module 'foss/2016b' conflicts with the currently loaded module(s) 'foss/2018b'
+foss/2016b(13):ERROR:102: Tcl command execution failed: conflict foss
+
+GCCcore/5.4.0(13):ERROR:150: Module 'GCCcore/5.4.0' conflicts with the currently loaded module(s) 'GCCcore/7.3.0'
+GCCcore/5.4.0(13):ERROR:102: Tcl command execution failed: conflict GCCcore`
