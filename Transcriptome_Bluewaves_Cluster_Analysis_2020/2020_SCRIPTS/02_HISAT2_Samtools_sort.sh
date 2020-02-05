@@ -50,8 +50,6 @@ GZV=/data3/marine_diseases_lab/erin/2017_2020_Transcriptome_Analysis/pipeline_fi
 #  samtools sort ${i}.sam > ${i}.bam
   #Get bam file statistics for percentage aligned with flagstat
 #  samtools flagstat ${i}.bam > ${i}.bam.stats #get % mapped
-  # Use $ samtools stats ${i} for more detailed statistics
-#  samtools stats {i} | grep ^SN | cut -f 2- > ${i}.bam.fullstat
 # echo "${i} sorted bam done"
 #done
 
@@ -73,8 +71,6 @@ GZV=/data3/marine_diseases_lab/erin/2017_2020_Transcriptome_Analysis/pipeline_fi
 #  samtools sort ${i}.sam > ${i}.bam
   #Get bam file statistics for percentage aligned with flagstat
 #  samtools flagstat ${i}.bam > ${i}.bam.stats #get % mapped
-  # Use $ samtools stats ${i} for more detailed statistics
-#  samtools stats {i} | grep ^SN | cut -f 2- > ${i}.sam.bam.fullstat
 # echo "${i} sorted bam done"
 #done
 
@@ -90,8 +86,6 @@ GZV=/data3/marine_diseases_lab/erin/2017_2020_Transcriptome_Analysis/pipeline_fi
 #  samtools sort ${i}.sam > ${i}.bam
   #Get bam file statistics for percentage aligned with flagstat
 #  samtools flagstat ${i}.bam > ${i}.bam.stats #get % mapped
-  # Use $ samtools stats ${i} for more detailed statistics
-#  samtools stats {i} | grep ^SN | cut -f 2- > ${i}.bam.fullstat
 # echo "${i} sorted bam done"
 #done
 
@@ -107,8 +101,6 @@ for i in ${array4[@]}; do
   samtools sort ${i}.sam > ${i}.bam
   #Get bam file statistics for percentage aligned with flagstat
   samtools flagstat ${i}.bam > ${i}.bam.stats #get % mapped
-  # Use $ samtools stats ${i} for more detailed statistics
-  samtools stats {i} | grep ^SN | cut -f 2- > ${i}.bam.fullstat
   echo "${i} sorted bam done"
 done
 
@@ -125,8 +117,6 @@ for i in ${array5[@]}; do
         samtools sort ${i}.sam > ${i}.bam
         #Get bam file statistics for percentage aligned with flagstat
         samtools flagstat ${i}.bam > ${i}.bam.stats #get % mapped
-    	  # Use $ samtools stats ${i} for more detailed statistics
-    		samtools stats {i} | grep ^SN | cut -f 2- > ${i}.bam.fullstat
         echo "${i} sorted bam done"
 done
 
@@ -140,8 +130,6 @@ for i in ${array6[@]}; do
         samtools sort ${i}.sam > ${i}.bam
         #Get bam file statistics for percentage aligned with flagstat
         samtools flagstat ${i}.bam > ${i}.bam.stats #get % mapped
-    	  # Use $ samtools stats ${i} for more detailed statistics
-    		samtools stats {i} | grep ^SN | cut -f 2- > ${i}.bam.fullstat
         echo "${i} sorted bam done"
 done
 
@@ -153,12 +141,9 @@ for i in ${array7[@]}; do
         hisat2 --dta -x $CV/cvir_edited_index -U ${i} -S ${i}.sam
         #SAMTOOLS sort to convert the SAM file into a BAM file to be used with StringTie. Stringtie only take sorted bam
         samtools sort ${i}.sam > ${i}.bam
-        echo "${i}_bam"
-        echo "${i}_DONE"
         #Get bam file statistics for percentage aligned with flagstat
         samtools flagstat ${i}.bam > ${i}.bam.stats #get % mapped
-    	  # Use $ samtools stats ${i} for more detailed statistics
-    		samtools stats {i} | grep ^SN | cut -f 2- > ${i}.bam.fullstat
+        echo "${i} sorted bam done"
 done
 
 echo "C_vir_ROD_SRA_ID DONE $(date)"
