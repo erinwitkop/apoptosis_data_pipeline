@@ -92,34 +92,34 @@ compare apoptosis gene expression between disease challenges.
 
 ### 1. Combined trimming scripts for both C_gig and C_vir into single script. In order to maintain folder organization of files from each experiment, I'm going to run a loop through every filtering and trimming command on all the files for each experiment separately.
 
-* Though I have them all in a single script. I'm commenting out parts of the script and running them individually to check. A separate output file will exist for each. Deleting intermediate files between each step.
+* Though I have them all in a single script I'm commenting out parts of the script and running them individually to check. A separate output file will exist for each. Deleting intermediate files between each step.
 * Starting with the Dermo transcriptomes that I know are fully downloaded, while the other SRAs are finishing being downloaded.  
 * Running Dermo transcriptome script separately (because file name format is different). Script called "01_SRA_Trim_Filter_Dermo_only.sh"
-          * finished successfully
-          * Checked that all files had been pre-processed. 194 total raw files and processed files.
-          * moved raw data into one lower folder `Dermo_Raw_Transcriptomes`
-          * Compressed the raw data folder in interactive mode
-              `$tar -zcvf Dermo_Raw_Transcriptomes.archive.tar.gz Dermo_Raw_Transcriptomes`
+  * finished successfully
+  * Checked that all files had been pre-processed. 194 total raw files and processed files.
+  * moved raw data into one lower folder `Dermo_Raw_Transcriptomes`
+  * Compressed the raw data folder in interactive mode
+          `$tar -zcvf Dermo_Raw_Transcriptomes.archive.tar.gz Dermo_Raw_Transcriptomes`
 * Running HE OsHV1 preprocessing
-          * Completed
-          * Checked all files had been processed
-             `$ ls *.filter.gz | wc -l ` 32
-             `$ ls ./He_OsHV1_Raw_Transcriptomes/* | wc -l` 32
-          * Moved raw data into `He_OsHV1_Raw_Transcriptomes`
-          * Compressed raw data folder
+  * Completed
+  * Checked all files had been processed
+          `$ ls *.filter.gz | wc -l ` 32
+          `$ ls ./He_OsHV1_Raw_Transcriptomes/* | wc -l` 32
+  * Moved raw data into `He_OsHV1_Raw_Transcriptomes`
+  * Compressed raw data folder
 * Starting Zhang Vibrio Pre-processing
-          * Completed
-          * Checked all files had been processed
+  * Completed
+  * Checked all files had been processed
           `[erin_roberts@bluewaves Zhang_Vibrio_Raw_Transcriptomes]$ ls * | wc -l ` 9
           `[erin_roberts@bluewaves C_gig_Zhang_Vibrio_SRA]$ ls *.gz | wc -l ` 9
-          * Moved raw data into `Zhang_Vibrio_Raw_Transcriptomes`
-          * Compressed Raw data
+  * Moved raw data into `Zhang_Vibrio_Raw_Transcriptomes`
+  * Compressed Raw data
             `$ tar -zcvf Zhang_Vibrio_Raw_Transcriptomes.archive.tar.gz Zhang_Vibrio_Raw_Transcriptomes`
 * Starting ROD Pre-processing
-         * completed
-         * Checking number of files
+  * completed
+  * Checking number of files
         `ls *.gz | wc -l 12` , 12 in both places
-         * compressed raw data and put in `ROD_Raw_Transcriptomes`
+  * compressed raw data and put in `ROD_Raw_Transcriptomes`
           `tar -zcvf ROD_Raw_Transcriptomes.archive.tar.gz ROD_Raw_Transcriptomes/`
 * Starting deLorgeril OsHV1 pre-processing
         -
@@ -172,4 +172,4 @@ compare apoptosis gene expression between disease challenges.
          GCCcore/5.4.0(13):ERROR:150: Module 'GCCcore/5.4.0' conflicts with the currently loaded module(s) 'GCCcore/7.3.0'
          GCCcore/5.4.0(13):ERROR:102: Tcl command execution failed: conflict GCCcore`
 
-* Resolved error. Cannot download simultaneously packages that have different foss toolchains. Kevin downloaded the HISAT2 foss-2018b so that is is compatible with the SAMtools foss-2018b. 
+* Resolved error. Cannot download simultaneously packages that have different foss toolchains. Kevin downloaded the HISAT2 foss-2018b so that is is compatible with the SAMtools foss-2018b.
