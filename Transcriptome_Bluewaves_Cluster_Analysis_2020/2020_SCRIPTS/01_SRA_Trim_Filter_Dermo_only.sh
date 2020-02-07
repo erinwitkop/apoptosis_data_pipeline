@@ -46,6 +46,4 @@ for i in ${array4[@]}; do
 		echo "histogram DONE" $(date)
 		gzip ${i}.clean.trim.filter
 		gzip $(echo ${i}|sed s/R1/R2/).clean.trim.filter
-		rm ${i}.clean.trim.filter
-		rm $(echo ${i}|sed s/R1/R2/).clean.trim.filter
 done

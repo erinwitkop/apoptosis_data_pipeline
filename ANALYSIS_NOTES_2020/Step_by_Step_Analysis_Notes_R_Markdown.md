@@ -155,15 +155,27 @@ compare apoptosis gene expression between disease challenges.
   * compressed raw data and put in `ROD_Raw_Transcriptomes`
         `tar -zcvf ROD_Raw_Transcriptomes.archive.tar.gz ROD_Raw_Transcriptomes/`
 * Starting deLorgeril OsHV1 pre-processing
-        -
-        -Checking number of files
+  * completed
+  * Checking number of files
+          `$ ls *_1*filter.gz | wc -l # 42`
+  * compressed raw data
 
-      h. Starting Rubio Vibrio pre-processing
+* Starting Rubio Vibrio pre-processing
+  * completed
+  * Checking number of files
+          `$ ls *_1*.filter.gz | wc -l #18 `
+          `$ ls ./Rubio_Raw_Transcriptomes/*_1*fastq.gz | wc -l #18`
+  * compressing raw data
+          `$ tar -zcvf Rubio_Raw_Transcriptomes.archive.tar.gz Rubio_Raw_Transcriptomes/`
 
-      i. Starting Probiotic pre-processing
+* Starting Probiotic pre-processing
+  * completed
+  * correct number of files present
+  * Compressing raw data
+        `$ tar -zcvf Probiotic_Raw_Transcriptomes.archive.tar.gz Probiotic_Raw_Transcriptomes/`
 
 
-      - All scripts have unique output and error files. Ended up running pre-processing on data subsets one at a time in order to expedite process.
+* All scripts have unique output and error files. Ended up running pre-processing on data subsets one at a time in order to expedite process.
 
 ## 2/4/2020 - 2/5/2020 Building HISAT2 Script and Running HISAT2
 
@@ -206,3 +218,33 @@ compare apoptosis gene expression between disease challenges.
          GCCcore/5.4.0(13):ERROR:102: Tcl command execution failed: conflict GCCcore`
 
 * Resolved error. Cannot download simultaneously packages that have different foss toolchains. Kevin downloaded the HISAT2 foss-2018b so that is is compatible with the SAMtools foss-2018b.
+
+* Dermo transcriptomes finished HISAT2
+  * Compressing .sam files and putting HISAT2 stats in a separate folder. There are the same number of .sam and .bam files.
+
+* Ran all other transcriptomes in script. Checking through error and output files to make sure all worked correctly. Checking correct number of sorted bam files for each before Stringtie.
+
+* ROD, Dermo, HE, Zhang completed HISAT
+  * Deleting SAM files from each
+  * deleting clean.trim.filter files also after checking that correct bam files present
+    * ROD - deleted filter files
+  `$ ls *.bam | wc -l #12`
+  `$ ls *.filter.gz | wc -l # 12`
+   * Dermo - deleted filter files
+   `$ ls *.bam | wc -l`
+   `$ ls *.filter.gz | wc -l # 194`
+   * He - deleted filter files
+   `$ ls *filter.gz | wc -l # 32 `
+   `$ ls *bam | wc -l # 32`
+   * Zhang - deleted filter files
+    `$ ls *filter.gz | wc -l # 9`
+    `$ ls *.bam | wc -l # 9`
+    
+
+* Probiotic, deLorgeril, and Rubio STOPPED with error and stopped half way through deLorgeril:
+      `File write failed
+samtools sort: failed to create temporary file "./samtools.15357.2415.tmp.0007.bam": No space left on device
+/var/spool/slurmd/job1035890/slurm_script: line 52: /data3/marine_diseases_lab/erin/2017_2020_Transcriptome_Analysis/pipeline_files/C_gig_Bac_Viral_subset/2020_Raw_Transcriptome_Data/C_gig_deLorgeril_OsHV1_SRA/SRR6679068_1.fastq.gz.clean.trim.filter.gz.bam.stats: Disk quota exceeded
+`
+    * Deleting the bam files already done for deLorgeril because I'm not sure where they stopped
+    * Deleting sam files for those experiments that have already finished running
