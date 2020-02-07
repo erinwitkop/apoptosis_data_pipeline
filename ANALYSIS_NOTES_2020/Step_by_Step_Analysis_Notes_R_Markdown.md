@@ -239,7 +239,6 @@ compare apoptosis gene expression between disease challenges.
    * Zhang - deleted filter files
     `$ ls *filter.gz | wc -l # 9`
     `$ ls *.bam | wc -l # 9`
-    
 
 * Probiotic, deLorgeril, and Rubio STOPPED with error and stopped half way through deLorgeril:
       `File write failed
@@ -248,3 +247,11 @@ samtools sort: failed to create temporary file "./samtools.15357.2415.tmp.0007.b
 `
     * Deleting the bam files already done for deLorgeril because I'm not sure where they stopped
     * Deleting sam files for those experiments that have already finished running
+* Rerunning Probiotic, deLorgeril and Rubio HISAT2 script but combining script with Stringtie at the end so that it will run over the weekend. See how the Stringtie script was developed below
+
+## 2/7/2020 Build Stringtie Script and run
+
+### 1. Setting up stringtie script
+
+* After HISAT2 there are no longer two files for paired end reads, so I can run the same script for all.
+* Creating mergelist for each experiment
