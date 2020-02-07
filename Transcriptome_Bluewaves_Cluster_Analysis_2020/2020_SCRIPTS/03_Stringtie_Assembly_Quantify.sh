@@ -11,7 +11,7 @@
 echo "START" $(date)
 
 module load StringTie/2.1.1-GCCcore-7.3.0 # new version of Stringtie
-module load gffcompare/0.11.5-foss-2018b # new version of gffcompare 
+module load gffcompare/0.11.5-foss-2018b # new version of gffcompare
 
 # Create variable for each path to trimmed and quality filtered data folder
 CV=/data3/marine_diseases_lab/erin/2017_2020_Transcriptome_Analysis/pipeline_files/C_Vir_subset/Cvir_Genome_and_Indexes
