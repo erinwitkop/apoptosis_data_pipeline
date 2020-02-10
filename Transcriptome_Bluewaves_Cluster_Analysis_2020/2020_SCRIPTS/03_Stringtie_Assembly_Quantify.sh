@@ -54,7 +54,7 @@ echo "deLorgeril OsHV1 gffcompared"
 
 #Re-estimate transcript abundance after merge step
 for i in ${array1[@]}; do
-		stringtie -e -A -G $GLO/deLorgeril_OsHV1_stringtie_merged.gtf -o $(echo ${i}|sed "s/\..*//").merge.gtf ${i}
+		stringtie -A -e -G $GLO/deLorgeril_OsHV1_stringtie_merged.gtf -o $(echo ${i}|sed "s/\..*//").merge.gtf ${i}
 		echo "${i} deLorgeril OsHV1 transcript abundance re-estimated"
 done
 		# input here is the original set of alignment files
@@ -86,7 +86,7 @@ gffcompare -r $CG/GCF_000297895.1_oyster_v9_genomic.gff -G -o $GRV/Rubio_Vibrio_
 echo "Rubio Vibrio gffcompared"
 #Re-estimate transcript abundance after merge step
 for i in ${array2[@]}; do
-		stringtie -e -A -G $GRV/Rubio_Vibrio_stringtie_merged.gtf -o $(echo ${i}|sed "s/\..*//").merge.gtf ${i}
+		stringtie -A -e -G $GRV/Rubio_Vibrio_stringtie_merged.gtf -o $(echo ${i}|sed "s/\..*//").merge.gtf ${i}
 		echo "${i} Rubio Vibrio transcript abundance re-estimated"
 done
 
@@ -109,7 +109,7 @@ gffcompare -r $CV/ref_C_virginica-3.0_top_level.gff3 -G -o $CP/Probiotic_stringt
 echo "Probiotic gffcompared"
 #Re-estimate transcript abundance after merge step
 for i in ${array3[@]}; do
-		stringtie -e -A -G $CP/Probiotic_stringtie_merged.gtf -o $(echo ${i}|sed "s/\..*//").merge.gtf ${i}
+		stringtie -A -e -G $CP/Probiotic_stringtie_merged.gtf -o $(echo ${i}|sed "s/\..*//").merge.gtf ${i}
 		echo "${i} Probiotic transcript abundance re-estimated"
 done
 
@@ -132,7 +132,7 @@ gffcompare -r $CV/ref_C_virginica-3.0_top_level.gff3 -G -o $CD/Dermo_stringtie_m
 echo "Dermo gffcompared"
 #Re-estimate transcript abundance after merge step
 for i in ${array4[@]}; do
-		stringtie -e -A -G $CD/Dermo_stringtie_merged.gtf -o $(echo ${i}|sed "s/\..*//").merge.gtf ${i}
+		stringtie -A -e -G $CD/Dermo_stringtie_merged.gtf -o $(echo ${i}|sed "s/\..*//").merge.gtf ${i}
 		echo "${i} Dermo transcript abundance re-estimated"
 done
 
@@ -155,7 +155,7 @@ gffcompare -r $CG/GCF_000297895.1_oyster_v9_genomic.gff -G -o $GHO/He_OsHV1_stri
 echo "He OsHV1 gffcompared"
 #Re-estimate transcript abundance after merge step
 for i in ${array5[@]}; do
-		stringtie -e -A -G $GHO/He_OsHV1_stringtie_merged.gtf -o $(echo ${i}|sed "s/\..*//").merge.gtf ${i}
+		stringtie -A -e -G $GHO/He_OsHV1_stringtie_merged.gtf -o $(echo ${i}|sed "s/\..*//").merge.gtf ${i}
 		echo "${i} He OsHV1 transcript abundance re-estimated"
 done
 
@@ -178,7 +178,7 @@ gffcompare -r $CG/GCF_000297895.1_oyster_v9_genomic.gff -G -o $GZV/Zhang_Vibrio_
 echo "Zhang Vibrio gffcompared"
 #Re-estimate transcript abundance after merge step
 for i in ${array6[@]}; do
-		stringtie -e -A -G $GZV/Zhang_Vibrio_stringtie_merged.gtf -o $(echo ${i}|sed "s/\..*//").merge.gtf ${i}
+		stringtie -A -e -G $GZV/Zhang_Vibrio_stringtie_merged.gtf -o $(echo ${i}|sed "s/\..*//").merge.gtf ${i}
 		echo "${i} Zhang Vibrio transcript abundance re-estimated"
 done
 
@@ -201,7 +201,7 @@ gffcompare -r $CV/ref_C_virginica-3.0_top_level.gff3 -G -o $CR/ROD_stringtie_mer
 echo "ROD gffcompared"
 #Re-estimate transcript abundance after merge step
 for i in ${array7[@]}; do
-		stringtie -e -A -G $CR/ROD_stringtie_merged.gtf -o $(echo ${i}|sed "s/\..*//").merge.gtf ${i}
+		stringtie -A -e -G $CR/ROD_stringtie_merged.gtf -o $(echo ${i}|sed "s/\..*//").merge.gtf ${i}
 		echo "${i} ROD transcript abundance re-estimated"
 done
 

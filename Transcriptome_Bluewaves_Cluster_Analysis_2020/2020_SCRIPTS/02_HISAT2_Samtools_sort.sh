@@ -2,8 +2,8 @@
 #SBATCH -t 1000:00:00
 #SBATCH --nodes=1
 #SBATCH --export=NONE
-#SBATCH	-o /data3/marine_diseases_lab/erin/2017_2020_Transcriptome_Analysis/pipeline_files/2020_Scripts/Script_out_error_files/HISAT2_deLorgeril_Rubio_Pro_out_2_6_2020
-#SBATCH	-e /data3/marine_diseases_lab/erin/2017_2020_Transcriptome_Analysis/pipeline_files/2020_Scripts/Script_out_error_files/HISAT2_deLorgeril_Rubio_Pro_error_2_6_2020
+#SBATCH	-o /data3/marine_diseases_lab/erin/2017_2020_Transcriptome_Analysis/pipeline_files/2020_Scripts/Script_out_error_files/HISAT2_Stringtie_deLorgeril_Rubio_Pro_out_2_7_2020
+#SBATCH	-e /data3/marine_diseases_lab/erin/2017_2020_Transcriptome_Analysis/pipeline_files/2020_Scripts/Script_out_error_files/HISAT2_Stringtie_deLorgeril_Rubio_Pro_error_2_7_2020
 
 echo "START" $(date)
 
