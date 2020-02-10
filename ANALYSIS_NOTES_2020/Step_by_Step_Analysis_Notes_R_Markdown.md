@@ -255,18 +255,17 @@ samtools sort: failed to create temporary file "./samtools.15357.2415.tmp.0007.b
 
 * After HISAT2 there are no longer two files for paired end reads, so I can run the same script for all.
 * Creating mergelist for each experiment
-* Ran script 03_Stringtie_Assembly_Quantify.sh with the ROD_Dermo_HE_Zhang all together
-* Ran script for performing HISAT mapping and Stringtie quantification for Rubio, Probiotic, and deLorgeril all together
+* Ran script `03_Stringtie_Assembly_Quantify.sh` with the ROD_Dermo_HE_Zhang all together
+* Ran script for performing HISAT mapping and Stringtie quantification for Rubio, Probiotic, and deLorgeril all together `02_HISAT2_samtools_sort_Rubio_Pro_deLorgeril.sh`
 
-## 2/8/2020 Checking Output of Stringtie to check that it worked
+## 2/10/2020 Checking Output of Stringtie to check that it worked
 
 * Checking output and error files resulting from the scripts above
       `$ cat  Stringtie_ROD_Dermo_HE_Zhang_out_2_7_2020`
       * Dermo DONE : assembled, then merged, then gffcompared, then transcript abundance re-estimated. BUT DIDN'T WORK DUE TO MERGELIST.TXT ERROR.
       * HE DONE : assembled, then merged, then gffcompared, then transcript abundance re-estimated. BUT DIDN'T WORK DUE TO MERGELIST.TXT ERROR.
       * Zhang DONE, with assembly, gffcompare, merge, and re-abundnace but it seems like then the script re-assembled one of the files and then stopped before moving on to the ROD files.
-          `Zhang Vibrio Stringtie complete Fri Feb  7 20:19:54 EST 2020
-/data3/marine_diseases_lab/erin/2017_2020_Transcriptome_Analysis/pipeline_files/C_gig_Bac_Viral_subset/2020_Raw_Transcriptome_Data/C_gig_Zhang_Vibrio_SRA/SRR796598.fastq.gz.clean.trim.filter.gz.bam assembled
+      * ROD not merged at all.
 `
       * Looking at the Stringtie_ROD_Dermo_HE_Zhang_error_2_7_2020 file. Shows that the mergelist.txt files were not created correctly so no transcripts were found and no valid reference transcripts were found either. Need to fix merglist and re-try the merging step. Also need to check why a syntax error occurred for array 7 on line 185.
 
@@ -282,10 +281,12 @@ Error: could not any valid reference transcripts in /data3/marine_diseases_lab/e
 WARNING: no reference transcripts were found for the genomic sequences where reads were mapped!
 Please make sure the -G annotation file uses the same naming convention for the genome sequences.
 `
-  * Same Stringtie merge error due to the mergelisted happen for the deLorgeril, Rubio, and Probiotic file. Though the HISAT2 alignment finished correctly. Need to redo Stringtie for these transcriptomes as well.
+* Syntax error due to accidentally deleting closeout parenthesis when creating array7 :`array7=($(ls $CR/*.bam)`.
+
+* Same Stringtie merge error due to the mergelisted happen for the deLorgeril, Rubio, and Probiotic file (`HISAT2_Stringtie_deLorgeril_Rubio_Pro_error_2_7_2020`). Though the HISAT2 alignment finished correctly. Need to redo Stringtie mergelist onward for these transcriptomes as well.
         ` $ cat HISAT2_Stringtie_deLorgeril_Rubio_Pro_error_2_7_2020` # this files holds the alignment rate statistics for the HISAT mapping  
 
-* Before fixing Stringtie mergelist error, going to delete the sam files and trimmed and filtered filles from deLorgeril_Rubio_Pro that finished alignment with HISAT2.
+* Before fixing Stringtie mergelist error, going to delete the sam files and trimmed and filtered files from deLorgeril_Rubio_Pro that finished alignment with HISAT2.
         `# Checking number of sam files and bam files to see that they match
         $ pwd  /data3/marine_diseases_lab/erin/2017_2020_Transcriptome_Analysis/pipeline_files/C_gig_Bac_Viral_subset/2020_Raw_Transcriptome_Data/C_gig_deLorgeril_OsHV1_SRA
         $ ls *.bam | wc -l # 42
@@ -298,7 +299,79 @@ Please make sure the -G annotation file uses the same naming convention for the 
         # What to do with all the tmp files? Am going to keep for now.
 
         # Repeating process above for Rubio files
+        $ pwd
+        /data3/marine_diseases_lab/erin/2017_2020_Transcriptome_Analysis/pipeline_files/C_gig_Bac_Viral_subset/2020_Raw_Transcriptome_Data/C_gig_Rubio_Vibrio_SRA
         $ ls *.sam | wc -l # 18
         $ ls *.bam | wc -l # 18
+        $ ls *.filter.gz | wc -l # 36
+        $ less SRR8551085_1.fastq.gz.clean.trim.filter.gz.bam.gtf # mapped to LOC and XM Id's
+        $ rm *.filter.gz
+        $ rm *.sam
+        # keeping tmp.* files for now
 
+        # Repeating process for Probiotic files
+        $ pwd
+        /data3/marine_diseases_lab/erin/2017_2020_Transcriptome_Analysis/pipeline_files/C_Vir_subset/2020_Raw_Transcriptome_Data/C_vir_Probiotic_SRA
+        $ ls *.sam | wc -l # 6
+        $ ls *.bam | wc -l # 6
+        $ ls *.filter.gz | wc -l # 12
+        $ less SRR5357622_1.fastq.gz.clean.trim.filter.gz.bam.gtf # also was mapped correctly to ref name LOC
+        $ rm *.sam
+        $ rm *.filter.gz
+        # keeping the tmp.* files around
 `
+* Deleting old gtf files for Zhang_Vibrio because one of them was accidentally overwritten. Will re-do this step
+        ` $ ls *.bam.gtf | wc -l # 9
+          $ ls *.bam | wc -l # 9
+        `
+* ROD and Zhang both need the initial assembly steps re-done, while the rest just need to have the merge step fixed and re-abundance re-calculated.
+
+* Inspecting why the Stringtie code failed.
+
+      1. Inspect the mergelist.txt created in each script to check format. Appears to be in correct format with the full path to each file, one file per line.
+        `]$ head deLorgeril_mergelist.txt
+/data3/marine_diseases_lab/erin/2017_2020_Transcriptome_Analysis/pipeline_files/C_gig_Bac_Viral_subset/2020_Raw_Transcriptome_Data/C_gig_deLorgeril_OsHV1_SRA/SRR6679052_1.fastq.gz.clean.trim.filter.gz.bam.gtf
+/data3/marine_diseases_lab/erin/2017_2020_Transcriptome_Analysis/pipeline_files/C_gig_Bac_Viral_subset/2020_Raw_Transcriptome_Data/C_gig_deLorgeril_OsHV1_SRA/SRR6679053_1.fastq.gz.clean.trim.filter.gz.bam.gtf
+/data3/marine_diseases_lab/erin/2017_2020_Transcriptome_Analysis/pipeline_files/C_gig_Bac_Viral_subset/2020_Raw_Transcriptome_Data/C_gig_deLorgeril_OsHV1_SRA/SRR6679054_1.fastq.gz.clean.trim.filter.gz.bam.gtf
+/data3/marine_diseases_lab/erin/2017_2020_Transcriptome_Analysis/pipeline_files/C_gig_Bac_Viral_subset/2020_Raw_Transcriptome_Data/C_gig_deLorgeril_OsHV1_SRA/SRR6679055_1.fastq.gz.clean.trim.filter.gz.bam.gtf
+/data3/marine_diseases_lab/erin/2017_2020_Transcriptome_Analysis/pipeline_files/C_gig_Bac_Viral_subset/2020_Raw_Transcriptome_Data/C_gig_deLorgeril_OsHV1_SRA/SRR6679056_1.fastq.gz.clean.trim.filter.gz.bam.gtf
+/data3/marine_diseases_lab/erin/2017_2020_Transcriptome_Analysis/pipeline_files/C_gig_Bac_Viral_subset/2020_Raw_Transcriptome_Data/C_gig_deLorgeril_OsHV1_SRA/SRR6679057_1.fastq.gz.clean.trim.filter.gz.bam.gtf
+/data3/marine_diseases_lab/erin/2017_2020_Transcriptome_Analysis/pipeline_files/C_gig_Bac_Viral_subset/2020_Raw_Transcriptome_Data/C_gig_deLorgeril_OsHV1_SRA/SRR6679058_1.fastq.gz.clean.trim.filter.gz.bam.gtf
+/data3/marine_diseases_lab/erin/2017_2020_Transcriptome_Analysis/pipeline_files/C_gig_Bac_Viral_subset/2020_Raw_Transcriptome_Data/C_gig_deLorgeril_OsHV1_SRA/SRR6679059_1.fastq.gz.clean.trim.filter.gz.bam.gtf
+/data3/marine_diseases_lab/erin/2017_2020_Transcriptome_Analysis/pipeline_files/C_gig_Bac_Viral_subset/2020_Raw_Transcriptome_Data/C_gig_deLorgeril_OsHV1_SRA/SRR6679060_1.fastq.gz.clean.trim.filter.gz.bam.gtf
+/data3/marine_diseases_lab/erin/2017_2020_Transcriptome_Analysis/pipeline_files/C_gig_Bac_Viral_subset/2020_Raw_Transcriptome_Data/C_gig_deLorgeril_OsHV1_SRA/SRR6679061_1.fastq.gz.clean.trim.filter.gz.bam.gtf
+[erin_roberts@bluewaves C_gig_deLorgeril_OsHV1_SRA]$`
+        2. Inspect output of the merging step. Says no transcripts found in file.
+          `Error: no transcripts were found in input file /data3/marine_diseases_lab/erin/2017_2020_Transcriptome_Analysis/pipeline_files/C_gig_Bac_Viral_subset/2020_Raw_Transcriptome_Data/C_gig_deLorgeril_OsHV1_SRA/deLorgeril_mergelist.txt
+  53712 reference transcripts loaded.
+  22 duplicate reference transcripts discarded.
+  0 query transfrags loaded.
+  Error: could not any valid reference transcripts in /data3/marine_diseases_lab/erin/2017_2020_Transcriptome_Analysis/pipeline_files/C_gig_Bac_Viral_subset/2020_Raw_Transcriptome_Data/C_gig_deLorgeril_OsHV1_SRA/deLorgeril_OsHV1_stringtie_merged.gtf (invalid GTF/GFF file?)
+`
+        3. Deleting the merge step files from deLorgeril OsHV1 and trying to run in an interactive session in the folder where the files are (to answer if this is an issue with the path)
+         `$ rm *merged*
+          $ module load StringTie/2.1.1-GCCcore-7.3.0
+          $ module load gffcompare/0.11.5-foss-2018b
+          $ CG=/data3/marine_diseases_lab/erin/2017_2020_Transcriptome_Analysis/pipeline_files/C_gig_Bac_Viral_subset/Cgig_Genome_and_Indexes
+          $ GLO=/data3/marine_diseases_lab/erin/2017_2020_Transcriptome_Analysis/pipeline_files/C_gig_Bac_Viral_subset/2020_Raw_Transcriptome_Data/C_gig_deLorgeril_OsHV1_SRA
+          # tested whether not loading gffcompare and module load StringTie/2.1.1-GCCcore-7.3.0  made it difference. It didn't
+          # tested whether trying older stringtie version made a difference
+          $ module purge
+          $ module load StringTie/1.3.3b-foss-2016b
+          $ stringtie --merge -A -G $CG/GCF_000297895.1_oyster_v9_genomic.gff -o $GLO/deLorgeril_OsHV1_stringtie_merged.gtf deLorgeril_mergelist.txt
+          # Error: no transcripts were found in input file deLorgeril_mergelist.txt
+          # Trying to test if making new mergelist makes a difference
+          $ ls S*.gtf > deLorgeril_mergelist_no_path.txt
+          $ cat deLorgeril_mergelist_no_path.txt
+          $ module purge
+          $ module load StringTie/2.1.1-GCCcore-7.3.0
+          $ stringtie --merge -A -G $CG/GCF_000297895.1_oyster_v9_genomic.gff -o $GLO/deLorgeril_OsHV1_stringtie_merged.gtf deLorgeril_mergelist_no_path.txt
+              Error: no transcripts were found in input file deLorgeril_mergelist_no_path.txt
+          # Changing mergelist doesnt make a difference
+          # Testing removing -A from the command
+          $ stringtie --merge -G $CG/GCF_000297895.1_oyster_v9_genomic.gff -o $GLO/deLorgeril_OsHV1_stringtie_merged.gtf deLorgeril_mergelist_no_path.txt
+              # doesn't immediately give error that no transcripts were found
+          ####### THE ISSUE WAS USING -A DURING THE STRINGTIE MERGE THIS IS NOT ALLOWED #######
+          `
+* Changing Stringtie script so that the -A option is only used during the re-estimating abundances step. Keeping initial assembly step only for ROD and Zhang.
+  * Ran fixed code in the following script on bluewaves "03_Stringtie_Assembly_Quantify_fixed_redo.sh " though it was just fixed and saved in my original file on my computer as "03_Stringtie_Assembly_Quantify.sh"
