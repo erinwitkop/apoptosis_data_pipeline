@@ -255,3 +255,50 @@ samtools sort: failed to create temporary file "./samtools.15357.2415.tmp.0007.b
 
 * After HISAT2 there are no longer two files for paired end reads, so I can run the same script for all.
 * Creating mergelist for each experiment
+* Ran script 03_Stringtie_Assembly_Quantify.sh with the ROD_Dermo_HE_Zhang all together
+* Ran script for performing HISAT mapping and Stringtie quantification for Rubio, Probiotic, and deLorgeril all together
+
+## 2/8/2020 Checking Output of Stringtie to check that it worked
+
+* Checking output and error files resulting from the scripts above
+      `$ cat  Stringtie_ROD_Dermo_HE_Zhang_out_2_7_2020`
+      * Dermo DONE : assembled, then merged, then gffcompared, then transcript abundance re-estimated. BUT DIDN'T WORK DUE TO MERGELIST.TXT ERROR.
+      * HE DONE : assembled, then merged, then gffcompared, then transcript abundance re-estimated. BUT DIDN'T WORK DUE TO MERGELIST.TXT ERROR.
+      * Zhang DONE, with assembly, gffcompare, merge, and re-abundnace but it seems like then the script re-assembled one of the files and then stopped before moving on to the ROD files.
+          `Zhang Vibrio Stringtie complete Fri Feb  7 20:19:54 EST 2020
+/data3/marine_diseases_lab/erin/2017_2020_Transcriptome_Analysis/pipeline_files/C_gig_Bac_Viral_subset/2020_Raw_Transcriptome_Data/C_gig_Zhang_Vibrio_SRA/SRR796598.fastq.gz.clean.trim.filter.gz.bam assembled
+`
+      * Looking at the Stringtie_ROD_Dermo_HE_Zhang_error_2_7_2020 file. Shows that the mergelist.txt files were not created correctly so no transcripts were found and no valid reference transcripts were found either. Need to fix merglist and re-try the merging step. Also need to check why a syntax error occurred for array 7 on line 185.
+
+      `Error: no transcripts were found in input file /data3/marine_diseases_lab/erin/2017_2020_Transcriptome_Analysis/pipeline_files/C_Vir_subset/2020_Raw_Transcriptome_Data/Dermo_2015_transcriptomes/Fastq/Dermo_mergelist.txt
+  67891 reference transcripts loaded.
+  38 duplicate reference transcripts discarded.
+  0 query transfrags loaded.
+Error: could not any valid reference transcripts in /data3/marine_diseases_lab/erin/2017_2020_Transcriptome_Analysis/pipeline_files/C_Vir_subset/2020_Raw_Transcriptome_Data/Dermo_2015_transcriptomes/Fastq/Dermo_stringtie_merged.gtf (invalid GTF/GFF file?)
+Error: could not any valid reference transcripts in /data3/marine_diseases_lab/erin/2017_2020_Transcriptome_Analysis/pipeline_files/C_Vir_subset/2020_Raw_Transcriptome_Data/Dermo_2015_transcriptomes/Fastq/Dermo_stringtie_merged.gtf (invalid GTF/GFF file?)
+
+/var/spool/slurmd/job1036269/slurm_script: line 185: syntax error near unexpected token `;'
+/var/spool/slurmd/job1036269/slurm_script: line 185: `for i in ${array7[@]}; do'
+WARNING: no reference transcripts were found for the genomic sequences where reads were mapped!
+Please make sure the -G annotation file uses the same naming convention for the genome sequences.
+`
+  * Same Stringtie merge error due to the mergelisted happen for the deLorgeril, Rubio, and Probiotic file. Though the HISAT2 alignment finished correctly. Need to redo Stringtie for these transcriptomes as well.
+        ` $ cat HISAT2_Stringtie_deLorgeril_Rubio_Pro_error_2_7_2020` # this files holds the alignment rate statistics for the HISAT mapping  
+
+* Before fixing Stringtie mergelist error, going to delete the sam files and trimmed and filtered filles from deLorgeril_Rubio_Pro that finished alignment with HISAT2.
+        `# Checking number of sam files and bam files to see that they match
+        $ pwd  /data3/marine_diseases_lab/erin/2017_2020_Transcriptome_Analysis/pipeline_files/C_gig_Bac_Viral_subset/2020_Raw_Transcriptome_Data/C_gig_deLorgeril_OsHV1_SRA
+        $ ls *.bam | wc -l # 42
+        $ ls *.sam | wc -l # 42
+        # Checking out a Stringtie mapping file before deleting .sam in case I get the old error I used to get where the annotation file was not compatible with the original genome headers that the mapping was done with
+        $ less SRR6679052_1.fastq.gz.clean.trim.filter.gz.bam.gtf # This shows that gene_ids from the transcriptome file have actually been mapped to LOC ids and XM ids from the annotation. Great! Now I can delete these and not have to worry about re-doing
+        $ rm *sam
+        # Deleting trim.filter.gz files as well
+        $ ls *.filter.gz | wc -l # 84
+        # What to do with all the tmp files? Am going to keep for now.
+
+        # Repeating process above for Rubio files
+        $ ls *.sam | wc -l # 18
+        $ ls *.bam | wc -l # 18
+
+`
