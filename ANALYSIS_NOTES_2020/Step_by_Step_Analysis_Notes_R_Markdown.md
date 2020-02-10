@@ -375,3 +375,7 @@ Please make sure the -G annotation file uses the same naming convention for the 
           `
 * Changing Stringtie script so that the -A option is only used during the re-estimating abundances step. Keeping initial assembly step only for ROD and Zhang.
   * Ran fixed code in the following script on bluewaves "03_Stringtie_Assembly_Quantify_fixed_redo.sh " though it was just fixed and saved in my original file on my computer as "03_Stringtie_Assembly_Quantify.sh"
+
+  * Ran script and got the following error
+            `Error: invalid -e usage, GFF reference not given (-G option required).`
+  * Testing if switching the order of -e and -A when doing the transcript abundance re-estimation makes a difference
