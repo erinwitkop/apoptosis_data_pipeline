@@ -710,4 +710,48 @@ Please make sure the -G annotation file uses the same naming convention for the 
   * Deleting all `*merge*` files and `*.gtf` files from every folder (including mergelist.txt, all merged gtfs, all initial assembly gtfs), and deleting the original gffcompare files because this is going to be run again. Moving all `*.bam` files back out into main directory for each.
   * untaring any tarred bam file directories
           `$ tar -zxvf deLorgeril_HISAT_bam.archive.tar.gz
-          $ tar -zxvf Probiotic_HISAT_bam.archive.tar.gz`
+           $ tar -zxvf Probiotic_HISAT_bam.archive.tar.gz
+           $ tar -zxvf ROD_HISAT_bam.archive.tar.gz
+           `
+  * Copied separate Stringtie scripts made locally to the cluster
+          `$ scp 03_Stringtie_Assembl*Quantify_* erin_roberts@bluewaves:/data3/marine_diseases_lab/erin/2017_2020_Transcriptome_Analysis/pipeline_files/2020_Scripts`
+  * Running the Rubio files again first as a test case to make sure my full code works before running all scripts
+    * *IT WORKED YAY*
+  * RE-running Stringtie and then prepDE_Oct.2019.py for each
+    1. Rubio Stringtie complete and prep for DESeq2 complete
+          `$  cat Stringtie_Rubio_prepDE_out_2_11_2020
+START Wed Feb 12 13:15:59 EST 2020
+>processing sample SRR8551076_1 from file /data3/marine_diseases_lab/erin/2017_2020_Transcriptome_Analysis/pipeline_files/C_gig_Bac_Viral_subset/2020_Raw_Transcriptome_Data/C_gig_Rubio_Vibrio_SRA/SRR8551076_1.merge.gtf
+>processing sample SRR8551077_1 from file /data3/marine_diseases_lab/erin/2017_2020_Transcriptome_Analysis/pipeline_files/C_gig_Bac_Viral_subset/2020_Raw_Transcriptome_Data/C_gig_Rubio_Vibrio_SRA/SRR8551077_1.merge.gtf
+>processing sample SRR8551078_1 from file /data3/marine_diseases_lab/erin/2017_2020_Transcriptome_Analysis/pipeline_files/C_gig_Bac_Viral_subset/2020_Raw_Transcriptome_Data/C_gig_Rubio_Vibrio_SRA/SRR8551078_1.merge.gtf
+>processing sample SRR8551079_1 from file /data3/marine_diseases_lab/erin/2017_2020_Transcriptome_Analysis/pipeline_files/C_gig_Bac_Viral_subset/2020_Raw_Transcriptome_Data/C_gig_Rubio_Vibrio_SRA/SRR8551079_1.merge.gtf
+>processing sample SRR8551080_1 from file /data3/marine_diseases_lab/erin/2017_2020_Transcriptome_Analysis/pipeline_files/C_gig_Bac_Viral_subset/2020_Raw_Transcriptome_Data/C_gig_Rubio_Vibrio_SRA/SRR8551080_1.merge.gtf
+>processing sample SRR8551081_1 from file /data3/marine_diseases_lab/erin/2017_2020_Transcriptome_Analysis/pipeline_files/C_gig_Bac_Viral_subset/2020_Raw_Transcriptome_Data/C_gig_Rubio_Vibrio_SRA/SRR8551081_1.merge.gtf
+>processing sample SRR8551082_1 from file /data3/marine_diseases_lab/erin/2017_2020_Transcriptome_Analysis/pipeline_files/C_gig_Bac_Viral_subset/2020_Raw_Transcriptome_Data/C_gig_Rubio_Vibrio_SRA/SRR8551082_1.merge.gtf
+>processing sample SRR8551083_1 from file /data3/marine_diseases_lab/erin/2017_2020_Transcriptome_Analysis/pipeline_files/C_gig_Bac_Viral_subset/2020_Raw_Transcriptome_Data/C_gig_Rubio_Vibrio_SRA/SRR8551083_1.merge.gtf
+>processing sample SRR8551084_1 from file /data3/marine_diseases_lab/erin/2017_2020_Transcriptome_Analysis/pipeline_files/C_gig_Bac_Viral_subset/2020_Raw_Transcriptome_Data/C_gig_Rubio_Vibrio_SRA/SRR8551084_1.merge.gtf
+>processing sample SRR8551085_1 from file /data3/marine_diseases_lab/erin/2017_2020_Transcriptome_Analysis/pipeline_files/C_gig_Bac_Viral_subset/2020_Raw_Transcriptome_Data/C_gig_Rubio_Vibrio_SRA/SRR8551085_1.merge.gtf
+>processing sample SRR8551086_1 from file /data3/marine_diseases_lab/erin/2017_2020_Transcriptome_Analysis/pipeline_files/C_gig_Bac_Viral_subset/2020_Raw_Transcriptome_Data/C_gig_Rubio_Vibrio_SRA/SRR8551086_1.merge.gtf
+>processing sample SRR8551087_1 from file /data3/marine_diseases_lab/erin/2017_2020_Transcriptome_Analysis/pipeline_files/C_gig_Bac_Viral_subset/2020_Raw_Transcriptome_Data/C_gig_Rubio_Vibrio_SRA/SRR8551087_1.merge.gtf
+>processing sample SRR8551088_1 from file /data3/marine_diseases_lab/erin/2017_2020_Transcriptome_Analysis/pipeline_files/C_gig_Bac_Viral_subset/2020_Raw_Transcriptome_Data/C_gig_Rubio_Vibrio_SRA/SRR8551088_1.merge.gtf
+>processing sample SRR8551089_1 from file /data3/marine_diseases_lab/erin/2017_2020_Transcriptome_Analysis/pipeline_files/C_gig_Bac_Viral_subset/2020_Raw_Transcriptome_Data/C_gig_Rubio_Vibrio_SRA/SRR8551089_1.merge.gtf
+>processing sample SRR8551090_1 from file /data3/marine_diseases_lab/erin/2017_2020_Transcriptome_Analysis/pipeline_files/C_gig_Bac_Viral_subset/2020_Raw_Transcriptome_Data/C_gig_Rubio_Vibrio_SRA/SRR8551090_1.merge.gtf
+>processing sample SRR8551091_1 from file /data3/marine_diseases_lab/erin/2017_2020_Transcriptome_Analysis/pipeline_files/C_gig_Bac_Viral_subset/2020_Raw_Transcriptome_Data/C_gig_Rubio_Vibrio_SRA/SRR8551091_1.merge.gtf
+>processing sample SRR8551092_1 from file /data3/marine_diseases_lab/erin/2017_2020_Transcriptome_Analysis/pipeline_files/C_gig_Bac_Viral_subset/2020_Raw_Transcriptome_Data/C_gig_Rubio_Vibrio_SRA/SRR8551092_1.merge.gtf
+>processing sample SRR8551093_1 from file /data3/marine_diseases_lab/erin/2017_2020_Transcriptome_Analysis/pipeline_files/C_gig_Bac_Viral_subset/2020_Raw_Transcriptome_Data/C_gig_Rubio_Vibrio_SRA/SRR8551093_1.merge.gtf
+..writing Rubio_transcript_count_matrix.csv
+..writing Rubio_gene_count_matrix.csv
+All done.
+`
+    2. deLorgeril started
+          `$ sbatch 03_Stringtie_Assembly_Quantify_prepDE_deLorgeril.sh`
+    3. Zhang started
+          `$ sbatch 03_Stringtie_Assemble_Quantify_Zhang_prepDE.sh`
+    4. He started
+          `$ sbatch 03_Stringtie_Assemble_Quantify_He_prepDE.sh`
+    5. ROD started
+          `$ sbatch 03_Stringtie_Assemble_Quantify_ROD_prepDE.sh`
+    6. Probiotic started
+          `$ sbatch 03_Stringtie_Assemble_Quantify_Probiotic_prepDE.sh`
+    7. Dermo started
+          `$ sbatch 03_Stringtie_Assemble_Quantify_Dermo_prepDE.sh`
