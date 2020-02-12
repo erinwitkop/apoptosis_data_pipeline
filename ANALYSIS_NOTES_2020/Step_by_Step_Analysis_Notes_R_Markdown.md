@@ -602,7 +602,7 @@ Please make sure the -G annotation file uses the same naming convention for the 
           /data3/marine_diseases_lab/erin/2017_2020_Transcriptome_Analysis/pipeline_files/C_gig_Bac_Viral_subset/2020_Raw_Transcriptome_Data/C_gig_Rubio_Vibrio_SRA/Rubio_HISAT_bam
           $ module load StringTie/2.1.1-GCCcore-7.3.0
           $ CG=/data3/marine_diseases_lab/erin/2017_2020_Transcriptome_Analysis/pipeline_files/C_gig_Bac_Viral_subset/Cgig_Genome_and_Indexes
-          $ GRV=/data3/marine_diseases_lab/erin/2017_2020_Transcriptome_Analysis/pipeline_files/C_gig_Bac_Viral_subset/2020_Raw_Transcriptome_Data/C_gig_Rubio_Vibrio_SRA
+          $ GRV=/data3/marine_diseases_lab/erin/2017_2020_Transcriptome_Analysis/pipeline_files/C_gig_Bac_Viral_subset/2020_Raw_Transcriptome_Data/C_gig_Rubio_Vibrio_SRA/Rubio_HISAT_bam
           $ stringtie -G $CG/GCF_000297895.1_oyster_v9_genomic.gff -o SRR8551076_1.test.gtf SRR8551076_1.fastq.gz.clean.trim.filter.gz.bam
           $ stringtie -G $CG/GCF_000297895.1_oyster_v9_genomic.gff -o SRR8551077_1.test.gtf SRR8551077_1.fastq.gz.clean.trim.filter.gz.bam
           $ stringtie --merge -G $CG/GCF_000297895.1_oyster_v9_genomic.gff -o TEST_stringtie_merged.gtf TEST_mergelist.txt
@@ -646,7 +646,9 @@ Please make sure the -G annotation file uses the same naming convention for the 
 
 ## 2/12/2020 Bug Checking Stringtie and (hopefully) formatting output for DESeq2
 
-* Kevin installed v2.0.4 so I can compare the output of v1.3.3 and v2.1.0 (which both have the error) with v 2.0.4 to see if I keep getting the same output where STRG values are mis-assigned. Going to stay working in the Rubio folder with those 2 transcriptomes since that has been my test case so far. While this is running I'm still deleting the python loop and the -s in the python line I created in `04_Prep_Stringtie_DESeq2.sh`. Also added in loading the python module at the beginning.
+* Kevin installed v2.0.4 so I can compare the output of v1.3.3 and v2.1.0 (which both have the error) with v 2.0.4 to see if I keep getting the same output where STRG values are mis-assigned. Going to stay working in the Rubio folder with those 2 transcriptomes since that has been my test case so far.
+  * While this is running I'm still deleting the python loop and the -s in the python line I created in `04_Prep_Stringtie_DESeq2.sh`. Also added in loading the python module at the beginning. Specifying also the new python prepDE.py script made by Pertea in Oct. 2019, called in bluewaves prepDE_Oct.2019.py. Putting a copy of this script in each directory I will run it in to make sure that python correctly "sees" it.
+  * In the Stringtie script, `03_Stringtie_Assembly_Quantify.sh` now I'm removing the -l option in the initial assembly and re-estimation and making sure I put in the name of the output gene abundance files after the -A option in the re-estimation. The merge step and gffcompare steps are perfect do not need to re-do.  
         `$ pwd
         /data3/marine_diseases_lab/erin/2017_2020_Transcriptome_Analysis/pipeline_files/C_gig_Bac_Viral_subset/2020_Raw_Transcriptome_Data/C_gig_Rubio_Vibrio_SRA/Rubio_HISAT_bam
         $ module load python/2.7.6
@@ -654,7 +656,58 @@ Please make sure the -G annotation file uses the same naming convention for the 
         $ CG=/data3/marine_diseases_lab/erin/2017_2020_Transcriptome_Analysis/pipeline_files/C_gig_Bac_Viral_subset/Cgig_Genome_and_Indexes
         $ stringtie -G $CG/GCF_000297895.1_oyster_v9_genomic.gff -o SRR8551076_1.test.gtf SRR8551076_1.fastq.gz.clean.trim.filter.gz.bam
         $ stringtie -G $CG/GCF_000297895.1_oyster_v9_genomic.gff -o SRR8551077_1.test.gtf SRR8551077_1.fastq.gz.clean.trim.filter.gz.bam
+        $ ls *test.gtf >> $GRV/TEST_mergelist.txt
         $ stringtie --merge -G $CG/GCF_000297895.1_oyster_v9_genomic.gff -o TEST_stringtie_merged.gtf TEST_mergelist.txt
         $ stringtie -A SRR8551076_1_gene_abd.tab -e -G TEST_stringtie_merged.gtf -o SRR8551076_1.merge.gtf SRR8551076_1.fastq.gz.clean.trim.filter.gz.bam
-        
+        $ stringtie -A SRR8551077_1_gene_abd.tab -e -G TEST_stringtie_merged.gtf -o SRR8551077_1.merge.gtf SRR8551077_1.fastq.gz.clean.trim.filter.gz.bam
+        GRV=/data3/marine_diseases_lab/erin/2017_2020_Transcriptome_Analysis/pipeline_files/C_gig_Bac_Viral_subset/2020_Raw_Transcriptome_Data/C_gig_Rubio_Vibrio_SRA/Rubio_HISAT_bam
+        $for i in *.merge.gtf; do
+          # create text file with sample IDs and respective paths
+          echo "$(echo $i |sed "s/\..*//") $GRV/$i" >> test_sample_list.txt
+        done
+        $ python prepDE_Oct.2019.py -v -i test_sample_list.txt -g test_gene_count_matrix.csv -t test_transcript_count_matrix.csv
+        >processing sample SRR8551076_1 from file /data3/marine_diseases_lab/erin/2017_2020_Transcriptome_Analysis/pipeline_files/C_gig_Bac_Viral_subset/2020_Raw_Transcriptome_Data/C_gig_Rubio_Vibrio_SRA/Rubio_HISAT_bam/SRR8551076_1.merge.gtf
+        >processing sample SRR8551077_1 from file /data3/marine_diseases_lab/erin/2017_2020_Transcriptome_Analysis/pipeline_files/C_gig_Bac_Viral_subset/2020_Raw_Transcriptome_Data/C_gig_Rubio_Vibrio_SRA/Rubio_HISAT_bam/SRR8551077_1.merge.gtf
+        ..writing test_transcript_count_matrix.csv
+        ..writing test_gene_count_matrix.csv
+        All done.
+        ###### OMG V 2.0.4 WORKED ######
         `
+* I think I may have set my $GRV to the wrong path last time when making my mergelist.txt file when running 2.1.0 and 2.1.3. Going to run these versions one more time here to check error before commenting to pertea et al.
+                `$ pwd
+                /data3/marine_diseases_lab/erin/2017_2020_Transcriptome_Analysis/pipeline_files/C_gig_Bac_Viral_subset/2020_Raw_Transcriptome_Data/C_gig_Rubio_Vibrio_SRA/Rubio_HISAT_bam
+                $ module purge
+                $ module load python/2.7.6
+                $ module load StringTie/2.1.1-GCCcore-7.3.0
+                $ CG=/data3/marine_diseases_lab/erin/2017_2020_Transcriptome_Analysis/pipeline_files/C_gig_Bac_Viral_subset/Cgig_Genome_and_Indexes
+                $ stringtie -G $CG/GCF_000297895.1_oyster_v9_genomic.gff -o SRR8551076_1.test.gtf SRR8551076_1.fastq.gz.clean.trim.filter.gz.bam
+                $ stringtie -G $CG/GCF_000297895.1_oyster_v9_genomic.gff -o SRR8551077_1.test.gtf SRR8551077_1.fastq.gz.clean.trim.filter.gz.bam
+                $ stringtie --merge -G $CG/GCF_000297895.1_oyster_v9_genomic.gff -o TEST_stringtie_merged.gtf TEST_mergelist.txt
+                $ stringtie -A SRR8551076_1_gene_abd.tab -e -G TEST_stringtie_merged.gtf -o SRR8551076_1.merge.gtf SRR8551076_1.fastq.gz.clean.trim.filter.gz.bam
+                $ stringtie -A SRR8551077_1_gene_abd.tab -e -G TEST_stringtie_merged.gtf -o SRR8551077_1.merge.gtf SRR8551077_1.fastq.gz.clean.trim.filter.gz.bam
+                GRV=/data3/marine_diseases_lab/erin/2017_2020_Transcriptome_Analysis/pipeline_files/C_gig_Bac_Viral_subset/2020_Raw_Transcriptome_Data/C_gig_Rubio_Vibrio_SRA/Rubio_HISAT_bam
+                $for i in *.merge.gtf; do
+                  # create text file with sample IDs and respective paths
+                  echo "$(echo $i |sed "s/\..*//") $GRV/$i" >> test_sample_list.txt
+                done
+                $ python prepDE_Oct.2019.py -v -i test_sample_list.txt -g test_gene_count_matrix.csv -t test_transcript_count_matrix.csv
+                >processing sample SRR8551076_1 from file /data3/marine_diseases_lab/erin/2017_2020_Transcriptome_Analysis/pipeline_files/C_gig_Bac_Viral_subset/2020_Raw_Transcriptome_Data/C_gig_Rubio_Vibrio_SRA/Rubio_HISAT_bam/SRR8551076_1.merge.gtf
+                >processing sample SRR8551077_1 from file /data3/marine_diseases_lab/erin/2017_2020_Transcriptome_Analysis/pipeline_files/C_gig_Bac_Viral_subset/2020_Raw_Transcriptome_Data/C_gig_Rubio_Vibrio_SRA/Rubio_HISAT_bam/SRR8551077_1.merge.gtf
+                ..writing test_transcript_count_matrix.csv
+                ..writing test_gene_count_matrix.csv
+                All done.
+                ### WHAT??? THIS WORKED TOO!!!!! YAY ####
+              `
+* *I have figured out now that using V 2.1.0 works as long as I keep the -l out of it and appropriately put a name after the -A option in the re-estimation.* It may have also helped that have the python script in the same directly. Now I'm going to untar any of the bam folders from HISAT that I tarred yesterday and re-run Stringtie with my updated script. I'm relieved that I don't have to re-run HISAT! Running the Stringtie script separately for each population in the hopes that this will help it run faster.
+  * Copying python script into all necessary directories
+          `$ cp ./C_gig_Rubio_Vibrio_SRA/prepDE_Oct.2019.py ./C_gig_Zhang_Vibrio_SRA/
+           $ cp ./C_gig_Rubio_Vibrio_SRA/prepDE_Oct.2019.py ./C_gig_He_OsHV1_SRA/
+           $ cp ./C_gig_Rubio_Vibrio_SRA/prepDE_Oct.2019.py ./C_gig_deLorgeril_OsHV1_SRA/
+           $ cp ./C_gig_Rubio_Vibrio_SRA/prepDE_Oct.2019.py ../../C_Vir_subset/2020_Raw_Transcriptome_Data/C_vir_ROD_SRA/
+           $ cp ./C_gig_Rubio_Vibrio_SRA/prepDE_Oct.2019.py ../../C_Vir_subset/2020_Raw_Transcriptome_Data/C_vir_Probiotic_SRA/
+           $ cp ./C_gig_Rubio_Vibrio_SRA/prepDE_Oct.2019.py ../../C_Vir_subset/2020_Raw_Transcriptome_Data/Dermo_2015_transcriptomes/Fastq/
+           `
+  * Deleting all `*merge*` files and `*.gtf` files from every folder (including mergelist.txt, all merged gtfs, all initial assembly gtfs), and deleting the original gffcompare files because this is going to be run again. Moving all `*.bam` files back out into main directory for each.
+  * untaring any tarred bam file directories
+          `$ tar -zxvf deLorgeril_HISAT_bam.archive.tar.gz
+          $ tar -zxvf Probiotic_HISAT_bam.archive.tar.gz`
