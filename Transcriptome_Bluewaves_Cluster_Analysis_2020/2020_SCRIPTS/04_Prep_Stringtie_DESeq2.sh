@@ -35,7 +35,7 @@ for i in *.merge.gtf; do
 	echo "$(echo $i |sed "s/\..*//") $GLO/$i" >> C_gig_deLorgeril_sample_list.txt
 done
 
-python $P/prepDE.py -i C_gig_deLorgeril_sample_list.txt -g deLorgeril_gene_count_matrix.csv -t deLorgeril_transcript_count_matrix.csv
+python prepDE_Oct.2019.py -v -i C_gig_deLorgeril_sample_list.txt -g deLorgeril_gene_count_matrix.csv -t deLorgeril_transcript_count_matrix.csv
 
 # -i is the the parent directory of the sample sub-directories or a .txt file listing sample IDs and the paths to GTF files in tab-delimited format
 # -g where to output the gene count matrix [default: gene_count_matrix.csv
@@ -51,7 +51,7 @@ for i in *.merge.gtf; do
 	echo "$(echo $i |sed "s/\..*//") $GRV/$i" >> C_gig_Rubio_sample_list.txt
 done
 
-python $P/prepDE.py -i C_gig_Rubio_sample_list.txt -g Rubio_gene_count_matrix.csv -t Rubio_transcript_count_matrix.csv
+python prepDE_Oct.2019.py -v -i C_gig_Rubio_sample_list.txt -g Rubio_gene_count_matrix.csv -t Rubio_transcript_count_matrix.csv
 echo "C_gig_Rubio_Vibrio_SRA_ID DONE $(date)"
 
 # C_vir_Probiotic_SRA_ID
@@ -61,7 +61,7 @@ for i in *.merge.gtf; do
 	echo "$(echo $i |sed "s/\..*//") $CP/$i" >> C_vir_Probiotic_sample_list.txt
 done
 
-python $P/prepDE.py -i C_vir_Probiotic_sample_list.txt -g Probiotic_gene_count_matrix.csv -t Probiotic_transcript_count_matrix.csv
+python prepDE_Oct.2019.py -v -i C_vir_Probiotic_sample_list.txt -g Probiotic_gene_count_matrix.csv -t Probiotic_transcript_count_matrix.csv
 echo "C_vir_Probiotic_SRA_ID DONE $(date)"
 
 # C_vir_Dermo
@@ -71,7 +71,7 @@ for i in *.merge.gtf; do
 	echo "$(echo $i |sed "s/\..*//") $CD/$i" >> C_vir_Dermo_sample_list.txt
 done
 
-python $P/prepDE.py -i C_vir_Dermo_sample_list.txt -g Dermo_gene_count_matrix.csv -t Dermo_transcript_count_matrix.csv
+python prepDE_Oct.2019.py -v -i C_vir_Dermo_sample_list.txt -g Dermo_gene_count_matrix.csv -t Dermo_transcript_count_matrix.csv
 echo "C_vir_Dermo DONE $(date)"
 
 ####### SE read experiments ######
@@ -94,7 +94,7 @@ for i in *.merge.gtf; do
 	echo "$(echo $i |sed "s/\..*//") $GZV/$i" >> C_gig_Zhang_sample_list.txt
 done
 
-python $P/prepDE.py -i C_gig_Zhang_sample_list.txt -g Zhang_gene_count_matrix.csv -t Zhang_transcript_count_matrix.csv
+python prepDE_Oct.2019.py -v -i C_gig_Zhang_sample_list.txt -g Zhang_gene_count_matrix.csv -t Zhang_transcript_count_matrix.csv
 echo "C_gig_Zhang_Vibrio_SRA_ID DONE $(date)"
 
 # C_vir_ROD_SRA_ID
@@ -104,7 +104,7 @@ for i in *.merge.gtf; do
 	echo "$(echo $i |sed "s/\..*//") $CR/$i" >> C_vir_ROD_sample_list.txt
 done
 
-python $P/prepDE.py -i $CR/C_vir_ROD_sample_list.txt -g ROD_gene_count_matrix.csv -t ROD_transcript_count_matrix.csv
+python prepDE_Oct.2019.py -v -i $CR/C_vir_ROD_sample_list.txt -g ROD_gene_count_matrix.csv -t ROD_transcript_count_matrix.csv
 echo "C_vir_ROD_SRA_ID DONE $(date)"
 
 #######
