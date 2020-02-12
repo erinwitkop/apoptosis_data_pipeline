@@ -378,4 +378,283 @@ Please make sure the -G annotation file uses the same naming convention for the 
 
   * Ran script and got the following error
             `Error: invalid -e usage, GFF reference not given (-G option required).`
-  * Testing if switching the order of -e and -A when doing the transcript abundance re-estimation makes a difference
+  * Testing if switching the order of -e and -A when doing the transcript abundance re-estimation makes a difference. YES THIS FIXED THE ERROR
+
+## 2/11/2020 Checking Stringtie output and converting into DESeq2 format count tables
+
+* Checking script error file `cat Stringtie_ALL_error_2_10_2020` and output file `cat Stringtie_ALL_out_2_10_2020`
+  * Error output file just lists the merging statistics for each of the experiments. The statistics look good.
+  * Output file
+    - deLorgeril completed all steps
+    - Rubio Vibrio completed all steps
+    - Probiotic completed all steps
+    - Dermo completed all steps
+    - He OsHV1 completed all steps
+    - Zhang Vibrio completed initial stringtie assembly and all subsequent steps
+    - ROD completed initial stringtie assembly and all subsequent steps
+* Checking the output in each folder
+        `# Checking deLorgeril Stringtie output
+        $ pwd /data3/marine_diseases_lab/erin/2017_2020_Transcriptome_Analysis/pipeline_files/C_gig_Bac_Viral_subset/2020_Raw_Transcriptome_Data/C_gig_deLorgeril_OsHV1_SRA
+        $ ls *.merge.gtf | wc -l # 42
+        $ ls *.bam.gtf | wc -l # 42
+        $ mkdir deLorgeril_gffcompare # folder houses all the gffcompare output files
+        $ mkdir deLorgeril_HISAT_bam
+        $ mkdir deLorgeril_Stringtie_gtf
+        # Compress HISAT2 bam files
+        $ tar -zcvf deLorgeril_HISAT_bam.archive.tar.gz deLorgeril_HISAT_bam/
+
+        # Checking Rubio Vibrio output
+        $ pwd
+        /data3/marine_diseases_lab/erin/2017_2020_Transcriptome_Analysis/pipeline_files/C_gig_Bac_Viral_subset/2020_Raw_Transcriptome_Data/C_gig_Rubio_Vibrio_SRA
+        $ ls *.bam.gtf | wc -l # 18
+        $ ls *.merge.gtf | wc -l # 18
+        $ mkdir Rubio_Stringtie_gtf
+        $ mkdir Rubio_gffcompare
+        $ mkdir Rubio_HISAT_bam
+        # Compress HISAT2 bam files
+        $ tar -zcvf Rubio_HISAT_bam.archive.tar.gz Rubio_HISAT_bam/
+
+        # Checking Probiotic Files
+        $ pwd
+        /data3/marine_diseases_lab/erin/2017_2020_Transcriptome_Analysis/pipeline_files/C_Vir_subset/2020_Raw_Transcriptome_Data/C_vir_Probiotic_SRA
+        $ ls *.merge.gtf | wc -l # 6
+        $ ls *.bam.gtf | wc -l # 6
+        $ mkdir Probiotic_HISAT_bam
+        $ mkdir Probiotic_Stringtie_gtf
+        $ mkdir Probiotic_gffcompare
+        # Compress HISAT2 bam files
+        $ tar -zcvf Probiotic_HISAT_bam.archive.tar.gz Probiotic_HISAT_bam
+
+        # Checking Dermo files
+        $ pwd
+        /data3/marine_diseases_lab/erin/2017_2020_Transcriptome_Analysis/pipeline_files/C_Vir_subset/2020_Raw_Transcriptome_Data/Dermo_2015_transcriptomes/Fastq
+        $ ls *.merge.gtf | wc -l # 97
+        $ ls *.bam.gtf | wc -l # 97
+        $ mkdir Dermo_gffcompare
+        $ mkdir Dermo_HISAT_bam
+        $ mkdir Dermo_Stringtie_gtf
+        # will compress later
+
+        # Checking He OsHV1
+        $ pwd
+        /data3/marine_diseases_lab/erin/2017_2020_Transcriptome_Analysis/pipeline_files/C_gig_Bac_Viral_subset/2020_Raw_Transcriptome_Data/C_gig_He_OsHV1_SRA
+        $ ls *merge.gtf | wc -l # 32
+        $ ls *bam.gtf | wc -l # 32
+        $ mkdir He_gffcompare
+        $ mkdir He_HISAT_bam
+        $ mkdir He_Stringtie_gtf
+        # Will compress later
+
+        # Checking Zhang Vibrio
+        $ pwd
+        /data3/marine_diseases_lab/erin/2017_2020_Transcriptome_Analysis/pipeline_files/C_gig_Bac_Viral_subset/2020_Raw_Transcriptome_Data/C_gig_Zhang_Vibrio_SRA
+        $ ls *.merge.gtf | wc -l # 9
+        $ ls *.bam.gtf | wc -l # 9
+        $ mkdir Zhang_gffcompare
+        $ mkdir Zhang_HISAT_bam
+        $ mkdir Zhang_Stringtie_gtf
+        # will compress later
+
+        # Checking ROD Vibrio
+        $ pwd
+        /data3/marine_diseases_lab/erin/2017_2020_Transcriptome_Analysis/pipeline_files/C_Vir_subset/2020_Raw_Transcriptome_Data/C_vir_ROD_SRA
+        $ ls *.merge.gtf | wc -l # 12
+        $ ls *.bam.gtf | wc -l # 12
+        $ mkdir ROD_gffcompare
+        $ mkdir ROD_Stringtie_gtf
+        $ mkdir ROD_HISAT_bam
+        # Compress HISAT BAM
+        $ tar -zcvf ROD_HISAT_bam.archive.tar.gz ROD_HISAT_bam
+        `
+* Creating `04_Prep_Stringtie_DESeq2.sh`
+  * had to modify the existing code for creating the sample list files to take into account the underscore in paired end file names. NVM keeping same as original to preserve the underscore
+  * Running the script gives the following error in the error file:
+        `Traceback (most recent call last):
+         File "/data3/marine_diseases_lab/erin/2017_2020_Transcriptome_Analysis/pipeline_files/2017_MISC_SCRIPTS/prepDE.py", line 254, in <module>
+         geneDict[geneIDs[i]][s[0]]+=v[s[0]]
+         KeyError: 'SRR6679053'
+         Traceback (most recent call last):
+         File "/data3/marine_diseases_lab/erin/2017_2020_Transcriptome_Analysis/pipeline_files/2017_MISC_SCRIPTS/prepDE.py", line 254, in <module>
+         geneDict[geneIDs[i]][s[0]]+=v[s[0]]
+         KeyError: 'SRR6679053'
+         `
+  * The output file lists a 1 or 0 next to each sample ID
+        `Start Tue Feb 11 12:53:29 EST 2020
+        0 SRR6679052
+        1 SRR6679053
+        0 SRR6679052
+        1 SRR6679053
+        0 SRR6679052
+        1 SRR6679053
+        0 SRR6679052
+        1 SRR6679053
+        0 SRR6679052
+        1 SRR6679053
+        0 SRR6679052
+        1 SRR6679053`
+  * Added into the script loading the python module. This didn't fix issue though I think this is necessary
+  * Why does SRR6679052 have a 0 and SRR6679053 have a 1?
+        `$ less SRR6679052_1.merge.gtf
+        # Output shows that transcripts by default are given MSTRG headers rather than the -1 headers with the file name I wanted them to have
+        $ less SRR6679053_1.merge.gtf
+        # this shows the same thing
+        `
+        * trying to remove the -s option from prepDE.py running to see if this makes a difference
+        * Still received the same error
+  * Trying to run the prepDE script just on the command line in deLorgeril folder
+        `$ python $P/prepDE.py -i C_gig_deLorgeril_sample_list.txt -g deLorgeril_gene_count_matrix.csv -t deLorgeril_transcript_count_matrix.csv
+          0 SRR6679052
+          1 SRR6679052
+          2 SRR6679053
+          Traceback (most recent call last):
+          File "/data3/marine_diseases_lab/erin/2017_2020_Transcriptome_Analysis/pipeline_files/2017_MISC_SCRIPTS/prepDE.py", line 254, in <module>
+          geneDict[geneIDs[i]][s[0]]+=v[s[0]]
+          KeyError: 'SRR6679053'
+          `
+  * Is the problem may be that I used stringtie -l when I first aligned, but not in the re-estimation? I'm going to test this on one file from Rubio, SRR8551076_1.fastq.gz.clean.trim.filter.gz.bam, SRR8551077_1.fastq.gz.clean.trim.filter.gz.bam. They do this in the Pertea et al. 2016 tutorial (use -l the first time but not the second time..)
+            `$ interactive
+            $ pwd
+            /data3/marine_diseases_lab/erin/2017_2020_Transcriptome_Analysis/pipeline_files/C_gig_Bac_Viral_subset/2020_Raw_Transcriptome_Data/C_gig_Rubio_Vibrio_SRA/Rubio_HISAT_bam
+            $ CG=/data3/marine_diseases_lab/erin/2017_2020_Transcriptome_Analysis/pipeline_files/C_gig_Bac_Viral_subset/Cgig_Genome_and_Indexes
+            $ GRV=/data3/marine_diseases_lab/erin/2017_2020_Transcriptome_Analysis/pipeline_files/C_gig_Bac_Viral_subset/2020_Raw_Transcriptome_Data/C_gig_Rubio_Vibrio_SRA
+            $ module load StringTie/2.1.1-GCCcore-7.3.0
+            $ stringtie -G $CG/GCF_000297895.1_oyster_v9_genomic.gff -o SRR8551076_1.test.gtf SRR8551076_1.fastq.gz.clean.trim.filter.gz.bam
+            $ stringtie -G $CG/GCF_000297895.1_oyster_v9_genomic.gff -o SRR8551077_1.test.gtf SRR8551077_1.fastq.gz.clean.trim.filter.gz.bam
+            $ stringtie --merge -G $CG/GCF_000297895.1_oyster_v9_genomic.gff -o TEST_stringtie_merged.gtf TEST_mergelist.txt
+            $ stringtie -A -e -G TEST_stringtie_merged.gtf -o SRR8551076_1.merge.test.gtf SRR8551076_1.fastq.gz.clean.trim.filter.gz.bam
+            $ stringtie -A -e -G TEST_stringtie_merged.gtf -o SRR8551077_1.merge.test.gtf SRR8551077_1.fastq.gz.clean.trim.filter.gz.bam
+            $ for i in *.merge.gtf; do
+            	# create text file with sample IDs and respective paths
+            	echo "$(echo $i |sed "s/\..*//") $GRV/$i" >> test_sample_list.txt
+            done
+           $ cp /data3/marine_diseases_lab/erin/2017_2020_Transcriptome_Analysis/pipeline_files/2017_MISC_SCRIPTS/prepDE.py .
+
+            $ P=/data3/marine_diseases_lab/erin/2017_2020_Transcriptome_Analysis/pipeline_files/2017_MISC_SCRIPTS
+            $ python prepDE.py -i test_sample_list.txt -g test_gene_count_matrix.csv -t test_transcript_count_matrix.csv
+            $ python prepDE.py -i test_sample_list.txt -g test_gene_count_matrix.csv -t test_transcript_count_matrix.csv
+              0 SRR8551076_1
+              1 SRR8551077_1
+              Traceback (most recent call last):
+              File "prepDE.py", line 252, in <module>
+              geneDict.setdefault(geneIDs[i],{}) #gene_id
+              KeyError: 'STRG.36898.2'
+              # Didn't fix the error running Stringtie without -l didn't make a difference (which is good meaning I don't have to re-run all files through Stringtie)
+            # Trying to run without -g
+            $ python prepDE.py -i test_sample_list.txt  -t test_transcript_count_matrix.csv # got the same Error
+
+            # trying to redownload prepDE.py to make sure something didn't get messed up in the file prepDE_new.py
+            $ python prepDE_new.py -i test_sample_list.txt -t test_transcript_count_matrix.csv
+            0 SRR8551076_1
+            1 SRR8551077_1
+            Traceback (most recent call last):
+            File "prepDE_new.py", line 255, in <module>
+            geneDict.setdefault(geneIDs[i],{}) #gene_id
+            KeyError: 'STRG.36898.2'
+
+            `
+    * Noticed that I was running the python prepDE.py as a loop and this is not allowed. Testing removing the loop to see what happens
+            - Still got the same error, but now with MSTRG also giving the same error
+            `Traceback (most recent call last):
+            File "/data3/marine_diseases_lab/erin/2017_2020_Transcriptome_Analysis/pipeline_files/2017_MISC_SCRIPTS/prepDE.py", line 254, in <module>
+            geneDict[geneIDs[i]][s[0]]+=v[s[0]]
+            KeyError: 'SRR6679053'
+            Traceback (most recent call last):
+            File "/data3/marine_diseases_lab/erin/2017_2020_Transcriptome_Analysis/pipeline_files/2017_MISC_SCRIPTS/prepDE.py", line 252, in <module>
+            geneDict.setdefault(geneIDs[i],{}) #gene_id
+            KeyError: 'STRG.36898.2'
+              `
+  * Found online a Github error post from the developer ppertea, there was an issue with the software but it was fixed by the 2.0.4 V release https://github.com/gpertea/stringtie/issues/238
+      *MUST READ THIS POST THIS IS MY EXACT ERROR*
+      *also read his second post with the udpated prepde.py script as of Oct. 2019:https://github.com/gpertea/stringtie/issues/234#issuecomment-541494630*
+      - Reminder from this second issue 234 from Pertea:
+      "To reiterate and clarify: prepDE.py can only be used on a set of stringtie GTF outputs if stringtie was run, for all those outputs:
+          - with the -e option
+          - with the same file for the -G option.
+          Also, make sure that no other GTF files (like the reference annotation file) are present in those sub-directories, only the stringtie output GTF files should be found there, as the default mode of operation for prepDE is to scan all the sub-directories there for .gtf files which are all expected to have been produced by stringtie by following the requirements above (-e option, same -G file)."
+      - Link to the latest prepDE.py :https://raw.githubusercontent.com/gpertea/stringtie/master/prepDE.py, need to use with adding the -v option
+
+  * Reran script with the new version of the PrepDE.py script (prepDE_Oct.2019.py)
+          `$ python prepDE_Oct.2019.py -v -i test_sample_list.txt -t test_transcript_count_matrix.csv
+          >processing sample SRR8551076_1 from file /data3/marine_diseases_lab/erin/2017_2020_Transcriptome_Analysis/pipeline_files/C_gig_Bac_Viral_subset/2020_Raw_Transcriptome_Data/C_gig_Rubio_Vibrio_SRA/SRR8551076_1.merge.gtf
+          >processing sample SRR8551077_1 from file /data3/marine_diseases_lab/erin/2017_2020_Transcriptome_Analysis/pipeline_files/C_gig_Bac_Viral_subset/2020_Raw_Transcriptome_Data/C_gig_Rubio_Vibrio_SRA/SRR8551077_1.merge.gtf
+          Error: could not locate transcript STRG.36898.2 entry for sample SRR8551077_1
+          Traceback (most recent call last):
+          File "prepDE_Oct.2019.py", line 281, in <module>
+          geneDict.setdefault(geneIDs[i],{}) #gene_id
+            KeyError: 'STRG.36898.2'
+        `
+  * Even though this error should be fixed on the V 2.1.1 release, trying with the StringTie/1.3.3b-foss-2016b to make sure, without the -l option used
+          `$ module load StringTie/1.3.3b-foss-2016b
+           $ stringtie -G $CG/GCF_000297895.1_oyster_v9_genomic.gff -o SRR8551076_1.test.gtf SRR8551076_1.fastq.gz.clean.trim.filter.gz.bam
+           $ stringtie -G $CG/GCF_000297895.1_oyster_v9_genomic.gff -o SRR8551077_1.test.gtf SRR8551077_1.fastq.gz.clean.trim.filter.gz.bam
+           $ stringtie --merge -G $CG/GCF_000297895.1_oyster_v9_genomic.gff -o TEST_stringtie_merged.gtf TEST_mergelist.txt
+           $ stringtie -A gene_abund_table -e -G TEST_stringtie_merged.gtf -o SRR8551076_1.merge.test.gtf SRR8551076_1.fastq.gz.clean.trim.filter.gz.bam
+           $ stringtie -A -e -G TEST_stringtie_merged.gtf -o SRR8551077_1.merge.test.gtf SRR8551077_1.fastq.gz.clean.trim.filter.gz.bam
+           $ for i in *.merge.gtf; do
+             # create text file with sample IDs and respective paths
+             echo "$(echo $i |sed "s/\..*//") $GRV/$i" >> test_sample_list.txt
+           done
+           $ python prepDE_Oct.2019.py -i test_sample_list.txt -g test_gene_count_matrix.csv -t test_transcript_count_matrix.csv
+           #STOPPING THIS BEFORE FINISHING BECAUSE I BELIEVE THE BULLET POINT BELOW WAS THE ISSUE, GOING TO RERUN WITH NEW VERSION ALL OVER AGAIN TO CHECK
+           `
+  * POSSIBLY FOUND THE ISSUE. I DIDN'T PUT THE NAME OF THE GENE TABLE AFTER THE -A OPTION IN MY STRINGTIE SCRIPT
+          ` pwd
+          /data3/marine_diseases_lab/erin/2017_2020_Transcriptome_Analysis/pipeline_files/C_gig_Bac_Viral_subset/2020_Raw_Transcriptome_Data/C_gig_Rubio_Vibrio_SRA/Rubio_HISAT_bam
+          $ module load StringTie/2.1.1-GCCcore-7.3.0
+          $ CG=/data3/marine_diseases_lab/erin/2017_2020_Transcriptome_Analysis/pipeline_files/C_gig_Bac_Viral_subset/Cgig_Genome_and_Indexes
+          $ GRV=/data3/marine_diseases_lab/erin/2017_2020_Transcriptome_Analysis/pipeline_files/C_gig_Bac_Viral_subset/2020_Raw_Transcriptome_Data/C_gig_Rubio_Vibrio_SRA
+          $ stringtie -G $CG/GCF_000297895.1_oyster_v9_genomic.gff -o SRR8551076_1.test.gtf SRR8551076_1.fastq.gz.clean.trim.filter.gz.bam
+          $ stringtie -G $CG/GCF_000297895.1_oyster_v9_genomic.gff -o SRR8551077_1.test.gtf SRR8551077_1.fastq.gz.clean.trim.filter.gz.bam
+          $ stringtie --merge -G $CG/GCF_000297895.1_oyster_v9_genomic.gff -o TEST_stringtie_merged.gtf TEST_mergelist.txt
+          $ stringtie -A SRR8551076_1_gene_abd.tab -e -G TEST_stringtie_merged.gtf -o SRR8551076_1.merge.gtf SRR8551076_1.fastq.gz.clean.trim.filter.gz.bam
+          $ stringtie -A SRR8551077_1_gene_abd.tab -e -G TEST_stringtie_merged.gtf -o SRR8551077_1.merge.gtf SRR8551077_1.fastq.gz.clean.trim.filter.gz.bam
+          $ for i in *.merge.gtf; do
+            # create text file with sample IDs and respective paths
+            echo "$(echo $i |sed "s/\..*//") $GRV/$i" >> test_sample_list.txt
+          done
+          $ module load python/2.7.6
+          $ python prepDE_Oct.2019.py -i test_sample_list.txt -g test_gene_count_matrix.csv -t test_transcript_count_matrix.csv
+          Error: could not locate transcript STRG.36898.2 entry for sample SRR8551077_1
+          Traceback (most recent call last):
+          File "prepDE_Oct.2019.py", line 281, in <module>
+          geneDict.setdefault(geneIDs[i],{}) #gene_id
+          KeyError: 'STRG.36898.2'  
+          `
+  * Nope! Though I will need to fix the -A option and rerun stringtie, removing -A and -l did not fix the issue. Trying again with the older version of Stringtie
+          `$ module purge
+          $ module load StringTie/1.3.3b-foss-2016b
+          $ module load python/2.7.6
+          $ stringtie -G $CG/GCF_000297895.1_oyster_v9_genomic.gff -o SRR8551076_1.test.gtf SRR8551076_1.fastq.gz.clean.trim.filter.gz.bam
+          $ stringtie -G $CG/GCF_000297895.1_oyster_v9_genomic.gff -o SRR8551077_1.test.gtf SRR8551077_1.fastq.gz.clean.trim.filter.gz.bam
+          $ stringtie --merge -G $CG/GCF_000297895.1_oyster_v9_genomic.gff -o TEST_stringtie_merged.gtf TEST_mergelist.txt
+          $ stringtie -A SRR8551076_1_gene_abd.tab -e -G TEST_stringtie_merged.gtf -o SRR8551076_1.merge.gtf SRR8551076_1.fastq.gz.clean.trim.filter.gz.bam
+          $ stringtie -A SRR8551077_1_gene_abd.tab -e -G TEST_stringtie_merged.gtf -o SRR8551077_1.merge.gtf SRR8551077_1.fastq.gz.clean.trim.filter.gz.bam
+          $ for i in *.merge.gtf; do
+            # create text file with sample IDs and respective paths
+            echo "$(echo $i |sed "s/\..*//") $GRV/$i" >> test_sample_list.txt
+          done
+          $ python prepDE_Oct.2019.py -i test_sample_list.txt -g test_gene_count_matrix.csv -t test_transcript_count_matrix.csv
+          Error: could not locate transcript STRG.36898.2 entry for sample SRR8551077_1
+          Traceback (most recent call last):
+          File "prepDE_Oct.2019.py", line 281, in <module>
+          geneDict.setdefault(geneIDs[i],{}) #gene_id
+          KeyError: 'STRG.36898.2'
+          ## Got the same issue even with using the old version of Stringtie... not sure what to do now
+          `
+
+  * Getting Kevin to download the V 2.0.4 to see if in this supposedly fixed verion the issue stops happening. Is there an issue in how I ran HISAT2?
+
+## 2/12/2020 Bug Checking Stringtie and (hopefully) formatting output for DESeq2
+
+* Kevin installed v2.0.4 so I can compare the output of v1.3.3 and v2.1.0 (which both have the error) with v 2.0.4 to see if I keep getting the same output where STRG values are mis-assigned. Going to stay working in the Rubio folder with those 2 transcriptomes since that has been my test case so far. While this is running I'm still deleting the python loop and the -s in the python line I created in `04_Prep_Stringtie_DESeq2.sh`. Also added in loading the python module at the beginning.
+        `$ pwd
+        /data3/marine_diseases_lab/erin/2017_2020_Transcriptome_Analysis/pipeline_files/C_gig_Bac_Viral_subset/2020_Raw_Transcriptome_Data/C_gig_Rubio_Vibrio_SRA/Rubio_HISAT_bam
+        $ module load python/2.7.6
+        $ module load  StringTie/2.0.4-GCCcore-7.3.0
+        $ CG=/data3/marine_diseases_lab/erin/2017_2020_Transcriptome_Analysis/pipeline_files/C_gig_Bac_Viral_subset/Cgig_Genome_and_Indexes
+        $ stringtie -G $CG/GCF_000297895.1_oyster_v9_genomic.gff -o SRR8551076_1.test.gtf SRR8551076_1.fastq.gz.clean.trim.filter.gz.bam
+        $ stringtie -G $CG/GCF_000297895.1_oyster_v9_genomic.gff -o SRR8551077_1.test.gtf SRR8551077_1.fastq.gz.clean.trim.filter.gz.bam
+        $ stringtie --merge -G $CG/GCF_000297895.1_oyster_v9_genomic.gff -o TEST_stringtie_merged.gtf TEST_mergelist.txt
+        $ stringtie -A SRR8551076_1_gene_abd.tab -e -G TEST_stringtie_merged.gtf -o SRR8551076_1.merge.gtf SRR8551076_1.fastq.gz.clean.trim.filter.gz.bam
+        
+        `
