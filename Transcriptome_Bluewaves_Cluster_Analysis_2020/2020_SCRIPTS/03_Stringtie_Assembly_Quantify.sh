@@ -28,11 +28,11 @@ GZV=/data3/marine_diseases_lab/erin/2017_2020_Transcriptome_Analysis/pipeline_fi
 ### C_gig_deLorgeril_OsHV1
 # assemble transcripts for each sample with the GFF3 annotation file
 array1=($(ls $GLO/*.bam))
-#for i in ${array1[@]}; do
-#	stringtie -G $CG/GCF_000297895.1_oyster_v9_genomic.gff -o ${i}.gtf -l $(echo ${i}|sed "s/\..*//") ${i}
-#	echo "${i} assembled"
-#	echo "${i}.gtf" >> $GLO/deLorgeril_mergelist.txt # Make stringtie mergelist with names of all gtf files with full path
-#done
+for i in ${array1[@]}; do
+	stringtie -G $CG/GCF_000297895.1_oyster_v9_genomic.gff -o ${i}.gtf ${i}
+	echo "${i} assembled"
+	echo "${i}.gtf" >> $GLO/deLorgeril_mergelist.txt # Make stringtie mergelist with names of all gtf files with full path
+done
 	# command structure: $ stringtie <options> -G <reference.gtf or .gff> -o outputname.gtf -l prefix_for_transcripts input_filename.bam
 	# -o specifies the output name
 	# -G specifies you are aligning with an option GFF or GTF file as well to perform novel transcript discovery
@@ -54,7 +54,7 @@ echo "deLorgeril OsHV1 gffcompared"
 
 #Re-estimate transcript abundance after merge step
 for i in ${array1[@]}; do
-		stringtie -A -e -G $GLO/deLorgeril_OsHV1_stringtie_merged.gtf -o $(echo ${i}|sed "s/\..*//").merge.gtf ${i}
+		stringtie -A $(echo ${i}|sed "s/\..*//").abd.tab -e -G $GLO/deLorgeril_OsHV1_stringtie_merged.gtf -o $(echo ${i}|sed "s/\..*//").merge.gtf ${i}
 		echo "${i} deLorgeril OsHV1 transcript abundance re-estimated"
 done
 		# input here is the original set of alignment files
@@ -72,11 +72,11 @@ echo "deLorgeril Stringtie complete $(date)"
 ### C_gig_Rubio_Vibrio_SRA_ID
 # assemble transcripts for each sample with the GFF3 annotation file
 array2=($(ls $GRV/*.bam))
-#for i in ${array2[@]}; do
-#	stringtie -G $CG/GCF_000297895.1_oyster_v9_genomic.gff -o ${i}.gtf -l $(echo ${i}|sed "s/\..*//") ${i}
-#	echo "${i} assembled"
-#	echo "${i}.gtf" >> $GRV/Rubio_Vibrio_mergelist.txt # Make stringtie mergelist with names of all gtf files with full path
-#done
+for i in ${array2[@]}; do
+	stringtie -G $CG/GCF_000297895.1_oyster_v9_genomic.gff -o ${i}.gtf ${i}
+	echo "${i} assembled"
+	echo "${i}.gtf" >> $GRV/Rubio_Vibrio_mergelist.txt # Make stringtie mergelist with names of all gtf files with full path
+done
 
 #Run StringTie merge, merge transcripts from all samples in single experiment
 stringtie --merge -G $CG/GCF_000297895.1_oyster_v9_genomic.gff -o $GRV/Rubio_Vibrio_stringtie_merged.gtf $GRV/Rubio_Vibrio_mergelist.txt
@@ -86,7 +86,7 @@ gffcompare -r $CG/GCF_000297895.1_oyster_v9_genomic.gff -G -o $GRV/Rubio_Vibrio_
 echo "Rubio Vibrio gffcompared"
 #Re-estimate transcript abundance after merge step
 for i in ${array2[@]}; do
-		stringtie -A -e -G $GRV/Rubio_Vibrio_stringtie_merged.gtf -o $(echo ${i}|sed "s/\..*//").merge.gtf ${i}
+		stringtie -A $(echo ${i}|sed "s/\..*//").abd.tab -e -G $GRV/Rubio_Vibrio_stringtie_merged.gtf -o $(echo ${i}|sed "s/\..*//").merge.gtf ${i}
 		echo "${i} Rubio Vibrio transcript abundance re-estimated"
 done
 
@@ -95,11 +95,11 @@ echo "Rubio Vibrio Stringtie complete $(date)"
 ### C_vir_Probiotic_SRA_ID
 # assemble transcripts for each sample with the GFF3 annotation file
 array3=($(ls $CP/*.bam))
-# for i in ${array3[@]}; do
-#	stringtie -G $CV/ref_C_virginica-3.0_top_level.gff3  -o ${i}.gtf -l $(echo ${i}|sed "s/\..*//") ${i}
-#	echo "${i} assembled"
-#	echo "${i}.gtf" >> $CP/Probiotic_mergelist.txt # Make stringtie mergelist with names of all gtf files with full path
-#done
+for i in ${array3[@]}; do
+	stringtie -G $CV/ref_C_virginica-3.0_top_level.gff3  -o ${i}.gtf ${i}
+	echo "${i} assembled"
+	echo "${i}.gtf" >> $CP/Probiotic_mergelist.txt # Make stringtie mergelist with names of all gtf files with full path
+done
 
 #Run StringTie merge, merge transcripts from all samples in single experiment
 stringtie --merge -G $CV/ref_C_virginica-3.0_top_level.gff3 -o $CP/Probiotic_stringtie_merged.gtf $CP/Probiotic_mergelist.txt
@@ -109,7 +109,7 @@ gffcompare -r $CV/ref_C_virginica-3.0_top_level.gff3 -G -o $CP/Probiotic_stringt
 echo "Probiotic gffcompared"
 #Re-estimate transcript abundance after merge step
 for i in ${array3[@]}; do
-		stringtie -A -e -G $CP/Probiotic_stringtie_merged.gtf -o $(echo ${i}|sed "s/\..*//").merge.gtf ${i}
+		stringtie -A $(echo ${i}|sed "s/\..*//").abd.tab -e -G $CP/Probiotic_stringtie_merged.gtf -o $(echo ${i}|sed "s/\..*//").merge.gtf ${i}
 		echo "${i} Probiotic transcript abundance re-estimated"
 done
 
@@ -118,11 +118,11 @@ echo "Probiotic Stringtie complete $(date)"
 ### C_vir_Dermo
 # assemble transcripts for each sample with the GFF3 annotation file
 array4=($(ls $CD/*.bam))
-#for i in ${array4[@]}; do
-#	stringtie -G $CV/ref_C_virginica-3.0_top_level.gff3  -o ${i}.gtf -l $(echo ${i}|sed "s/\..*//") ${i}
-#	echo "${i} assembled"
-#	echo "${i}.gtf" >> $CD/Dermo_mergelist.txt # Make stringtie mergelist with names of all gtf files with full path
-#done
+for i in ${array4[@]}; do
+	stringtie -G $CV/ref_C_virginica-3.0_top_level.gff3  -o ${i}.gtf ${i}
+	echo "${i} assembled"
+	echo "${i}.gtf" >> $CD/Dermo_mergelist.txt # Make stringtie mergelist with names of all gtf files with full path
+done
 
 #Run StringTie merge, merge transcripts from all samples in single experiment
 stringtie --merge -G $CV/ref_C_virginica-3.0_top_level.gff3 -o $CD/Dermo_stringtie_merged.gtf $CD/Dermo_mergelist.txt
@@ -132,7 +132,7 @@ gffcompare -r $CV/ref_C_virginica-3.0_top_level.gff3 -G -o $CD/Dermo_stringtie_m
 echo "Dermo gffcompared"
 #Re-estimate transcript abundance after merge step
 for i in ${array4[@]}; do
-		stringtie -A -e -G $CD/Dermo_stringtie_merged.gtf -o $(echo ${i}|sed "s/\..*//").merge.gtf ${i}
+		stringtie -A $(echo ${i}|sed "s/\..*//").abd.tab -e -G $CD/Dermo_stringtie_merged.gtf -o $(echo ${i}|sed "s/\..*//").merge.gtf ${i}
 		echo "${i} Dermo transcript abundance re-estimated"
 done
 
@@ -141,11 +141,11 @@ echo "Dermo Stringtie complete $(date)"
 ### C_gig_He_2015_OsHV1_SRA_ID
 # assemble transcripts for each sample with the GFF3 annotation file
 array5=($(ls $GHO/*.bam))
-#for i in ${array5[@]}; do
-#	stringtie -G $CG/GCF_000297895.1_oyster_v9_genomic.gff -o ${i}.gtf -l $(echo ${i}|sed "s/\..*//") ${i}
-#	echo "${i} assembled"
-#	echo "${i}.gtf" >> $GHO/He_OsHV1_mergelist.txt # Make stringtie mergelist with names of all gtf files with full path
-#done
+for i in ${array5[@]}; do
+	stringtie -G $CG/GCF_000297895.1_oyster_v9_genomic.gff -o ${i}.gtf ${i}
+	echo "${i} assembled"
+	echo "${i}.gtf" >> $GHO/He_OsHV1_mergelist.txt # Make stringtie mergelist with names of all gtf files with full path
+done
 
 #Run StringTie merge, merge transcripts from all samples in single experiment
 stringtie --merge -G $CG/GCF_000297895.1_oyster_v9_genomic.gff -o $GHO/He_OsHV1_stringtie_merged.gtf $GHO/He_OsHV1_mergelist.txt
@@ -155,7 +155,7 @@ gffcompare -r $CG/GCF_000297895.1_oyster_v9_genomic.gff -G -o $GHO/He_OsHV1_stri
 echo "He OsHV1 gffcompared"
 #Re-estimate transcript abundance after merge step
 for i in ${array5[@]}; do
-		stringtie -A -e -G $GHO/He_OsHV1_stringtie_merged.gtf -o $(echo ${i}|sed "s/\..*//").merge.gtf ${i}
+		stringtie -A $(echo ${i}|sed "s/\..*//").abd.tab -e -G $GHO/He_OsHV1_stringtie_merged.gtf -o $(echo ${i}|sed "s/\..*//").merge.gtf ${i}
 		echo "${i} He OsHV1 transcript abundance re-estimated"
 done
 
@@ -165,7 +165,7 @@ echo "He OsHV1 Stringtie complete $(date)"
 # assemble transcripts for each sample with the GFF3 annotation file
 array6=($(ls $GZV/*.bam))
 for i in ${array6[@]}; do
-	stringtie -G $CG/GCF_000297895.1_oyster_v9_genomic.gff -o ${i}.gtf -l $(echo ${i}|sed "s/\..*//") ${i}
+	stringtie -G $CG/GCF_000297895.1_oyster_v9_genomic.gff -o ${i}.gtf ${i}
 	echo "${i} assembled"
 	echo "${i}.gtf" >> $GZV/Zhang_Vibrio_mergelist.txt # Make stringtie mergelist with names of all gtf files with full path
 done
@@ -178,7 +178,7 @@ gffcompare -r $CG/GCF_000297895.1_oyster_v9_genomic.gff -G -o $GZV/Zhang_Vibrio_
 echo "Zhang Vibrio gffcompared"
 #Re-estimate transcript abundance after merge step
 for i in ${array6[@]}; do
-		stringtie -A -e -G $GZV/Zhang_Vibrio_stringtie_merged.gtf -o $(echo ${i}|sed "s/\..*//").merge.gtf ${i}
+		stringtie -A $(echo ${i}|sed "s/\..*//").abd.tab -e -G $GZV/Zhang_Vibrio_stringtie_merged.gtf -o $(echo ${i}|sed "s/\..*//").merge.gtf ${i}
 		echo "${i} Zhang Vibrio transcript abundance re-estimated"
 done
 
@@ -188,7 +188,7 @@ echo "Zhang Vibrio Stringtie complete $(date)"
 # assemble transcripts for each sample with the GFF3 annotation file
 array7=($(ls $CR/*.bam))
 for i in ${array7[@]}; do
-	stringtie -G $CV/ref_C_virginica-3.0_top_level.gff3  -o ${i}.gtf -l $(echo ${i}|sed "s/\..*//") ${i}
+	stringtie -G $CV/ref_C_virginica-3.0_top_level.gff3  -o ${i}.gtf ${i}
 	echo "${i} assembled"
 	echo "${i}.gtf" >> $CR/ROD_mergelist.txt # Make stringtie mergelist with names of all gtf files with full path
 done
@@ -201,7 +201,7 @@ gffcompare -r $CV/ref_C_virginica-3.0_top_level.gff3 -G -o $CR/ROD_stringtie_mer
 echo "ROD gffcompared"
 #Re-estimate transcript abundance after merge step
 for i in ${array7[@]}; do
-		stringtie -A -e -G $CR/ROD_stringtie_merged.gtf -o $(echo ${i}|sed "s/\..*//").merge.gtf ${i}
+		stringtie -A $(echo ${i}|sed "s/\..*//").abd.tab -e -G $CR/ROD_stringtie_merged.gtf -o $(echo ${i}|sed "s/\..*//").merge.gtf ${i}
 		echo "${i} ROD transcript abundance re-estimated"
 done
 
