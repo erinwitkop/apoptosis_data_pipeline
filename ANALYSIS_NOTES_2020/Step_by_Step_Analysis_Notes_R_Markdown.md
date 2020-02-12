@@ -745,13 +745,42 @@ All done.
 `
     2. deLorgeril started
           `$ sbatch 03_Stringtie_Assembly_Quantify_prepDE_deLorgeril.sh`
-    3. Zhang started
-          `$ sbatch 03_Stringtie_Assemble_Quantify_Zhang_prepDE.sh`
-    4. He started
-          `$ sbatch 03_Stringtie_Assemble_Quantify_He_prepDE.sh`
-    5. ROD started
-          `$ sbatch 03_Stringtie_Assemble_Quantify_ROD_prepDE.sh`
+    3. Zhang DONE
+          `$ sbatch 03_Stringtie_Assemble_Quantify_Zhang_prepDE.sh
+          $ cat Stringtie_Zhang_prepDE_out_2_11_2020
+          # shows all samples were processed correctly`
+    4. He DONE
+          `$ sbatch 03_Stringtie_Assemble_Quantify_He_prepDE.sh
+          $ cat Stringtie_He_prepDE_out_2_11_2020
+          # shows all samples processed correctly`
+    5. ROD DONE
+          `$ sbatch 03_Stringtie_Assemble_Quantify_ROD_prepDE.sh
+          # ROD done
+          $ cat Stringtie_ROD_prepDE_out_2_11_2020
+          # shows all samples processed correctly`
     6. Probiotic started
           `$ sbatch 03_Stringtie_Assemble_Quantify_Probiotic_prepDE.sh`
     7. Dermo started
           `$ sbatch 03_Stringtie_Assemble_Quantify_Dermo_prepDE.sh`
+
+* While this is running I will set up my new RStudio workspace for analyzing differential expression for each
+    - How should I set this up? Using one script and one RStudio workspace may be the best option.
+    - Can I partially clear an R studio workspace environment to only save final files that I want to keep?
+          ` #  Can remove list of of dataframes that all share a common pattern using the following
+            rm(list = ls(pattern = "^tmp"))`
+    - Instead of separating directories by species, because I am now analyzing all together, I'm going to put this combined analysis in a new folder
+          `/Users/erinroberts/Documents/PhD_Research/Chapter_1_Apoptosis Paper/Chapter1_Apoptosis_Transcriptome_Analyses_2019/DATA ANALYSIS/apoptosis_data_pipeline/DESeq2/2020_Transcriptome_ANALYSIS`
+    - Old scripts and old Dermo 2015 analysis (completed in Fall 2019 from data that had been aligned using CLC) will still be split up by species still.
+    - Moving genome files for both species into this new directory
+    - Setting up Script based on code format from "Dermo 2015" analysis done in Fall 2019 on Dermo transcriptomes that had been run with CLC. 
+
+ * Backing up all current Bluewaves contents on backup hardrive by sshing to data server
+        `# Copying data off using following format
+        # rsync -rv ./localpath/ remotesystem:/remote/path/
+        ssh fs03
+        $ cd /data3/marine_diseases_lab/erin/
+        # find local path on mac, go to system preferences, sharing, find local IP address under "remote login"
+        # To log in to this computer remotely, type “ssh erinroberts@253.59.20.172.s.wireless.uri.edu”.
+         rsync -rv ./* erinroberts@253.59.20.172.s.wireless.uri.edu:/Volumes/EMR\
+
+`
