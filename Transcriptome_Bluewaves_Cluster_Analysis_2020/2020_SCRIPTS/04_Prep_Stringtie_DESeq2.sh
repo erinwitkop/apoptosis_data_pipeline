@@ -84,7 +84,7 @@ for i in *.merge.gtf; do
 	echo "$(echo $i |sed "s/\..*//") $GHO/$i" >> C_gig_He_sample_list.txt # keep .. in sed command since these are SE and don't have underscore
 done
 
-python $P/prepDE.py -i C_gig_He_sample_list.txt -g He_gene_count_matrix.csv -t He_transcript_count_matrix.csv
+python prepDE_Oct.2019.py -v  -i C_gig_He_sample_list.txt -g He_gene_count_matrix.csv -t He_transcript_count_matrix.csv
 echo "C_gig_He_2015_OsHV1_SRA_ID DONE $(date)"
 
 # C_gig_Zhang_Vibrio_SRA_ID
