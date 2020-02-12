@@ -2,8 +2,8 @@
 #SBATCH -t 1000:00:00
 #SBATCH --nodes=1
 #SBATCH --export=NONE
-#SBATCH	-o /data3/marine_diseases_lab/erin/2017_2020_Transcriptome_Analysis/pipeline_files/2020_Scripts/Script_out_error_files/Prep_DESeq2_out_2_11_2020
-#SBATCH	-e /data3/marine_diseases_lab/erin/2017_2020_Transcriptome_Analysis/pipeline_files/2020_Scripts/Script_out_error_files/Prep_DESeq2_error_2_11_2020
+#SBATCH	-o /data3/marine_diseases_lab/erin/2017_2020_Transcriptome_Analysis/pipeline_files/2020_Scripts/Script_out_error_files/Prep_DESeq2_out_redo_2_11_2020
+#SBATCH	-e /data3/marine_diseases_lab/erin/2017_2020_Transcriptome_Analysis/pipeline_files/2020_Scripts/Script_out_error_files/Prep_DESeq2_error_redo_2_11_2020
 
 # This script converts Stringtie output into format for use with DESeq2.
 # Generates two CSV files containing the count matrices for genes and transcripts, using the coverage values found in the output of stringtie -e
@@ -13,6 +13,7 @@
 	# ERR188021 <PATH_TO_ERR188021.gtf>
 
 echo "Start $(date)"
+module load python/2.7.6
 
 # Create variable for each path to trimmed and quality filtered data folder
 P=/data3/marine_diseases_lab/erin/2017_2020_Transcriptome_Analysis/pipeline_files/2017_MISC_SCRIPTS
@@ -34,15 +35,12 @@ for i in *.merge.gtf; do
 	echo "$(echo $i |sed "s/\..*//") $GLO/$i" >> C_gig_deLorgeril_sample_list.txt
 done
 
-array1=($(ls $GLO/*.merge.gtf))
-for i in ${array1[@]}; do
-	python $P/prepDE.py -i C_gig_deLorgeril_sample_list.txt -g deLorgeril_gene_count_matrix.csv -t deLorgeril_transcript_count_matrix.csv -s $(echo ${i}|sed "s/\..*//")
-done
+python $P/prepDE.py -i C_gig_deLorgeril_sample_list.txt -g deLorgeril_gene_count_matrix.csv -t deLorgeril_transcript_count_matrix.csv
 
 # -i is the the parent directory of the sample sub-directories or a .txt file listing sample IDs and the paths to GTF files in tab-delimited format
 # -g where to output the gene count matrix [default: gene_count_matrix.csv
 # -t where to output the transcript count matrix [default: transcript_count_matrix.csv]
-# -s STRING, --string=STRING	if a different prefix is used for geneIDs assigned by StringTie [default: MSTRG] (need to use)
+# -s STRING, --string=STRING	if a different prefix is used for geneIDs assigned by StringTie [default: MSTRG], don't need however
 
 echo "C_gig_deLorgeril_OsHV1 DONE $(date)"
 
@@ -94,7 +92,7 @@ echo "C_vir_Dermo DONE $(date)"
 cd $GHO/
 for i in *.merge.gtf; do
 	# create text file with sample IDs and respective paths
-	echo "$(echo $i |sed "s/\..*//") $GHO/$i" >> C_gig_He_sample_list.txt
+	echo "$(echo $i |sed "s/\..*//") $GHO/$i" >> C_gig_He_sample_list.txt # keep .. in sed command since these are SE and don't have underscore
 done
 
 array5=($(ls $GHO/*.merge.gtf))
