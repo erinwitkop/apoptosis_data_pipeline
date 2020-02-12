@@ -40,7 +40,7 @@ python $P/prepDE.py -i C_gig_deLorgeril_sample_list.txt -g deLorgeril_gene_count
 # -i is the the parent directory of the sample sub-directories or a .txt file listing sample IDs and the paths to GTF files in tab-delimited format
 # -g where to output the gene count matrix [default: gene_count_matrix.csv
 # -t where to output the transcript count matrix [default: transcript_count_matrix.csv]
-# -s STRING, --string=STRING	if a different prefix is used for geneIDs assigned by StringTie [default: MSTRG], don't need however
+# -s STRING, --string=STRING	if a different prefix is used for geneIDs assigned by StringTie [default: MSTRG], don't need however since running now without -l
 
 echo "C_gig_deLorgeril_OsHV1 DONE $(date)"
 
@@ -51,11 +51,7 @@ for i in *.merge.gtf; do
 	echo "$(echo $i |sed "s/\..*//") $GRV/$i" >> C_gig_Rubio_sample_list.txt
 done
 
-array2=($(ls $GRV/*.merge.gtf))
-for i in ${array2[@]}; do
-	python $P/prepDE.py -i C_gig_Rubio_sample_list.txt -g Rubio_gene_count_matrix.csv -t Rubio_transcript_count_matrix.csv -s $(echo ${i}|sed "s/\..*//")
-done
-
+python $P/prepDE.py -i C_gig_Rubio_sample_list.txt -g Rubio_gene_count_matrix.csv -t Rubio_transcript_count_matrix.csv
 echo "C_gig_Rubio_Vibrio_SRA_ID DONE $(date)"
 
 # C_vir_Probiotic_SRA_ID
@@ -65,11 +61,8 @@ for i in *.merge.gtf; do
 	echo "$(echo $i |sed "s/\..*//") $CP/$i" >> C_vir_Probiotic_sample_list.txt
 done
 
-array3=($(ls $CP/*.merge.gtf))
-for i in ${array3[@]}; do
-	python $P/prepDE.py -i C_vir_Probiotic_sample_list.txt -g Probiotic_gene_count_matrix.csv -t Probiotic_transcript_count_matrix.csv -s $(echo ${i}|sed "s/\..*//")
-done
-	echo "C_vir_Probiotic_SRA_ID DONE $(date)"
+python $P/prepDE.py -i C_vir_Probiotic_sample_list.txt -g Probiotic_gene_count_matrix.csv -t Probiotic_transcript_count_matrix.csv
+echo "C_vir_Probiotic_SRA_ID DONE $(date)"
 
 # C_vir_Dermo
 cd $CD/
@@ -78,11 +71,7 @@ for i in *.merge.gtf; do
 	echo "$(echo $i |sed "s/\..*//") $CD/$i" >> C_vir_Dermo_sample_list.txt
 done
 
-array4=($(ls $CD/*.merge.gtf))
-for i in ${array4[@]}; do
-	python $P/prepDE.py -i C_vir_Dermo_sample_list.txt -g Dermo_gene_count_matrix.csv -t Dermo_transcript_count_matrix.csv -s $(echo ${i}|sed "s/\..*//")
-done
-
+python $P/prepDE.py -i C_vir_Dermo_sample_list.txt -g Dermo_gene_count_matrix.csv -t Dermo_transcript_count_matrix.csv
 echo "C_vir_Dermo DONE $(date)"
 
 ####### SE read experiments ######
@@ -95,11 +84,7 @@ for i in *.merge.gtf; do
 	echo "$(echo $i |sed "s/\..*//") $GHO/$i" >> C_gig_He_sample_list.txt # keep .. in sed command since these are SE and don't have underscore
 done
 
-array5=($(ls $GHO/*.merge.gtf))
-for i in ${array5[@]}; do
-		python $P/prepDE.py -i C_gig_He_sample_list.txt -g He_gene_count_matrix.csv -t He_transcript_count_matrix.csv -s $(echo ${i}|sed "s/\..*//")
-done
-
+python $P/prepDE.py -i C_gig_He_sample_list.txt -g He_gene_count_matrix.csv -t He_transcript_count_matrix.csv
 echo "C_gig_He_2015_OsHV1_SRA_ID DONE $(date)"
 
 # C_gig_Zhang_Vibrio_SRA_ID
@@ -109,11 +94,7 @@ for i in *.merge.gtf; do
 	echo "$(echo $i |sed "s/\..*//") $GZV/$i" >> C_gig_Zhang_sample_list.txt
 done
 
-array6=($(ls $GZV/*.merge.gtf))
-for i in ${array6[@]}; do
-	python $P/prepDE.py -i C_gig_Zhang_sample_list.txt -g Zhang_gene_count_matrix.csv -t Zhang_transcript_count_matrix.csv -s $(echo ${i}|sed "s/\..*//")
-done
-
+python $P/prepDE.py -i C_gig_Zhang_sample_list.txt -g Zhang_gene_count_matrix.csv -t Zhang_transcript_count_matrix.csv
 echo "C_gig_Zhang_Vibrio_SRA_ID DONE $(date)"
 
 # C_vir_ROD_SRA_ID
@@ -123,11 +104,7 @@ for i in *.merge.gtf; do
 	echo "$(echo $i |sed "s/\..*//") $CR/$i" >> C_vir_ROD_sample_list.txt
 done
 
-array7=($(ls $CR/*.merge.gtf))
-for i in ${array7[@]}; do
-	python $P/prepDE.py -i $CR/C_vir_ROD_sample_list.txt -g ROD_gene_count_matrix.csv -t ROD_transcript_count_matrix.csv -s $(echo ${i}|sed "s/\..*//")
-done
-
+python $P/prepDE.py -i $CR/C_vir_ROD_sample_list.txt -g ROD_gene_count_matrix.csv -t ROD_transcript_count_matrix.csv
 echo "C_vir_ROD_SRA_ID DONE $(date)"
 
 #######
