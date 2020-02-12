@@ -96,7 +96,7 @@ echo "Rubio Vibrio Stringtie complete $(date)"
 # assemble transcripts for each sample with the GFF3 annotation file
 array3=($(ls $CP/*.bam))
 for i in ${array3[@]}; do
-	stringtie -G $CV/ref_C_virginica-3.0_top_level.gff3  -o ${i}.gtf ${i}
+	stringtie -G $CV/ref_C_virginica-3.0_top_level.gff3 -o ${i}.gtf ${i}
 	echo "${i} assembled"
 	echo "${i}.gtf" >> $CP/Probiotic_mergelist.txt # Make stringtie mergelist with names of all gtf files with full path
 done
@@ -119,7 +119,7 @@ echo "Probiotic Stringtie complete $(date)"
 # assemble transcripts for each sample with the GFF3 annotation file
 array4=($(ls $CD/*.bam))
 for i in ${array4[@]}; do
-	stringtie -G $CV/ref_C_virginica-3.0_top_level.gff3  -o ${i}.gtf ${i}
+	stringtie -G $CV/ref_C_virginica-3.0_top_level.gff3 -o ${i}.gtf ${i}
 	echo "${i} assembled"
 	echo "${i}.gtf" >> $CD/Dermo_mergelist.txt # Make stringtie mergelist with names of all gtf files with full path
 done
@@ -188,7 +188,7 @@ echo "Zhang Vibrio Stringtie complete $(date)"
 # assemble transcripts for each sample with the GFF3 annotation file
 array7=($(ls $CR/*.bam))
 for i in ${array7[@]}; do
-	stringtie -G $CV/ref_C_virginica-3.0_top_level.gff3  -o ${i}.gtf ${i}
+	stringtie -G $CV/ref_C_virginica-3.0_top_level.gff3 -o ${i}.gtf ${i}
 	echo "${i} assembled"
 	echo "${i}.gtf" >> $CR/ROD_mergelist.txt # Make stringtie mergelist with names of all gtf files with full path
 done
