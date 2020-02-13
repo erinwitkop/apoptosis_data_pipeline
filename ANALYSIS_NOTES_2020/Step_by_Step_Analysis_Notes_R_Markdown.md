@@ -744,7 +744,9 @@ START Wed Feb 12 13:15:59 EST 2020
 All done.
 `
     2. deLorgeril started
-          `$ sbatch 03_Stringtie_Assembly_Quantify_prepDE_deLorgeril.sh`
+          `$ sbatch 03_Stringtie_Assembly_Quantify_prepDE_deLorgeril.sh
+          $ cat Stringtie_deLorgeril_prepDE_out_2_11_2020
+          # shows all samples processed correctly`
     3. Zhang DONE
           `$ sbatch 03_Stringtie_Assemble_Quantify_Zhang_prepDE.sh
           $ cat Stringtie_Zhang_prepDE_out_2_11_2020
@@ -758,10 +760,14 @@ All done.
           # ROD done
           $ cat Stringtie_ROD_prepDE_out_2_11_2020
           # shows all samples processed correctly`
-    6. Probiotic started
-          `$ sbatch 03_Stringtie_Assemble_Quantify_Probiotic_prepDE.sh`
-    7. Dermo started
-          `$ sbatch 03_Stringtie_Assemble_Quantify_Dermo_prepDE.sh`
+    6. Probiotic DONE
+          `$ sbatch 03_Stringtie_Assemble_Quantify_Probiotic_prepDE.sh
+          $ cat Stringtie_Probiotic_prepDE_out_2_11_2020 # all were processed
+          # shows all samples were processed correctly
+          `
+    7. Dermo DONE
+          `$ sbatch 03_Stringtie_Assemble_Quantify_Dermo_prepDE.sh
+          $ cat Stringtie_Dermo_prepDE_out_2_11_2020`
 
 * While this is running I will set up my new RStudio workspace for analyzing differential expression for each
     - How should I set this up? Using one script and one RStudio workspace may be the best option.
@@ -772,7 +778,7 @@ All done.
           `/Users/erinroberts/Documents/PhD_Research/Chapter_1_Apoptosis Paper/Chapter1_Apoptosis_Transcriptome_Analyses_2019/DATA ANALYSIS/apoptosis_data_pipeline/DESeq2/2020_Transcriptome_ANALYSIS`
     - Old scripts and old Dermo 2015 analysis (completed in Fall 2019 from data that had been aligned using CLC) will still be split up by species still.
     - Moving genome files for both species into this new directory
-    - Setting up Script based on code format from "Dermo 2015" analysis done in Fall 2019 on Dermo transcriptomes that had been run with CLC. 
+    - Setting up Script based on code format from "Dermo 2015" analysis done in Fall 2019 on Dermo transcriptomes that had been run with CLC.
 
  * Backing up all current Bluewaves contents on backup hardrive by sshing to data server
         `# Copying data off using following format
@@ -781,6 +787,10 @@ All done.
         $ cd /data3/marine_diseases_lab/erin/
         # find local path on mac, go to system preferences, sharing, find local IP address under "remote login"
         # To log in to this computer remotely, type “ssh erinroberts@253.59.20.172.s.wireless.uri.edu”.
-         rsync -rv ./* erinroberts@253.59.20.172.s.wireless.uri.edu:/Volumes/EMR\
-
+      $   scp -r ./* erinroberts@253.59.20.172.s.wireless.uri.edu:"/Volumes/EMR\\ Backup/Bluewaves_Backups/2020_Data_Backup/"
+        # had to put the path with spaces in it in double quotes!
 `
+
+## 2/13/2020 Data Backup finished, download output csvs locally, set up new DESeq2 script
+
+1. Created new DESeq2 script which will have all the code combined
