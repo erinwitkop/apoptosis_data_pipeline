@@ -793,4 +793,18 @@ All done.
 
 ## 2/13/2020 Data Backup finished, download output csvs locally, set up new DESeq2 script
 
-1. Created new DESeq2 script which will have all the code combined
+* Created new DESeq2 script which will have all the code combined. Starting to edit.
+
+## 2/14/2020 Editing DESeq2 Script. Creating metadata files for each project
+
+* Starting with Zhang Vibrio to edit DESeq2 code and create template code that will be used and modified for other projects. The analysis for this experiment is relatively straightforward.
+  * Creating metadata (coldata) file for experiment using the "Organized_SRA_info.xlsx" spreadsheet to create.
+  * ZHANG VIBRIO TRANSCRIPTOME ANALYSIS NOTES
+        1. First ran data QC by plotting a PCA of the rlog transformed counts. This PCA indicated that the PBS and control conditions were closely clustered in comparison to the other transcriptomes. The V. tubiashii and the LPS were also somewhat closely clustered. But I decided to keep these separate.
+        2. Made DESeq Data set just control vs. treated with the control as PBS and the injected and the treated as LPS, M. lut adn all Vibrio. Then I will use specific contrasts to pull out the differences between controls and each individual challenge type
+        3. Re-ran the PCA after calculating the DEseqdataset from matrix, and the PCA didn't change.
+        4. Should I remove the MTRG from the beginning?? Testing how this changes my results before keeping in my code.
+            * With removing the MSTRG, PBS and the control no longer cluster as closely (though they are still near each other)
+            * Now the LPS, PBS and control all cluster
+            * `plotPCA(Zhang_dds_rlog, intgroup=c("group", "condition"))` shows that LPS and M. lut cluster most closely. This doesn't at the outset seem biologically relevant because LPS is a control for gram negative bacteria while M. luteus is gram positive 
+        5. Now trying to figure out the code to pull out specific contrasts now after the LFC shrinkage with apeglm. Deciding whether or not to subset the list of significant genes for those that had greater than or less than 1 LFC. Doing this drastically decreased the number of genes. Going to compare.  Also loading the apoptosis gene list to find the apoptosis transcript
