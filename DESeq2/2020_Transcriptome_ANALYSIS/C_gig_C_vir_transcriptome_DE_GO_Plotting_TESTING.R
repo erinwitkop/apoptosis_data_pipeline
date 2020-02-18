@@ -601,6 +601,8 @@ Zhang_dds <- DESeqDataSetFromMatrix(countData = Zhang_counts,
 Zhang_dds_path <- DESeqDataSetFromMatrix(countData = Zhang_counts,
                                                  colData = Zhang_coldata,
                                                  design = ~  path) # add time to control for injection and time effect
+
+# USE THIS ONE IN FUTURE OTHERS WERE FOR TESTING
 Zhang_dds_broken_group <- DESeqDataSetFromMatrix(countData = Zhang_counts,
                                                  colData = Zhang_coldata,
                                                  design = ~time+ group_by_sim) # add time to control for injection and time effect
@@ -643,7 +645,7 @@ plotPCA(Zhang_dds_rlog, intgroup=c("group", "condition"))
 # and fitting a generalized linear model.
 
 Zhang_dds_deseq <- DESeq(Zhang_dds) 
-Zhang_dds_broken_group_deseq <- DESeq(Zhang_dds_broken_group)
+Zhang_dds_broken_group_deseq <- DESeq(Zhang_dds_broken_group) # USE THIS ONE IN FUTURE OTHERS WERE FOR TESTING
 Zhang_dds_path_deseq <- DESeq(Zhang_dds_path)
 
 ## Check the resultsNames object of each to look at the available coefficients for use in lfcShrink command
@@ -968,7 +970,436 @@ Zhang_apop_group_by_sim_comparison_LFC_plot <-  ggplot(Zhang_apop_group_by_sim_c
 
 #### RUBIO VIBRIO TRANSCRIPTOME ANALYSIS ####
 
+## LOAD DATA
+Rubio_counts <- read.csv("/Users/erinroberts/Documents/PhD_Research/Chapter_1_Apoptosis Paper/Chapter1_Apoptosis_Transcriptome_Analyses_2019/DATA ANALYSIS/apoptosis_data_pipeline/DESeq2/2020_Transcriptome_ANALYSIS/Rubio_transcript_count_matrix.csv", header=TRUE,
+                         row.names = "transcript_id")
+head(Rubio_counts)
+colnames(Rubio_counts)
+# colnames all have "_1", remove this. It was an artifact of the PE sample names
+colnames(Rubio_counts) <- sub('\\_[^_]+$', '', colnames(Rubio_counts))
+colnames(Rubio_counts)
 
+# remove MSTRG novel transcript lines (can assess these later if necessary)
+Rubio_counts <- Rubio_counts[!grepl("MSTRG", row.names(Rubio_counts)),]
+
+# Cute the "rna-" from the beginning of rownames
+remove_rna = function(x){
+  return(gsub("rna-","",x))
+}
+row.names(Rubio_counts) <- remove_rna(row.names(Rubio_counts))
+head(Rubio_counts)
+
+#Load in sample metadata
+Rubio_coldata <- read.csv("/Users/erinroberts/Documents/PhD_Research/Chapter_1_Apoptosis Paper/Chapter1_Apoptosis_Transcriptome_Analyses_2019/DATA ANALYSIS/apoptosis_data_pipeline/DESeq2/2020_Transcriptome_ANALYSIS/Rubio_coldata.csv", row.names = 1 )
+View(Rubio_coldata)  
+nrow(Rubio_coldata) 
+
+# Make sure the columns of the count matrix and rows of the column data (sample metadata) are in the same order. 
+all(rownames(Rubio_coldata) %in% colnames(Rubio_counts ))  #Should return TRUE
+# returns TRUE
+all(colnames(Rubio_counts ) %in% rownames(Rubio_coldata))  
+# returns TRUE
+all(rownames(Rubio_coldata) == colnames(Rubio_counts ))    # should return TRUE
+# returns FALSE
+
+# Fix the order
+Rubio_counts <-Rubio_counts[,row.names(Rubio_coldata)]
+row.names(Rubio_coldata)
+
+all(rownames(Rubio_coldata) %in% colnames(Rubio_counts ))  #Should return TRUE
+# returns TRUE
+all(colnames(Rubio_counts ) %in% rownames(Rubio_coldata))  
+# returns TRUE
+all(rownames(Rubio_coldata) == colnames(Rubio_counts ))    # should return TRUE
+# returns TRUE
+
+### DATA QC PCA PLOT 
+# rlog transform data is recommended over vst for small data sets 
+# PCA plots of data (https://bioinformatics-core-shared-training.github.io/cruk-summer-school-2018/RNASeq2018/html/02_Preprocessing_Data.nb.html#count-distribution-boxplots)
+Rubio_counts_matrix <- as.matrix(Rubio_counts)
+Rubiorlogcounts <- rlog(Rubio_counts_matrix, blind =TRUE)
+  #-- note: fitType='parametric', but the dispersion trend was not well captured by the
+  #function: y = a/x + b, and a local regression fit was automatically substituted.
+  #specify fitType='local' or 'mean' to avoid this message next time.
+
+# run PCA
+pcRubio <- prcomp(t(Rubiorlogcounts))
+
+# Plot PCA
+autoplot(pcRubio,
+         data = Rubio_coldata, 
+         colour="Condition", 
+         size=5) # PCA axes explain very little of the variation! (6 and 7 percent). There is a high amount of variablility between samples. 
+        # control untreated has the least variability however
+
+# Plot PCA 2 and 3 for comparison
+autoplot(pcRubio,
+         data = Rubio_coldata, 
+         colour = "Condition", 
+         size = 5,
+         x = 2,
+         y = 3) # no new trends emerge
+# Plot PCA 4 and 4 for comparison
+autoplot(pcRubio,
+         data = Rubio_coldata, 
+         colour = "Condition", 
+         size = 5,
+         x = 3,
+         y = 4) # extremely spread, still high variability 
+
+## MAKE DESEQ DATA SET FROM MATRIX
+# This object specifies the count data and metadata you will work with. The design piece is critical.
+# Correct for batch effects if necessary in this original formula: see this thread https://support.bioconductor.org/p/121408/
+# do not correct counts using the removeBatchEffects from limma based on thread above 
+
+## Check levels 
+# It is prefered in R that the first level of a factor be the reference level for comparison
+# (e.g. control, or untreated samples), so we can relevel the factor like so
+# Check factor levels, set it so that comparison group is the first
+levels(Rubio_coldata$Condition) # "Control_anesthesis" "Control_untreated"  "Vcrass_J2_8"        "Vcrass_J2_9"        "Vtasma_LGP32"       "Vtasma_LMG20012T"  
+Rubio_coldata$Condition <- factor(Rubio_coldata$Condition , levels = c("Control_untreated","Control_anesthesis", "Vcrass_J2_8", "Vcrass_J2_9","Vtasma_LGP32", "Vtasma_LMG20012T"  ))
+levels(Rubio_coldata$Condition)
+levels(Rubio_coldata$Group) # "Control"      "Non_virulent" "Virulent"  
+
+## Creating three here so I can compare the results
+Rubio_dds <- DESeqDataSetFromMatrix(countData = Rubio_counts,
+                                    colData = Rubio_coldata,
+                                    design = ~ Condition) 
+
+
+## Prefiltering the data
+# Data prefiltering helps decrease the size of the data set and get rid of
+# rows with no data or very minimal data (<10). Apply a minimal filtering here as more stringent filtering will be applied later
+Rubio_dds <- Rubio_dds [ rowSums(counts(Rubio_dds )) > 10, ]
+
+## DATA TRANSFORMATION AND VISUALIZATION
+# Assess sample clustering after setting initial formula for comparison
+Rubio_dds_rlog <- rlog(Rubio_dds, blind = TRUE) # keep blind = true before deseq function has been run
+#-- note: fitType='parametric', but the dispersion trend was not well captured by the
+#function: y = a/x + b, and a local regression fit was automatically substituted.
+#specify fitType='local' or 'mean' to avoid this message next time.
+
+## PCA plot visualization of individuals in the family 
+plotPCA(Rubio_dds_rlog, intgroup=c("Sample", "Condition"))
+# Still extremely high variation 
+
+### DIFFERENTIAL EXPRESSION ANALYSIS
+# run pipeline with single command because the formula has already been specified
+# Steps: estimation of size factors (controlling for differences in the sequencing depth of the samples), 
+# the estimation of dispersion values for each gene,and fitting a generalized linear model.
+Rubio_dds_deseq <- DESeq(Rubio_dds) 
+#-- note: fitType='parametric', but the dispersion trend was not well captured by the
+#function: y = a/x + b, and a local regression fit was automatically substituted.
+#specify fitType='local' or 'mean' to avoid this message next time.
+
+## Check the resultsNames object of each to look at the available coefficients for use in lfcShrink command
+resultsNames(Rubio_dds_deseq) # [1] "Intercept" "Condition_Control_untreated_vs_Control_anesthesis" "Condition_Vcrass_J2_8_vs_Control_anesthesis"      
+# [4] "Condition_Vcrass_J2_9_vs_Control_anesthesis"       "Condition_Vtasma_LGP32_vs_Control_anesthesis"      "Condition_Vtasma_LMG20012T_vs_Control_anesthesis" 
+
+## BUILD THE RESULTS OBJECT
+# Examining the results object, change alpha to p <0.05, looking at object metadata
+# use mcols to look at metadata for each table
+
+mcols(Zhang_dds_broked_group_deseq)
+
+Zhang_dds_deseq_res <- results(Zhang_dds_deseq, alpha=0.05, name="group_challenge_vs_control")
+
+
+head(Zhang_dds_deseq_res) # group challenge vs control 
+head(Zhang_dds_deseq_res_V_alg1) #  group by sim Vibrio vs control 
+head(Zhang_dds_deseq_res_V_tub) # group by sim LPS M lut Vtub vs control 
+head(Zhang_dds_deseq_res_LPS) # group by sim V aes v alg2 vs control 
+
+
+### Perform LFC Shrinkage with apeglm
+## NOTES 
+# Before plotting we need to apply an LFC shrinkage, set the coef as the specific comparison in the ResultsNames function of the deseq object
+# Issue that the specific comparisons I set in my results formulas are not available in the ResultsNames coef list.
+
+# NOTES from Michael love on Lfcshrinkage (https://support.bioconductor.org/p/77461/): 
+# https://support.bioconductor.org/p/110307/ # very helpful distinction between lfcestimate and lfc shrinkage
+# The difference between results() and lfcShrink() is that the former does not provide fold change shrinkage. 
+# The latter function calls results() internally to create the p-value and adjusted p-value columns, 
+# which provide inference on the maximum likelihood LFC. The shrunken fold changes are useful for ranking genes by 
+# effect size and for visualization.
+# The shrinkage is generally useful, which is why it is enabled by default. Full methods are described in the DESeq2 paper (see DESeq2 citation),
+# but in short, it looks at the largest fold changes that are not due to low counts and uses these to inform a prior distribution. 
+# So the large fold changes from genes with lots of statistical information are not shrunk, while the imprecise fold changes are shrunk. 
+# This allows you to compare all estimated LFC across experiments, for example, which is not really feasible without the use of a prior.
+# THE lfcshrinkage is not Affecting the p values at all, but its just shrinking the log2 fold change and calculating a new standard error for it 
+# https://support.bioconductor.org/p/95695/
+
+# Notes on setting up coefficients for apeglm, https://support.bioconductor.org/p/115435/ , https://bioconductor.org/packages/release/bioc/vignettes/DESeq2/inst/doc/DESeq2.html#extended-section-on-shrinkage-estimators
+# Although apeglm cannot be used with contrast, we note that many designs can be easily rearranged such that what was a contrast becomes its own coefficient.
+# In this case, the dispersion does not have to be estimated again, as the designs are equivalent, up to the meaning of the coefficients. 
+# Instead, one need only run nbinomWaldTest to re-estimate MLE coefficients – these are necessary for apeglm – and then run lfcShrink specifying 
+# the coefficient of interest in resultsNames(dds)
+# The user would for example, either change the levels of dds$condition or replace the design using design(dds)<-, then run nbinomWaldTest followed by lfcShrink
+
+# For each LFCshrink I can pass to it my res object for each so that I can keep my alpha setting at 0.05. Doing this procedure will 
+# keep the p-values and padj from the results() call, and simply update the LFCs so they are posterior estimates.
+
+## DECISION: USE SAME RES OBJECT TO KEEP ALPHA ADJUSTMENT, and use LFCShrink apeglm
+
+Zhang_dds_deseq_res_LFC <- lfcShrink(Zhang_dds_deseq, coef="group_challenge_vs_control", type= "apeglm", res=Zhang_dds_deseq_res)
+# Review results object summary
+summary(Zhang_dds_deseq_res_LFC) # SHOWS NUMBER OF SIGNIFICANT GENES
+# MSTRG removed 
+#out of 32394 with nonzero total read count
+#adjusted p-value < 0.05
+#LFC > 0 (up)       : 649, 2%
+#LFC < 0 (down)     : 146, 0.45%
+#outliers [1]       : 0, 0%
+#low counts [2]     : 4786, 15%
+#(mean count < 3)
+#[1] see 'cooksCutoff' argument of ?results
+#[2] see 'independentFiltering' argument of ?results
+
+Zhang_dds_deseq_res_V_alg1_LFC <- lfcShrink(Zhang_dds_broken_group_deseq, coef="group_by_sim_V_aes_V_alg1_V_alg2_vs_control" , type= "apeglm", res=Zhang_dds_deseq_res_V_alg1)
+# Review results object summary
+summary(Zhang_dds_deseq_res_V_alg1_LFC)
+#out of 33418 with nonzero total read count
+#adjusted p-value < 0.05
+#LFC > 0 (up)       : 1156, 3.5%
+#LFC < 0 (down)     : 172, 0.51%
+#outliers [1]       : 0, 0%
+#low counts [2]     : 6479, 19%
+#(mean count < 5)
+#[1] see 'cooksCutoff' argument of ?results
+#[2] see 'independentFiltering' argument of ?results
+
+Zhang_dds_deseq_res_V_tub_LFC <- lfcShrink(Zhang_dds_broken_group_deseq, coef="group_by_sim_V_tub_V_ang_vs_control" , type= "apeglm", res=Zhang_dds_deseq_res_V_tub)
+summary(Zhang_dds_deseq_res_V_tub_LFC)
+#out of 33418 with nonzero total read count
+#adjusted p-value < 0.05
+#LFC > 0 (up)       : 666, 2%
+#LFC < 0 (down)     : 216, 0.65%
+#outliers [1]       : 0, 0%
+#low counts [2]     : 11014, 33%
+#(mean count < 12)
+#[1] see 'cooksCutoff' argument of ?results
+#[2] see 'independentFiltering' argument of ?results
+
+Zhang_dds_deseq_res_LFC_LPS <- lfcShrink(Zhang_dds_broken_group_deseq, coef="group_by_sim_LPS_M_lut_vs_control", type= "apeglm", res=Zhang_dds_deseq_res_LPS)
+summary(Zhang_dds_deseq_res_LFC_LPS)
+#out of 33418 with nonzero total read count
+#adjusted p-value < 0.05
+#LFC > 0 (up)       : 615, 1.8%
+#LFC < 0 (down)     : 207, 0.62%
+#outliers [1]       : 0, 0%
+#low counts [2]     : 11662, 35%
+#(mean count < 13)
+#[1] see 'cooksCutoff' argument of ?results
+#[2] see 'independentFiltering' argument of ?results
+
+Zhang_dds_path_deseq_res_path_nonpath_LFC <- lfcShrink(Zhang_dds_path_deseq, coef="path_nonpath_vs_control", type= "apeglm", res=Zhang_dds_path_deseq_res_path_nonpath)
+summary(Zhang_dds_path_deseq_res_path_nonpath_LFC)
+#out of 33418 with nonzero total read count
+#adjusted p-value < 0.05
+#LFC > 0 (up)       : 446, 1.3%
+#LFC < 0 (down)     : 137, 0.41%
+#outliers [1]       : 1598, 4.8%
+#low counts [2]     : 3888, 12%
+#(mean count < 3)
+#[1] see 'cooksCutoff' argument of ?results
+#[2] see 'independentFiltering' argument of ?results
+
+Zhang_dds_path_deseq_res_path_path_LFC <- lfcShrink(Zhang_dds_path_deseq, coef="path_path_vs_control", type= "apeglm", res=Zhang_dds_path_deseq_res_path_path)
+summary(Zhang_dds_path_deseq_res_path_path_LFC)
+#out of 33418 with nonzero total read count
+#adjusted p-value < 0.05
+#LFC > 0 (up)       : 289, 0.86%
+#LFC < 0 (down)     : 228, 0.68%
+#outliers [1]       : 1598, 4.8%
+#low counts [2]     : 3888, 12%
+#(mean count < 3)
+#[1] see 'cooksCutoff' argument of ?results
+#[2] see 'independentFiltering' argument of ?results
+
+## EXPLORATORY PLOTTING OF RESULTS 
+## MA Plotting
+plotMA(Zhang_dds_deseq_res_LFC, ylim = c(-5, 5))
+## Histogram of P values 
+# exclude genes with very small counts to avoid spikes and plot using the LFCshrinkage
+hist(Zhang_dds_deseq_res_LFC$padj[Zhang_dds_deseq_res_LFC$baseMean > 1], breaks = 0:20/20,
+     col = "grey50", border = "white")
+
+### Subsetting Significant Genes by padj < 0.05
+# again, only working with the LFCshrinkage adjusted log fold changes, and with the BH adjusted p-value
+# first make sure to make the rownames with the transcript ID as a new column, then make it a dataframe for filtering
+Zhang_dds_deseq_res_LFC_sig <- subset(Zhang_dds_deseq_res_LFC, padj < 0.05)
+Zhang_dds_deseq_res_LFC_sig$transcript_id <- row.names(Zhang_dds_deseq_res_LFC_sig)
+Zhang_dds_deseq_res_LFC_sig <- as.data.frame(Zhang_dds_deseq_res_LFC_sig)
+nrow(Zhang_dds_deseq_res_LFC_sig)  #795 with MSTRG removed 
+
+Zhang_dds_deseq_res_V_alg1_LFC_sig <- subset(Zhang_dds_deseq_res_V_alg1_LFC, padj < 0.05)
+Zhang_dds_deseq_res_V_alg1_LFC_sig $transcript_id <- row.names(Zhang_dds_deseq_res_V_alg1_LFC_sig )
+Zhang_dds_deseq_res_V_alg1_LFC_sig  <- as.data.frame(Zhang_dds_deseq_res_V_alg1_LFC_sig )
+nrow(Zhang_dds_deseq_res_V_alg1_LFC_sig )  #1328
+
+Zhang_dds_deseq_res_V_tub_LFC_sig <- subset(Zhang_dds_deseq_res_V_tub_LFC, padj < 0.05)
+Zhang_dds_deseq_res_V_tub_LFC_sig  $transcript_id <- row.names(Zhang_dds_deseq_res_V_tub_LFC_sig  )
+Zhang_dds_deseq_res_V_tub_LFC_sig   <- as.data.frame(Zhang_dds_deseq_res_V_tub_LFC_sig )
+nrow(Zhang_dds_deseq_res_V_tub_LFC_sig  )  #882
+
+Zhang_dds_deseq_res_LFC_LPS_sig <- subset(Zhang_dds_deseq_res_LFC_LPS, padj < 0.05)
+Zhang_dds_deseq_res_LFC_LPS_sig $transcript_id <- row.names(Zhang_dds_deseq_res_LFC_LPS_sig )
+Zhang_dds_deseq_res_LFC_LPS_sig  <- as.data.frame(Zhang_dds_deseq_res_LFC_LPS_sig)
+nrow(Zhang_dds_deseq_res_LFC_LPS_sig)  #822
+
+Zhang_dds_path_deseq_res_path_nonpath_LFC_sig <-subset(Zhang_dds_path_deseq_res_path_nonpath_LFC, padj < 0.05)
+Zhang_dds_path_deseq_res_path_nonpath_LFC_sig$transcript_id <- row.names(Zhang_dds_path_deseq_res_path_nonpath_LFC_sig )
+Zhang_dds_path_deseq_res_path_nonpath_LFC_sig <- as.data.frame(Zhang_dds_path_deseq_res_path_nonpath_LFC_sig)
+nrow(Zhang_dds_path_deseq_res_path_nonpath_LFC_sig )  #583
+
+Zhang_dds_path_deseq_res_path_path_LFC_sig  <-subset(Zhang_dds_path_deseq_res_path_path_LFC , padj < 0.05)
+Zhang_dds_path_deseq_res_path_path_LFC_sig $transcript_id <- row.names(Zhang_dds_path_deseq_res_path_path_LFC_sig  )
+Zhang_dds_path_deseq_res_path_path_LFC_sig  <- as.data.frame(Zhang_dds_path_deseq_res_path_path_LFC_sig )
+nrow(Zhang_dds_path_deseq_res_path_path_LFC_sig  )  #517
+
+### GENE CLUSTERING ANALYSIS HEATMAPS  
+# Extract genes with the highest variance across samples for each comparison using either vst or rlog transformed data
+# This heatmap rather than plotting absolute expression strength plot the amount by which each gene deviates in a specific sample from the gene’s average across all samples. 
+# example codes from RNAseq workflow: https://www.bioconductor.org/packages/devel/workflows/vignettes/rnaseqGene/inst/doc/rnaseqGene.html#other-comparisons
+# topVarGenes <- head(order(rowVars(assay(vsd)), decreasing = TRUE), 40)
+# mat  <- assay(vsd)[ topVarGenes, ]
+# mat  <- mat - rowMeans(mat)
+# anno <- as.data.frame(colData(vsd)[, c("cell","dex")])
+# pheatmap(mat, annotation_col = anno)
+
+topVarGenes_Zhang_dds_rlog <-  head(order(rowVars(assay(Zhang_dds_rlog )), decreasing = TRUE), 100)
+family_Zhang_mat <- assay(Zhang_dds_rlog)[topVarGenes_Zhang_dds_rlog,]
+family_Zhang_mat <- family_Zhang_mat - rowMeans(family_Zhang_mat)
+family_Zhang_anno <- as.data.frame(colData(Zhang_dds_rlog)[, c("condition","group")])
+family_Zhang_heatmap <- pheatmap(family_Zhang_mat , annotation_col = family_Zhang_anno)
+head(family_Zhang_mat)
+# With MSTRG removed, the control PBS and control control cluster together, then the LPS, M lut and V alg1 cluster
+# and the other Vibrio challenges cluster 
+
+topVarGenes_Zhang_dds_broken_rlog <-  head(order(rowVars(assay(Zhang_dds_broked_group_rlog)), decreasing = TRUE), 200)
+family_Zhang_broken_mat <- assay(Zhang_dds_broked_group_rlog)[topVarGenes_Zhang_dds_broken_rlog,]
+family_Zhang_broken_mat <- family_Zhang_broken_mat - rowMeans(family_Zhang_broken_mat)
+family_Zhang_broken_anno <- as.data.frame(colData(Zhang_dds_broked_group_rlog)[, c("condition","group_by_sim")])
+family_Zhang_broken_heatmap <- pheatmap(family_Zhang_broken_mat , annotation_col = family_Zhang_broken_anno)
+head(family_Zhang_broken_mat)
+# the V_aes and V_alg2 cluster is supported, the LPS V alg 1 and M lut cluster, V ang and V tub cluster, though LPS shares the most with control and PBS
+# I'm going to re-do the groups so that V_aes, V_alg2 together, LPS, PBS and control together, and V alg 1 and Mtub together
+# or can do the non pathogenic to oyster V aes, V alg 1 and  V alg 2 together, and the V. ang and V. tub together, and LPS, PBS, and control together
+# with 200 genes: PBS, V alg1, M lut cluster,control and LPS cluster, V aes and V alg 2 cluster, V ang and V tub clustered
+
+topVarGenes_Zhang_dds_path_rlog <-  head(order(rowVars(assay(Zhang_dds_path_rlog )), decreasing = TRUE), 200)
+family_Zhang_path_mat <- assay(Zhang_dds_path_rlog )[topVarGenes_Zhang_dds_path_rlog,]
+family_Zhang_path_mat <- family_Zhang_path_mat - rowMeans(family_Zhang_path_mat)
+family_Zhang_path_anno <- as.data.frame(colData(Zhang_dds_path_rlog )[, c("condition","path")])
+family_Zhang_path_heatmap <- pheatmap(family_Zhang_path_mat , annotation_col = family_Zhang_path_anno)
+head(family_Zhang_path_mat)
+# with 200 genes: V ang and V tub still clustering, V aes V alg2 clutered, M lut and V alg 1 clustered with PBS
+
+# reorder annotation table to match ordering in heatmap 
+family_Zhang_heatmap_reorder <-rownames(family_Zhang_mat[family_Zhang_heatmap$tree_row[["order"]],])
+# annotate the row.names
+family_Zhang_mat_prot <- as.data.frame(family_Zhang_heatmap_reorder)
+colnames(family_Zhang_mat_prot)[1] <- "transcript_id"
+family_Zhang_mat_prot_annot <- left_join(family_Zhang_mat_prot, select(C_gig_rtracklayer_transcripts, transcript_id, product, gene), by = "transcript_id")
+
+# Gene clustering heatmap with only apoptosis genes #
+# vector C_gig_apop transcript IDs
+C_gig_rtracklayer_apop_product_final_transcript_id <- as.vector(C_gig_rtracklayer_apop_product_final$transcript_id)
+# Search original Zhang_counts for apoptosis genes and do rlog on just these
+Zhang_counts_apop <- Zhang_counts[row.names(Zhang_counts) %in% C_gig_rtracklayer_apop_product_final_transcript_id,]
+nrow(Zhang_counts_apop) #659
+head(Zhang_counts_apop)
+Zhang_counts_apop_dds <- DESeqDataSetFromMatrix(countData = Zhang_counts_apop,
+                                                colData = Zhang_coldata,
+                                                design = ~time + group_by_sim) # add time to control for injection and time effect
+# Prefiltering the data and running rlog
+Zhang_counts_apop_dds <- Zhang_counts_apop_dds[ rowSums(counts(Zhang_counts_apop_dds)) > 10, ]
+Zhang_counts_apop_rlog <- rlog(Zhang_counts_apop_dds, blind=TRUE)
+
+## PCA plot of rlog transformed counts for apoptosis
+plotPCA(Zhang_counts_apop_rlog , intgroup=c("group", "condition"))
+
+# heatmap of all apoptosis genes 
+Zhang_counts_apop_assay <-  assay(Zhang_counts_apop_rlog)[,]
+Zhang_counts_apop_assay_mat <- Zhang_counts_apop_assay - rowMeans(Zhang_counts_apop_assay)
+Zhang_counts_apop_assay_anno <- as.data.frame(colData(Zhang_counts_apop_rlog )[, c("condition","group_by_sim")])
+Zhang_counts_apop_assay_heatmap <- pheatmap(Zhang_counts_apop_assay_mat  , annotation_col = Zhang_counts_apop_assay_anno)
+head(Zhang_counts_apop_assay_mat )
+# control and PBS grouping, V_aes and V_ alg2 grouping, V_ang V alg 1 and V tub clustering
+
+# heatmap of most variable apoptosis genes (this selects genes with the greatest variance in the sample)
+topVarGenes_Zhang_counts_apop_assay <-  head(order(rowVars(assay(Zhang_counts_apop_rlog)), decreasing = TRUE), 100) 
+top_Var_Zhang_counts_apop_assay_mat<- assay(Zhang_counts_apop_rlog )[topVarGenes_Zhang_counts_apop_assay,]
+top_Var_Zhang_counts_apop_assay_mat <- top_Var_Zhang_counts_apop_assay_mat - rowMeans(top_Var_Zhang_counts_apop_assay_mat)
+top_Var_Zhang_counts_apop_assay_anno <- as.data.frame(colData(Zhang_counts_apop_rlog )[, c("condition","group_by_sim")])
+top_Var_Zhang_counts_apop_assay_heatmap <- pheatmap(top_Var_Zhang_counts_apop_assay_mat  , annotation_col = top_Var_Zhang_counts_apop_assay_anno)
+head(top_Var_Zhang_counts_apop_assay_mat )
+# same grouping as above with top 200, top 100 changes grouping M lut LPS V alg1 and V alg2 group together in a cluster, while V tub, V ang and V aes group with control
+
+# annotate the top 100 most variable genes  
+# reorder annotation table to match ordering in heatmap 
+top_Var_Zhang_counts_apop_assay_heatmap_reorder <-rownames(top_Var_Zhang_counts_apop_assay_mat[top_Var_Zhang_counts_apop_assay_heatmap $tree_row[["order"]],])
+# annotate the row.names
+top_Var_Zhang_counts_apop_assay_prot <- as.data.frame(top_Var_Zhang_counts_apop_assay_heatmap_reorder)
+colnames(top_Var_Zhang_counts_apop_assay_prot)[1] <- "transcript_id"
+top_Var_Zhang_counts_apop_assay_prot_annot <- left_join(top_Var_Zhang_counts_apop_assay_prot, select(C_gig_rtracklayer_transcripts, transcript_id, product, gene), by = "transcript_id")
+#isolate interesting clusters
+
+
+### Extract list of significant Apoptosis Genes (not less than or greater than 1 LFC) using merge
+Zhang_dds_deseq_res_LFC_sig_APOP <- merge(Zhang_dds_deseq_res_LFC_sig, C_gig_rtracklayer_apop_product_final, by = "transcript_id")
+Zhang_dds_deseq_res_LFC_sig_APOP_arranged <- arrange(Zhang_dds_deseq_res_LFC_sig_APOP, -log2FoldChange) 
+nrow(Zhang_dds_deseq_res_LFC_sig_APOP ) # 13
+# only 13 apoptotis genes when looking at the results object as a whole with only control vs. challenged
+
+Zhang_dds_deseq_res_V_alg1_LFC_sig_APOP <- merge(Zhang_dds_deseq_res_V_alg1_LFC_sig, C_gig_rtracklayer_apop_product_final, by = "transcript_id")
+Zhang_dds_deseq_res_V_alg1_LFC_sig_APOP_arranged <- arrange(Zhang_dds_deseq_res_V_alg1_LFC_sig_APOP , -log2FoldChange) 
+nrow(Zhang_dds_deseq_res_V_alg1_LFC_sig_APOP) #19
+
+Zhang_dds_deseq_res_V_tub_LFC_sig_APOP <- merge(Zhang_dds_deseq_res_V_tub_LFC_sig , C_gig_rtracklayer_apop_product_final, by = "transcript_id")
+Zhang_dds_deseq_res_V_tub_LFC_sig_APOP_arranged <- arrange(Zhang_dds_deseq_res_V_tub_LFC_sig_APOP  , -log2FoldChange) 
+nrow(Zhang_dds_deseq_res_V_tub_LFC_sig_APOP) # 16
+
+Zhang_dds_deseq_res_LFC_LPS_sig_APOP <- merge(Zhang_dds_deseq_res_LFC_LPS_sig, C_gig_rtracklayer_apop_product_final, by = "transcript_id")
+Zhang_dds_deseq_res_LFC_LPS_sig_APOP_arranged <- arrange(Zhang_dds_deseq_res_LFC_LPS_sig_APOP , -log2FoldChange) 
+nrow(Zhang_dds_deseq_res_LFC_LPS_sig_APOP )  #14
+
+Zhang_dds_path_deseq_res_path_nonpath_LFC_sig_APOP <- merge(Zhang_dds_path_deseq_res_path_nonpath_LFC_sig, C_gig_rtracklayer_apop_product_final, by = "transcript_id")
+Zhang_dds_path_deseq_res_path_nonpath_LFC_sig_APOP_arranged <- arrange(Zhang_dds_path_deseq_res_path_nonpath_LFC_sig_APOP , -log2FoldChange) 
+nrow(Zhang_dds_path_deseq_res_path_nonpath_LFC_sig_APOP ) # 9
+
+Zhang_dds_path_deseq_res_path_path_LFC_sig_APOP <- merge(Zhang_dds_path_deseq_res_path_path_LFC_sig, C_gig_rtracklayer_apop_product_final, by = "transcript_id")
+Zhang_dds_path_deseq_res_path_path_LFC_sig_APOP_arranged <- arrange(Zhang_dds_path_deseq_res_path_path_LFC_sig_APOP , -log2FoldChange) 
+nrow(Zhang_dds_path_deseq_res_path_path_LFC_sig_APOP ) # 6
+
+# Compare apoptosis genes between group_by_sim groups
+Zhang_dds_deseq_res_V_alg1_APOP_short <- Zhang_dds_deseq_res_V_alg1_LFC_sig_APOP[,c(1:6,28)]
+Zhang_dds_deseq_res_V_alg1_APOP_short$group_by_sim <- "V_aes_V_alg1_V_alg2"
+Zhang_dds_deseq_res_V_tub_APOP_short <- Zhang_dds_deseq_res_V_tub_LFC_sig_APOP[,c(1:6,28)] 
+Zhang_dds_deseq_res_V_tub_APOP_short$group_by_sim <- "V_tub_V_ang"
+Zhang_dds_deseq_res_LPS_APOP_short <- Zhang_dds_deseq_res_LFC_LPS_sig_APOP[,c(1:6,28)] 
+Zhang_dds_deseq_res_LPS_APOP_short$group_by_sim <- "LPS_M_lut"
+
+Zhang_dds_deseq_res_V_alg1_APOP_short_plot <- ggplot(Zhang_dds_deseq_res_V_alg1_APOP_short, aes(x=product, y = log2FoldChange, fill=log2FoldChange)) + geom_col(position="dodge") +
+  coord_flip() + scale_fill_gradient2(low="purple",mid = "grey", high="darkgreen") + ggtitle("Zhang Non-pathogenic Vibrio vs Control") +
+  ylab("Log2 Fold Change")
+Zhang_dds_deseq_res_V_tub_APOP_short_plot <- ggplot(Zhang_dds_deseq_res_V_tub_APOP_short, aes(x=product, y = log2FoldChange, fill=log2FoldChange)) + geom_col(position="dodge") +
+  coord_flip() + scale_fill_gradient2(low="purple",mid = "grey", high="darkgreen") + ggtitle("Zhang Pathogenic Vibrio vs Control") +
+  ylab("Log2 Fold Change")
+Zhang_dds_deseq_res_LPS_APOP_short_plot <- ggplot(Zhang_dds_deseq_res_LPS_APOP_short, aes(x=product, y = log2FoldChange, fill=log2FoldChange)) + geom_col(position="dodge") +
+  coord_flip() + scale_fill_gradient2(low="purple",mid = "grey", high="darkgreen") + ggtitle("Zhang LPS and M Lut LFC vs Control") +
+  ylab("Log2 Fold Change")
+
+ggarrange(Zhang_dds_deseq_res_V_alg1_APOP_short_plot , Zhang_dds_deseq_res_V_tub_APOP_short_plot,Zhang_dds_deseq_res_LPS_APOP_short_plot)
+
+# still working on this 
+Zhang_apop_group_by_sim_comparison <- rbind(Zhang_dds_deseq_res_V_alg1_APOP_short, Zhang_dds_deseq_res_V_tub_APOP_short,Zhang_dds_deseq_res_LPS_APOP_short)
+Zhang_apop_group_by_sim_comparison_LFC_plot <-  ggplot(Zhang_apop_group_by_sim_comparison, aes(x=product, y = log2FoldChange, fill=log2FoldChange)) + geom_col(position="dodge") +
+  coord_flip() + scale_fill_gradient2(low="purple",mid = "grey", high="darkgreen") + ggtitle("Zhang Pathogenic Vibrio, Non-pathogenic Vibrio, LPS and M Lut LFC vs Control") +
+  ylab("Log2 Fold Change")
+
+
+## compe back to finishing this analysis after I have done the other dataset analyses
  
 #### PROBIOTIC TRANSCRIPTOME ANALYSIS ####
 
