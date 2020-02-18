@@ -704,7 +704,7 @@ head(Zhang_dds_path_deseq_res_path_path) #  path path vs control
 # For each LFCshrink I can pass to it my res object for each so that I can keep my alpha setting at 0.05. Doing this procedure will 
 # keep the p-values and padj from the results() call, and simply update the LFCs so they are posterior estimates.
 
-## DECISION: USE SAME RES OBJECT TO KEEP ALPHA ADJUSTMENT, and use LFCShrink ashr
+## DECISION: USE SAME RES OBJECT TO KEEP ALPHA ADJUSTMENT, and use LFCShrink apeglm
 
 Zhang_dds_deseq_res_LFC <- lfcShrink(Zhang_dds_deseq, coef="group_challenge_vs_control", type= "apeglm", res=Zhang_dds_deseq_res)
 # Review results object summary
@@ -780,7 +780,6 @@ summary(Zhang_dds_path_deseq_res_path_path_LFC)
 #(mean count < 3)
 #[1] see 'cooksCutoff' argument of ?results
 #[2] see 'independentFiltering' argument of ?results
-
 
 ## EXPLORATORY PLOTTING OF RESULTS 
 ## MA Plotting
@@ -882,6 +881,9 @@ Zhang_counts_apop_dds <- DESeqDataSetFromMatrix(countData = Zhang_counts_apop,
 Zhang_counts_apop_dds <- Zhang_counts_apop_dds[ rowSums(counts(Zhang_counts_apop_dds)) > 10, ]
 Zhang_counts_apop_rlog <- rlog(Zhang_counts_apop_dds, blind=TRUE)
 
+## PCA plot of rlog transformed counts for apoptosis
+plotPCA(Zhang_counts_apop_rlog , intgroup=c("group", "condition"))
+
 # heatmap of all apoptosis genes 
 Zhang_counts_apop_assay <-  assay(Zhang_counts_apop_rlog)[,]
 Zhang_counts_apop_assay_mat <- Zhang_counts_apop_assay - rowMeans(Zhang_counts_apop_assay)
@@ -891,7 +893,7 @@ head(Zhang_counts_apop_assay_mat )
 # control and PBS grouping, V_aes and V_ alg2 grouping, V_ang V alg 1 and V tub clustering
 
 # heatmap of most variable apoptosis genes (this selects genes with the greatest variance in the sample)
-topVarGenes_Zhang_counts_apop_assay <-  head(order(rowVars(assay(Zhang_counts_apop_rlog)), decreasing = TRUE), 50) 
+topVarGenes_Zhang_counts_apop_assay <-  head(order(rowVars(assay(Zhang_counts_apop_rlog)), decreasing = TRUE), 100) 
 top_Var_Zhang_counts_apop_assay_mat<- assay(Zhang_counts_apop_rlog )[topVarGenes_Zhang_counts_apop_assay,]
 top_Var_Zhang_counts_apop_assay_mat <- top_Var_Zhang_counts_apop_assay_mat - rowMeans(top_Var_Zhang_counts_apop_assay_mat)
 top_Var_Zhang_counts_apop_assay_anno <- as.data.frame(colData(Zhang_counts_apop_rlog )[, c("condition","group_by_sim")])
@@ -899,7 +901,7 @@ top_Var_Zhang_counts_apop_assay_heatmap <- pheatmap(top_Var_Zhang_counts_apop_as
 head(top_Var_Zhang_counts_apop_assay_mat )
 # same grouping as above with top 200, top 100 changes grouping M lut LPS V alg1 and V alg2 group together in a cluster, while V tub, V ang and V aes group with control
 
-# annotate the top 100 genes 
+# annotate the top 100 most variable genes  
 # reorder annotation table to match ordering in heatmap 
 top_Var_Zhang_counts_apop_assay_heatmap_reorder <-rownames(top_Var_Zhang_counts_apop_assay_mat[top_Var_Zhang_counts_apop_assay_heatmap $tree_row[["order"]],])
 # annotate the row.names
@@ -961,6 +963,8 @@ Zhang_apop_group_by_sim_comparison_LFC_plot <-  ggplot(Zhang_apop_group_by_sim_c
   coord_flip() + scale_fill_gradient2(low="purple",mid = "grey", high="darkgreen") + ggtitle("Zhang Pathogenic Vibrio, Non-pathogenic Vibrio, LPS and M Lut LFC vs Control") +
   ylab("Log2 Fold Change")
 
+
+## compe back to finishing this analysis after I have done the other dataset analyses
 
 #### RUBIO VIBRIO TRANSCRIPTOME ANALYSIS ####
 

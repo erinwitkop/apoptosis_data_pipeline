@@ -815,7 +815,32 @@ All done.
 
 * 2/16/2020: comparing the effect of using the original PCA plot to assign the different challenges into similar groups. Based on the oringal rlog transformed PCA plot, I have placed together PBS + control, V. aes and V. alg 2, and LPS M. lut and V. tub, the others are quite far apart on the PCA and I have called them Vibrio. This will allow me specific contrasts for LFC comparison downstream. Assessing how the number of significant DEGs and apoptosis genes differs from having them split into just challenge vs. control. The formula is still `~time + group`, though now group has four different levels.
 * 2/17/2020: comparing the results from yesterday to trying a new comparison, where I cluster roughly pathogenic bacteria, non-pathogenic bacteria bacteria (in Zhang_coldata under the path column). Comparing this to splitting up the non-path category into LPS_Mlut and all the non-path vibrios (the group_by_sim column in Zhang_coldata). Also assessing whether adding in a time effect makes sense. There is only one sample at a different time, the original uninjected control. This sample was the only one that was not injected. Controlling for the effect of time would control for the lack of response due to injection.
-  * When the formula used is `~time + group_by_sim` vs. `~ group_by_sim` a different list of apoptosis genes comes out as being significantly differentially expressed. Notably, without the effect of time, "diablo homolog" has a very high LFC and is not significantly differentially expressed without this. Conversely, with controlling for the effect of time included, caspase 7 now has a high LFC in all three comparisons with control, and GIMAP4 is highly differentially expressed with non-pathogenic vibrio.  Going to compare the rlog transformed counts of the apoptosis genes between all samples. 
+  * When the formula used is `~time + group_by_sim` vs. `~ group_by_sim` a different list of apoptosis genes comes out as being significantly differentially expressed. Notably, without the effect of time, "diablo homolog" has a very high LFC and is not significantly differentially expressed without this. Conversely, with controlling for the effect of time included, caspase 7 now has a high LFC in all three comparisons with control, and GIMAP4 is highly differentially expressed with non-pathogenic vibrio.  Going to compare the rlog transformed counts of the apoptosis genes between all samples.
 
 
-* Final analysis decisions: the final formula to be used is ~time + group_by_sim. The time effect controls also for the fact that the first control was not injected while the others were and to disregard effects due to this. The group aspect looks at control +PBS vs Non pathogenic vibrio, pathogenic vibrio and LPS and M.lut . The MSTRG genes are pulled out before the DESeq2 formula. After this, LFC will be calculated for specific contrasts using the lfcshrink() type "ashr".
+* Analysis decisions (for now):
+  * The final formula to be used is ~time + group_by_sim. The time effect controls also for the fact that the first control was not injected while the others were and to disregard effects due to this. The exact code is below:
+          `Zhang_dds_broken_group <- DESeqDataSetFromMatrix(countData = Zhang_counts,
+                                                 colData = Zhang_coldata,
+                                                 design = ~time+ group_by_sim)`
+  * The groupings used in `group_by_sim` were based off of groupings in the original rlog PCA plot showing clustering of rlog transformed counts. This method of clustering introduces the least bias. The code for this PCA plot is:
+          `autoplot(pcZhang,
+         data = Zhang_coldata,
+         colour="group_by_sim",
+         size=5) `
+  * The product of DESeq2 differential expression is control+PBS vs Non pathogenic vibrio (V_aes, V_alg1, V_alg2), control+PBS vs pathogenic vibrio (V_ang, V_tub) and LPS and M.lut.
+  * Procedural notes: The MSTRG genes are pulled out before the DESeq2 formula and rows with counts less than 10 are removed from analysis. The results function sets alpha to 0.05. For DEG analysis rows with LFC of less than 1 are not filtered out. LFC is calculated using lfcshrink() type "ashr".
+  * Plots to be compared between experiments will be the original vst or rlog PCAs, the LFC plots after DESeq2, the plots of rlog transformed count heatmaps where the most variable genes are plotted as the difference from the mean across all samples, and also the PCA plots of the rlog transformed values with just the apoptosis genes included.
+        * At how many genes should I cut of this list? Keeping it at the 100 most variable seems to make sense?
+        * To allow myself to compare apoptosis expression between all experiments later, I am going to add into the code PCA plotting of the apoptosis rlog transformed data only. Creating an overall `All_coldata.csv` that I can use later to plot a PCA with apoptosis rlog expression data between experiments.
+  * The code that includes exploration and multiple testing is now saved as `C_gig_C_vir_transcriptome_DE_GO_Plotting_TESTING.R` while the final code with testing removed is called `C_gig_C_vir_transcriptome_DE_GO_Plotting.R`
+* *Talk with Marta about analysis*
+  * Marta's thoughts: the variability in the PCA is too high. Grouping the samples other than the control for the sake of increasing the sample size for DESeq2 might not really make sense. Performing an analysis where I compare the rlog transformed counts to the average value for the control may make more sense. Then I could compare this value between experiments. For Marta suggests finishing the other analyses and comparing apoptosis rlog transformed counts between experiments. I could also make heatmaps where I look at the rlog transformed values and subtract the mean across all others from each sample (sort of to normalize)?
+  * Marta also thinks I'll need to do some sort of enrichment analysis either enrichment of pathways of interest or gene families of interest
+* Ideas from the literature
+  * Pillon et al., 2020: chord plot to show number of similarities between groups, network analysis, correlation matrix of fold changes
+  * Switonska et al. 2019: network analysis
+  * Morrow et al., 2009: correlation matrix of fold changes (looks like heatmap) (Pillon et al., 2020; Morrow et al., 2020)
+
+## 2/18/2020 Starting Analysis of Rubio transcriptomes
+*

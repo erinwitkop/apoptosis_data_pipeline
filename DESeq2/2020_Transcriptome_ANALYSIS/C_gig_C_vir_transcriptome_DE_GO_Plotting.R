@@ -532,6 +532,7 @@ all(rownames(Zhang_coldata) == colnames(Zhang_counts))    # should return TRUE
 # Fix the order using code format below if necessary 
 # Dermo_counts <- Dermo_counts[,colnames(Dermo_counts)]
 
+# -----------------
 ### DATA QC PCA PLOT 
 # rlog transform data is recommended over vst for small data sets 
 # PCA plots of data (https://bioinformatics-core-shared-training.github.io/cruk-summer-school-2018/RNASeq2018/html/02_Preprocessing_Data.nb.html#count-distribution-boxplots)
@@ -554,6 +555,8 @@ autoplot(pcZhang,
          colour="group_by_sim", 
          size=5) 
 
+# -----------------
+
 ## MAKE DESEQ DATA SET FROM MATRIX
 # This object specifies the count data and metadata you will work with. The design piece is critical.
 # Correct for batch effects if necessary in this original formula: see this thread https://support.bioconductor.org/p/121408/
@@ -564,6 +567,7 @@ Zhang_dds_broken_group <- DESeqDataSetFromMatrix(countData = Zhang_counts,
                                                  colData = Zhang_coldata,
                                                  design = ~time+ group_by_sim) # add time to control for injection and time effect
 
+# -----------------
 ## Prefiltering the data
 # Data prefiltering helps decrease the size of the data set and get rid of rows with no data or very minimal data (<10)
 Zhang_dds_broken_group <- Zhang_dds_broken_group[ rowSums(counts(Zhang_dds_broken_group)) > 10, ]
@@ -575,6 +579,7 @@ levels(Zhang_coldata$group_by_sim) # "control"             "LPS_M_lut"          
 levels(Zhang_coldata$time) # "12h"          "No_injection"
 Zhang_dds$time <- factor(Zhang_dds$group , levels = c("12h"))
 
+# -----------------
 ## DATA TRANSFORMATION AND VISUALIZATION
 # Assess sample clustering after setting initial formula for comparison
 Zhang_dds_broken_group_rlog <- rlog(Zhang_dds_broken_group, blind = TRUE)
@@ -582,6 +587,7 @@ Zhang_dds_broken_group_rlog <- rlog(Zhang_dds_broken_group, blind = TRUE)
 ## PCA plot visualization of individuals in the family 
 plotPCA(Zhang_dds_broken_group_rlog, intgroup=c("group_by_sim", "condition"))
 
+# -----------------
 ### DIFFERENTIAL EXPRESSION ANALYSIS
 # run pipeline with single command because the formula has already been specified
 # Steps: estimation of size factors (controlling for differences in the sequencing depth of the samples), 
@@ -593,6 +599,7 @@ resultsNames(Zhang_dds_broken_group_deseq)
 #[1] "Intercept"                                   "time_No_injection_vs_12h"                    "group_by_sim_LPS_M_lut_vs_control"          
 #[4] "group_by_sim_V_aes_V_alg1_V_alg2_vs_control" "group_by_sim_V_tub_V_ang_vs_control" 
 
+# -----------------
 ## BUILD THE RESULTS OBJECT
 # Examining the results object, change alpha to p <0.05, looking at object metadata
 Zhang_dds_deseq_res_V_alg1 <- results(Zhang_dds_broken_group_deseq, alpha=0.05, name = "group_by_sim_V_aes_V_alg1_V_alg2_vs_control"  )
@@ -603,7 +610,8 @@ head(Zhang_dds_deseq_res_V_alg1) #  group by sim Vibrio vs control
 head(Zhang_dds_deseq_res_V_tub) # group by sim LPS M lut Vtub vs control 
 head(Zhang_dds_deseq_res_LPS) # group by sim V aes v alg2 vs control 
 
-### Perform LFC Shrinkage with apeglm ashr
+# -----------------
+### Perform LFC Shrinkage with apeglm 
 # set the coef as the specific comparison in the ResultsNames function of the deseq object
 
 Zhang_dds_deseq_res_V_alg1_LFC <- lfcShrink(Zhang_dds_broken_group_deseq, coef="group_by_sim_V_aes_V_alg1_V_alg2_vs_control" , type= "apeglm", res=Zhang_dds_deseq_res_V_alg1)
@@ -661,7 +669,7 @@ Zhang_dds_deseq_res_LFC_LPS_sig $transcript_id <- row.names(Zhang_dds_deseq_res_
 Zhang_dds_deseq_res_LFC_LPS_sig  <- as.data.frame(Zhang_dds_deseq_res_LFC_LPS_sig)
 nrow(Zhang_dds_deseq_res_LFC_LPS_sig)  #822
 
-
+# -----------------
 ### GENE CLUSTERING ANALYSIS HEATMAPS  
 # Extract genes with the highest variance across samples for each comparison using either vst or rlog transformed data
 # This heatmap rather than plotting absolute expression strength plot the amount by which each gene deviates in a specific sample from the gene’s average across all samples. 
@@ -714,7 +722,7 @@ colnames(top_Var_Zhang_counts_apop_assay_prot)[1] <- "transcript_id"
 top_Var_Zhang_counts_apop_assay_prot_annot <- left_join(top_Var_Zhang_counts_apop_assay_prot, select(C_gig_rtracklayer_transcripts, transcript_id, product, gene), by = "transcript_id")
 #isolate interesting clusters
 
-
+# -----------------
 ### Extract list of significant Apoptosis Genes (not less than or greater than 1 LFC) using merge
 Zhang_dds_deseq_res_V_alg1_LFC_sig_APOP <- merge(Zhang_dds_deseq_res_V_alg1_LFC_sig, C_gig_rtracklayer_apop_product_final, by = "transcript_id")
 Zhang_dds_deseq_res_V_alg1_LFC_sig_APOP_arranged <- arrange(Zhang_dds_deseq_res_V_alg1_LFC_sig_APOP , -log2FoldChange) 
@@ -747,12 +755,6 @@ Zhang_dds_deseq_res_LPS_APOP_short_plot <- ggplot(Zhang_dds_deseq_res_LPS_APOP_s
   ylab("Log2 Fold Change")
 
 ggarrange(Zhang_dds_deseq_res_V_alg1_APOP_short_plot , Zhang_dds_deseq_res_V_tub_APOP_short_plot,Zhang_dds_deseq_res_LPS_APOP_short_plot)
-
-# still working on this 
-Zhang_apop_group_by_sim_comparison <- rbind(Zhang_dds_deseq_res_V_alg1_APOP_short, Zhang_dds_deseq_res_V_tub_APOP_short,Zhang_dds_deseq_res_LPS_APOP_short)
-Zhang_apop_group_by_sim_comparison_LFC_plot <-  ggplot(Zhang_apop_group_by_sim_comparison, aes(x=product, y = log2FoldChange, fill=log2FoldChange)) + geom_col(position="dodge") +
-  coord_flip() + scale_fill_gradient2(low="purple",mid = "grey", high="darkgreen") + ggtitle("Zhang Pathogenic Vibrio, Non-pathogenic Vibrio, LPS and M Lut LFC vs Control") +
-  ylab("Log2 Fold Change")
 
 
 #### RUBIO VIBRIO TRANSCRIPTOME ANALYSIS ####
