@@ -843,4 +843,5 @@ All done.
   * Morrow et al., 2009: correlation matrix of fold changes (looks like heatmap) (Pillon et al., 2020; Morrow et al., 2020)
 
 ## 2/18/2020 Starting Analysis of Rubio transcriptomes
-*
+* Created `Rubio_coldata.csv`. Had to manually change dashes to underscores because these where in the SRA metadata. R does not like these. Also had to remove `_1` in `Rubio_counts` because this was an artifact of how I named my PE samples. They kep this underscore 1 through to the end of the experiment.
+* Added `Rubio_coldata.csv` condition data to the `All_coldata.csv` I'm creating to plot PCAs at the end of my analysis.
