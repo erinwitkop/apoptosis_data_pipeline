@@ -52,7 +52,6 @@ library(ggpubr)
 # Import gff file with rtracklayer
 C_vir_rtracklayer <- import("/Users/erinroberts/Documents/PhD_Research/Chapter_1_Apoptosis Paper/Chapter1_Apoptosis_Transcriptome_Analyses_2019/DATA ANALYSIS/apoptosis_data_pipeline/DESeq2/2020_Transcriptome_ANALYSIS/ref_C_virginica-3.0_top_level.gff3")
 C_vir_rtracklayer <- as.data.frame(C_vir_rtracklayer)
-C_vir_rtracklayer_transcripts <- filter(C_vir_rtracklayer, grepl("XM", transcript_id))
 
 # Load finished C_vir_rtracklayer_transcripts_GO.csv with GO terms mapped using code and processed below. Do not repeat every time.
 C_vir_rtracklayer_transcripts_GO <- read.csv("/Users/erinroberts/Documents/PhD_Research/Chapter_1_Apoptosis Paper/Chapter1_Apoptosis_Transcriptome_Analyses_2019/DATA ANALYSIS/apoptosis_data_pipeline/DESeq2/2020_Transcriptome_ANALYSIS/C_vir_rtracklayer_transcripts_GO.csv", header=TRUE)
@@ -295,10 +294,11 @@ Apoptosis_names_list <- c('bcl-2-related protein A1',
 C_vir_rtracklayer_mRNA <- C_vir_rtracklayer %>% filter(type == "mRNA")
 C_vir_rtracklayer_apop_product <- C_vir_rtracklayer_mRNA[grepl(paste(Apoptosis_names_list,collapse="|"), 
                                                                C_vir_rtracklayer_mRNA$product, ignore.case = TRUE),]
+nrow(C_vir_rtracklayer_apop_product) #1106
 
 # Terms to remove
 # remove complement C1q proteins, dual specificity protein phosphatase 1B-like, remove kunitz-type, and NOT other kDA protein names so I can keep all heat shock proteins
-C_vir_rtracklayer_apop_product_final <- C_vir_rtracklayer_apop_product[!grepl("complement C1q", C_vir_rtracklayer_apop_product$product, ignore.case = TRUE) & 
+C_vir_rtracklayer_apop_product_final <-C_vir_rtracklayer_apop_product[!grepl("complement C1q", C_vir_rtracklayer_apop_product$product, ignore.case = TRUE) & 
                                                                          !grepl("dual specificity protein phosphatase 1B-like", C_vir_rtracklayer_apop_product$product, ignore.case = TRUE) &
                                                                          !grepl("kunitz-type", C_vir_rtracklayer_apop_product$product, ignore.case = TRUE) &
                                                                          !grepl("mannosyl", C_vir_rtracklayer_apop_product$product, ignore.case = TRUE) &
@@ -313,7 +313,8 @@ C_vir_rtracklayer_apop_product_final <- C_vir_rtracklayer_apop_product[!grepl("c
                                                                          !grepl("caspase-14", C_vir_rtracklayer_apop_product$product, ignore.case = TRUE) &
                                                                          !grepl("WD repeat-containing protein WRAP73", C_vir_rtracklayer_apop_product$product, ignore.case = TRUE) &
                                                                          !grepl("tumor protein p63-regulated gene 1-like protein", C_vir_rtracklayer_apop_product$product, ignore.case = TRUE),]
-nrow(C_vir_rtracklayer_apop_product_final)
+nrow(C_vir_rtracklayer_apop_product_final) #1026
+
 ## Identify CG apoptosis genes 
 Apoptosis_names_list_CG <- c('bcl-2-related protein A1',
                              'apoptosis-inducing factor 1',
@@ -1140,7 +1141,6 @@ hist(Rubio_dds_deseq_LMG20012T_res_LFC$padj[Rubio_dds_deseq_LMG20012T_res_LFC$ba
 ### Subsetting Significant Genes by padj < 0.05
 # again, only working with the LFCshrinkage adjusted log fold changes, and with the BH adjusted p-value
 # first make sure to make the rownames with the transcript ID as a new column, then make it a dataframe for filtering
-
 Rubio_dds_deseq_J2_8_res_LFC_sig <-  subset(Rubio_dds_deseq_J2_8_res_LFC , padj < 0.05)
 Rubio_dds_deseq_J2_9_res_LFC_sig <-  subset(Rubio_dds_deseq_J2_9_res_LFC , padj < 0.05)
 Rubio_dds_deseq_LGP32_res_LFC_sig <-  subset(Rubio_dds_deseq_LGP32_res_LFC , padj < 0.05)
@@ -1226,10 +1226,6 @@ colnames(top_Var_Rubio_counts_apop_assay_prot)[1] <- "transcript_id"
 top_Var_Rubio_counts_apop_assay_prot_annot <- left_join(top_Var_Rubio_counts_apop_assay_prot, select(C_gig_rtracklayer_transcripts, transcript_id, product, gene), by = "transcript_id")
 
 ### Extract list of significant Apoptosis Genes (not less than or greater than 1 LFC) using merge
-Zhang_dds_deseq_res_LFC_sig_APOP <- merge(Zhang_dds_deseq_res_LFC_sig, C_gig_rtracklayer_apop_product_final, by = "transcript_id")
-Zhang_dds_deseq_res_LFC_sig_APOP_arranged <- arrange(Zhang_dds_deseq_res_LFC_sig_APOP, -log2FoldChange) 
-nrow(Zhang_dds_deseq_res_LFC_sig_APOP ) 
-
 Rubio_dds_deseq_J2_8_res_LFC_sig_APOP <-    merge(Rubio_dds_deseq_J2_8_res_LFC_sig , C_gig_rtracklayer_apop_product_final, by = "transcript_id")
 Rubio_dds_deseq_J2_9_res_LFC_sig_APOP <-    merge(Rubio_dds_deseq_J2_9_res_LFC_sig , C_gig_rtracklayer_apop_product_final, by = "transcript_id")
 Rubio_dds_deseq_LGP32_res_LFC_sig_APOP <-   merge(Rubio_dds_deseq_LGP32_res_LFC_sig , C_gig_rtracklayer_apop_product_final, by = "transcript_id")
@@ -1274,6 +1270,213 @@ ggarrange(Zhang_dds_deseq_res_V_alg1_APOP_short_plot , Zhang_dds_deseq_res_V_tub
 #### DELORGERIL OSHV1 TRANSCRIPTOME ANALYSIS ####
 
 #### HE OSHV1 TRANSCRIPTOME ANALYSIS ####
+
+## LOAD DATA
+He_counts <- read.csv("/Users/erinroberts/Documents/PhD_Research/Chapter_1_Apoptosis Paper/Chapter1_Apoptosis_Transcriptome_Analyses_2019/DATA ANALYSIS/apoptosis_data_pipeline/DESeq2/2020_Transcriptome_ANALYSIS/He_transcript_count_matrix.csv", header=TRUE,
+                         row.names = "transcript_id")
+head(He_counts )
+colnames(He_counts)
+
+# remove MSTRG novel transcript lines (can assess these later if necessary)
+Rubio_counts <- Rubio_counts[!grepl("MSTRG", row.names(Rubio_counts)),]
+
+# Cute the "rna-" from the beginning of rownames
+remove_rna = function(x){
+  return(gsub("rna-","",x))
+}
+row.names(He_counts ) <- remove_rna(row.names(He_counts ))
+head(He_counts )
+
+#Load in sample metadata
+He_coldata <- read.csv("/Users/erinroberts/Documents/PhD_Research/Chapter_1_Apoptosis Paper/Chapter1_Apoptosis_Transcriptome_Analyses_2019/DATA ANALYSIS/apoptosis_data_pipeline/DESeq2/2020_Transcriptome_ANALYSIS/He_coldata.csv", row.names = 1 )
+View(He_coldata)  
+nrow(He_coldata) 
+
+# Make sure the columns of the count matrix and rows of the column data (sample metadata) are in the same order. 
+all(rownames(He_coldata) %in% colnames(He_counts ))  #Should return TRUE
+# returns TRUE
+all(colnames(He_counts ) %in% rownames(He_coldata))  
+# returns TRUE
+all(rownames(He_coldata) == colnames(He_counts ))  # should return TRUE
+# returns true
+
+### DATA QC PCA PLOT 
+# rlog transform data is recommended over vst for small data sets 
+# PCA plots of data (https://bioinformatics-core-shared-training.github.io/cruk-summer-school-2018/RNASeq2018/html/02_Preprocessing_Data.nb.html#count-distribution-boxplots)
+He_counts_matrix <- as.matrix(He_counts)
+Hevstcounts <- vst(He_counts_matrix, blind =TRUE)
+
+# run PCA
+pcHe <- prcomp(t(Hevstcounts))
+
+# Plot PCA
+autoplot(pcHe,
+         data = He_coldata, 
+         colour="Condition", 
+         size=5) # clustering by condition explains more of the varaince than clustering by time, however very little of the variance can
+        # be explained in the PCA (~12%)
+autoplot(pcHe,
+         data = He_coldata, 
+         colour="Time", 
+         size=5) # replicates cluster by time within treatment, not between control and treated
+# Plot PCA 2 and 3 for comparison
+autoplot(pcHe,
+         data = He_coldata, 
+         colour = "Condition", 
+         size = 5,
+         x = 2,
+         y = 3) 
+# Plot PCA 4 and 5 for comparison
+autoplot(pcHe,
+         data = He_coldata, 
+         colour = "Condition", 
+         size = 5,
+         x = 3,
+         y = 4) 
+
+## MAKE DESEQ DATA SET FROM MATRIX
+# This object specifies the count data and metadata you will work with. The design piece is critical.
+# Correct for batch effects if necessary in this original formula: see this thread https://support.bioconductor.org/p/121408/
+# do not correct counts using the removeBatchEffects from limma based on thread above 
+
+## Check levels 
+# It is prefered in R that the first level of a factor be the reference level for comparison
+# (e.g. control, or untreated samples), so we can relevel the factor like so
+# Check factor levels, set it so that comparison group is the first
+levels(He_coldata$Condition) # "control" "OsHV1"  
+levels(He_coldata$Time) # "120hr" "12h"   "24h"   "48h"   "6h"    "Time0"
+He_coldata$Time <- factor(He_coldata$Time, levels=c("Time0","6h", "12h", "24h" , "48h" ,"120hr" ))
+
+## Creating three here so I can compare the results
+He_dds <- DESeqDataSetFromMatrix(countData = He_counts,
+                                    colData = He_coldata,
+                                    design = ~ Time + Condition)  # again accounting for time in my formula, keeping condition as the last
+
+## Prefiltering the data
+# Data prefiltering helps decrease the size of the data set and get rid of
+# rows with no data or very minimal data (<10). Apply a minimal filtering here as more stringent filtering will be applied later
+He_dds <- He_dds [ rowSums(counts(He_dds )) > 10, ]
+
+## DATA TRANSFORMATION AND VISUALIZATION
+# Assess sample clustering after setting initial formula for comparison
+He_dds_vst <- vst(He_dds, blind = TRUE) # keep blind = true before deseq function has been run
+
+## PCA plot visualization of individuals in the family, use vst because greater than 30 samples 
+plotPCA(He_dds_vst, intgroup=c("Time", "Condition")) # highly variable, a bit more of variation explained than before
+
+### DIFFERENTIAL EXPRESSION ANALYSIS
+# run pipeline with single command because the formula has already been specified
+# Steps: estimation of size factors (controlling for differences in the sequencing depth of the samples), 
+# the estimation of dispersion values for each gene,and fitting a generalized linear model.
+He_dds_deseq <- DESeq(He_dds) 
+
+## Check the resultsNames object of each to look at the available coefficients for use in lfcShrink command
+resultsNames(He_dds_deseq) # [1] "Intercept", "Time_6h_vs_Time0","Time_12h_vs_Time0","Time_24h_vs_Time0","Time_48h_vs_Time0","Time_120hr_vs_Time0" ,
+# "Condition_OsHV1_vs_control"
+
+## BUILD THE RESULTS OBJECT
+# Examining the results object, change alpha to p <0.05, looking at object metadata
+# use mcols to look at metadata for each table
+mcols(He_dds_deseq)
+He_dds_res <- results(He_dds_deseq, alpha=0.05, name= "Condition_OsHV1_vs_control")
+head(He_dds_res) 
+
+### Perform LFC Shrinkage with apeglm
+## NOTES 
+# Before plotting we need to apply an LFC shrinkage, set the coef as the specific comparison in the ResultsNames function of the deseq object
+# Issue that the specific comparisons I set in my results formulas are not available in the ResultsNames coef list.
+# More detailed notes about LFC Shrinkage are in the code for the Zhang Vibrio
+
+## DECISION: USE SAME RES OBJECT TO KEEP ALPHA ADJUSTMENT, and use LFCShrink apeglm
+He_dds_res_LFC<- lfcShrink(He_dds_deseq, coef="Condition_OsHV1_vs_control", type="apeglm", res= He_dds_res)
+
+## EXPLORATORY PLOTTING OF RESULTS 
+## MA Plotting
+plotMA(He_dds_res_LFC, ylim = c(-5, 5))
+
+## Histogram of P values 
+# exclude genes with very small counts to avoid spikes and plot using the LFCshrinkage
+hist(He_dds_res_LFC$padj[He_dds_res_LFC$baseMean > 1], breaks = 0:20/20,
+     col = "grey50", border = "white")
+
+### Subsetting Significant Genes by padj < 0.05
+# again, only working with the LFCshrinkage adjusted log fold changes, and with the BH adjusted p-value
+# first make sure to make the rownames with the transcript ID as a new column, then make it a dataframe for filtering
+He_dds_res_LFC_sig <-  subset(He_dds_res_LFC , padj < 0.05)
+He_dds_res_LFC_sig $transcript_id <- row.names(He_dds_res_LFC_sig )
+He_dds_res_LFC_sig  <- as.data.frame(He_dds_res_LFC_sig )
+nrow(He_dds_res_LFC_sig ) # 5432
+
+### GENE CLUSTERING ANALYSIS HEATMAPS  
+# Extract genes with the highest variance across samples for each comparison using either vst or rlog transformed data
+# This heatmap rather than plotting absolute expression strength plot the amount by which each gene deviates in a specific sample from the gene’s average across all samples. 
+# example codes from RNAseq workflow: https://www.bioconductor.org/packages/devel/workflows/vignettes/rnaseqGene/inst/doc/rnaseqGene.html#other-comparisons
+He_dds_res_LFC_sig_vst <-  head(order(rowVars(assay(He_dds_vst )), decreasing = TRUE), 200)
+He_mat <- assay(He_dds_vst)[He_dds_res_LFC_sig_vst,]
+He_mat <- He_mat - rowMeans(He_mat)
+He_anno <- as.data.frame(colData(He_dds_vst)[, c("Condition","Time")])
+He_heatmap <- pheatmap(He_mat, annotation_col = He_anno)
+head(He_mat) # osHV1 and control cluster pretty strongly 
+
+# reorder annotation table to match ordering in heatmap 
+He_heatmap_reorder <-rownames(He_mat[He_heatmap$tree_row[["order"]],])
+# annotate the row.names
+He_mat_prot <- as.data.frame(He_heatmap_reorder )
+colnames(He_mat_prot)[1] <- "transcript_id"
+He_mat_prot_annot <- left_join(He_mat_prot, select(C_gig_rtracklayer_transcripts, transcript_id, product, gene), by = "transcript_id")
+
+# Gene clustering heatmap with only apoptosis genes #
+# vector C_gig_apop transcript IDs
+C_gig_rtracklayer_apop_product_final_transcript_id 
+# Search original Rubio_counts for apoptosis genes and do rlog on just these
+He_counts_apop <- He_counts[row.names(He_counts) %in% C_gig_rtracklayer_apop_product_final_transcript_id,]
+nrow(He_counts_apop ) #659
+He_counts_apop_dds <- DESeqDataSetFromMatrix(countData = He_counts_apop,
+                                                colData = He_coldata,
+                                                design = ~ Time + Condition) # using same formula as before
+# Prefiltering the data and running vst
+He_counts_apop_dds <- He_counts_apop_dds[ rowSums(counts(He_counts_apop_dds)) > 10, ]
+He_counts_apop_dds_vst <- varianceStabilizingTransformation(He_counts_apop_dds, blind=TRUE)
+
+## PCA plot of rlog transformed counts for apoptosis
+plotPCA(He_counts_apop_dds_vst , intgroup="Condition") # good separation of control and challenge
+
+# heatmap of all apoptosis genes 
+He_counts_apop_assay <-  assay(He_counts_apop_dds_vst)[,]
+He_counts_apop_assay_mat <- He_counts_apop_assay - rowMeans(He_counts_apop_assay)
+He_counts_apop_assay_anno <- as.data.frame(colData(He_counts_apop_dds_vst)[, c("Condition","Time")])
+He_counts_apop_assay_heatmap <- pheatmap(He_counts_apop_assay_mat  , annotation_col = He_counts_apop_assay_anno)
+head(He_counts_apop_assay_mat ) 
+# good clustering still by control and OsHV1 
+
+# heatmap of most variable apoptosis genes (this selects genes with the greatest variance in the sample)
+topVarGenes_He_counts_apop_assay <-  head(order(rowVars(assay(He_counts_apop_dds_vst )), decreasing = TRUE), 100) 
+top_Var_He_counts_apop_assay_mat<- assay(He_counts_apop_dds_vst)[topVarGenes_He_counts_apop_assay,]
+top_Var_He_counts_apop_assay_mat <- top_Var_He_counts_apop_assay_mat - rowMeans(top_Var_He_counts_apop_assay_mat)
+top_Var_He_counts_apop_assay_anno <- as.data.frame(colData(He_counts_apop_dds_vst)[, c("Condition","Time")])
+top_Var_He_counts_apop_assay_heatmap <- pheatmap(top_Var_He_counts_apop_assay_mat  , annotation_col = top_Var_He_counts_apop_assay_anno)
+head(top_Var_He_counts_apop_assay_mat )
+# clustering not as good as looking at heatmap of all genes 
+
+# annotate the top 100 most variable genes  
+# reorder annotation table to match ordering in heatmap 
+top_Var_He_counts_apop_assay_heatmap_reorder <-rownames(top_Var_He_counts_apop_assay_mat[top_Var_He_counts_apop_assay_heatmap$tree_row[["order"]],])
+# annotate the row.names
+top_Var_He_counts_apop_assay_prot <- as.data.frame(top_Var_He_counts_apop_assay_heatmap_reorder)
+colnames(top_Var_He_counts_apop_assay_prot)[1] <- "transcript_id"
+top_Var_He_counts_apop_assay_prot_annot <- left_join(top_Var_He_counts_apop_assay_prot, select(C_gig_rtracklayer_transcripts, transcript_id, product, gene), by = "transcript_id")
+
+### Extract list of significant Apoptosis Genes (not less than or greater than 1 LFC) using merge
+He_dds_res_LFC_sig_APOP <- merge(He_dds_res_LFC_sig , C_gig_rtracklayer_apop_product_final, by = "transcript_id")
+He_dds_res_LFC_sig_arranged <-arrange(He_dds_res_LFC_sig_APOP, -log2FoldChange)
+nrow(He_dds_res_LFC_sig_arranged ) #65
+View(He_dds_res_LFC_sig_arranged)
+
+# Compare apoptosis genes between group_by_sim groups
+He_dds_res_LFC_sig_APOP_plot <- ggplot(He_dds_res_LFC_sig_APOP , aes(x=product, y = log2FoldChange, fill=log2FoldChange)) + geom_col(position="dodge") +
+  coord_flip() + scale_fill_gradient2(low="purple",mid = "grey", high="darkgreen") + ggtitle("OsHV1 vs Control") +
+  ylab("Log2 Fold Change")
+# mostly upregulation
 
 #### PROBIOTIC TRANSCRIPTOME ANALYSIS ####
 
@@ -1365,7 +1568,7 @@ levels(Probiotic_coldata$Time) # "12_d" "16_d" "5_d"
 Probiotic_coldata$Time <- factor(Probiotic_coldata$Time , levels = c("5_d","12_d", "16_d"))
 levels(Probiotic_coldata$Time)
 
-## Creating three here so I can compare the results
+## Creating deseq data set from matrix, controlling for the effect of time
 Probiotic_dds <- DESeqDataSetFromMatrix(countData = Probiotic_counts,
                                     colData = Probiotic_coldata,
                                     design = ~Time + Condition) 
@@ -1399,7 +1602,7 @@ resultsNames(Probiotic_dds_deseq) # [1] "Intercept", "Time_12_d_vs_5_d", "Time_1
 # use mcols to look at metadata for each table
 mcols(Probiotic_dds_deseq)
 Probiotic_dds_deseq_Challenge_res <- results(Probiotic_dds_deseq, alpha=0.05, name= "Condition_Bacillus_pumilus_RI0695_vs_Untreated_control")
-head(Probiotic_dds_deseq_Challenge_res) # 
+head(Probiotic_dds_deseq_Challenge_res) # Condition Bacillus pumilus RI0695 vs Untreated control 
 
 ### Perform LFC Shrinkage with apeglm
 ## NOTES 
@@ -1422,19 +1625,18 @@ hist(Probiotic_dds_deseq_Challenge_res_LFC$padj[Probiotic_dds_deseq_Challenge_re
 ### Subsetting Significant Genes by padj < 0.05
 # again, only working with the LFCshrinkage adjusted log fold changes, and with the BH adjusted p-value
 # first make sure to make the rownames with the transcript ID as a new column, then make it a dataframe for filtering
-
 Probiotic_dds_deseq_Challenge_res_LFC_sig <-  subset(Probiotic_dds_deseq_Challenge_res_LFC , padj < 0.05)
-Probiotic_dds_deseq_Challenge_res_LFC_sig$transcript_id <- row.names(Probiotic_dds_deseq_Challenge_res_LFC_sig)
+Probiotic_dds_deseq_Challenge_res_LFC_sig$ID<- row.names(Probiotic_dds_deseq_Challenge_res_LFC_sig)
 Probiotic_dds_deseq_Challenge_res_LFC_sig <- as.data.frame(Probiotic_dds_deseq_Challenge_res_LFC_sig)
-nrow(Probiotic_dds_deseq_Challenge_res_LFC_sig) # 1752
+nrow(Probiotic_dds_deseq_Challenge_res_LFC_sig) # 1762
 
 ### GENE CLUSTERING ANALYSIS HEATMAPS  
 # Extract genes with the highest variance across samples for each comparison using either vst or rlog transformed data
 # This heatmap rather than plotting absolute expression strength plot the amount by which each gene deviates in a specific sample from the gene’s average across all samples. 
 # example codes from RNAseq workflow: https://www.bioconductor.org/packages/devel/workflows/vignettes/rnaseqGene/inst/doc/rnaseqGene.html#other-comparisons
 
-Probiotic_dds_deseq_Challenge_res_LFC_sig <-  head(order(rowVars(assay(Probiotic_dds_rlog  )), decreasing = TRUE), 200)
-family_Probiotic_broken_mat <- assay(Probiotic_dds_rlog )[Probiotic_dds_deseq_Challenge_res_LFC_sig,]
+Probiotic_dds_deseq_Challenge_res_LFC_sig_assay <-  head(order(rowVars(assay(Probiotic_dds_rlog  )), decreasing = TRUE), 200)
+family_Probiotic_broken_mat <- assay(Probiotic_dds_rlog )[Probiotic_dds_deseq_Challenge_res_LFC_sig_assay ,]
 family_Probiotic_broken_mat <- family_Probiotic_broken_mat - rowMeans(family_Probiotic_broken_mat)
 family_Probiotic_broken_anno <- as.data.frame(colData(Probiotic_dds_rlog )[, c("Condition","Time")])
 family_Probiotic_broken_heatmap <- pheatmap(family_Probiotic_broken_mat , annotation_col = family_Probiotic_broken_anno)
@@ -1442,94 +1644,353 @@ head(familyProbiotic_broken_mat) # some clustering by bacillus, still overall cl
 
 # Gene clustering heatmap with only apoptosis genes #
 # vector C_vir_apop transcript IDs
-C_vir_rtracklayer_apop_product_final_transcript_id <- C_vir_rtracklayer_apop_product_final$transcript_id
+C_vir_rtracklayer_apop_product_final_ID <- C_vir_rtracklayer_apop_product_final$ID
 # Search original Probiotic_counts for apoptosis genes and do rlog on just these
-Probiotic_counts_apop <- Probiotic_counts[row.names(Probiotic_counts) %in% C_vir_rtracklayer_apop_product_final_transcript_id,]
-nrow(Probiotic_counts_apop) #0
+Probiotic_counts_apop <- Probiotic_counts[row.names(Probiotic_counts) %in% C_vir_rtracklayer_apop_product_final_ID,]
+nrow(Probiotic_counts_apop) #1026
 head(Probiotic_counts_apop)
 Probiotic_counts_apop_dds <- DESeqDataSetFromMatrix(countData = Probiotic_counts_apop,
                                                 colData = Probiotic_coldata,
                                                 design = ~Time + Condition) # add time to control for injection and time effect
 # Prefiltering the data and running rlog
-Rubio_counts_apop_dds <- Rubio_counts_apop_dds[ rowSums(counts(Rubio_counts_apop_dds)) > 10, ]
-Rubio_counts_apop_dds_rlog <- rlog(Rubio_counts_apop_dds, blind=TRUE)
+Probiotic_counts_apop_dds<- Probiotic_counts_apop_dds[ rowSums(counts(Probiotic_counts_apop_dds)) > 10, ]
+Probiotic_counts_apop_dds_rlog <- rlog(Probiotic_counts_apop_dds, blind=TRUE)
 
 ## PCA plot of rlog transformed counts for apoptosis
-plotPCA(Rubio_counts_apop_dds_rlog, intgroup="Condition") # some clustering by condition
+plotPCA(Probiotic_counts_apop_dds_rlog , intgroup="Time") # still overall clustering by time and not condition
 
 # heatmap of all apoptosis genes 
-Rubio_counts_apop_assay <-  assay(Rubio_counts_apop_dds_rlog)[,]
-Rubio_counts_apop_assay_mat <- Rubio_counts_apop_assay - rowMeans(Rubio_counts_apop_assay)
-Rubio_counts_apop_assay_anno <- as.data.frame(colData(Rubio_counts_apop_dds_rlog )[, c("Condition","Sample")])
-Rubio_counts_apop_assay_heatmap <- pheatmap(Rubio_counts_apop_assay_mat  , annotation_col = Rubio_counts_apop_assay_anno)
-head(Rubio_counts_apop_assay_mat ) 
-# clustering of V crass and control anesthesia
+Probiotic_counts_apop_assay <-  assay(Probiotic_counts_apop_dds_rlog)[,]
+Probiotic_counts_apop_assay_mat <- Probiotic_counts_apop_assay - rowMeans(Probiotic_counts_apop_assay)
+Probiotic_counts_apop_assay_anno <- as.data.frame(colData(Probiotic_counts_apop_dds_rlog )[, c("Condition","Sample")])
+Probiotic_counts_apop_assay_heatmap <- pheatmap(Probiotic_counts_apop_assay_mat  , annotation_col = Probiotic_counts_apop_assay_anno)
+head(Probiotic_counts_apop_assay_mat ) # the untreated controls are clustering more now
 
 # heatmap of most variable apoptosis genes (this selects genes with the greatest variance in the sample)
-topVarGenes_Rubio_counts_apop_assay <-  head(order(rowVars(assay(Rubio_counts_apop_dds_rlog)), decreasing = TRUE), 100) 
-top_Var_Rubio_counts_apop_assay_mat<- assay(Rubio_counts_apop_dds_rlog)[topVarGenes_Rubio_counts_apop_assay,]
-top_Var_Rubio_counts_apop_assay_mat <- top_Var_Rubio_counts_apop_assay_mat - rowMeans(top_Var_Rubio_counts_apop_assay_mat)
-top_Var_Rubio_counts_apop_assay_anno <- as.data.frame(colData(Rubio_counts_apop_dds_rlog)[, c("Condition","Sample")])
-top_Var_Rubio_counts_apop_assay_heatmap <- pheatmap(top_Var_Rubio_counts_apop_assay_mat  , annotation_col = top_Var_Rubio_counts_apop_assay_anno)
-head(top_Var_Rubio_counts_apop_assay_mat )
+topVarGenes_Probiotic_counts_apop_assay <-  head(order(rowVars(assay(Probiotic_counts_apop_dds_rlog)), decreasing = TRUE), 100) 
+top_Var_Probiotic_counts_apop_assay_mat<- assay(Probiotic_counts_apop_dds_rlog)[topVarGenes_Probiotic_counts_apop_assay,]
+top_Var_Probiotic_counts_apop_assay_mat <- top_Var_Probiotic_counts_apop_assay_mat - rowMeans(top_Var_Probiotic_counts_apop_assay_mat)
+top_Var_Probiotic_counts_apop_assay_anno <- as.data.frame(colData(Probiotic_counts_apop_dds_rlog)[, c("Condition","Time")])
+top_Var_Probiotic_counts_apop_assay_heatmap <- pheatmap(top_Var_Probiotic_counts_apop_assay_mat  , annotation_col = top_Var_Probiotic_counts_apop_assay_anno)
+head(top_Var_Probiotic_counts_apop_assay_mat )
 # some clustering patterns here in signature
 
 # annotate the top 100 most variable genes  
 # reorder annotation table to match ordering in heatmap 
-top_Var_Rubio_counts_apop_assay_heatmap_reorder <-rownames(top_Var_Rubio_counts_apop_assay_mat[top_Var_Rubio_counts_apop_assay_heatmap $tree_row[["order"]],])
+top_Var_Probiotic_counts_apop_assay_heatmap_reorder <-rownames(top_Var_Probiotic_counts_apop_assay_mat[top_Var_Probiotic_counts_apop_assay_heatmap$tree_row[["order"]],])
 # annotate the row.names
-top_Var_Rubio_counts_apop_assay_prot <- as.data.frame(top_Var_Rubio_counts_apop_assay_heatmap_reorder)
-colnames(top_Var_Rubio_counts_apop_assay_prot)[1] <- "transcript_id"
-top_Var_Rubio_counts_apop_assay_prot_annot <- left_join(top_Var_Rubio_counts_apop_assay_prot, select(C_gig_rtracklayer_transcripts, transcript_id, product, gene), by = "transcript_id")
+top_Var_Probiotic_counts_apop_assay_prot <- as.data.frame(top_Var_Probiotic_counts_apop_assay_heatmap_reorder)
+colnames(top_Var_Probiotic_counts_apop_assay_prot)[1] <- "ID"
+top_Var_Probiotic_counts_apop_assay_prot_annot <- left_join(top_Var_Probiotic_counts_apop_assay_prot, select(C_vir_rtracklayer_apop_product_final, ID, product, gene), by = "ID")
 
 ### Extract list of significant Apoptosis Genes (not less than or greater than 1 LFC) using merge
-Zhang_dds_deseq_res_LFC_sig_APOP <- merge(Zhang_dds_deseq_res_LFC_sig, C_gig_rtracklayer_apop_product_final, by = "transcript_id")
-Zhang_dds_deseq_res_LFC_sig_APOP_arranged <- arrange(Zhang_dds_deseq_res_LFC_sig_APOP, -log2FoldChange) 
-nrow(Zhang_dds_deseq_res_LFC_sig_APOP ) 
+Probiotic_dds_deseq_Challenge_res_LFC_sig_APOP <- merge(Probiotic_dds_deseq_Challenge_res_LFC_sig, C_vir_rtracklayer_apop_product_final, by = "ID")
+Probiotic_dds_deseq_Challenge_res_LFC_sig_APOP_arranged <- arrange(Probiotic_dds_deseq_Challenge_res_LFC_sig_APOP, -log2FoldChange) 
+nrow(Probiotic_dds_deseq_Challenge_res_LFC_sig_APOP) # 22
 
-Rubio_dds_deseq_J2_8_res_LFC_sig_APOP <-    merge(Rubio_dds_deseq_J2_8_res_LFC_sig , C_gig_rtracklayer_apop_product_final, by = "transcript_id")
-Rubio_dds_deseq_J2_9_res_LFC_sig_APOP <-    merge(Rubio_dds_deseq_J2_9_res_LFC_sig , C_gig_rtracklayer_apop_product_final, by = "transcript_id")
-Rubio_dds_deseq_LGP32_res_LFC_sig_APOP <-   merge(Rubio_dds_deseq_LGP32_res_LFC_sig , C_gig_rtracklayer_apop_product_final, by = "transcript_id")
-Rubio_dds_deseq_LMG20012T_res_LFC_sig_APOP<-merge(Rubio_dds_deseq_LMG20012T_res_LFC_sig , C_gig_rtracklayer_apop_product_final, by = "transcript_id")
-
-Rubio_dds_deseq_J2_8_res_LFC_sig_APOP_arranged <-    arrange(Rubio_dds_deseq_J2_8_res_LFC_sig_APOP, -log2FoldChange)
-Rubio_dds_deseq_J2_9_res_LFC_sig_APOP_arranged <-    arrange(Rubio_dds_deseq_J2_9_res_LFC_sig_APOP, -log2FoldChange)
-Rubio_dds_deseq_LGP32_res_LFC_sig_APOP_arranged <-   arrange(Rubio_dds_deseq_LGP32_res_LFC_sig_APOP, -log2FoldChange)
-Rubio_dds_deseq_LMG20012T_res_LFC_sig_APOP_arranged<-arrange(Rubio_dds_deseq_LMG20012T_res_LFC_sig_APOP, -log2FoldChange)
-
-nrow(Rubio_dds_deseq_J2_8_res_LFC_sig_APOP_arranged ) # 63
-nrow(Rubio_dds_deseq_J2_9_res_LFC_sig_APOP_arranged  ) # 66
-nrow(Rubio_dds_deseq_LGP32_res_LFC_sig_APOP_arranged  ) #68
-nrow(Rubio_dds_deseq_LMG20012T_res_LFC_sig_APOP_arranged) # 62
-
-View(Rubio_dds_deseq_J2_8_res_LFC_sig_APOP_arranged)
-View(Rubio_dds_deseq_J2_9_res_LFC_sig_APOP_arranged)
-View(Rubio_dds_deseq_LGP32_res_LFC_sig_APOP_arranged)
-View(Rubio_dds_deseq_LMG20012T_res_LFC_sig_APOP_arranged)
-
-# Compare apoptosis genes between group_by_sim groups
-Rubio_dds_deseq_J2_8_res_LFC_sig_APOP_short <- Rubio_dds_deseq_J2_8_res_LFC_sig_APOP[,c(1:6,28)]
-Rubio_dds_deseq_J2_9_res_LFC_sig_APOP_short <- Rubio_dds_deseq_J2_9_res_LFC_sig_APOP[,c(1:6,28)] 
-Rubio_dds_deseq_LGP32_res_LFC_sig_APOP_short <-Rubio_dds_deseq_LGP32_res_LFC_sig_APOP[,c(1:6,28)] 
-Rubio_dds_deseq_LMG20012T_res_LFC_sig_APOP_short <-Rubio_dds_deseq_LMG20012T_res_LFC_sig_APOP[,c(1:6,28)] 
-
-Rubio_dds_deseq_J2_8_res_LFC_sig_APOP_short_plot <- ggplot(Rubio_dds_deseq_J2_8_res_LFC_sig_APOP_short , aes(x=product, y = log2FoldChange, fill=log2FoldChange)) + geom_col(position="dodge") +
-  coord_flip() + scale_fill_gradient2(low="purple",mid = "grey", high="darkgreen") + ggtitle("J2-8 Non-Virulent vs Control") +
+Probiotic_dds_deseq_Challenge_res_LFC_sig_APOP_plot <- ggplot(Probiotic_dds_deseq_Challenge_res_LFC_sig_APOP , aes(x=product, y = log2FoldChange, fill=log2FoldChange)) + geom_col(position="dodge") +
+  coord_flip() + scale_fill_gradient2(low="purple",mid = "grey", high="darkgreen") + ggtitle("Bacillus pumilus vs Control") +
   ylab("Log2 Fold Change")
-Rubio_dds_deseq_J2_9_res_LFC_sig_APOP_short_plot <- ggplot(Rubio_dds_deseq_J2_9_res_LFC_sig_APOP_short , aes(x=product, y = log2FoldChange, fill=log2FoldChange)) + geom_col(position="dodge") +
-  coord_flip() + scale_fill_gradient2(low="purple",mid = "grey", high="darkgreen") + ggtitle("J2-9 Virulent vs Control") +
-  ylab("Log2 Fold Change")
-Rubio_dds_deseq_LGP32_res_LFC_sig_APOP_short_plot <- ggplot(Rubio_dds_deseq_LGP32_res_LFC_sig_APOP_short, aes(x=product, y = log2FoldChange, fill=log2FoldChange)) + geom_col(position="dodge") +
-  coord_flip() + scale_fill_gradient2(low="purple",mid = "grey", high="darkgreen") + ggtitle("LGP32 Virulent vs Control") +
-  ylab("Log2 Fold Change")
-Rubio_dds_deseq_LMG20012T_res_LFC_sig_APOP_short  <- ggplot(Rubio_dds_deseq_LMG20012T_res_LFC_sig_APOP_short , aes(x=product, y = log2FoldChange, fill=log2FoldChange)) + geom_col(position="dodge") +
-  coord_flip() + scale_fill_gradient2(low="purple",mid = "grey", high="darkgreen") + ggtitle("LMG20012T Non-Virulent vs Control") +
-  ylab("Log2 Fold Change")
-ggarrange(Zhang_dds_deseq_res_V_alg1_APOP_short_plot , Zhang_dds_deseq_res_V_tub_APOP_short_plot,Zhang_dds_deseq_res_LPS_APOP_short_plot)
-
+ # mostly downregulation of transcripts 
 
 #### ROD TRANSCRIPTOME ANALYSIS #### 
 
+ROD_counts <- read.csv("/Users/erinroberts/Documents/PhD_Research/Chapter_1_Apoptosis Paper/Chapter1_Apoptosis_Transcriptome_Analyses_2019/DATA ANALYSIS/apoptosis_data_pipeline/DESeq2/2020_Transcriptome_ANALYSIS/ROD_transcript_count_matrix.csv", header=TRUE,
+                             row.names = "transcript_id")
+head(ROD_counts)
+colnames(ROD_counts)
+
+# remove MSTRG novel transcript lines (can assess these later if necessary)
+ROD_counts <- ROD_counts[!grepl("MSTRG", row.names(ROD_counts)),]
+row.names(ROD_counts) <- remove_rna(row.names(ROD_counts))
+head(ROD_counts)
+
+#Load in sample metadata
+ROD_coldata <- read.csv("/Users/erinroberts/Documents/PhD_Research/Chapter_1_Apoptosis Paper/Chapter1_Apoptosis_Transcriptome_Analyses_2019/DATA ANALYSIS/apoptosis_data_pipeline/DESeq2/2020_Transcriptome_ANALYSIS/ROD_coldata.csv", row.names = 1 )
+View(ROD_coldata )  
+nrow(ROD_coldata ) 
+
+# Make sure the columns of the count matrix and rows of the column data (sample metadata) are in the same order. 
+all(rownames(ROD_coldata ) %in% colnames(ROD_counts))  #Should return TRUE
+# returns TRUE
+all(colnames(ROD_counts) %in% rownames(ROD_coldata ))  
+# returns TRUE
+all(rownames(ROD_coldata ) == colnames(ROD_counts))
+# returns FALSE
+
+# Fix the order
+ROD_counts <- ROD_counts[,row.names(ROD_coldata)]
+
+all(rownames(ROD_coldata ) %in% colnames(ROD_counts))  #Should return TRUE
+# returns TRUE
+all(colnames(ROD_counts) %in% rownames(ROD_coldata ))  
+# returns TRUE
+all(rownames(ROD_coldata ) == colnames(ROD_counts))
+# returns TRUE
+
+# going to split the analysis into the Susceptible 1d and 5d vs. Susceptible 5d 15, and then the control and resistant going to be controlled 
+
+ROD_Susceptible_coldata <- ROD_coldata %>%  subset(Breed == "F3L") # subset() keeps rownames
+row.names(ROD_Susceptible_coldata )
+ROD_Susceptible_counts <- ROD_counts[,row.names(ROD_Susceptible_coldata )]
+colnames(ROD_Susceptible_counts)
+ROD_Resistant_coldata <- ROD_coldata %>%  subset(Breed == "GX09") # subset() keeps rownames
+ROD_Resistant_counts <- ROD_counts[,row.names(ROD_Resistant_coldata)]
+
+### DATA QC PCA PLOT 
+# rlog transform data is recommended over vst for small data sets 
+# PCA plots of data (https://bioinformatics-core-shared-training.github.io/cruk-summer-school-2018/RNASeq2018/html/02_Preprocessing_Data.nb.html#count-distribution-boxplots)
+ROD_Susceptible_counts_matrix <- as.matrix(ROD_Susceptible_counts)
+ROD_Resistant_counts_matrix <- as.matrix(ROD_Resistant_counts)
+
+ROD_Susceptible_rlogcounts <- rlog(ROD_Susceptible_counts_matrix , blind =TRUE)
+ROD_Resistant_rlogcounts <- rlog(ROD_Resistant_counts_matrix , blind =TRUE)
+
+# run PCA
+pcROD_Susceptible <- prcomp(t(ROD_Susceptible_rlogcounts))
+pcROD_Resistant <- prcomp(t(ROD_Resistant_rlogcounts))
+
+# Plot PCA
+autoplot(pcROD_Susceptible,
+         data = ROD_Susceptible_coldata, 
+         colour="Time", 
+         size=5) # 1d and 15 days actually cluster most closely
+autoplot(pcROD_Susceptible,
+         data = ROD_Susceptible_coldata, 
+         colour="Disease_stage", 
+         size=5) # the sample with no ROD signs is a strong outlier, could use disease stage as the basis for comparison here, day 15 and 30 cluster closely together
+autoplot(pcROD_Resistant,
+         data = ROD_Resistant_coldata, 
+         colour="Time", 
+         size=5) # day 15 and 30 cluster most closely 
+autoplot(pcROD_Resistant,
+         data = ROD_Resistant_coldata, 
+         colour="Condition", 
+         size=5) # time explains most of the variation 
+# Plot PCA 2 and 3 for comparison
+autoplot(pcROD_Susceptible,
+         data = ROD_Susceptible_coldata, 
+         colour = "Time", 
+         size = 5,
+         x = 2,
+         y = 3) # very spread
+autoplot(pcROD_Resistant,
+         data = ROD_Resistant_coldata, 
+         colour = "Condition", 
+         size = 5,
+         x = 2,
+         y = 3) # some clustering by day and condition
+
+## MAKE DESEQ DATA SET FROM MATRIX
+# This object specifies the count data and metadata you will work with. The design piece is critical.
+# Correct for batch effects if necessary in this original formula: see this thread https://support.bioconductor.org/p/121408/
+# do not correct counts using the removeBatchEffects from limma based on thread above 
+
+## Check levels 
+# It is prefered in R that the first level of a factor be the reference level for comparison
+# (e.g. control, or untreated samples), so we can relevel the factor like so
+# Check factor levels, set it so that comparison group is the first
+levels(ROD_Susceptible_coldata$Condition) #"Control_Resistant"     "Resistant_Challenge"   "Susceptible_Challenge"
+ROD_Susceptible_coldata$Condition <- droplevels(ROD_Susceptible_coldata$Condition)
+levels(ROD_Susceptible_coldata$Condition)
+levels(ROD_Susceptible_coldata$Disease_stage) # [1] "No _signs_of_ROD", "Signs_of_ROD_15%_cumulative_percent_mortality",  "Signs_of_ROD_30%_cumulative_percent_mortality"
+#[4] "Signs_of_ROD_5%_cumulative_percent_mortality" 
+
+levels(ROD_Resistant_coldata$Condition) # "Control_Resistant"   "Early_Susceptible"   "Late_Susecptible"    "Resistant_Challenge" 
+ROD_Resistant_coldata$Condition <- droplevels(ROD_Resistant_coldata$Condition)
+levels(ROD_Resistant_coldata$Condition)
+levels(ROD_Resistant_coldata$Time ) # "15d" "1d"  "30d" "5d" 
+ROD_Resistant_coldata$Time<- factor(ROD_Resistant_coldata$Time, levels = c( "1d","5d","15d",  "30d" ))
+ 
+## Creating two data set from matrix, one for each family  
+ROD_Resistant_dds <- DESeqDataSetFromMatrix(countData = ROD_Resistant_counts,
+                                        colData = ROD_Resistant_coldata,
+                                        design = ~Time + Condition) # control for time effect here to get at challenge response only 
+ROD_Susceptible_dds <- DESeqDataSetFromMatrix(countData = ROD_Susceptible_counts,
+                                            colData = ROD_Susceptible_coldata,
+                                            design = ~ Condition) # not adding in time here because basically condition here is representing early vs late response 
+
+## Prefiltering the data
+# Data prefiltering helps decrease the size of the data set and get rid of
+# rows with no data or very minimal data (<10). Apply a minimal filtering here as more stringent filtering will be applied later
+ROD_Resistant_dds <- ROD_Resistant_dds[ rowSums(counts(ROD_Resistant_dds )) > 10, ]
+ROD_Susceptible_dds <- ROD_Susceptible_dds[rowSums(counts(ROD_Susceptible_dds )) > 10, ]
+
+## DATA TRANSFORMATION AND VISUALIZATION
+# Assess sample clustering after setting initial formula for comparison
+ROD_Resistant_dds_rlog <- rlog(ROD_Resistant_dds , blind = TRUE) # keep blind = true before deseq function has been run
+ROD_Susceptible_dds_rlog <- rlog(ROD_Susceptible_dds , blind = TRUE) # keep blind = true before deseq function has been run
+
+## PCA plot visualization of individuals in the family 
+plotPCA(ROD_Resistant_dds_rlog, intgroup= "Condition") # no clustering by treatment
+plotPCA(ROD_Susceptible_dds_rlog , intgroup="Condition") # some clustering
+
+### DIFFERENTIAL EXPRESSION ANALYSIS
+# run pipeline with single command because the formula has already been specified
+# Steps: estimation of size factors (controlling for differences in the sequencing depth of the samples), 
+# the estimation of dispersion values for each gene,and fitting a generalized linear model.
+ROD_Resistant_dds_deseq <- DESeq(ROD_Resistant_dds) 
+ROD_Susceptible_dds_deseq <- DESeq(ROD_Susceptible_dds) 
+
+## Check the resultsNames object of each to look at the available coefficients for use in lfcShrink command
+resultsNames(ROD_Resistant_dds_deseq) # [1] "Intercept" , "Time_5d_vs_1d" , "Time_15d_vs_1d", "Time_30d_vs_1d", "Condition_Resistant_Challenge_vs_Control_Resistant"
+resultsNames(ROD_Susceptible_dds_deseq) # [1] "Intercept"  "Condition_Late_Susecptible_vs_Early_Susceptible"
+
+## BUILD THE RESULTS OBJECT
+# Examining the results object, change alpha to p <0.05, looking at object metadata
+# use mcols to look at metadata for each table
+mcols(ROD_Resistant_dds_deseq)
+mcols(ROD_Susceptible_dds_deseq)
+
+ROD_Resistant_dds_res <- results(ROD_Resistant_dds_deseq, alpha=0.05, name= "Condition_Resistant_Challenge_vs_Control_Resistant")
+head(ROD_Resistant_dds_res)  # : Condition Resistant Challenge vs Control Resistant 
+ROD_Susceptible_dds_res <- results(ROD_Susceptible_dds_deseq, alpha=0.05, name= "Condition_Late_Susecptible_vs_Early_Susceptible")
+head(ROD_Susceptible_dds_res)  # Condition Late Susecptible vs Early Susceptible 
+
+### Perform LFC Shrinkage with apeglm
+## NOTES 
+# Before plotting we need to apply an LFC shrinkage, set the coef as the specific comparison in the ResultsNames function of the deseq object
+# Issue that the specific comparisons I set in my results formulas are not available in the ResultsNames coef list.
+# More detailed notes about LFC Shrinkage are in the code for the Zhang Vibrio
+
+## DECISION: USE SAME RES OBJECT TO KEEP ALPHA ADJUSTMENT, and use LFCShrink apeglm
+ROD_Resistant_dds_res_LFC<- lfcShrink(ROD_Resistant_dds_deseq, coef="Condition_Resistant_Challenge_vs_Control_Resistant", type="apeglm", res= ROD_Resistant_dds_res)
+ROD_Susceptible_dds_res_LFC <- lfcShrink(ROD_Susceptible_dds_deseq, coef="Condition_Late_Susecptible_vs_Early_Susceptible", type="apeglm", res=ROD_Susceptible_dds_res)
+
+## EXPLORATORY PLOTTING OF RESULTS 
+## MA Plotting
+plotMA(ROD_Resistant_dds_res_LFC, ylim = c(-5, 5))
+plotMA(ROD_Susceptible_dds_res_LFC, ylim = c(-5, 5))
+
+## Histogram of P values 
+# exclude genes with very small counts to avoid spikes and plot using the LFCshrinkage
+hist(ROD_Resistant_dds_res_LFC$padj[ROD_Resistant_dds_res_LFC$baseMean > 1], breaks = 0:20/20,
+     col = "grey50", border = "white")
+hist(ROD_Susceptible_dds_res_LFC$padj[ROD_Susceptible_dds_res_LFC$baseMean > 1], breaks = 0:20/20,
+     col = "grey50", border = "white")
+
+### Subsetting Significant Genes by padj < 0.05
+# again, only working with the LFCshrinkage adjusted log fold changes, and with the BH adjusted p-value
+# first make sure to make the rownames with the transcript ID as a new column, then make it a dataframe for filtering
+ROD_Resistant_dds_res_LFC_sig <-  subset(ROD_Resistant_dds_res_LFC , padj < 0.05)
+ROD_Resistant_dds_res_LFC_sig$ID<- row.names(ROD_Resistant_dds_res_LFC_sig)
+ROD_Resistant_dds_res_LFC_sig <- as.data.frame(ROD_Resistant_dds_res_LFC_sig)
+nrow(ROD_Resistant_dds_res_LFC_sig) # 68
+
+ROD_Susceptible_dds_res_LFC_sig <-  subset(ROD_Susceptible_dds_res_LFC , padj < 0.05)
+ROD_Susceptible_dds_res_LFC_sig$ID<- row.names(ROD_Susceptible_dds_res_LFC_sig)
+ROD_Susceptible_dds_res_LFC_sig <- as.data.frame(ROD_Susceptible_dds_res_LFC_sig)
+nrow(ROD_Susceptible_dds_res_LFC_sig)  #2020
+
+### GENE CLUSTERING ANALYSIS HEATMAPS  
+# Extract genes with the highest variance across samples for each comparison using either vst or rlog transformed data
+# This heatmap rather than plotting absolute expression strength plot the amount by which each gene deviates in a specific sample from the gene’s average across all samples. 
+# example codes from RNAseq workflow: https://www.bioconductor.org/packages/devel/workflows/vignettes/rnaseqGene/inst/doc/rnaseqGene.html#other-comparisons
+ROD_Resistant_dds_rlog
+ROD_Susceptible_dds_rlog
+
+ROD_Resistant_dds_LFC_assay <-  head(order(rowVars(assay(ROD_Resistant_dds_rlog  )), decreasing = TRUE), 200)
+ROD_Resistant_mat <- assay(ROD_Resistant_dds_rlog )[ROD_Resistant_dds_LFC_assay,]
+ROD_Resistant_mat <- ROD_Resistant_mat - rowMeans(ROD_Resistant_mat)
+ROD_Resistant_anno <- as.data.frame(colData(ROD_Resistant_dds_rlog )[, c("Condition","Time")])
+ROD_Resistant_heatmap <- pheatmap(ROD_Resistant_mat , annotation_col = ROD_Resistant_anno)
+head(ROD_Resistant_mat) # some clustering by bacillus, still overall clustering by day
+
+ROD_Susceptible_dds_LFC_assay <-  head(order(rowVars(assay(ROD_Susceptible_dds_rlog  )), decreasing = TRUE), 200)
+ROD_Susceptible_mat <- assay(ROD_Susceptible_dds_rlog )[ROD_Susceptible_dds_LFC_assay,]
+ROD_Susceptible_mat <- ROD_Susceptible_mat - rowMeans(ROD_Susceptible_mat)
+ROD_Susceptible_anno <- as.data.frame(colData(ROD_Susceptible_dds_rlog )[, c("Condition","Time")])
+ROD_Susceptible_heatmap <- pheatmap(ROD_Susceptible_mat , annotation_col = ROD_Susceptible_anno)
+head(ROD_Susceptible_mat) # some clustering by bacillus, still overall clustering by day
+
+# Gene clustering heatmap with only apoptosis genes #
+# vector C_vir_apop transcript IDs
+# Search original counts for apoptosis genes and do rlog on just these
+ROD_Resistant_counts_apop <- ROD_Resistant_counts[row.names(ROD_Resistant_counts) %in% C_vir_rtracklayer_apop_product_final_ID,]
+ROD_Susceptible_counts_apop <- ROD_Susceptible_counts[row.names(ROD_Susceptible_counts) %in% C_vir_rtracklayer_apop_product_final_ID,]
+nrow(ROD_Resistant_counts_apop) #1026
+nrow( ROD_Susceptible_counts_apop) # 1026
+
+ROD_Resistant_counts_apop_dds <- DESeqDataSetFromMatrix(countData = ROD_Resistant_counts_apop,
+                                                    colData = ROD_Resistant_coldata,
+                                                    design = ~Time + Condition) # add time to control for time effect
+ROD_Susceptible_counts_apop_dds <- DESeqDataSetFromMatrix(countData = ROD_Susceptible_counts_apop,
+                                                        colData = ROD_Susceptible_coldata,
+                                                        design = ~Condition) # add time to control for time effect
+
+# Prefiltering the data and running rlog
+ROD_Resistant_counts_apop_dds<- ROD_Resistant_counts_apop_dds[ rowSums(counts(ROD_Resistant_counts_apop_dds)) > 10, ]
+ROD_Susceptible_counts_apop_dds<- ROD_Susceptible_counts_apop_dds[ rowSums(counts(ROD_Susceptible_counts_apop_dds)) > 10, ]
+
+ROD_Resistant_counts_apop_dds_rlog <- rlog(ROD_Resistant_counts_apop_dds, blind=TRUE)
+ROD_Susceptible_counts_apop_dds_rlog <- rlog(ROD_Susceptible_counts_apop_dds, blind=TRUE)
+
+
+## PCA plot of rlog transformed counts for apoptosis
+plotPCA(ROD_Resistant_counts_apop_dds_rlog  , intgroup="Time") # still overall clustering by time and not condition
+plotPCA(ROD_Susceptible_counts_apop_dds_rlog  , intgroup="Condition") # still overall clustering by time and not condition
+
+# heatmap of all apoptosis genes 
+ROD_Resistant_apop_assay <-  assay(ROD_Resistant_counts_apop_dds_rlog)[,]
+ROD_Resistant_apop_assay_mat <- ROD_Resistant_apop_assay - rowMeans(ROD_Resistant_apop_assay)
+ROD_Resistant_apop_assay_anno <- as.data.frame(colData(ROD_Resistant_counts_apop_dds_rlog )[, c("Condition","Time")])
+ROD_Resistant_apop_assay_heatmap <- pheatmap(ROD_Resistant_apop_assay_mat  , annotation_col = ROD_Resistant_apop_assay_anno)
+head(ROD_Resistant_apop_assay_mat ) # tighter grouping of challenge and control
+
+ROD_Susceptible_apop_assay <-  assay(ROD_Susceptible_counts_apop_dds_rlog)[,]
+ROD_Susceptible_apop_assay_mat <- ROD_Susceptible_apop_assay - rowMeans(ROD_Susceptible_apop_assay)
+ROD_Susceptible_apop_assay_anno <- as.data.frame(colData(ROD_Susceptible_counts_apop_dds_rlog )[, c("Condition","Time")])
+ROD_Susceptible_apop_assay_heatmap <- pheatmap(ROD_Susceptible_apop_assay_mat  , annotation_col = ROD_Susceptible_apop_assay_anno)
+head(ROD_Susceptible_apop_assay_mat ) # early and late cluster perfectly
+
+# heatmap of most variable apoptosis genes for Resistant family (this selects genes with the greatest variance in the sample)
+topVarGenes_ROD_Resistant_apop_assay <-  head(order(rowVars(assay(ROD_Resistant_counts_apop_dds_rlog)), decreasing = TRUE), 100) 
+top_Var_ROD_Resistant_apop_assay_mat<- assay(ROD_Resistant_counts_apop_dds_rlog)[topVarGenes_ROD_Resistant_apop_assay,]
+top_Var_ROD_Resistant_apop_assay_mat <- top_Var_ROD_Resistant_apop_assay_mat - rowMeans(top_Var_ROD_Resistant_apop_assay_mat)
+top_Var_ROD_Resistant_apop_assay_anno <- as.data.frame(colData(ROD_Resistant_counts_apop_dds_rlog)[, c("Condition","Time")])
+top_Var_ROD_Resistant_apop_assay_heatmap <- pheatmap(top_Var_ROD_Resistant_apop_assay_mat  , annotation_col = top_Var_ROD_Resistant_apop_assay_anno)
+head(top_Var_ROD_Resistant_apop_assay_mat )
+
+# annotate the top 100 most variable genes  
+# reorder annotation table to match ordering in heatmap 
+top_Var_ROD_Resistant_apop_assay_heatmap_reorder <-rownames(top_Var_ROD_Resistant_apop_assay_mat[top_Var_ROD_Resistant_apop_assay_heatmap$tree_row[["order"]],])
+# annotate the row.names
+top_Var_ROD_Resistant_apop_assay_prot <- as.data.frame(top_Var_ROD_Resistant_apop_assay_heatmap_reorder)
+colnames(top_Var_ROD_Resistant_apop_assay_prot)[1] <- "ID"
+top_Var_ROD_Resistant_apop_assay_prot_annot <- left_join(top_Var_ROD_Resistant_apop_assay_prot, select(C_vir_rtracklayer_apop_product_final, ID, product, gene), by = "ID")
+
+# heatmap of most variable apoptosis genes for Susceptible family (this selects genes with the greatest variance in the sample)
+topVarGenes_ROD_Susceptible_apop_assay <-  head(order(rowVars(assay(ROD_Susceptible_counts_apop_dds_rlog)), decreasing = TRUE), 100) 
+top_Var_ROD_Susceptible_apop_assay_mat<- assay(ROD_Susceptible_counts_apop_dds_rlog)[topVarGenes_ROD_Susceptible_apop_assay,]
+top_Var_ROD_Susceptible_apop_assay_mat <- top_Var_ROD_Susceptible_apop_assay_mat - rowMeans(top_Var_ROD_Susceptible_apop_assay_mat)
+top_Var_ROD_Susceptible_apop_assay_anno <- as.data.frame(colData(ROD_Susceptible_counts_apop_dds_rlog)[, c("Condition","Time")])
+top_Var_ROD_Susceptible_apop_assay_heatmap <- pheatmap(top_Var_ROD_Susceptible_apop_assay_mat  , annotation_col = top_Var_ROD_Susceptible_apop_assay_anno)
+head(top_Var_ROD_Susceptible_apop_assay_mat )
+
+# annotate the top 100 most variable genes  
+# reorder annotation table to match ordering in heatmap 
+top_Var_ROD_Susceptible_apop_assay_heatmap_reorder <-rownames(top_Var_ROD_Susceptible_apop_assay_mat[top_Var_ROD_Susceptible_apop_assay_heatmap$tree_row[["order"]],])
+# annotate the row.names
+top_Var_ROD_Susceptible_apop_assay_prot <- as.data.frame(top_Var_ROD_Susceptible_apop_assay_heatmap_reorder)
+colnames(top_Var_ROD_Susceptible_apop_assay_prot)[1] <- "ID"
+top_Var_ROD_Susceptible_apop_assay_prot_annot <- left_join(top_Var_ROD_Susceptible_apop_assay_prot, select(C_vir_rtracklayer_apop_product_final, ID, product, gene), by = "ID")
+
+### Extract list of significant Apoptosis Genes (not less than or greater than 1 LFC) using merge
+ROD_Susceptible_dds_res_LFC_sig_APOP <- merge(ROD_Susceptible_dds_res_LFC_sig, C_vir_rtracklayer_apop_product_final, by = "ID")
+ROD_Susceptible_dds_res_LFC_sig_APOP_arranged <- arrange(ROD_Susceptible_dds_res_LFC_sig_APOP, -log2FoldChange) 
+nrow(ROD_Susceptible_dds_res_LFC_sig_APOP) # 39
+
+ROD_Resistant_dds_res_LFC_sig_APOP <- merge(ROD_Resistant_dds_res_LFC_sig, C_vir_rtracklayer_apop_product_final, by = "ID")
+ROD_Resistant_dds_res_LFC_sig_APOP_arranged <- arrange(ROD_Resistant_dds_res_LFC_sig_APOP, -log2FoldChange) 
+nrow(ROD_Resistant_dds_res_LFC_sig_APOP) # 3
+
+ROD_Susceptible_dds_res_LFC_sig_APOP_plot <- ggplot(ROD_Susceptible_dds_res_LFC_sig_APOP , aes(x=product, y = log2FoldChange, fill=log2FoldChange)) + geom_col(position="dodge") +
+  coord_flip() + scale_fill_gradient2(low="purple",mid = "grey", high="darkgreen") + ggtitle("Susceptible Early vs Late") +
+  ylab("Log2 Fold Change")
+
+ROD_Resistant_dds_res_LFC_sig_APOP_plot <- ggplot(ROD_Resistant_dds_res_LFC_sig_APOP , aes(x=product, y = log2FoldChange, fill=log2FoldChange)) + geom_col(position="dodge") +
+  coord_flip() + scale_fill_gradient2(low="purple",mid = "grey", high="darkgreen") + ggtitle("Susceptible Early vs Late") +
+  ylab("Log2 Fold Change")
 
 ###### PROESTOU DERMO TRANSCRIPTOME ANALYSIS ####
 
