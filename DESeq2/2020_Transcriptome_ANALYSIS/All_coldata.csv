@@ -32,3 +32,15 @@ SRR5357617,Untreated_control,Untreated_control_16 d,Probiotic
 SRR5357619,Bacillus_pumilus_RI0695,Bacillus_pumilus_RI0695_5 d,Probiotic
 SRR5357622,Untreated_control,Untreated_control_12 d,Probiotic
 SRR5357626,Bacillus_pumilus_RI0695,Bacillus_pumilus_RI0695_12 d,Probiotic
+SRR1293904,Control_Resistant,CGX_1day,ROD
+SRR1298417,Control_Resistant,CGX_5d,ROD
+SRR1298710,Control_Resistant,CGX_15d,ROD
+SRR1298421,Control_Resistant,CGX_30d,ROD
+SRR1298703,Susceptible_Challenge,F3L_1d,ROD
+SRR1298704,Susceptible_Challenge,F3L_5d,ROD
+SRR1298708,Susceptible_Challenge,F3L_15d,ROD
+SRR1298387,Susceptible_Challenge,F3L_30d,ROD
+SRR1298693,Resistant_Challenge,GX_01d,ROD
+SRR1298711,Resistant_Challenge,GX_5d,ROD
+SRR1298698,Resistant_Challenge,CG_15d,ROD
+SRR1298701,Resistant_Challenge,GX_30d,ROD
