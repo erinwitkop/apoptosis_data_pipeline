@@ -1,13 +1,13 @@
-,Condition,Breed,Time,Disease_stage,Sample
-SRR1293904,Control_Resistant,GX09,1d,No _signs_of_ROD,CGX_1day
-SRR1298417,Control_Resistant,GX09,5d,No _signs_of_ROD,CGX_5d
-SRR1298710,Control_Resistant,GX09,15d,No _signs_of_ROD,CGX_15d
-SRR1298421,Control_Resistant,GX09,30d,No _signs_of_ROD,CGX_30d
-SRR1298703,Susceptible_Challenge,F3L,1d,No _signs_of_ROD,F3L_1d
-SRR1298704,Susceptible_Challenge,F3L,5d,Signs_of_ROD_5%_cumulative_percent_mortality,F3L_5d
-SRR1298708,Susceptible_Challenge,F3L,15d,Signs_of_ROD_15%_cumulative_percent_mortality,F3L_15d
-SRR1298387,Susceptible_Challenge,F3L,30d,Signs_of_ROD_30%_cumulative_percent_mortality,F3L_30d
-SRR1298693,Resistant_Challenge,GX09,1d,No _signs_of_ROD,GX_01d
-SRR1298711,Resistant_Challenge,GX09,5d,No _signs_of_ROD,GX_5d
-SRR1298698,Resistant_Challenge,GX09,15d,No _signs_of_ROD,CG_15d
-SRR1298701,Resistant_Challenge,GX09,30d,No _signs_of_ROD,GX_30d
+,Condition,Breed,Time,Stage,Disease_stage,Sample
+SRR1293904,Control_Resistant,GX09,1d,early,No _signs_of_ROD,CGX_1day
+SRR1298417,Control_Resistant,GX09,5d,early,No _signs_of_ROD,CGX_5d
+SRR1298710,Control_Resistant,GX09,15d,late,No _signs_of_ROD,CGX_15d
+SRR1298421,Control_Resistant,GX09,30d,late,No _signs_of_ROD,CGX_30d
+SRR1298703,Early_Susceptible,F3L,1d,early,No _signs_of_ROD,F3L_1d
+SRR1298704,Early_Susceptible,F3L,5d,early,Signs_of_ROD_5%_cumulative_percent_mortality,F3L_5d
+SRR1298708,Late_Susecptible,F3L,15d,late,Signs_of_ROD_15%_cumulative_percent_mortality,F3L_15d
+SRR1298387,Late_Susecptible,F3L,30d,late,Signs_of_ROD_30%_cumulative_percent_mortality,F3L_30d
+SRR1298693,Resistant_Challenge,GX09,1d,early,No _signs_of_ROD,GX_01d
+SRR1298711,Resistant_Challenge,GX09,5d,early,No _signs_of_ROD,GX_5d
+SRR1298698,Resistant_Challenge,GX09,15d,late,No _signs_of_ROD,CG_15d
+SRR1298701,Resistant_Challenge,GX09,30d,late,No _signs_of_ROD,GX_30d
