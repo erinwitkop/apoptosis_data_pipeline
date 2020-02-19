@@ -845,3 +845,9 @@ All done.
 ## 2/18/2020 Starting Analysis of Rubio transcriptomes
 * Created `Rubio_coldata.csv`. Had to manually change dashes to underscores because these where in the SRA metadata. R does not like these. Also had to remove `_1` in `Rubio_counts` because this was an artifact of how I named my PE samples. They kep this underscore 1 through to the end of the experiment.
 * Added `Rubio_coldata.csv` condition data to the `All_coldata.csv` I'm creating to plot PCAs at the end of my analysis.
+* Finished preliminary analysis of Rubio transcriptomes. The formula used to perform differential expression analysis was `~ Condition`. Each treatment type was compared to the `Control_untreated` sample.
+
+## 2/19/2020 Analyzing Probiotic Transcriptomes
+* Created `Probiotic_coldata.csv`. As for the Rubio transcriptomes, manually removed the `_1` from all the samples. Added the probiotic experiment Coldata to the `All_coldata.csv` spreadsheet.
+* The transcript headers for the `Probiotic_transcript_count_matrix,csv` do not have any XM headers. Was there an issue with the assembly or annotation? Going to check the other C. virginica transcript_count_matrix.csv files before proceeding to make sure I don't have to re-run anything else.
+* The data set includes samples from two treatments and three timepoints. There are three treatment replicates, but no replicates within treatment for each time point. PCA plots on rlog transformed counts show that a large portion of the variation is determined by the effect of time rather than the effect of treatment. To control for this effect, DESeq2 formula will be `~ Time + Condition` to control for the effect of time.
