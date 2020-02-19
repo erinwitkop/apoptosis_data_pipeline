@@ -15,7 +15,7 @@ compare apoptosis gene expression between disease challenges.
 * C. gigas He et al. 2015 OsHV1 = Download and analyze all available SRAs
 * C. gigas Zhang et al., 2015 Vibrio = Download and analyze all available SRAs (only the transcriptomes that were challenged with individual strains of Vibrio, LPS, M. lut and PBS on NCBI)
 * C. gigas Rubio et al. 2019 Vibrio = Download and analyze all available SRAs
-* C. gigas de Lorgeril et al., 2017 = Download and analyze only the samples from families 11 and 21 that were infected with OsHV-1 during a "natural" infection and sequenced. These were all sequenced paired end on hiseq 500. 42 total transcriptomes
+* C. gigas de Lorgeril et al., 2017 = Download and analyze only the samples from families 11 (susceptible) and 21 (resistant) that were infected with OsHV-1 during a "natural" infection and sequenced. These were all sequenced paired end on hiseq 500. 42 total transcriptomes
 
 * Counting total number of Transcriptome samples (to report in methods) 181 total SRA samples
 
@@ -921,15 +921,40 @@ All done.
 
     # Conclusion: the mapper is mapping both to the Parent column, it is just that in the C.gig reference genome, the Parent field includes the XM information
 
-    # Moving forward: I will match the rnaID from the  C. virginica to the rnaID in the Parent column of the reference genome. The code I created in 2017 for working with the stringtie merged file is not necessary.
+    # Does every parent rna only have one XM?
+    [erin_roberts@bluewaves Cvir_Genome_and_Indexes]$ grep 'rna1;' ref_C_virginica-3.0_top_level.gff3
+    NC_035780.1	Gnomon	mRNA	28961	33324	.	+	.	ID=rna1;Parent=gene1;Dbxref=GeneID:111126949,Genbank:XM_022471938.1;Name=XM_022471938.1;gbkey=mRNA;gene=LOC111126949;model_evidence=Supporting evidence includes similarity to: 3 Proteins%2C and 100%25 coverage of the annotated genomic feature by RNAseq alignments%2C including 21 samples with support for all annotated introns;product=UNC5C-like protein;transcript_id=XM_022471938.1
+    NC_035780.1	Gnomon	exon	28961	29073	.	+	.	ID=id4;Parent=rna1;Dbxref=GeneID:111126949,Genbank:XM_022471938.1;gbkey=mRNA;gene=LOC111126949;product=UNC5C-like protein;transcript_id=XM_022471938.1
+    NC_035780.1	Gnomon	exon	30524	31557	.	+	.	ID=id5;Parent=rna1;Dbxref=GeneID:111126949,Genbank:XM_022471938.1;gbkey=mRNA;gene=LOC111126949;product=UNC5C-like protein;transcript_id=XM_022471938.1
+    NC_035780.1	Gnomon	exon	31736	31887	.	+	.	ID=id6;Parent=rna1;Dbxref=GeneID:111126949,Genbank:XM_022471938.1;gbkey=mRNA;gene=LOC111126949;product=UNC5C-like protein;transcript_id=XM_022471938.1
+    NC_035780.1	Gnomon	exon	31977	32565	.	+	.	ID=id7;Parent=rna1;Dbxref=GeneID:111126949,Genbank:XM_022471938.1;gbkey=mRNA;gene=LOC111126949;product=UNC5C-like protein;transcript_id=XM_022471938.1
+    NC_035780.1	Gnomon	exon	32959	33324	.	+	.	ID=id8;Parent=rna1;Dbxref=GeneID:111126949,Genbank:XM_022471938.1;gbkey=mRNA;gene=LOC111126949;product=UNC5C-like protein;transcript_id=XM_022471938.1
+    NC_035780.1	Gnomon	CDS	30535	31557	.	+	0	ID=cds0;Parent=rna1;Dbxref=GeneID:111126949,Genbank:XP_022327646.1;Name=XP_022327646.1;gbkey=CDS;gene=LOC111126949;product=UNC5C-like protein;protein_id=XP_022327646.1
+    NC_035780.1	Gnomon	CDS	31736	31887	.	+	0	ID=cds0;Parent=rna1;Dbxref=GeneID:111126949,Genbank:XP_022327646.1;Name=XP_022327646.1;gbkey=CDS;gene=LOC111126949;product=UNC5C-like protein;protein_id=XP_022327646.1
+    NC_035780.1	Gnomon	CDS	31977	32565	.	+	1	ID=cds0;Parent=rna1;Dbxref=GeneID:111126949,Genbank:XP_022327646.1;Name=XP_022327646.1;gbkey=CDS;gene=LOC111126949;product=UNC5C-like protein;protein_id=XP_022327646.1
+    NC_035780.1	Gnomon	CDS	32959	33204	.	+	0	ID=cds0;Parent=rna1;Dbxref=GeneID:111126949,Genbank:XP_022327646.1;Name=XP_022327646.1;gbkey=CDS;gene=LOC111126949;product=UNC5C-like protein;protein_id=XP_022327646.1
+
+    # The RNAID is in the `Parent=` field of exon and CDS lines, but it is in the `ID` section of mRNA lines! I can use the ID line to match to the XMs
+
+    # Moving forward: I will match the rnaID from the  C. virginica to the rna# in the ID column of the reference genome to get the XM ids and product name. The code I created in 2017 for working with the stringtie merged file is not necessary.
 `
 * While I'm logged in, completing my data backup that was interrupted last week.
         `# Need to only redo the C_gig_deLorgeril_OsHV1 to finish all the C_gig data backup. Then will move on to finish C. virginica
         $ ssh fs03
         $ cd /data3/marine_diseases_lab/erin/2017_2020_Transcriptome_Analysis/pipeline_files/C_gig_Bac_Viral_subset/2020_Raw_Transcriptome_Data/C_gig_deLorgeril_OsHV1_SRA/
         $ scp -r ./C_gig_deLorgeril_OsHV1_SRA/ erinroberts@253.59.20.172.s.wireless.uri.edu:"/Volumes/EMR\\ Backup/Bluewaves_Backups/2020_Data_Backup/2017_2020_Transcriptome_Analysis/pipeline_files/C_gig_Bac_Viral_subset/2020_Raw_Transcriptome_Data"
+        # finished C_gig data back up
 
+        # C_vir_Probiotic_SRA didn't fully load
+        $ scp -r ./C_vir_Probiotic_SRA/ erinroberts@253.59.20.172.s.wireless.uri.edu:"/Volumes/EMR\\ Backup/Bluewaves_Backups/2020_Data_Backup/2017_2020_Transcriptome_Analysis/pipeline_files/C_Vir_subset/2020_Raw_Transcriptome_Data"
+
+        # Backup complete
         `
 
-
 * The data set includes samples from two treatments and three timepoints. There are three treatment replicates, but no replicates within treatment for each time point. PCA plots on rlog transformed counts show that a large portion of the variation is determined by the effect of time rather than the effect of treatment. To control for this effect, DESeq2 formula will be `~ Time + Condition` to control for the effect of time.
+
+## 2/19/2020 Analyzing ROD transcriptomes, HE transcriptomes, and DeLorgeril transcriptomes
+* A note about the data: the susceptible family lacks controls because they died during the experiment unexpectedly. Mcdowell et al., 2014 used PCA plots to group together the "early" 1d and 5d responses and the "late" 15d and 30d responses. My rlog transformed PCA plots support this grouping. Therefore I split the susceptible and resistant family into completely separate analysis. The ROD Susceptible F3L family was compared between Early and Late using the formula `~ Condition`, while the control resistant and ROD challenged Resistant family were compared with the formula `~ Time + Condition` to control for the effect of time on the outcome because PCAs showed a large time component.
+* The Resistant family has significantly fewer significant genes overall as compared to the susceptible. The susceptible show a large response while the resistant overall show a lack of response.
+* Created `He_coldata.csv` which separates into control and OsHV-1 conditions, with a time column that has the times for sampling. I included the time 0 into the control condition. The formula used for DEseq2 is `~Time + Condition` to control for the effect of time.
+* created `deLorgeril_coldata.csv`
