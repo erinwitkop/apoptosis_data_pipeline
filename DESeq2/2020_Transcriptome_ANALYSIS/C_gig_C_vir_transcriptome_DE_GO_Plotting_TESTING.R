@@ -294,7 +294,7 @@ Apoptosis_names_list <- c('bcl-2-related protein A1',
 # C virginica 
 C_vir_rtracklayer_mRNA <- C_vir_rtracklayer %>% filter(type == "mRNA")
 C_vir_rtracklayer_apop_product <- C_vir_rtracklayer_mRNA[grepl(paste(Apoptosis_names_list,collapse="|"), 
-                                                          C_vir_rtracklayer$product, ignore.case = TRUE),]
+                                                               C_vir_rtracklayer_mRNA$product, ignore.case = TRUE),]
 
 # Terms to remove
 # remove complement C1q proteins, dual specificity protein phosphatase 1B-like, remove kunitz-type, and NOT other kDA protein names so I can keep all heat shock proteins
@@ -313,7 +313,7 @@ C_vir_rtracklayer_apop_product_final <- C_vir_rtracklayer_apop_product[!grepl("c
                                                                          !grepl("caspase-14", C_vir_rtracklayer_apop_product$product, ignore.case = TRUE) &
                                                                          !grepl("WD repeat-containing protein WRAP73", C_vir_rtracklayer_apop_product$product, ignore.case = TRUE) &
                                                                          !grepl("tumor protein p63-regulated gene 1-like protein", C_vir_rtracklayer_apop_product$product, ignore.case = TRUE),]
-
+nrow(C_vir_rtracklayer_apop_product_final)
 ## Identify CG apoptosis genes 
 Apoptosis_names_list_CG <- c('bcl-2-related protein A1',
                              'apoptosis-inducing factor 1',
@@ -1115,11 +1115,6 @@ head(Rubio_dds_deseq_LMG20012T_res) # Condition Vtasma LMG20012T vs Control untr
 # More detailed notes about LFC Shrinkage are in the code for the Zhang Vibrio
 
 ## DECISION: USE SAME RES OBJECT TO KEEP ALPHA ADJUSTMENT, and use LFCShrink apeglm
-
-Zhang_dds_deseq_res_LFC <- lfcShrink(Zhang_dds_deseq, coef="group_challenge_vs_control", type= "apeglm", res=Zhang_dds_deseq_res)
-# Review results object summary
-summary(Zhang_dds_deseq_res_LFC) # SHOWS NUMBER OF SIGNIFICANT GENES
-
 Rubio_dds_deseq_J2_8_res_LFC<- lfcShrink(Rubio_dds_deseq, coef="Condition_Vcrass_J2_8_vs_Control_untreated", type="apeglm", res= Rubio_dds_deseq_J2_8_res)
 Rubio_dds_deseq_J2_9_res_LFC  <- lfcShrink(Rubio_dds_deseq, coef="Condition_Vcrass_J2_9_vs_Control_untreated" , type= "apeglm", res= Rubio_dds_deseq_J2_9_res   )
 Rubio_dds_deseq_LGP32_res_LFC<- lfcShrink(Rubio_dds_deseq, coef="Condition_Vtasma_LGP32_vs_Control_untreated" , type= "apeglm", res= Rubio_dds_deseq_LGP32_res   )
@@ -1197,7 +1192,7 @@ nrow(Rubio_counts_apop) #659
 head(Rubio_counts_apop)
 Rubio_counts_apop_dds <- DESeqDataSetFromMatrix(countData = Rubio_counts_apop,
                                                 colData = Rubio_coldata,
-                                                design = ~ Condition) # add time to control for injection and time effect
+                                                design = ~ Condition) 
 # Prefiltering the data and running rlog
 Rubio_counts_apop_dds <- Rubio_counts_apop_dds[ rowSums(counts(Rubio_counts_apop_dds)) > 10, ]
 Rubio_counts_apop_dds_rlog <- rlog(Rubio_counts_apop_dds, blind=TRUE)
@@ -1282,83 +1277,77 @@ ggarrange(Zhang_dds_deseq_res_V_alg1_APOP_short_plot , Zhang_dds_deseq_res_V_tub
 
 #### PROBIOTIC TRANSCRIPTOME ANALYSIS ####
 
-
 ## LOAD DATA
-Rubio_counts <- read.csv("/Users/erinroberts/Documents/PhD_Research/Chapter_1_Apoptosis Paper/Chapter1_Apoptosis_Transcriptome_Analyses_2019/DATA ANALYSIS/apoptosis_data_pipeline/DESeq2/2020_Transcriptome_ANALYSIS/Rubio_transcript_count_matrix.csv", header=TRUE,
+Probiotic_counts <- read.csv("/Users/erinroberts/Documents/PhD_Research/Chapter_1_Apoptosis Paper/Chapter1_Apoptosis_Transcriptome_Analyses_2019/DATA ANALYSIS/apoptosis_data_pipeline/DESeq2/2020_Transcriptome_ANALYSIS/Probiotic_transcript_count_matrix.csv", header=TRUE,
                          row.names = "transcript_id")
-head(Rubio_counts)
-colnames(Rubio_counts)
+head(Probiotic_counts)
+colnames(Probiotic_counts)
+
 # colnames all have "_1", remove this. It was an artifact of the PE sample names
-colnames(Rubio_counts) <- sub('\\_[^_]+$', '', colnames(Rubio_counts))
-colnames(Rubio_counts)
+colnames(Probiotic_counts ) <- sub('\\_[^_]+$', '', colnames(Probiotic_counts))
+colnames(Probiotic_counts )
 
 # remove MSTRG novel transcript lines (can assess these later if necessary)
-Rubio_counts <- Rubio_counts[!grepl("MSTRG", row.names(Rubio_counts)),]
-
-# Cute the "rna-" from the beginning of rownames
-remove_rna = function(x){
-  return(gsub("rna-","",x))
-}
-row.names(Rubio_counts) <- remove_rna(row.names(Rubio_counts))
-head(Rubio_counts)
+Probiotic_counts <- Probiotic_counts[!grepl("MSTRG", row.names(Probiotic_counts)),]
+row.names(Probiotic_counts) <- remove_rna(row.names(Probiotic_counts))
+head(Probiotic_counts)
 
 #Load in sample metadata
-Rubio_coldata <- read.csv("/Users/erinroberts/Documents/PhD_Research/Chapter_1_Apoptosis Paper/Chapter1_Apoptosis_Transcriptome_Analyses_2019/DATA ANALYSIS/apoptosis_data_pipeline/DESeq2/2020_Transcriptome_ANALYSIS/Rubio_coldata.csv", row.names = 1 )
-View(Rubio_coldata)  
-nrow(Rubio_coldata) 
+Probiotic_coldata <- read.csv("/Users/erinroberts/Documents/PhD_Research/Chapter_1_Apoptosis Paper/Chapter1_Apoptosis_Transcriptome_Analyses_2019/DATA ANALYSIS/apoptosis_data_pipeline/DESeq2/2020_Transcriptome_ANALYSIS/Probiotic_coldata.csv", row.names = 1 )
+View(Probiotic_coldata)  
+nrow(Probiotic_coldata) 
 
 # Make sure the columns of the count matrix and rows of the column data (sample metadata) are in the same order. 
-all(rownames(Rubio_coldata) %in% colnames(Rubio_counts ))  #Should return TRUE
+all(rownames(Probiotic_coldata) %in% colnames(Probiotic_counts))  #Should return TRUE
 # returns TRUE
-all(colnames(Rubio_counts ) %in% rownames(Rubio_coldata))  
+all(colnames(Probiotic_counts) %in% rownames(Probiotic_coldata))  
 # returns TRUE
-all(rownames(Rubio_coldata) == colnames(Rubio_counts ))    # should return TRUE
+all(rownames(Probiotic_coldata) == colnames(Probiotic_counts))
 # returns FALSE
 
 # Fix the order
-Rubio_counts <-Rubio_counts[,row.names(Rubio_coldata)]
-row.names(Rubio_coldata)
+Probiotic_counts <-Probiotic_counts[,row.names(Probiotic_coldata)]
+row.names(Probiotic_coldata)
 
-all(rownames(Rubio_coldata) %in% colnames(Rubio_counts ))  #Should return TRUE
+all(rownames(Probiotic_coldata) %in% colnames(Probiotic_counts))  #Should return TRUE
 # returns TRUE
-all(colnames(Rubio_counts ) %in% rownames(Rubio_coldata))  
+all(colnames(Probiotic_counts) %in% rownames(Probiotic_coldata))  
 # returns TRUE
-all(rownames(Rubio_coldata) == colnames(Rubio_counts ))    # should return TRUE
+all(rownames(Probiotic_coldata) == colnames(Probiotic_counts))
 # returns TRUE
 
 ### DATA QC PCA PLOT 
 # rlog transform data is recommended over vst for small data sets 
 # PCA plots of data (https://bioinformatics-core-shared-training.github.io/cruk-summer-school-2018/RNASeq2018/html/02_Preprocessing_Data.nb.html#count-distribution-boxplots)
-Rubio_counts_matrix <- as.matrix(Rubio_counts)
-Rubiorlogcounts <- rlog(Rubio_counts_matrix, blind =TRUE)
-#-- note: fitType='parametric', but the dispersion trend was not well captured by the
-#function: y = a/x + b, and a local regression fit was automatically substituted.
-#specify fitType='local' or 'mean' to avoid this message next time.
+Probiotic_counts_matrix <- as.matrix(Probiotic_counts)
+Probioticrlogcounts <- rlog(Probiotic_counts_matrix, blind =TRUE)
 
 # run PCA
-pcRubio <- prcomp(t(Rubiorlogcounts))
+pcProbiotic <- prcomp(t(Probioticrlogcounts))
 
 # Plot PCA
-autoplot(pcRubio,
-         data = Rubio_coldata, 
+autoplot(pcProbiotic,
+         data = Probiotic_coldata, 
+         colour="Time", 
+         size=5) # strong clustering by Day!!, ~50% of the variation explained by these first two PCA axes. 
+autoplot(pcProbiotic,
+         data = Probiotic_coldata, 
          colour="Condition", 
-         size=5) # PCA axes explain very little of the variation! (6 and 7 percent). There is a high amount of variablility between samples. 
-# control untreated has the least variability however
-
+         size=5)
 # Plot PCA 2 and 3 for comparison
-autoplot(pcRubio,
-         data = Rubio_coldata, 
-         colour = "Condition", 
+autoplot(pcProbiotic,
+         data = Probiotic_coldata, 
+         colour = "Time", 
          size = 5,
          x = 2,
-         y = 3) # no new trends emerge
+         y = 3) 
 # Plot PCA 4 and 4 for comparison
-autoplot(pcRubio,
-         data = Rubio_coldata, 
+autoplot(pcProbiotic,
+         data = Probiotic_coldata, 
          colour = "Condition", 
          size = 5,
          x = 3,
-         y = 4) # extremely spread, still high variability 
+         y = 4)  # this PCA axis shows some clustering of samples by treatment
 
 ## MAKE DESEQ DATA SET FROM MATRIX
 # This object specifies the count data and metadata you will work with. The design piece is critical.
@@ -1369,63 +1358,48 @@ autoplot(pcRubio,
 # It is prefered in R that the first level of a factor be the reference level for comparison
 # (e.g. control, or untreated samples), so we can relevel the factor like so
 # Check factor levels, set it so that comparison group is the first
-levels(Rubio_coldata$Condition) # "Control_anesthesis" "Control_untreated"  "Vcrass_J2_8"        "Vcrass_J2_9"        "Vtasma_LGP32"       "Vtasma_LMG20012T"  
-Rubio_coldata$Condition <- factor(Rubio_coldata$Condition , levels = c("Control_untreated","Control_anesthesis", "Vcrass_J2_8", "Vcrass_J2_9","Vtasma_LGP32", "Vtasma_LMG20012T"  ))
-levels(Rubio_coldata$Condition)
-levels(Rubio_coldata$Group) # "Control"      "Non_virulent" "Virulent"  
+levels(Probiotic_coldata$Condition) # "Bacillus_pumilus_RI0695" "Untreated_control" 
+Probiotic_coldata$Condition <- factor(Probiotic_coldata$Condition , levels = c("Untreated_control","Bacillus_pumilus_RI0695"))
+levels(Probiotic_coldata$Condition)
+levels(Probiotic_coldata$Time) # "12_d" "16_d" "5_d" 
+Probiotic_coldata$Time <- factor(Probiotic_coldata$Time , levels = c("5_d","12_d", "16_d"))
+levels(Probiotic_coldata$Time)
 
 ## Creating three here so I can compare the results
-Rubio_dds <- DESeqDataSetFromMatrix(countData = Rubio_counts,
-                                    colData = Rubio_coldata,
-                                    design = ~ Condition) 
-
+Probiotic_dds <- DESeqDataSetFromMatrix(countData = Probiotic_counts,
+                                    colData = Probiotic_coldata,
+                                    design = ~Time + Condition) 
 
 ## Prefiltering the data
 # Data prefiltering helps decrease the size of the data set and get rid of
 # rows with no data or very minimal data (<10). Apply a minimal filtering here as more stringent filtering will be applied later
-Rubio_dds <- Rubio_dds [ rowSums(counts(Rubio_dds )) > 10, ]
+Probiotic_dds <- Probiotic_dds [ rowSums(counts(Probiotic_dds )) > 10, ]
 
 ## DATA TRANSFORMATION AND VISUALIZATION
 # Assess sample clustering after setting initial formula for comparison
-Rubio_dds_rlog <- rlog(Rubio_dds, blind = TRUE) # keep blind = true before deseq function has been run
-#-- note: fitType='parametric', but the dispersion trend was not well captured by the
-#function: y = a/x + b, and a local regression fit was automatically substituted.
-#specify fitType='local' or 'mean' to avoid this message next time.
+Probiotic_dds_rlog <- rlog(Probiotic_dds , blind = TRUE) # keep blind = true before deseq function has been run
 
 ## PCA plot visualization of individuals in the family 
-plotPCA(Rubio_dds_rlog, intgroup=c("Sample", "Condition"))
-# Still extremely high variation 
+plotPCA(Probiotic_dds_rlog, intgroup=c("Sample", "Condition")) # clustering by time is not as tight
 
 ### DIFFERENTIAL EXPRESSION ANALYSIS
 # run pipeline with single command because the formula has already been specified
 # Steps: estimation of size factors (controlling for differences in the sequencing depth of the samples), 
 # the estimation of dispersion values for each gene,and fitting a generalized linear model.
-Rubio_dds_deseq <- DESeq(Rubio_dds) 
+Probiotic_dds_deseq <- DESeq(Probiotic_dds) 
 #-- note: fitType='parametric', but the dispersion trend was not well captured by the
 #function: y = a/x + b, and a local regression fit was automatically substituted.
 #specify fitType='local' or 'mean' to avoid this message next time.
 
 ## Check the resultsNames object of each to look at the available coefficients for use in lfcShrink command
-resultsNames(Rubio_dds_deseq) # [1] "Intercept", "Condition_Control_anesthesis_vs_Control_untreated", "Condition_Vcrass_J2_8_vs_Control_untreated"       
-# [4] "Condition_Vcrass_J2_9_vs_Control_untreated"        "Condition_Vtasma_LGP32_vs_Control_untreated"       "Condition_Vtasma_LMG20012T_vs_Control_untreated"   
-
+resultsNames(Probiotic_dds_deseq) # [1] "Intercept", "Time_12_d_vs_5_d", "Time_16_d_vs_5_d", "Condition_Bacillus_pumilus_RI0695_vs_Untreated_control"
 
 ## BUILD THE RESULTS OBJECT
 # Examining the results object, change alpha to p <0.05, looking at object metadata
 # use mcols to look at metadata for each table
-
-mcols(Rubio_dds_deseq)
-Rubio_dds_deseq_J2_8_res <- results(Rubio_dds_deseq, alpha=0.05, name="Condition_Vcrass_J2_8_vs_Control_untreated" )
-Rubio_dds_deseq_J2_9_res <- results(Rubio_dds_deseq, alpha=0.05, name="Condition_Vcrass_J2_9_vs_Control_untreated"  )
-Rubio_dds_deseq_LGP32_res <- results(Rubio_dds_deseq, alpha=0.05, name="Condition_Vtasma_LGP32_vs_Control_untreated"   )
-Rubio_dds_deseq_LMG20012T_res <- results(Rubio_dds_deseq, alpha=0.05, name="Condition_Vtasma_LMG20012T_vs_Control_untreated"  )
-
-
-head(Rubio_dds_deseq_J2_8_res) # Condition Vcrass J2 8 vs Control untreated 
-head(Rubio_dds_deseq_J2_9_res) #  Condition Vcrass J2 9 vs Control untreated
-head(Rubio_dds_deseq_LGP32_res) # Condition Vtasma LGP32 vs Control untreated 
-head(Rubio_dds_deseq_LMG20012T_res) # Condition Vtasma LMG20012T vs Control untreated 
-
+mcols(Probiotic_dds_deseq)
+Probiotic_dds_deseq_Challenge_res <- results(Probiotic_dds_deseq, alpha=0.05, name= "Condition_Bacillus_pumilus_RI0695_vs_Untreated_control")
+head(Probiotic_dds_deseq_Challenge_res) # 
 
 ### Perform LFC Shrinkage with apeglm
 ## NOTES 
@@ -1434,89 +1408,48 @@ head(Rubio_dds_deseq_LMG20012T_res) # Condition Vtasma LMG20012T vs Control untr
 # More detailed notes about LFC Shrinkage are in the code for the Zhang Vibrio
 
 ## DECISION: USE SAME RES OBJECT TO KEEP ALPHA ADJUSTMENT, and use LFCShrink apeglm
-
-Zhang_dds_deseq_res_LFC <- lfcShrink(Zhang_dds_deseq, coef="group_challenge_vs_control", type= "apeglm", res=Zhang_dds_deseq_res)
-# Review results object summary
-summary(Zhang_dds_deseq_res_LFC) # SHOWS NUMBER OF SIGNIFICANT GENES
-
-Rubio_dds_deseq_J2_8_res_LFC<- lfcShrink(Rubio_dds_deseq, coef="Condition_Vcrass_J2_8_vs_Control_untreated", type="apeglm", res= Rubio_dds_deseq_J2_8_res)
-Rubio_dds_deseq_J2_9_res_LFC  <- lfcShrink(Rubio_dds_deseq, coef="Condition_Vcrass_J2_9_vs_Control_untreated" , type= "apeglm", res= Rubio_dds_deseq_J2_9_res   )
-Rubio_dds_deseq_LGP32_res_LFC<- lfcShrink(Rubio_dds_deseq, coef="Condition_Vtasma_LGP32_vs_Control_untreated" , type= "apeglm", res= Rubio_dds_deseq_LGP32_res   )
-Rubio_dds_deseq_LMG20012T_res_LFC<- lfcShrink(Rubio_dds_deseq, coef="Condition_Vtasma_LMG20012T_vs_Control_untreated", type= "apeglm", res= Rubio_dds_deseq_LMG20012T_res )
+Probiotic_dds_deseq_Challenge_res_LFC<- lfcShrink(Probiotic_dds_deseq, coef="Condition_Bacillus_pumilus_RI0695_vs_Untreated_control", type="apeglm", res= Probiotic_dds_deseq_Challenge_res)
 
 ## EXPLORATORY PLOTTING OF RESULTS 
 ## MA Plotting
-plotMA(Rubio_dds_deseq_J2_8_res_LFC, ylim = c(-5, 5))
-plotMA(Rubio_dds_deseq_J2_9_res_LFC, ylim = c(-5, 5))
-plotMA(Rubio_dds_deseq_LGP32_res_LFC, ylim = c(-5, 5))
-plotMA(Rubio_dds_deseq_LMG20012T_res_LFC, ylim = c(-5, 5))
+plotMA(Probiotic_dds_deseq_Challenge_res_LFC, ylim = c(-5, 5))
+
 ## Histogram of P values 
 # exclude genes with very small counts to avoid spikes and plot using the LFCshrinkage
-hist(Rubio_dds_deseq_J2_8_res_LFC$padj[Rubio_dds_deseq_J2_8_res_LFC$baseMean > 1], breaks = 0:20/20,
-     col = "grey50", border = "white")
-hist(Rubio_dds_deseq_J2_9_res_LFC$padj[Rubio_dds_deseq_J2_9_res_LFC$baseMean > 1], breaks = 0:20/20,
-     col = "grey50", border = "white")
-hist(Rubio_dds_deseq_LGP32_res_LFC$padj[Rubio_dds_deseq_LGP32_res_LFC$baseMean > 1], breaks = 0:20/20,
-     col = "grey50", border = "white")
-hist(Rubio_dds_deseq_LMG20012T_res_LFC$padj[Rubio_dds_deseq_LMG20012T_res_LFC$baseMean > 1], breaks = 0:20/20,
+hist(Probiotic_dds_deseq_Challenge_res_LFC$padj[Probiotic_dds_deseq_Challenge_res_LFC$baseMean > 1], breaks = 0:20/20,
      col = "grey50", border = "white")
 
 ### Subsetting Significant Genes by padj < 0.05
 # again, only working with the LFCshrinkage adjusted log fold changes, and with the BH adjusted p-value
 # first make sure to make the rownames with the transcript ID as a new column, then make it a dataframe for filtering
 
-Rubio_dds_deseq_J2_8_res_LFC_sig <-  subset(Rubio_dds_deseq_J2_8_res_LFC , padj < 0.05)
-Rubio_dds_deseq_J2_9_res_LFC_sig <-  subset(Rubio_dds_deseq_J2_9_res_LFC , padj < 0.05)
-Rubio_dds_deseq_LGP32_res_LFC_sig <-  subset(Rubio_dds_deseq_LGP32_res_LFC , padj < 0.05)
-Rubio_dds_deseq_LMG20012T_res_LFC_sig <-  subset(Rubio_dds_deseq_LMG20012T_res_LFC, padj < 0.05)
-
-Rubio_dds_deseq_J2_8_res_LFC_sig$transcript_id <- row.names(Rubio_dds_deseq_J2_8_res_LFC_sig)
-Rubio_dds_deseq_J2_9_res_LFC_sig$transcript_id <- row.names(Rubio_dds_deseq_J2_9_res_LFC_sig)
-Rubio_dds_deseq_LGP32_res_LFC_sig$transcript_id <- row.names(Rubio_dds_deseq_LGP32_res_LFC_sig)
-Rubio_dds_deseq_LMG20012T_res_LFC_sig$transcript_id <- row.names(Rubio_dds_deseq_LMG20012T_res_LFC_sig)
-
-Rubio_dds_deseq_J2_8_res_LFC_sig <- as.data.frame(Rubio_dds_deseq_J2_8_res_LFC_sig)
-Rubio_dds_deseq_J2_9_res_LFC_sig <- as.data.frame(Rubio_dds_deseq_J2_9_res_LFC_sig)
-Rubio_dds_deseq_LGP32_res_LFC_sig <- as.data.frame(Rubio_dds_deseq_LGP32_res_LFC_sig)
-Rubio_dds_deseq_LMG20012T_res_LFC_sig<- as.data.frame(Rubio_dds_deseq_LMG20012T_res_LFC_sig)
-
-nrow(Rubio_dds_deseq_J2_8_res_LFC_sig) # 3532
-nrow(Rubio_dds_deseq_J2_9_res_LFC_sig) #3719
-nrow(Rubio_dds_deseq_LGP32_res_LFC_sig) # 3783
-nrow(Rubio_dds_deseq_LMG20012T_res_LFC_sig) # 3571
+Probiotic_dds_deseq_Challenge_res_LFC_sig <-  subset(Probiotic_dds_deseq_Challenge_res_LFC , padj < 0.05)
+Probiotic_dds_deseq_Challenge_res_LFC_sig$transcript_id <- row.names(Probiotic_dds_deseq_Challenge_res_LFC_sig)
+Probiotic_dds_deseq_Challenge_res_LFC_sig <- as.data.frame(Probiotic_dds_deseq_Challenge_res_LFC_sig)
+nrow(Probiotic_dds_deseq_Challenge_res_LFC_sig) # 1752
 
 ### GENE CLUSTERING ANALYSIS HEATMAPS  
 # Extract genes with the highest variance across samples for each comparison using either vst or rlog transformed data
 # This heatmap rather than plotting absolute expression strength plot the amount by which each gene deviates in a specific sample from the gene’s average across all samples. 
 # example codes from RNAseq workflow: https://www.bioconductor.org/packages/devel/workflows/vignettes/rnaseqGene/inst/doc/rnaseqGene.html#other-comparisons
 
-Rubio_dds_deseq_J2_8_res_LFC_sig_rlog <-  head(order(rowVars(assay(Rubio_dds_rlog )), decreasing = TRUE), 200)
-family_Rubio_broken_mat <- assay(Rubio_dds_rlog)[Rubio_dds_deseq_J2_8_res_LFC_sig_rlog,]
-family_Rubio_broken_mat <- family_Rubio_broken_mat - rowMeans(family_Rubio_broken_mat)
-family_Rubio_broken_anno <- as.data.frame(colData(Rubio_dds_rlog)[, c("Condition","Sample")])
-family_Rubio_broken_heatmap <- pheatmap(family_Rubio_broken_mat , annotation_col = family_Rubio_broken_anno)
-head(family_Rubio_broken_mat)
-# Control untreated group together, two samples in Vtasm LPG32 cluster, two V2crass J2_8 cluster, but all other samples do not have a clear clustering pattern for these 
-# most variable genes
-
-# reorder annotation table to match ordering in heatmap 
-family_Rubio_broken_heatmap_reorder <-rownames(family_Rubio_broken_mat[family_Rubio_broken_heatmap$tree_row[["order"]],])
-# annotate the row.names
-family_Rubio_broken_mat_prot <- as.data.frame(family_Rubio_broken_heatmap_reorder )
-colnames(family_Rubio_broken_mat_prot)[1] <- "transcript_id"
-family_Rubio_broken_mat_prot_annot <- left_join(family_Rubio_broken_mat_prot, select(C_gig_rtracklayer_transcripts, transcript_id, product, gene), by = "transcript_id")
-# transcription factor AP1 is the most variable gene across all samples 
+Probiotic_dds_deseq_Challenge_res_LFC_sig <-  head(order(rowVars(assay(Probiotic_dds_rlog  )), decreasing = TRUE), 200)
+family_Probiotic_broken_mat <- assay(Probiotic_dds_rlog )[Probiotic_dds_deseq_Challenge_res_LFC_sig,]
+family_Probiotic_broken_mat <- family_Probiotic_broken_mat - rowMeans(family_Probiotic_broken_mat)
+family_Probiotic_broken_anno <- as.data.frame(colData(Probiotic_dds_rlog )[, c("Condition","Time")])
+family_Probiotic_broken_heatmap <- pheatmap(family_Probiotic_broken_mat , annotation_col = family_Probiotic_broken_anno)
+head(familyProbiotic_broken_mat) # some clustering by bacillus, still overall clustering by day
 
 # Gene clustering heatmap with only apoptosis genes #
-# vector C_gig_apop transcript IDs
-C_gig_rtracklayer_apop_product_final_transcript_id 
-# Search original Rubio_counts for apoptosis genes and do rlog on just these
-Rubio_counts_apop <- Rubio_counts[row.names(Rubio_counts) %in% C_gig_rtracklayer_apop_product_final_transcript_id,]
-nrow(Rubio_counts_apop) #659
-head(Rubio_counts_apop)
-Rubio_counts_apop_dds <- DESeqDataSetFromMatrix(countData = Rubio_counts_apop,
-                                                colData = Rubio_coldata,
-                                                design = ~ Condition) # add time to control for injection and time effect
+# vector C_vir_apop transcript IDs
+C_vir_rtracklayer_apop_product_final_transcript_id <- C_vir_rtracklayer_apop_product_final$transcript_id
+# Search original Probiotic_counts for apoptosis genes and do rlog on just these
+Probiotic_counts_apop <- Probiotic_counts[row.names(Probiotic_counts) %in% C_vir_rtracklayer_apop_product_final_transcript_id,]
+nrow(Probiotic_counts_apop) #0
+head(Probiotic_counts_apop)
+Probiotic_counts_apop_dds <- DESeqDataSetFromMatrix(countData = Probiotic_counts_apop,
+                                                colData = Probiotic_coldata,
+                                                design = ~Time + Condition) # add time to control for injection and time effect
 # Prefiltering the data and running rlog
 Rubio_counts_apop_dds <- Rubio_counts_apop_dds[ rowSums(counts(Rubio_counts_apop_dds)) > 10, ]
 Rubio_counts_apop_dds_rlog <- rlog(Rubio_counts_apop_dds, blind=TRUE)
@@ -1597,7 +1530,9 @@ ggarrange(Zhang_dds_deseq_res_V_alg1_APOP_short_plot , Zhang_dds_deseq_res_V_tub
 
 #### ROD TRANSCRIPTOME ANALYSIS #### 
 
+
 ###### PROESTOU DERMO TRANSCRIPTOME ANALYSIS ####
+
 #Load in TRANSCRIPT expression data as count matrix
 Dermo_counts <- read.csv("/Users/erinroberts/Documents/PhD_Research/Chapter_1_Apoptosis Paper/Chapter1_Apoptosis_Transcriptome_Analyses_2019/DATA ANALYSIS/apoptosis_data_pipeline/DESeq2/2020_Transcriptome_ANALYSIS", 
                          row.names="X")

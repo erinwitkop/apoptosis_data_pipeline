@@ -850,4 +850,86 @@ All done.
 ## 2/19/2020 Analyzing Probiotic Transcriptomes
 * Created `Probiotic_coldata.csv`. As for the Rubio transcriptomes, manually removed the `_1` from all the samples. Added the probiotic experiment Coldata to the `All_coldata.csv` spreadsheet.
 * The transcript headers for the `Probiotic_transcript_count_matrix,csv` do not have any XM headers. Was there an issue with the assembly or annotation? Going to check the other C. virginica transcript_count_matrix.csv files before proceeding to make sure I don't have to re-run anything else.
+        ` # Checking the Dermo transcriptome count file:
+         $ grep 'XM' Dermo_transcript_count_matrix.csv
+         # no XMs found
+         # Checking ROD XM
+         $ grep 'XM'ROD_transcript_count_matrix.csv
+         # no XMs found `
+  * What happened? Why are there no XM annotations? Going back to my script to check
+  * In 2017 when I ran my C_vir pipeline, with Hisat I built my index with `cvir_edited` which had erroneous spaces removed. Then in stringtie I used the normal reference gff file `$F/ref_C_virginica-3.0_top_level.gff3`. This is the same procedure I have followed this year. Error must be caused by another source.
+  * Investigating the intermediate merge files, the re-estimated files, and the scripts from Stringtie
+        `]$ pwd
+/data3/marine_diseases_lab/erin/2017_2020_Transcriptome_Analysis/pipeline_files/C_Vir_subset/2020_Raw_Transcriptome_Data/C_vir_ROD_SRA/ROD_Stringtie_gtf
+        $ less SRR1293904.merge.gtf
+        # Transcript IDs are all  "rna11" but have LOC Ids
+        $ grep 'XM' SRR1293904.merge.gtf
+        # no XMs in file
+
+        # No XMs in the HISAT bam output either
+        $ less SRR1298711.fastq.gz.clean.trim.filter.gz.bam.gtf
+        $ grep 'XM' SRR1298711.fastq.gz.clean.trim.filter.gz.bam.gtf # returns nothing
+
+        # transcript IDs for example in the Cgig files all had XM ids in their merge files
+        "rna-XM_011428201.2"
+        $ cd /data3/marine_diseases_lab/erin/2017_2020_Transcriptome_Analysis/pipeline_files/C_gig_Bac_Viral_subset/2020_Raw_Transcriptome_Data/C_gig_deLorgeril_OsHV1_SRA/deLorgeril_Stringtie_gtf
+        $ less SRR6679093_1.merge.gtf
+
+        # inspecting HISAT script used to run probiotic Files
+        $ nano 02_HISAT2_samtools_sort_Rubio_Pro_deLorgeril.sh
+          # index is properly called for..why did it not map
+        # inspecting Stringtie Probiotic script
+        $ nano 03_Stringtie_Assemble_Quantify_Probiotic_prepDE.sh
+          # again no obvious reasons for no mapping of rna to XM
+
+        # Inspecting 2017 R script for analyzing output data and old Stringtie output file from 2017
+        $ cd /Users/erinroberts/Documents/PhD_Research/Chapter_1_Apoptosis\ Paper/Chapter1_Apoptosis_Transcriptome_Analyses_2019/DATA\ ANALYSIS/apoptosis_data_pipeline/DESeq2/C_VIRGINICA_PIPELINE/2017_OLD_Figures_Output/OLD_files
+        $ less C_vir_transcript_count_matrix.csv
+        $ grep 'XM' C_vir_transcript_count_matrix.csv
+        # no XMs in this file either
+
+        # /Users/erinroberts/Documents/PhD_Research/Chapter_1_Apoptosis Paper/Chapter1_Apoptosis_Transcriptome_Analyses_2019/DATA ANALYSIS/apoptosis_data_pipeline/DESeq2/C_VIRGINICA_PIPELINE/SCRIPTS/05_C_Vir_Bac_DESeq2.R
+
+    ##Found at the top of my old DEseq file that I  "Match "rna#" value with the Gene LOC name in the stringtie file". But then how did I get to annotating down to the transcript level?
+
+    ## What I know: there are "rna#" lists in every merge file, the merge.gtf, the merged.annotated.gtf and also in "ref_C_virginica-3.0_top_level.gff3'
+
+    ## Do the `rna#`  match in all of these? Then I can use that match to get the XM values from the `ref_C_virginica-3.0_top_level.gff3` files
+    # test example
+    $ pwd
+    /data3/marine_diseases_lab/erin/2017_2020_Transcriptome_Analysis/pipeline_files/C_Vir_subset/2020_Raw_Transcriptome_Data/C_vir_Probiotic_SRA/Probiotic_Stringtie_gtf
+    $ grep 'LOC' Probiotic_stringtie_merged.annotated.gtf
+    # test line: NC_035787.1	StringTie	transcript	25840012	25841649	.	+	.	transcript_id "rna52049"; gene_id "MSTRG.23177"; gene_name "LOC111110259"; xloc "XLOC_030060"; ref_gene_id "gene30123"; cmp_ref "rna52049"; class_code "="; tss_id "TSS44959";
+
+    $ pwd
+    /data3/marine_diseases_lab/erin/2017_2020_Transcriptome_Analysis/pipeline_files/C_Vir_subset/Cvir_Genome_and_Indexes
+    $ grep 'rna52049' ref_C_virginica-3.0_top_level.gff3
+    ]$ grep 'rna52049' ref_C_virginica-3.0_top_level.gff3
+    NC_035787.1	Gnomon	mRNA	25840012	25841649	.	+	.	ID=rna52049;Parent=gene30123;Dbxref=GeneID:111110259,Genbank:XM_022446679.1;Name=XM_022446679.1;gbkey=mRNA;gene=LOC111110259;model_evidence=Supporting evidence includes similarity to: 100%25 coverage of the annotated genomic feature by RNAseq alignments%2C including 23 samples with support for all annotated introns;product=uncharacterized LOC111110259;transcript_id=XM_022446679.1
+    NC_035787.1	Gnomon	exon	25840012	25840272	.	+	.	ID=id581533;Parent=rna52049;Dbxref=GeneID:111110259,Genbank:XM_022446679.1;gbkey=mRNA;gene=LOC111110259;product=uncharacterized LOC111110259;transcript_id=XM_022446679.1
+    NC_035787.1	Gnomon	exon	25840464	25840583	.	+	.	ID=id581534;Parent=rna52049;Dbxref=GeneID:111110259,Genbank:XM_022446679.1;gbkey=mRNA;gene=LOC111110259;product=uncharacterized LOC111110259;transcript_id=XM_022446679.1
+    NC_035787.1	Gnomon	exon	25841444	25841649	.	+	.	ID=id581535;Parent=rna52049;Dbxref=GeneID:111110259,Genbank:XM_022446679.1;gbkey=mRNA;gene=LOC111110259;product=uncharacterized LOC111110259;transcript_id=XM_022446679.1
+    NC_035787.1	Gnomon	CDS	25840027	25840272	.	+	0	ID=cds47002;Parent=rna52049;Dbxref=GeneID:111110259,Genbank:XP_022302387.1;Name=XP_022302387.1;gbkey=CDS;gene=LOC111110259;product=uncharacterized protein LOC111110259;protein_id=XP_022302387.1
+    NC_035787.1	Gnomon	CDS	25840464	25840583	.	+	0	ID=cds47002;Parent=rna52049;Dbxref=GeneID:111110259,Genbank:XP_022302387.1;Name=XP_022302387.1;gbkey=CDS;gene=LOC111110259;product=uncharacterized protein LOC111110259;protein_id=XP_022302387.1
+    NC_035787.1	Gnomon	CDS	25841444	25841497	.	+	0	ID=cds47002;Parent=rna52049;Dbxref=GeneID:111110259,Genbank:XP_022302387.1;Name=XP_022302387.1;gbkey=CDS;gene=LOC111110259;product=uncharacterized protein LOC111110259;protein_id=XP_022302387.1
+
+    # YES the LOC ids match here. The merged file transcript ID is in fact just the "Parent=" in the original ref_C_virginica-3.0_top_level.gff3. Why did the software not map down to the XM level? Is there something wrong with how it was interpretting the gff3 file?
+
+    # Comparing C gig and C vir reference gff3 files
+    $ less GCF_000297895.1_oyster_v9_genomic.gff
+    NW_011934501.1  Gnomon  CDS     3692    3785    .       -       1       ID=cds-XP_011445785.1;Parent=rna-XM_011447483.2;Dbxref=GeneID:105338483,Genbank:XP_011445785.1;Name=XP_011445785.1;gbkey=CDS;gene=LOC105338483;product=DNA-directed RNA polymerase III subunit RPC3;protein_id=XP_011445785.1
+
+    # Conclusion: the mapper is mapping both to the Parent column, it is just that in the C.gig reference genome, the Parent field includes the XM information
+
+    # Moving forward: I will match the rnaID from the  C. virginica to the rnaID in the Parent column of the reference genome. The code I created in 2017 for working with the stringtie merged file is not necessary.
+`
+* While I'm logged in, completing my data backup that was interrupted last week.
+        `# Need to only redo the C_gig_deLorgeril_OsHV1 to finish all the C_gig data backup. Then will move on to finish C. virginica
+        $ ssh fs03
+        $ cd /data3/marine_diseases_lab/erin/2017_2020_Transcriptome_Analysis/pipeline_files/C_gig_Bac_Viral_subset/2020_Raw_Transcriptome_Data/C_gig_deLorgeril_OsHV1_SRA/
+        $ scp -r ./C_gig_deLorgeril_OsHV1_SRA/ erinroberts@253.59.20.172.s.wireless.uri.edu:"/Volumes/EMR\\ Backup/Bluewaves_Backups/2020_Data_Backup/2017_2020_Transcriptome_Analysis/pipeline_files/C_gig_Bac_Viral_subset/2020_Raw_Transcriptome_Data"
+
+        `
+
+
 * The data set includes samples from two treatments and three timepoints. There are three treatment replicates, but no replicates within treatment for each time point. PCA plots on rlog transformed counts show that a large portion of the variation is determined by the effect of time rather than the effect of treatment. To control for this effect, DESeq2 formula will be `~ Time + Condition` to control for the effect of time.
