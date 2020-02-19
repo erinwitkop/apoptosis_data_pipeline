@@ -1,0 +1,34 @@
+,Condition,Sample,Experiment
+SRR796589,Control,Control_No_injection,Zhang
+SRR796591,PBS,PBS_12h,Zhang
+SRR796592,LPS,LPS_12h,Zhang
+SRR796593,V_aes,V_aes_12h,Zhang
+SRR796594,V_ang,V_ang_12h,Zhang
+SRR796595,V_alg_1,V_alg_1_12h,Zhang
+SRR796596,V_alg_2,V_alg_2_12h,Zhang
+SRR796597,V_tub,V_tub_12h,Zhang
+SRR796598,M_lut,M_lut_12h,Zhang
+SRR8551090,Control_anesthesis,Control_anesthesis_replicate2,Rubio
+SRR8551091,Control_anesthesis,Control_anesthesis_replicate3,Rubio
+SRR8551093,Control_anesthesis,Control_anesthesis_replicate1,Rubio
+SRR8551076,Control_untreated,Control_untreated_replicate1,Rubio
+SRR8551077,Control_untreated,Control_untreated_replicate2,Rubio
+SRR8551092,Control_untreated,Control_untreated_replicate3,Rubio
+SRR8551078,Vcrass_J2_8,Vcrass_J2_8_replicate3,Rubio
+SRR8551088,Vcrass_J2_8,Vcrass_J2_8_replicate1,Rubio
+SRR8551089,Vcrass_J2_8,Vcrass_J2_8_replicate2,Rubio
+SRR8551079,Vcrass_J2_9,Vcrass_J2_9_replicate1,Rubio
+SRR8551086,Vcrass_J2_9,Vcrass_J2_9_replicate2,Rubio
+SRR8551087,Vcrass_J2_9,Vcrass_J2_9_replicate3,Rubio
+SRR8551080,Vtasma_LGP32,Vtasma_LGP32_replicate2,Rubio
+SRR8551081,Vtasma_LGP32,Vtasma_LGP32_replicate3,Rubio
+SRR8551083,Vtasma_LGP32,Vtasma_LGP32_replicate1,Rubio
+SRR8551082,Vtasma_LMG20012T,Vtasma_LMG20012T_replicate3,Rubio
+SRR8551084,Vtasma_LMG20012T,Vtasma_LMG20012T_replicate1,Rubio
+SRR8551085,Vtasma_LMG20012T,Vtasma_LMG20012T_replicate2,Rubio
+SRR5357618,Bacillus_pumilus_RI0695,Bacillus_pumilus_RI0695_16 d,Probiotic
+SRR5357623,Untreated_control,Untreated_control_5 d,Probiotic
+SRR5357617,Untreated_control,Untreated_control_16 d,Probiotic
+SRR5357619,Bacillus_pumilus_RI0695,Bacillus_pumilus_RI0695_5 d,Probiotic
+SRR5357622,Untreated_control,Untreated_control_12 d,Probiotic
+SRR5357626,Bacillus_pumilus_RI0695,Bacillus_pumilus_RI0695_12 d,Probiotic
