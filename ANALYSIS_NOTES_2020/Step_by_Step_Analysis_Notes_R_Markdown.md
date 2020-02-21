@@ -953,8 +953,18 @@ All done.
 
 * The data set includes samples from two treatments and three timepoints. There are three treatment replicates, but no replicates within treatment for each time point. PCA plots on rlog transformed counts show that a large portion of the variation is determined by the effect of time rather than the effect of treatment. To control for this effect, DESeq2 formula will be `~ Time + Condition` to control for the effect of time.
 
-## 2/19/2020 Analyzing ROD transcriptomes, HE transcriptomes, and DeLorgeril transcriptomes
-* A note about the data: the susceptible family lacks controls because they died during the experiment unexpectedly. Mcdowell et al., 2014 used PCA plots to group together the "early" 1d and 5d responses and the "late" 15d and 30d responses. My rlog transformed PCA plots support this grouping. Therefore I split the susceptible and resistant family into completely separate analysis. The ROD Susceptible F3L family was compared between Early and Late using the formula `~ Condition`, while the control resistant and ROD challenged Resistant family were compared with the formula `~ Time + Condition` to control for the effect of time on the outcome because PCAs showed a large time component.
+## 2/19/2020 - 2/20/2020 Analyzing ROD transcriptomes, HE transcriptomes, and DeLorgeril transcriptomes
+*ROD Transcriptomes*
+  * A note about the data: the susceptible family lacks controls because they died during the experiment unexpectedly. Mcdowell et al., 2014 used PCA plots to group together the "early" 1d and 5d responses and the "late" 15d and 30d responses. My rlog transformed PCA plots support this grouping. Therefore I split the susceptible and resistant family into completely separate analysis. The ROD Susceptible F3L family was compared between Early and Late using the formula `~ Condition`, while the control resistant and ROD challenged Resistant family were compared with the formula `~ Time + Condition` to control for the effect of time on the outcome because PCAs showed a large time component.
 * The Resistant family has significantly fewer significant genes overall as compared to the susceptible. The susceptible show a large response while the resistant overall show a lack of response.
-* Created `He_coldata.csv` which separates into control and OsHV-1 conditions, with a time column that has the times for sampling. I included the time 0 into the control condition. The formula used for DEseq2 is `~Time + Condition` to control for the effect of time.
-* created `deLorgeril_coldata.csv`
+
+*HE transcriptomes*
+  * Created `He_coldata.csv` which separates into control and OsHV-1 conditions, with a time column that has the times for sampling. I included the time 0 into the control condition. The formula used for DEseq2 is `~Time + Condition` to control for the effect of time.
+
+*deLorgeril Transcriptomes*
+  * Created `deLorgeril_coldata.csv`. Considering whether I should correcting for the effect of time or focusing on the acute response. I could go back and adjust the others to be also looking for the acute response. I have separated the resistant and susceptible families and run DEseq separately.
+  * Analyzing the 48hr vs control, 60hr vs control, and 72hr vs control in order to assess the acute response
+  * 60hr appears to be the acute response time point for each (most significantly differentially expressed genes), but more so in the susceptible family
+
+## 2/21/2020 Dermo Transcriptome analysis
+* Creating `Dermo_coldata.csv`

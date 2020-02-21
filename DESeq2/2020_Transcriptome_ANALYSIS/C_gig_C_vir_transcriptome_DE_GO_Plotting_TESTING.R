@@ -1269,8 +1269,378 @@ ggarrange(Zhang_dds_deseq_res_V_alg1_APOP_short_plot , Zhang_dds_deseq_res_V_tub
 
 #### DELORGERIL OSHV1 TRANSCRIPTOME ANALYSIS ####
 
-#### HE OSHV1 TRANSCRIPTOME ANALYSIS ####
+## LOAD DATA
+deLorgeril_counts <- read.csv("/Users/erinroberts/Documents/PhD_Research/Chapter_1_Apoptosis Paper/Chapter1_Apoptosis_Transcriptome_Analyses_2019/DATA ANALYSIS/apoptosis_data_pipeline/DESeq2/2020_Transcriptome_ANALYSIS/deLorgeril_transcript_count_matrix.csv", header=TRUE,
+                      row.names = "transcript_id")
+head(deLorgeril_counts)
+colnames(deLorgeril_counts)
 
+# colnames all have "_1", remove this. It was an artifact of the PE sample names
+colnames(deLorgeril_counts) <- sub('\\_[^_]+$', '', colnames(deLorgeril_counts))
+colnames(deLorgeril_counts)
+
+# remove MSTRG novel transcript lines (can assess these later if necessary)
+deLorgeril_counts<- deLorgeril_counts[!grepl("MSTRG", row.names(deLorgeril_counts)),]
+
+# Cute the "rna-" from the beginning of rownames
+remove_rna = function(x){
+  return(gsub("rna-","",x))
+}
+row.names(deLorgeril_counts) <- remove_rna(row.names(deLorgeril_counts))
+head(deLorgeril_counts)
+
+#Load in sample metadata
+deLorgeril_coldata <- read.csv("/Users/erinroberts/Documents/PhD_Research/Chapter_1_Apoptosis Paper/Chapter1_Apoptosis_Transcriptome_Analyses_2019/DATA ANALYSIS/apoptosis_data_pipeline/DESeq2/2020_Transcriptome_ANALYSIS/deLorgeril_coldata.csv", row.names = 1 )
+View(deLorgeril_coldata)  
+nrow(deLorgeril_coldata) 
+
+# Make sure the columns of the count matrix and rows of the column data (sample metadata) are in the same order. 
+all(rownames(deLorgeril_coldata) %in% colnames(deLorgeril_counts))  #Should return TRUE
+# returns TRUE
+all(colnames(deLorgeril_counts ) %in% rownames(deLorgeril_coldata))  
+# returns TRUE
+all(rownames(deLorgeril_coldata) == colnames(deLorgeril_counts ))  # FALSE
+# returns true
+
+# Change order
+deLorgeril_counts <- deLorgeril_counts[,rownames(deLorgeril_coldata)]
+all(rownames(deLorgeril_coldata) %in% colnames(deLorgeril_counts))  #Should return TRUE
+# returns TRUE
+all(colnames(deLorgeril_counts) %in% rownames(deLorgeril_coldata))  
+# returns TRUE
+all(rownames(deLorgeril_coldata) == colnames(deLorgeril_counts ))  # TRUE
+
+# split up counts and coldata into the resistant and sucsceptible families (since comparing families is not what I want)
+deLorgeril_Resistant_coldata <- deLorgeril_coldata %>% subset(Condition == "AF21_Resistant" | Condition == "AF21_Resistant_control")
+deLorgeril_Resistant_counts <- deLorgeril_counts[,row.names(deLorgeril_Resistant_coldata)]
+colnames(deLorgeril_Resistant_counts)
+
+deLorgeril_Susceptible_coldata <- deLorgeril_coldata %>% subset(Condition == "AF11_Susceptible" | Condition == "AF11_Susceptible_control")
+deLorgeril_Susceptible_counts <- deLorgeril_counts[,row.names(deLorgeril_Susceptible_coldata)]
+colnames(deLorgeril_Susceptible_counts)
+
+### DATA QC PCA PLOT 
+# rlog transform data is recommended over vst for small data sets 
+# PCA plots of data (https://bioinformatics-core-shared-training.github.io/cruk-summer-school-2018/RNASeq2018/html/02_Preprocessing_Data.nb.html#count-distribution-boxplots)
+deLorgeril_Resistant_counts_matrix <- as.matrix(deLorgeril_Resistant_counts)
+deLorgeril_Susceptible_counts_matrix <- as.matrix(deLorgeril_Susceptible_counts)
+
+deLorgeril_Resistant_vstcounts <- vst(deLorgeril_Resistant_counts_matrix, blind =TRUE)
+deLorgeril_Susceptible_vstcounts <- vst(deLorgeril_Susceptible_counts_matrix, blind =TRUE)
+
+# run PCA
+pcdeLorgeril <- prcomp(t(deLorgeril_Resistant_vstcounts))
+pcdeLorgeril_susceptible <- prcomp(t(deLorgeril_Susceptible_vstcounts ))
+
+# Plot PCA
+autoplot(pcdeLorgeril,
+         data = deLorgeril_Resistant_coldata, 
+         colour="Condition", 
+         size=5)# ~19% of variance explained, family is the main separation
+autoplot(pcdeLorgeril,
+         data = deLorgeril_Resistant_coldata, 
+         colour="Time", 
+         size=5) # some clustering by time
+autoplot(pcdeLorgeril_susceptible,
+         data = deLorgeril_Susceptible_coldata, 
+         colour="Condition", 
+         size=5) # ~25% of the variance explained 
+autoplot(pcdeLorgeril_susceptible,
+         data = deLorgeril_Susceptible_coldata, 
+         colour="Time", 
+         size=5)
+# Plot PCA 2 and 3 for comparison
+autoplot(pcdeLorgeril,
+         data = deLorgeril_Resistant_coldata, 
+         colour = "Condition", 
+         size = 5,
+         x = 2,
+         y = 3) # greater clustering by treatment
+autoplot(pcdeLorgeril_susceptible,
+         data = deLorgeril_Susceptible_coldata, 
+         colour = "Time", 
+         size = 5,
+         x = 2,
+         y = 3) # clustering mostly by time 
+
+## MAKE DESEQ DATA SET FROM MATRIX
+# This object specifies the count data and metadata you will work with. The design piece is critical.
+# Correct for batch effects if necessary in this original formula: see this thread https://support.bioconductor.org/p/121408/
+# do not correct counts using the removeBatchEffects from limma based on thread above 
+
+## Check levels 
+# It is prefered in R that the first level of a factor be the reference level for comparison
+# (e.g. control, or untreated samples), so we can relevel the factor like so
+# Check factor levels, set it so that comparison group is the first
+levels(deLorgeril_Resistant_coldata$Condition)# "AF11_Susceptible"         "AF11_Susceptible_control" "AF21_Resistant"           "AF21_Resistant_control" 
+deLorgeril_Resistant_coldata$Condition <- droplevels(deLorgeril_Resistant_coldata$Condition)
+levels(deLorgeril_Resistant_coldata$Condition) #  "AF21_Resistant"         "AF21_Resistant_control"       
+deLorgeril_Resistant_coldata$Condition <- factor(deLorgeril_Resistant_coldata$Condition, levels=c("AF21_Resistant_control", "AF21_Resistant"))
+levels(deLorgeril_Susceptible_coldata$Condition)  
+deLorgeril_Susceptible_coldata$Condition <- droplevels(deLorgeril_Susceptible_coldata$Condition)
+levels(deLorgeril_Susceptible_coldata$Condition)   #    "AF11_Susceptible"         "AF11_Susceptible_control"    
+deLorgeril_Susceptible_coldata$Condition <- factor(deLorgeril_Susceptible_coldata$Condition, levels=c("AF11_Susceptible_control","AF11_Susceptible" ))
+
+
+levels(deLorgeril_Resistant_coldata$Time) # "0h"  "12h" "24h" "48h" "60h" "6h"  "72h"
+deLorgeril_Resistant_coldata$Time <- factor(deLorgeril_Resistant_coldata$Time, levels=c("0h","6h","12h", "24h", "48h", "60h", "72h" ))
+levels(deLorgeril_Susceptible_coldata$Time) # "0h"  "12h" "24h" "48h" "60h" "6h"  "72h"
+deLorgeril_Susceptible_coldata$Time <- factor(deLorgeril_Susceptible_coldata$Time, levels=c("0h","6h","12h", "24h", "48h", "60h", "72h" ))
+
+## Creating three here so I can compare the results
+deLorgeril_Resistant_dds <- DESeqDataSetFromMatrix(countData = deLorgeril_Resistant_counts,
+                                 colData = deLorgeril_Resistant_coldata,
+                                 design = ~ Time) 
+                                  # with both time and condition included, 'Model matrix not full rank', getting rid of accounting for time
+
+deLorgeril_Susceptible_dds <- DESeqDataSetFromMatrix(countData = deLorgeril_Susceptible_counts,
+                                 colData = deLorgeril_Susceptible_coldata,
+                                 design = ~ Time)  # with both time and position included, 'Model matrix not full rank'. 
+                                #Looking at it this way allows me to look for the acute response
+
+## Prefiltering the data
+# Data prefiltering helps decrease the size of the data set and get rid of
+# rows with no data or very minimal data (<10). Apply a minimal filtering here as more stringent filtering will be applied later
+deLorgeril_Resistant_dds <- deLorgeril_Resistant_dds[ rowSums(counts(deLorgeril_Resistant_dds)) > 10, ]
+deLorgeril_Susceptible_dds <- deLorgeril_Susceptible_dds[ rowSums(counts(deLorgeril_Susceptible_dds)) > 10, ]
+
+## DATA TRANSFORMATION AND VISUALIZATION
+# Assess sample clustering after setting initial formula for comparison
+deLorgeril_Resistant_dds_vst <- vst(deLorgeril_Resistant_dds, blind = TRUE) # keep blind = true before deseq function has been run
+deLorgeril_Susceptible_dds_vst <- vst(deLorgeril_Susceptible_dds , blind = TRUE)
+
+## PCA plot visualization of individuals in the family, use vst because greater than 30 samples 
+plotPCA(deLorgeril_Resistant_dds_vst , intgroup=c("Time", "Condition")) # highly variable, a bit more of variation explained than before
+plotPCA(deLorgeril_Susceptible_dds_vst , intgroup=c("Time", "Condition"))
+
+### DIFFERENTIAL EXPRESSION ANALYSIS
+# run pipeline with single command because the formula has already been specified
+# Steps: estimation of size factors (controlling for differences in the sequencing depth of the samples), 
+# the estimation of dispersion values for each gene,and fitting a generalized linear model.
+deLorgeril_Resistant_dds_deseq <- DESeq(deLorgeril_Resistant_dds) 
+#-- note: fitType='parametric', but the dispersion trend was not well captured by the
+#function: y = a/x + b, and a local regression fit was automatically substituted.
+#specify fitType='local' or 'mean' to avoid this message next time.
+deLorgeril_Susceptible_dds_deseq <- DESeq(deLorgeril_Susceptible_dds) 
+
+## Check the resultsNames object of each to look at the available coefficients for use in lfcShrink command
+resultsNames(deLorgeril_Resistant_dds_deseq ) #"Intercept""Time_6h_vs_0h"  "Time_12h_vs_0h" "Time_24h_vs_0h" "Time_48h_vs_0h" "Time_60h_vs_0h" "Time_72h_vs_0h"
+resultsNames(deLorgeril_Susceptible_dds_deseq ) #"Intercept"      "Time_6h_vs_0h"  "Time_12h_vs_0h" "Time_24h_vs_0h" "Time_48h_vs_0h" "Time_60h_vs_0h" "Time_72h_vs_0h"
+
+## BUILD THE RESULTS OBJECT
+# Examining the results object, change alpha to p <0.05, looking at object metadata
+# use mcols to look at metadata for each table, creating three results objects to look find the acute response. The paper observed acute response around 48hr
+mcols(deLorgeril_Resistant_dds_deseq)
+deLorgeril_Resistant_dds_res_48 <- results(deLorgeril_Resistant_dds_deseq , alpha=0.05, name= "Time_48h_vs_0h" )
+deLorgeril_Resistant_dds_res_60 <- results(deLorgeril_Resistant_dds_deseq , alpha=0.05, name= "Time_60h_vs_0h" )
+deLorgeril_Resistant_dds_res_72 <- results(deLorgeril_Resistant_dds_deseq , alpha=0.05, name= "Time_72h_vs_0h" )
+
+mcols(deLorgeril_Susceptible_dds_deseq)
+deLorgeril_Susceptible_dds_res_48 <- results(deLorgeril_Susceptible_dds_deseq , alpha=0.05, name= "Time_48h_vs_0h" )
+deLorgeril_Susceptible_dds_res_60 <- results(deLorgeril_Susceptible_dds_deseq , alpha=0.05, name= "Time_60h_vs_0h" )
+deLorgeril_Susceptible_dds_res_72 <- results(deLorgeril_Susceptible_dds_deseq , alpha=0.05, name= "Time_72h_vs_0h" )
+
+### Perform LFC Shrinkage with apeglm
+## NOTES 
+# Before plotting we need to apply an LFC shrinkage, set the coef as the specific comparison in the ResultsNames function of the deseq object
+# Issue that the specific comparisons I set in my results formulas are not available in the ResultsNames coef list.
+# More detailed notes about LFC Shrinkage are in the code for the Zhang Vibrio
+
+## DECISION: USE SAME RES OBJECT TO KEEP ALPHA ADJUSTMENT, and use LFCShrink apeglm
+deLorgeril_Resistant_dds_res_48_LFC <- lfcShrink(deLorgeril_Resistant_dds_deseq , coef="Time_48h_vs_0h", type="apeglm",res=deLorgeril_Resistant_dds_res_48)
+deLorgeril_Resistant_dds_res_60_LFC <- lfcShrink(deLorgeril_Resistant_dds_deseq , coef="Time_60h_vs_0h", type="apeglm",res=deLorgeril_Resistant_dds_res_60)
+deLorgeril_Resistant_dds_res_72_LFC <- lfcShrink(deLorgeril_Resistant_dds_deseq , coef="Time_72h_vs_0h", type="apeglm",res=deLorgeril_Resistant_dds_res_72)
+deLorgeril_Susceptible_dds_res_48_LFC <- lfcShrink(deLorgeril_Susceptible_dds_deseq , coef= "Time_48h_vs_0h", type="apeglm", res=deLorgeril_Susceptible_dds_res_48)
+deLorgeril_Susceptible_dds_res_60_LFC <- lfcShrink(deLorgeril_Susceptible_dds_deseq , coef= "Time_60h_vs_0h", type="apeglm", res=deLorgeril_Susceptible_dds_res_60)
+deLorgeril_Susceptible_dds_res_72_LFC <- lfcShrink(deLorgeril_Susceptible_dds_deseq , coef= "Time_72h_vs_0h", type="apeglm", res=deLorgeril_Susceptible_dds_res_72)
+
+## EXPLORATORY PLOTTING OF RESULTS 
+## MA Plotting
+plotMA(deLorgeril_Resistant_dds_res_48_LFC , ylim = c(-5, 5))
+plotMA(deLorgeril_Resistant_dds_res_60_LFC , ylim = c(-5, 5)) # 60hr has more significant genes
+plotMA(deLorgeril_Resistant_dds_res_72_LFC , ylim = c(-5, 5)) # 72 hrs has less
+plotMA(deLorgeril_Susceptible_dds_res_48_LFC, ylim = c(-5, 5))
+plotMA(deLorgeril_Susceptible_dds_res_60_LFC, ylim = c(-5, 5)) # 60hr has many more significant genes
+plotMA(deLorgeril_Susceptible_dds_res_72_LFC, ylim = c(-5, 5)) # 72hr has less
+
+## Histogram of P values 
+# exclude genes with very small counts to avoid spikes and plot using the LFCshrinkage
+hist(deLorgeril_Resistant_dds_res_48_LFC $padj[deLorgeril_Resistant_dds_res_48_LFC$baseMean > 1], breaks = 0:20/20, col = "grey50", border = "white")
+hist(deLorgeril_Resistant_dds_res_60_LFC $padj[deLorgeril_Resistant_dds_res_60_LFC$baseMean > 1], breaks = 0:20/20, col = "grey50", border = "white")
+hist(deLorgeril_Resistant_dds_res_72_LFC $padj[deLorgeril_Resistant_dds_res_72_LFC$baseMean > 1], breaks = 0:20/20, col = "grey50", border = "white")
+hist(deLorgeril_Susceptible_dds_res_48_LFC$padj[deLorgeril_Susceptible_dds_res_48_LFC$baseMean > 1], breaks = 0:20/20, col = "grey50", border = "white")
+hist(deLorgeril_Susceptible_dds_res_60_LFC$padj[deLorgeril_Susceptible_dds_res_60_LFC$baseMean > 1], breaks = 0:20/20, col = "grey50", border = "white")
+hist(deLorgeril_Susceptible_dds_res_72_LFC$padj[deLorgeril_Susceptible_dds_res_72_LFC$baseMean > 1], breaks = 0:20/20, col = "grey50", border = "white")
+     
+### Subsetting Significant Genes by padj < 0.05
+# again, only working with the LFCshrinkage adjusted log fold changes, and with the BH adjusted p-value
+# first make sure to make the rownames with the transcript ID as a new column, then make it a dataframe for filtering
+deLorgeril_Resistant_dds_res_48_LFC_sig <- subset(  deLorgeril_Resistant_dds_res_48_LFC, padj < 0.05)
+deLorgeril_Resistant_dds_res_60_LFC_sig <- subset(  deLorgeril_Resistant_dds_res_60_LFC, padj < 0.05)
+deLorgeril_Resistant_dds_res_72_LFC_sig <- subset(  deLorgeril_Resistant_dds_res_72_LFC, padj < 0.05)
+deLorgeril_Susceptible_dds_res_48_LFC_sig <- subset(deLorgeril_Susceptible_dds_res_48_LFC, padj < 0.05)
+deLorgeril_Susceptible_dds_res_60_LFC_sig <- subset(deLorgeril_Susceptible_dds_res_60_LFC, padj < 0.05)
+deLorgeril_Susceptible_dds_res_72_LFC_sig <- subset(deLorgeril_Susceptible_dds_res_72_LFC, padj < 0.05)
+ 
+deLorgeril_Resistant_dds_res_48_LFC_sig$transcript_id <- row.names(  deLorgeril_Resistant_dds_res_48_LFC_sig) 
+deLorgeril_Resistant_dds_res_60_LFC_sig$transcript_id <- row.names(  deLorgeril_Resistant_dds_res_60_LFC_sig) 
+deLorgeril_Resistant_dds_res_72_LFC_sig$transcript_id <- row.names(  deLorgeril_Resistant_dds_res_72_LFC_sig) 
+deLorgeril_Susceptible_dds_res_48_LFC_sig$transcript_id <- row.names(deLorgeril_Susceptible_dds_res_48_LFC_sig) 
+deLorgeril_Susceptible_dds_res_60_LFC_sig$transcript_id <- row.names(deLorgeril_Susceptible_dds_res_60_LFC_sig) 
+deLorgeril_Susceptible_dds_res_72_LFC_sig$transcript_id <- row.names(deLorgeril_Susceptible_dds_res_72_LFC_sig) 
+
+deLorgeril_Resistant_dds_res_48_LFC_sig   <-as.data.frame(deLorgeril_Resistant_dds_res_48_LFC_sig)
+deLorgeril_Resistant_dds_res_60_LFC_sig   <-as.data.frame(deLorgeril_Resistant_dds_res_60_LFC_sig)
+deLorgeril_Resistant_dds_res_72_LFC_sig   <-as.data.frame(deLorgeril_Resistant_dds_res_72_LFC_sig)
+deLorgeril_Susceptible_dds_res_48_LFC_sig<-as.data.frame(deLorgeril_Susceptible_dds_res_48_LFC_sig)
+deLorgeril_Susceptible_dds_res_60_LFC_sig<-as.data.frame(deLorgeril_Susceptible_dds_res_60_LFC_sig)
+deLorgeril_Susceptible_dds_res_72_LFC_sig<-as.data.frame(deLorgeril_Susceptible_dds_res_72_LFC_sig)
+
+nrow(deLorgeril_Resistant_dds_res_48_LFC_sig) #1593
+nrow(deLorgeril_Resistant_dds_res_60_LFC_sig) # 3403
+nrow(deLorgeril_Resistant_dds_res_72_LFC_sig) # 2309
+nrow(deLorgeril_Susceptible_dds_res_48_LFC_sig) # 1778
+nrow(deLorgeril_Susceptible_dds_res_60_LFC_sig) # 10425
+nrow(deLorgeril_Susceptible_dds_res_72_LFC_sig) # 2991
+
+### GENE CLUSTERING ANALYSIS HEATMAPS  
+# Extract genes with the highest variance across samples for each comparison using either vst or rlog transformed data
+# This heatmap rather than plotting absolute expression strength plot the amount by which each gene deviates in a specific sample from the gene’s average across all samples. 
+# example codes from RNAseq workflow: https://www.bioconductor.org/packages/devel/workflows/vignettes/rnaseqGene/inst/doc/rnaseqGene.html#other-comparisons
+deLorgeril_Resistant_dds_vst_assay  <-  head(order(rowVars(assay(deLorgeril_Resistant_dds_vst  )), decreasing = TRUE), 200)
+deLorgeril_res_mat <- assay(deLorgeril_Resistant_dds_vst )[deLorgeril_Resistant_dds_vst_assay ,]
+deLorgeril_res_mat <- deLorgeril_res_mat - rowMeans(deLorgeril_res_mat)
+deLorgeril_res_anno <- as.data.frame(colData(deLorgeril_Resistant_dds_vst )[, c("Condition","Time")])
+deLorgeril_res_heatmap <- pheatmap(deLorgeril_res_mat, annotation_col = deLorgeril_res_anno)
+head(deLorgeril_res_mat) # largely clustering by time
+
+deLorgeril_Susceptible_dds_vst_assay  <-  head(order(rowVars(assay(deLorgeril_Susceptible_dds_vst  )), decreasing = TRUE), 200)
+deLorgeril_mat <- assay(deLorgeril_Susceptible_dds_vst )[deLorgeril_Resistant_dds_vst_assay ,]
+deLorgeril_mat <- deLorgeril_mat - rowMeans(deLorgeril_mat)
+deLorgeril_anno <- as.data.frame(colData(deLorgeril_Susceptible_dds_vst )[, c("Condition","Time")])
+deLorgeril_heatmap <- pheatmap(deLorgeril_mat, annotation_col = deLorgeril_anno)
+head(deLorgeril_mat)  # largely clustering by time
+
+# Gene clustering heatmap with only apoptosis genes #
+# vector C_gig_apop transcript IDs
+C_gig_rtracklayer_apop_product_final_transcript_id 
+# Search original counts table for apoptosis genes and do vst on just these
+deLorgeril_Resistant_counts_apop <- deLorgeril_Resistant_counts[row.names(deLorgeril_Resistant_counts) %in% C_gig_rtracklayer_apop_product_final_transcript_id,]
+deLorgeril_Susceptible_counts_apop <- deLorgeril_Susceptible_counts[row.names(deLorgeril_Susceptible_counts) %in% C_gig_rtracklayer_apop_product_final_transcript_id,]
+nrow(deLorgeril_Resistant_counts_apop ) #659
+nrow(deLorgeril_Susceptible_counts_apop ) #659
+
+deLorgeril_Resistant_counts_apop_dds <- DESeqDataSetFromMatrix(countData = deLorgeril_Resistant_counts_apop,
+                                             colData = deLorgeril_Resistant_coldata,
+                                             design = ~ Time) # using same formula as before
+deLorgeril_Susceptible_counts_apop_dds <- DESeqDataSetFromMatrix(countData = deLorgeril_Susceptible_counts_apop,
+                                                               colData = deLorgeril_Susceptible_coldata,
+                                                               design = ~ Time) # using same formula as before
+
+# Prefiltering the data and running vst
+deLorgeril_Resistant_counts_apop_dds <- deLorgeril_Resistant_counts_apop_dds[ rowSums(counts(deLorgeril_Resistant_counts_apop_dds)) > 10, ]
+deLorgeril_Susceptible_counts_apop_dds <- deLorgeril_Susceptible_counts_apop_dds[ rowSums(counts(deLorgeril_Susceptible_counts_apop_dds)) > 10, ]
+deLorgeril_Resistant_counts_apop_dds_vst <- varianceStabilizingTransformation(deLorgeril_Resistant_counts_apop_dds, blind=TRUE)
+deLorgeril_Susceptible_counts_apop_dds_vst <- varianceStabilizingTransformation(deLorgeril_Susceptible_counts_apop_dds, blind=TRUE)
+
+## PCA plot of rlog transformed counts for apoptosis
+plotPCA(deLorgeril_Resistant_counts_apop_dds_vst , intgroup="Time") # 0hr are outliers in apoptosis gene expression
+  # all timepoints other than time 0 cluster pretty closely together with not much separation
+plotPCA(deLorgeril_Susceptible_counts_apop_dds_vst, intgroup="Time") # greater separation of timepoints
+
+# heatmap of apoptosis genes 
+deLorgeril_Resistant_counts_apop_dds_vst_assay <-  assay(deLorgeril_Resistant_counts_apop_dds_vst)[,]
+deLorgeril_Resistant_apop_assay_mat <- deLorgeril_Resistant_counts_apop_dds_vst_assay  - rowMeans(deLorgeril_Resistant_counts_apop_dds_vst_assay )
+deLorgeril_Resistant_apop_assay_anno <- as.data.frame(colData(deLorgeril_Resistant_counts_apop_dds_vst)[, c("Condition","Time")])
+deLorgeril_Resistant_apop_assay_heatmap <- pheatmap(deLorgeril_Resistant_apop_assay_mat  , annotation_col = deLorgeril_Resistant_apop_assay_anno)
+head(deLorgeril_Resistant_apop_assay_mat ) 
+
+deLorgeril_Susceptible_counts_apop_dds_vst_assay <-  assay(deLorgeril_Susceptible_counts_apop_dds_vst)[,]
+deLorgeril_Susceptible_apop_assay_mat <- deLorgeril_Susceptible_counts_apop_dds_vst_assay  - rowMeans(deLorgeril_Susceptible_counts_apop_dds_vst_assay )
+deLorgeril_Susceptible_apop_assay_anno <- as.data.frame(colData(deLorgeril_Susceptible_counts_apop_dds_vst)[, c("Condition","Time")])
+deLorgeril_Susceptible_apop_assay_heatmap <- pheatmap(deLorgeril_Susceptible_apop_assay_mat  , annotation_col = deLorgeril_Susceptible_apop_assay_anno)
+head(deLorgeril_Susceptible_apop_assay_mat ) 
+
+# heatmap of most variable apoptosis genes (this selects genes with the greatest variance in the sample)
+topVarGenes_Resistant_counts_apop_assay <-  head(order(rowVars(assay(deLorgeril_Resistant_counts_apop_dds_vst )), decreasing = TRUE), 100) 
+top_Var_Resistant_counts_apop_assay_mat<- assay(deLorgeril_Resistant_counts_apop_dds_vst)[topVarGenes_Resistant_counts_apop_assay,]
+top_Var_Resistant_counts_apop_assay_mat <- top_Var_Resistant_counts_apop_assay_mat - rowMeans(top_Var_Resistant_counts_apop_assay_mat)
+top_Var_Resistant_counts_apop_assay_anno <- as.data.frame(colData(deLorgeril_Resistant_counts_apop_dds_vst)[, c("Condition","Time")])
+top_Var_Resistant_counts_apop_assay_heatmap <- pheatmap(top_Var_Resistant_counts_apop_assay_mat  , annotation_col = top_Var_Resistant_counts_apop_assay_anno)
+head(top_Var_Resistant_counts_apop_assay_mat )
+
+topVarGenes_Susceptible_counts_apop_assay <-  head(order(rowVars(assay(deLorgeril_Susceptible_counts_apop_dds_vst )), decreasing = TRUE), 100) 
+top_Var_Susceptible_counts_apop_assay_mat<- assay(deLorgeril_Susceptible_counts_apop_dds_vst)[topVarGenes_Susceptible_counts_apop_assay,]
+top_Var_Susceptible_counts_apop_assay_mat <- top_Var_Susceptible_counts_apop_assay_mat - rowMeans(top_Var_Susceptible_counts_apop_assay_mat)
+top_Var_Susceptible_counts_apop_assay_anno <- as.data.frame(colData(deLorgeril_Susceptible_counts_apop_dds_vst)[, c("Condition","Time")])
+top_Var_Susceptible_counts_apop_assay_heatmap <- pheatmap(top_Var_Susceptible_counts_apop_assay_mat  , annotation_col = top_Var_Susceptible_counts_apop_assay_anno)
+head(top_Var_Susceptible_counts_apop_assay_mat )
+
+# annotate the top 100 most variable genes  
+# reorder annotation table to match ordering in heatmap 
+top_Var_Susceptible_counts_apop_assay_heatmap_reorder <-rownames(top_Var_Susceptible_counts_apop_assay_mat[top_Var_Susceptible_counts_apop_assay_heatmap$tree_row[["order"]],])
+# annotate the row.names
+top_Var_Susceptible_counts_apop_assay_prot <- as.data.frame(top_Var_Susceptible_counts_apop_assay_heatmap_reorder)
+colnames(top_Var_Susceptible_counts_apop_assay_prot)[1] <- "transcript_id"
+top_Var_Susceptible_counts_apop_assay_prot_annot <- left_join(top_Var_Susceptible_counts_apop_assay_prot, select(C_gig_rtracklayer_transcripts, transcript_id, product, gene), by = "transcript_id")
+
+top_Var_Resistant_counts_apop_assay_heatmap_reorder <-rownames(top_Var_Resistant_counts_apop_assay_mat[top_Var_Resistant_counts_apop_assay_heatmap$tree_row[["order"]],])
+# annotate the row.names
+top_Var_Resistant_counts_apop_assay_prot <- as.data.frame(top_Var_Resistant_counts_apop_assay_heatmap_reorder)
+colnames(top_Var_Resistant_counts_apop_assay_prot)[1] <- "transcript_id"
+top_Var_Resistant_counts_apop_assay_prot_annot <- left_join(top_Var_Resistant_counts_apop_assay_prot, select(C_gig_rtracklayer_transcripts, transcript_id, product, gene), by = "transcript_id")
+
+### Extract list of significant Apoptosis Genes (not less than or greater than 1 LFC) using merge
+deLorgeril_Resistant_dds_res_48_LFC_sig_APOP <- merge(deLorgeril_Resistant_dds_res_48_LFC_sig, C_gig_rtracklayer_apop_product_final, by = "transcript_id" )
+deLorgeril_Resistant_dds_res_60_LFC_sig_APOP <- merge(deLorgeril_Resistant_dds_res_60_LFC_sig, C_gig_rtracklayer_apop_product_final, by = "transcript_id" )
+deLorgeril_Resistant_dds_res_72_LFC_sig_APOP <- merge(deLorgeril_Resistant_dds_res_72_LFC_sig, C_gig_rtracklayer_apop_product_final, by = "transcript_id" )
+deLorgeril_Susceptible_dds_res_48_LFC_sig_APOP <- merge(deLorgeril_Susceptible_dds_res_48_LFC_sig, C_gig_rtracklayer_apop_product_final, by = "transcript_id")
+deLorgeril_Susceptible_dds_res_60_LFC_sig_APOP <- merge(deLorgeril_Susceptible_dds_res_60_LFC_sig, C_gig_rtracklayer_apop_product_final, by = "transcript_id")
+deLorgeril_Susceptible_dds_res_72_LFC_sig_APOP <- merge(deLorgeril_Susceptible_dds_res_72_LFC_sig, C_gig_rtracklayer_apop_product_final, by = "transcript_id")
+
+deLorgeril_Resistant_dds_res_48_LFC_sig_APOP  <- arrange(deLorgeril_Resistant_dds_res_48_LFC_sig_APOP , -log2FoldChange)
+deLorgeril_Resistant_dds_res_60_LFC_sig_APOP  <- arrange(deLorgeril_Resistant_dds_res_60_LFC_sig_APOP , -log2FoldChange)
+deLorgeril_Resistant_dds_res_72_LFC_sig_APOP  <- arrange(deLorgeril_Resistant_dds_res_72_LFC_sig_APOP , -log2FoldChange)
+deLorgeril_Susceptible_dds_res_48_LFC_sig_APOP <- arrange(deLorgeril_Susceptible_dds_res_48_LFC_sig_APOP, -log2FoldChange)
+deLorgeril_Susceptible_dds_res_60_LFC_sig_APOP <- arrange(deLorgeril_Susceptible_dds_res_60_LFC_sig_APOP, -log2FoldChange)
+deLorgeril_Susceptible_dds_res_72_LFC_sig_APOP <- arrange(deLorgeril_Susceptible_dds_res_72_LFC_sig_APOP, -log2FoldChange)
+
+nrow(deLorgeril_Resistant_dds_res_48_LFC_sig_APOP) #25
+nrow(deLorgeril_Resistant_dds_res_60_LFC_sig_APOP) # 54
+nrow(deLorgeril_Resistant_dds_res_72_LFC_sig_APOP) # 33
+nrow(deLorgeril_Susceptible_dds_res_48_LFC_sig_APOP) #34
+nrow(deLorgeril_Susceptible_dds_res_60_LFC_sig_APOP) # 186
+nrow(deLorgeril_Susceptible_dds_res_72_LFC_sig_APOP) # 47
+
+View(deLorgeril_Resistant_dds_res_48_LFC_sig_APOP  $product)
+View(deLorgeril_Resistant_dds_res_60_LFC_sig_APOP  $product)
+View(deLorgeril_Resistant_dds_res_72_LFC_sig_APOP  $product)
+View(deLorgeril_Susceptible_dds_res_48_LFC_sig_APOP$product)
+View(deLorgeril_Susceptible_dds_res_60_LFC_sig_APOP$product) 
+View(deLorgeril_Susceptible_dds_res_72_LFC_sig_APOP$product)
+
+# Compare apoptosis genes between group_by_sim groups
+deLorgeril_Resistant_dds_res_48_LFC_sig_APOP <- ggplot(deLorgeril_Resistant_dds_res_48_LFC_sig_APOP, aes(x=product, y = log2FoldChange, fill=log2FoldChange)) + geom_col(position="dodge") +
+  coord_flip() + scale_fill_gradient2(low="purple",mid = "grey", high="darkgreen") + ggtitle("Resistant 48hr vs Control") +
+  ylab("Log2 Fold Change")
+deLorgeril_Resistant_dds_res_60_LFC_sig_APOP   <- ggplot(deLorgeril_Resistant_dds_res_60_LFC_sig_APOP, aes(x=product, y = log2FoldChange, fill=log2FoldChange)) + geom_col(position="dodge") +
+  coord_flip() + scale_fill_gradient2(low="purple",mid = "grey", high="darkgreen") + ggtitle("Resistant 60hr vs Control") +
+  ylab("Log2 Fold Change") # mostly upregulation
+deLorgeril_Resistant_dds_res_72_LFC_sig_APOP   <- ggplot(deLorgeril_Resistant_dds_res_72_LFC_sig_APOP, aes(x=product, y = log2FoldChange, fill=log2FoldChange)) + geom_col(position="dodge") +
+  coord_flip() + scale_fill_gradient2(low="purple",mid = "grey", high="darkgreen") + ggtitle("Resistant 72hr vs Control") +
+  ylab("Log2 Fold Change") # downregulation of cathepsins
+
+deLorgeril_Susceptible_dds_res_48_LFC_sig_APOP <- ggplot(deLorgeril_Susceptible_dds_res_48_LFC_sig_APOP, aes(x=product, y = log2FoldChange, fill=log2FoldChange)) + geom_col(position="dodge") +
+  coord_flip() + scale_fill_gradient2(low="purple",mid = "grey", high="darkgreen") + ggtitle("Susceptible 48hr vs Control") +
+  ylab("Log2 Fold Change")
+deLorgeril_Susceptible_dds_res_60_LFC_sig_APOP <- ggplot(deLorgeril_Susceptible_dds_res_60_LFC_sig_APOP, aes(x=product, y = log2FoldChange, fill=log2FoldChange)) + geom_col(position="dodge") +
+  coord_flip() + scale_fill_gradient2(low="purple",mid = "grey", high="darkgreen") + ggtitle("Susceptible 60hr vs Control") +
+  ylab("Log2 Fold Change") # TLR downregulation, a lot of upregulation
+deLorgeril_Susceptible_dds_res_72_LFC_sig_APOP <- ggplot(deLorgeril_Susceptible_dds_res_72_LFC_sig_APOP, aes(x=product, y = log2FoldChange, fill=log2FoldChange)) + geom_col(position="dodge") +
+  coord_flip() + scale_fill_gradient2(low="purple",mid = "grey", high="darkgreen") + ggtitle("Resistant 72hr vs Control") +
+  ylab("Log2 Fold Change") 
+
+#### HE OSHV1 TRANSCRIPTOME ANALYSIS ####
 ## LOAD DATA
 He_counts <- read.csv("/Users/erinroberts/Documents/PhD_Research/Chapter_1_Apoptosis Paper/Chapter1_Apoptosis_Transcriptome_Analyses_2019/DATA ANALYSIS/apoptosis_data_pipeline/DESeq2/2020_Transcriptome_ANALYSIS/He_transcript_count_matrix.csv", header=TRUE,
                          row.names = "transcript_id")
@@ -1278,7 +1648,7 @@ head(He_counts )
 colnames(He_counts)
 
 # remove MSTRG novel transcript lines (can assess these later if necessary)
-Rubio_counts <- Rubio_counts[!grepl("MSTRG", row.names(Rubio_counts)),]
+He_counts <- He_counts[!grepl("MSTRG", row.names(He_counts)),]
 
 # Cute the "rna-" from the beginning of rownames
 remove_rna = function(x){
