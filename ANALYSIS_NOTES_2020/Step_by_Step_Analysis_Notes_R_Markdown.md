@@ -967,4 +967,4 @@ All done.
   * 60hr appears to be the acute response time point for each (most significantly differentially expressed genes), but more so in the susceptible family
 
 ## 2/21/2020 Dermo Transcriptome analysis
-* Creating `Dermo_coldata.csv`
+* Creating `Dermo_coldata.csv`. Flenames and technical replicates with their sample names using the `SRA_metadata_2019_paper_11_15_2019.xlsx` file and then added sample metadata (timepoint, logConc) by matching samplenames to those in `Dermo_trancript_count_matrix.csv` file. Not all the timepoints had units for time in the metadata, added units. Added an h to represent hours for each timepoint. Added Family column. Adding in library prep date also because this was found to be the cause of batch effects in Proestou et al., 2020. 

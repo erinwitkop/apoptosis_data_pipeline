@@ -2362,254 +2362,309 @@ ROD_Resistant_dds_res_LFC_sig_APOP_plot <- ggplot(ROD_Resistant_dds_res_LFC_sig_
   coord_flip() + scale_fill_gradient2(low="purple",mid = "grey", high="darkgreen") + ggtitle("Susceptible Early vs Late") +
   ylab("Log2 Fold Change")
 
-###### PROESTOU DERMO TRANSCRIPTOME ANALYSIS ####
+###### DERMO PROESTOU TRANSCRIPTOME ANALYSIS ####
 
-#Load in TRANSCRIPT expression data as count matrix
-Dermo_counts <- read.csv("/Users/erinroberts/Documents/PhD_Research/Chapter_1_Apoptosis Paper/Chapter1_Apoptosis_Transcriptome_Analyses_2019/DATA ANALYSIS/apoptosis_data_pipeline/DESeq2/2020_Transcriptome_ANALYSIS", 
-                         row.names="X")
+# DA is susceptible and LB is tolerant
+
+Dermo_counts <- read.csv("/Users/erinroberts/Documents/PhD_Research/Chapter_1_Apoptosis Paper/Chapter1_Apoptosis_Transcriptome_Analyses_2019/DATA ANALYSIS/apoptosis_data_pipeline/DESeq2/2020_Transcriptome_ANALYSIS/Dermo_transcript_count_matrix.csv", header=TRUE,
+                       row.names = "transcript_id")
+head(Dermo_counts)
+colnames(Dermo_counts)
+ncol(Dermo_counts)
+
+# remove MSTRG novel transcript lines (can assess these later if necessary)
+Dermo_counts <- Dermo_counts[!grepl("MSTRG", row.names(Dermo_counts)),]
+row.names(Dermo_counts) <- remove_rna(row.names(Dermo_counts))
 head(Dermo_counts)
 
 #Load in sample metadata
-Dermo_coldata <- read.csv("/Users/erinroberts/Documents/PhD_Research/Chapter_1_Apoptosis Paper/Chapter1_Apoptosis_Transcriptome_Analyses_2019/RAW DATA AND INFO/2015 Dermo Challenge /DATA/6h_36h_7d_DA_LB_metadata.csv",row.names=1 )
-head(Dermo_coldata)  
-nrow(Dermo_coldata) 
+Dermo_coldata <- read.csv("/Users/erinroberts/Documents/PhD_Research/Chapter_1_Apoptosis Paper/Chapter1_Apoptosis_Transcriptome_Analyses_2019/DATA ANALYSIS/apoptosis_data_pipeline/DESeq2/2020_Transcriptome_ANALYSIS/Dermo_coldata.csv", row.names = 1 )
+View(Dermo_coldata )  
+nrow(Dermo_coldata ) 
 
-# Make sure the columns of the count matrix and rows of the column data (sample metadata)
-# are in the same order. Both of the following should return true
+# Make sure the columns of the count matrix and rows of the column data (sample metadata) are in the same order. 
+all(rownames(Dermo_coldata ) %in% colnames(Dermo_counts))  #Should return TRUE
+# returns TRUE
+all(colnames(Dermo_counts) %in% rownames(Dermo_coldata ))  
+# returns TRUE
+all(rownames(Dermo_coldata ) == colnames(Dermo_counts))
 
-all(rownames(Dermo_coldata) %in% colnames(Dermo_counts))  #Should return TRUE
-# returns TRUE
-all(colnames(Dermo_counts) %in% rownames(Dermo_coldata))  
-# returns TRUE
-all(rownames(Dermo_coldata) == colnames(Dermo_counts))    # should return TRUE
-# returns FALSE
 # Fix the order
-Dermo_counts <- Dermo_counts[,colnames(Dermo_counts)]
-colnames(Dermo_counts)
-rownames(Dermo_coldata)
-# recheck the order
-all(rownames(Dermo_coldata) == colnames(Dermo_counts)) # FALSE
+Dermo_counts <- Dermo_counts[,row.names(Dermo_coldata)]
 
+all(rownames(Dermo_coldata ) %in% colnames(Dermo_counts))  #Should return TRUE
+# returns TRUE
+all(colnames(Dermo_counts) %in% rownames(Dermo_coldata ))  
+# returns TRUE
+all(rownames(Dermo_coldata ) == colnames(Dermo_counts))
+# returns TRUE
 
-# add column that is specifically rownames
-Dermo_coldata$rownames <- rownames(Dermo_coldata)
-head(Dermo_coldata)
+# going to split the analysis into DA and LB 
+Dermo_Susceptible_coldata <- Dermo_coldata %>%  subset(Family == "DA") # subset() keeps rownames
+row.names(Dermo_Susceptible_coldata )
+Dermo_Susceptible_counts <- Dermo_counts[,row.names(Dermo_Susceptible_coldata )]
+colnames(Dermo_Susceptible_counts)
+Dermo_Tolerant_coldata <- Dermo_coldata %>%  subset(Family == "LB") # subset() keeps rownames
+Dermo_Tolerant_counts <- Dermo_counts[,row.names(Dermo_Tolerant_coldata)]
 
-####### Check levels #######
-# It is prefered in R that the first level of a factor be the reference level for comparison
-# (e.g. control, or untreated samples), so we can relevel the dex factor like so
+### DATA QC PCA PLOT 
+# rlog transform data is recommended over vst for small data sets 
+# PCA plots of data (https://bioinformatics-core-shared-training.github.io/cruk-summer-school-2018/RNASeq2018/html/02_Preprocessing_Data.nb.html#count-distribution-boxplots)
+Dermo_Susceptible_counts_matrix <- as.matrix(Dermo_Susceptible_counts)
+Dermo_Tolerant_counts_matrix <-    as.matrix(Dermo_Tolerant_counts)
 
-# Check factor levels, set it so that comparison group is the first
-levels(Dermo_coldata$FamCode) #"DA" "LB"
+Dermo_Susceptible_vstcounts <- vst(Dermo_Susceptible_counts_matrix , blind =TRUE)
+Dermo_Tolerant_vstcounts <-    vst(Dermo_Tolerant_counts_matrix, blind =TRUE)
 
-# LB all timepoints
-levels(Dermo_coldata_LB_all$Timepoint) # #"6h"  "36h" "7d"
-Dermo_coldata_LB_all$Timepoint <- factor(Dermo_coldata_LB_all$Timepoint, levels=c("6h","36h","7d"))
+# run PCA
+pcDermo_Susceptible <- prcomp(t(Dermo_Susceptible_vstcounts))
+pcDermo_Tolerant <-   prcomp(t(Dermo_Tolerant_vstcounts))
 
-# DA all timepoints
-levels(Dermo_coldata_DA_all$Timepoint) # #"6h"  "36h" "7d" 
-Dermo_coldata_DA_all$Timepoint <- factor(Dermo_coldata_DA_all$Timepoint, levels=c("6h","36h","7d"))
+# Plot PCA
+autoplot(pcDermo_Susceptible,
+         data = Dermo_Susceptible_coldata, 
+         colour="Time", 
+         size=5) # PCA axes don't explain much of the variation, there are three clusters but they don't really have a lot in common 
+autoplot(pcDermo_Susceptible,
+         data = Dermo_Susceptible_coldata, 
+         colour="LogConc", 
+         size=5)
+autoplot(pcDermo_Susceptible,
+         data = Dermo_Susceptible_coldata, 
+         colour="Condition", 
+         size=5)
+autoplot(pcDermo_Susceptible,
+         data = Dermo_Susceptible_coldata, 
+         colour="Tech_rep", 
+         size=5) # technical replicates track very closely 
+autoplot(pcDermo_Susceptible,
+         data = Dermo_Susceptible_coldata, 
+         colour="Lib_prep_date", # batches are totally based on library prep date 
+         size=5)
+autoplot(pcDermo_Susceptible,
+         data = Dermo_Susceptible_coldata, 
+         colour="LogConc", 
+         size=5) # the sample with no ROD signs is a strong outlier, could use disease stage as the basis for comparison here, day 15 and 30 cluster closely together
+autoplot(pcDermo_Tolerant,
+         data = Dermo_Tolerant_coldata, 
+         colour="Time", 
+         size=5) #
+autoplot(pcDermo_Tolerant,
+         data = Dermo_Tolerant_coldata, 
+         colour="Condition", 
+         size=5) #
+autoplot(pcDermo_Tolerant,
+         data = Dermo_Tolerant_coldata, 
+         colour="Lib_prep_date", 
+         size=5) #large separation by lib prep date 
 
-#### Build DESeqDataSetFromMatrix ####
-
-#This object specifies the count data and metadata you will work with. The design piece is critical.
-#For this, I will include the library prep date because Mary said there are significant batch effects present.
-#Unlike their analysis, I will set my second design variable as the Family code as it first
-# differences between families that I care about. 
-# dds object with all data combined for comparing all sample clustering in exploratory analysis
-
-# Batch effects corrected in the original formula: see this thread https://support.bioconductor.org/p/121408/
+## MAKE DESEQ DATA SET FROM MATRIX
+# This object specifies the count data and metadata you will work with. The design piece is critical.
+# Correct for batch effects if necessary in this original formula: see this thread https://support.bioconductor.org/p/121408/
 # do not correct counts using the removeBatchEffects from limma based on thread above 
 
-Dermo_dds_family <- DESeqDataSetFromMatrix(countData = Dermo_counts,
-                                           colData = Dermo_coldata,
-                                           design = ~Library_Prep_Date + Treat +FamCode)
-##### Prefiltering the data #####
+## Check levels 
+# It is prefered in R that the first level of a factor be the reference level for comparison
+# (e.g. control, or untreated samples), so we can relevel the factor like so
+# Check factor levels, set it so that comparison group is the first
+levels(Dermo_Susceptible_coldata$Condition) #"Control"  "Injected"
+levels(Dermo_Tolerant_coldata$Condition) #"Control"  "Injected"
+levels(Dermo_Susceptible_coldata$Time) # "28d" "36h" "7d" 
+levels(Dermo_Tolerant_coldata$Time) # "28d" "36h" "7d"
+levels(Dermo_Tolerant_coldata$Lib_prep_date)
+levels(Dermo_Susceptible_coldata$Lib_prep_date)
+Dermo_Susceptible_coldata$Time <- factor(Dermo_Susceptible_coldata$Time, levels= c("36h","7d","28d"))
+Dermo_Tolerant_coldata$Time <- factor(Dermo_Tolerant_coldata$Time, levels= c("36h","7d","28d"))
 
+## Creating two data set from matrix, one for each family  
+Dermo_Tolerant_dds <- DESeqDataSetFromMatrix(countData =Dermo_Tolerant_counts,
+                                            colData = Dermo_Tolerant_coldata,
+                                            design = ~Lib_prep_date + Condition + Time) # keep time at end so I can look for condition effect through time
+Dermo_Susceptible_dds <- DESeqDataSetFromMatrix(countData = Dermo_Susceptible_counts,
+                                              colData = Dermo_Susceptible_coldata,
+                                              design = ~Lib_prep_date + Condition + Time) # keep time at end so I can look for condition effect through time
+
+## Prefiltering the data
 # Data prefiltering helps decrease the size of the data set and get rid of
 # rows with no data or very minimal data (<10). Apply a minimal filtering here as more stringent filtering will be applied later
+Dermo_Tolerant_dds <- Dermo_Tolerant_dds[ rowSums(counts(Dermo_Tolerant_dds )) > 10, ]
+Dermo_Susceptible_dds <- Dermo_Susceptible_dds[rowSums(counts(Dermo_Susceptible_dds )) > 10, ]
 
-Dermo_dds_family <- Dermo_dds_family[ rowSums(counts(Dermo_dds_family)) > 10, ]
+## DATA TRANSFORMATION AND VISUALIZATION
+# Assess sample clustering after setting initial formula for comparison
+Dermo_Tolerant_dds_vst <- vst(Dermo_Tolerant_dds , blind = TRUE) # keep blind = true before deseq function has been run
+Dermo_Susceptible_dds_vst <- vst(Dermo_Susceptible_dds , blind = TRUE) # keep blind = true before deseq function has been run
 
-#### VST Transformation of count data for visualization #### 
+## PCA plot visualization of individuals in the family 
+plotPCA(ROD_Resistant_dds_rlog, intgroup= "Condition") # no clustering by treatment
+plotPCA(ROD_Susceptible_dds_rlog , intgroup="Condition") # some clustering
 
-# VST Transforming the count data for visualization
-# this is only going to be performed for the full data set and not each of the individual data sets
-# rlog transformation is recommended for small datasets (n<30) while VST is recommended for larger data sets
-nrow(Dermo_coldata)
-# there are 53 samples, VST is recommended
-
-Dermo_dds_family_vsd <- vst(Dermo_dds_family, blind=FALSE)
-
-# Calculate sample distances to assess overall sample similarity
-# use function dist to calculate the Euclidean distance between samples. 
-# To ensure we have a roughly equal contribution from all genes, we use it on the VST data. 
-# We need to transpose the matrix of values using t, because the dist function expects the different samples to be rows of its argument, and different dimensions (here, genes) to be columns.
-
-Dermo_dds_family_vsd_dist <- dist(t(assay(Dermo_dds_family_vsd)))
-Dermo_dds_family_vsd_dist
-
-#####  plot sample distances using a heatmap with pheatmap.#####
-# manually provide sampledists to the clustering_distance argument
-# make the column names of the matrix the family and the individual
-Dermo_dds_family_vsd_dist_matrix <- as.matrix(Dermo_dds_family_vsd_dist)
-rownames(Dermo_dds_family_vsd_dist_matrix) <- paste(Dermo_dds_family_vsd$FamCode, Dermo_dds_family_vsd$Ind, sep="-")
-#colnames(Dermo_dds_family_vsd_dist_matrix) <- NULL
-colors <- colorRampPalette( rev(brewer.pal(9, "Blues")) )(255)
-pheatmap(Dermo_dds_family_vsd_dist_matrix,
-         clustering_distance_rows = Dermo_dds_family_vsd_dist,
-         clustering_distance_cols = Dermo_dds_family_vsd_dist,
-         col=colors)
-
-# For the most part, the LB and the DA cluster together
-
-##### PCA plot visualization of individuals in the family #####
-plotPCA(Dermo_dds_family_vsd, intgroup=c("FamCode","Treat"))
-#the DA family samples are closely clustered, while the LB family is less close together,
-# but still falling out in the same location 
-
-##### Differential Expression Analysis ####
-
-## RUN DESEQ PIPELINE WITH DESEQ COMMAND
-
+### DIFFERENTIAL EXPRESSION ANALYSIS
 # run pipeline with single command because the formula has already been specified
 # Steps: estimation of size factors (controlling for differences in the sequencing depth of the samples), 
-# the estimation of dispersion values for each gene, 
-# and fitting a generalized linear model.
+# the estimation of dispersion values for each gene,and fitting a generalized linear model.
+ROD_Resistant_dds_deseq <- DESeq(ROD_Resistant_dds) 
+ROD_Susceptible_dds_deseq <- DESeq(ROD_Susceptible_dds) 
 
-Dermo_dds_family_deseq <- DESeq(Dermo_dds_family) 
-## Check the resultsNames object of each to look at the available coef
-
-resultsNames(Dermo_dds_family_deseq) # "Intercept" "Library_Prep_Date_17_Dec_vs_15_Dec" "FamCode_LB_vs_DA"
+## Check the resultsNames object of each to look at the available coefficients for use in lfcShrink command
+resultsNames(ROD_Resistant_dds_deseq) # [1] "Intercept" , "Time_5d_vs_1d" , "Time_15d_vs_1d", "Time_30d_vs_1d", "Condition_Resistant_Challenge_vs_Control_Resistant"
+resultsNames(ROD_Susceptible_dds_deseq) # [1] "Intercept"  "Condition_Late_Susecptible_vs_Early_Susceptible"
 
 ## BUILD THE RESULTS OBJECT
-
 # Examining the results object, change alpha to p <0.05, looking at object metadata
 # use mcols to look at metadata for each table
+mcols(ROD_Resistant_dds_deseq)
+mcols(ROD_Susceptible_dds_deseq)
 
-# Full Family DESeq
-Dermo_dds_family_res <- results(Dermo_dds_family_deseq, alpha=0.05, name="FamCode_LB_vs_DA")
-Dermo_dds_family_res # comparison is log2 fold change (MLE): FamCode LB vs DA
+ROD_Resistant_dds_res <- results(ROD_Resistant_dds_deseq, alpha=0.05, name= "Condition_Resistant_Challenge_vs_Control_Resistant")
+head(ROD_Resistant_dds_res)  # : Condition Resistant Challenge vs Control Resistant 
+ROD_Susceptible_dds_res <- results(ROD_Susceptible_dds_deseq, alpha=0.05, name= "Condition_Late_Susecptible_vs_Early_Susceptible")
+head(ROD_Susceptible_dds_res)  # Condition Late Susecptible vs Early Susceptible 
 
-#### Perform LFC Shrinkage with ApeGLM ####
-
+### Perform LFC Shrinkage with apeglm
 ## NOTES 
-# Before plotting we need to apply an apeglm LFC shrinkage, set the coef as the specific comparison in the ResultsNames function of the deseq object
-# Issue that the specific comparisons I set in my results formulas are not available in the ResultsNames coef list. Need to either add these, or go with the 36h vs. 6hr comparison
+# Before plotting we need to apply an LFC shrinkage, set the coef as the specific comparison in the ResultsNames function of the deseq object
+# Issue that the specific comparisons I set in my results formulas are not available in the ResultsNames coef list.
+# More detailed notes about LFC Shrinkage are in the code for the Zhang Vibrio
 
-# NOTES from Michael love on Lfcshrinkage (https://support.bioconductor.org/p/77461/): 
-# https://support.bioconductor.org/p/110307/ # very helpful distinction between lfcestimate and lfc shrinkage
-# The difference between results() and lfcShrink() is that the former does not provide fold change shrinkage. 
-# The latter function calls results() internally to create the p-value and adjusted p-value columns, 
-# which provide inference on the maximum likelihood LFC. The shrunken fold changes are useful for ranking genes by 
-# effect size and for visualization.
-# The shrinkage is generally useful, which is why it is enabled by default. Full methods are described in the DESeq2 paper (see DESeq2 citation),
-# but in short, it looks at the largest fold changes that are not due to low counts and uses these to inform a prior distribution. 
-# So the large fold changes from genes with lots of statistical information are not shrunk, while the imprecise fold changes are shrunk. 
-# This allows you to compare all estimated LFC across experiments, for example, which is not really feasible without the use of a prior.
-# THE lfcshrinkage is not Affecting the p values at all, but its just shrinking the log2 fold change and calculating a new standard error for it 
-# https://support.bioconductor.org/p/95695/
+## DECISION: USE SAME RES OBJECT TO KEEP ALPHA ADJUSTMENT, and use LFCShrink apeglm
+ROD_Resistant_dds_res_LFC<- lfcShrink(ROD_Resistant_dds_deseq, coef="Condition_Resistant_Challenge_vs_Control_Resistant", type="apeglm", res= ROD_Resistant_dds_res)
+ROD_Susceptible_dds_res_LFC <- lfcShrink(ROD_Susceptible_dds_deseq, coef="Condition_Late_Susecptible_vs_Early_Susceptible", type="apeglm", res=ROD_Susceptible_dds_res)
 
-#notes on setting up coefficients for apeglm, https://support.bioconductor.org/p/115435/ , https://bioconductor.org/packages/release/bioc/vignettes/DESeq2/inst/doc/DESeq2.html#extended-section-on-shrinkage-estimators
-
-# Although apeglm cannot be used with contrast, we note that many designs can be easily rearranged such that what was a contrast becomes its own coefficient.
-# In this case, the dispersion does not have to be estimated again, as the designs are equivalent, up to the meaning of the coefficients. 
-# Instead, one need only run nbinomWaldTest to re-estimate MLE coefficients – these are necessary for apeglm – and then run lfcShrink specifying 
-# the coefficient of interest in resultsNames(dds)
-# The user would for example, either change the levels of dds$condition or replace the design using design(dds)<-, then run nbinomWaldTest followed by lfcShrink
-
-# For each LFCshrink I can pass to it my res object for each so that I can keep my alpha setting at 0.05. Doing this procedure will 
-# keep the p-values and padj from the results() call, and simply update the LFCs so they are posterior estimates.
-
-## DECISION: GO WITH AVAILABLE CONTRASTS FROM THE RESULTSNAMES OBJECT FOR EACH, AND USE RES OBJECT TO KEEP ALPHA ADJUSTMENT
-
-Dermo_dds_family_res_LFC <- lfcShrink(Dermo_dds_family_deseq, coef="FamCode_LB_vs_DA", type="apeglm", res=Dermo_dds_family_res)
-
-## REVIEW RESULTS OBJECT SUMMARY ####
-# SHOWS NUMBER OF SIGNIFICANT GENES
-
-summary(Dermo_dds_timecourse_family_res) # NO LFC performed for this one yet as it may not end up being used
-#### Exploratory Plotting of Results ####
-
+## EXPLORATORY PLOTTING OF RESULTS 
 ## MA Plotting
+plotMA(ROD_Resistant_dds_res_LFC, ylim = c(-5, 5))
+plotMA(ROD_Susceptible_dds_res_LFC, ylim = c(-5, 5))
 
-plotMA(Dermo_dds_LB_time_res_early_late_LFC , ylim = c(-5, 5))
-## Histogram of P values ##
+## Histogram of P values 
 # exclude genes with very small counts to avoid spikes and plot using the LFCshrinkage
-
-hist(Dermo_dds_LB_time_res_early_late_LFC$padj[Dermo_dds_LB_time_res_early_late_LFC$baseMean > 1], breaks = 0:20/20,
+hist(ROD_Resistant_dds_res_LFC$padj[ROD_Resistant_dds_res_LFC$baseMean > 1], breaks = 0:20/20,
      col = "grey50", border = "white")
-#### Subsetting Significant Genes by padj < 0.05 and L2FC of greater than 1.0 or less than -1.0 #####
+hist(ROD_Susceptible_dds_res_LFC$padj[ROD_Susceptible_dds_res_LFC$baseMean > 1], breaks = 0:20/20,
+     col = "grey50", border = "white")
 
+### Subsetting Significant Genes by padj < 0.05
 # again, only working with the LFCshrinkage adjusted log fold changes, and with the BH adjusted p-value
 # first make sure to make the rownames with the transcript ID as a new column, then make it a dataframe for filtering
-Dermo_dds_family_res_LFC_sig <- subset(Dermo_dds_family_res_LFC, padj < 0.05)
-Dermo_dds_family_res_LFC_sig$transcript_id <- row.names(Dermo_dds_family_res_LFC_sig)
-Dermo_dds_family_res_LFC_sig <- as.data.frame(Dermo_dds_family_res_LFC_sig)
-Dermo_dds_family_res_LFC_sig <- Dermo_dds_family_res_LFC_sig %>% filter(abs(log2FoldChange) >= 1.0)
-nrow(Dermo_dds_family_res_LFC_sig) #3636
-nrow(Dermo_dds_family_res_LFC) # 53379
+ROD_Resistant_dds_res_LFC_sig <-  subset(ROD_Resistant_dds_res_LFC , padj < 0.05)
+ROD_Resistant_dds_res_LFC_sig$ID<- row.names(ROD_Resistant_dds_res_LFC_sig)
+ROD_Resistant_dds_res_LFC_sig <- as.data.frame(ROD_Resistant_dds_res_LFC_sig)
+nrow(ROD_Resistant_dds_res_LFC_sig) # 68
 
-#### Which transcripts are different between timepoint comparisons? #####
+ROD_Susceptible_dds_res_LFC_sig <-  subset(ROD_Susceptible_dds_res_LFC , padj < 0.05)
+ROD_Susceptible_dds_res_LFC_sig$ID<- row.names(ROD_Susceptible_dds_res_LFC_sig)
+ROD_Susceptible_dds_res_LFC_sig <- as.data.frame(ROD_Susceptible_dds_res_LFC_sig)
+nrow(ROD_Susceptible_dds_res_LFC_sig)  #2020
 
-## Comparison of transcripts within families
-# Transcripts in DA in the 6 vs 7d comparison not in the 6 vs 36r comparison
-DA_early_late_not_early_middle <- Dermo_dds_DA_time_res_early_late_LFC_sig$transcript_id[!(Dermo_dds_DA_time_res_early_late_LFC_sig$transcript_id %in% Dermo_dds_DA_time_res_early_middle_LFC_sig$transcript_id)] 
-length(DA_early_late_not_early_middle) #1561 , DA_early_late has 4828
-#### Upset plots of overall gene expression changes between samples ####
-# helpful tutorial for doing this: http://genomespot.blogspot.com/2017/09/upset-plots-as-replacement-to-venn.html
-# http://crazyhottommy.blogspot.com/2016/01/upset-plot-for-overlapping-chip-seq.html
-# UpsetR vignette: https://cran.r-project.org/web/packages/UpSetR/vignettes/basic.usage.html
-# first extract gene list for each set
-Dermo_dds_family_res_LFC_sig_id <- Dermo_dds_family_res_LFC_sig$transcript_id
-Dermo_dds_6h_res_LFC_sig_id  <-Dermo_dds_6h_res_LFC_sig$transcript_id
-
-##### Gene Clustering Analysis Heatmaps ####
-
-# plot 40 genes with the highest variance across samples for each comparison, we will work with the vsd data for this
-# then we will generate a heatmap with the 40 most variable VST-transformed genes 
-
-# Subset the top 40 variable genes for plotting 
-
+### GENE CLUSTERING ANALYSIS HEATMAPS  
+# Extract genes with the highest variance across samples for each comparison using either vst or rlog transformed data
+# This heatmap rather than plotting absolute expression strength plot the amount by which each gene deviates in a specific sample from the gene’s average across all samples. 
 # example codes from RNAseq workflow: https://www.bioconductor.org/packages/devel/workflows/vignettes/rnaseqGene/inst/doc/rnaseqGene.html#other-comparisons
-# topVarGenes <- head(order(rowVars(assay(vsd)), decreasing = TRUE), 40)
-# mat  <- assay(vsd)[ topVarGenes, ]
-# mat  <- mat - rowMeans(mat)
-# anno <- as.data.frame(colData(vsd)[, c("cell","dex")])
-# pheatmap(mat, annotation_col = anno)
+ROD_Resistant_dds_rlog
+ROD_Susceptible_dds_rlog
 
-# Family all timepoints
-topVarGenes_Dermo_dds_family_vsd <-  head(order(rowVars(assay(Dermo_dds_family_vsd )), decreasing = TRUE), 40)
-family_res_mat <- assay(Dermo_dds_family_vsd)[topVarGenes_Dermo_dds_family_vsd,]
-family_res_mat <- family_res_mat - rowMeans(family_res_mat)
-family_res_anno <- as.data.frame(colData(Dermo_dds_family_vsd)[, c("FamCode", "Timepoint")])
-family_heatmap <- pheatmap(family_res_mat, annotation_col = family_res_anno)
-head(family_res_mat)
+ROD_Resistant_dds_LFC_assay <-  head(order(rowVars(assay(ROD_Resistant_dds_rlog  )), decreasing = TRUE), 200)
+ROD_Resistant_mat <- assay(ROD_Resistant_dds_rlog )[ROD_Resistant_dds_LFC_assay,]
+ROD_Resistant_mat <- ROD_Resistant_mat - rowMeans(ROD_Resistant_mat)
+ROD_Resistant_anno <- as.data.frame(colData(ROD_Resistant_dds_rlog )[, c("Condition","Time")])
+ROD_Resistant_heatmap <- pheatmap(ROD_Resistant_mat , annotation_col = ROD_Resistant_anno)
+head(ROD_Resistant_mat) # some clustering by bacillus, still overall clustering by day
+
+ROD_Susceptible_dds_LFC_assay <-  head(order(rowVars(assay(ROD_Susceptible_dds_rlog  )), decreasing = TRUE), 200)
+ROD_Susceptible_mat <- assay(ROD_Susceptible_dds_rlog )[ROD_Susceptible_dds_LFC_assay,]
+ROD_Susceptible_mat <- ROD_Susceptible_mat - rowMeans(ROD_Susceptible_mat)
+ROD_Susceptible_anno <- as.data.frame(colData(ROD_Susceptible_dds_rlog )[, c("Condition","Time")])
+ROD_Susceptible_heatmap <- pheatmap(ROD_Susceptible_mat , annotation_col = ROD_Susceptible_anno)
+head(ROD_Susceptible_mat) # some clustering by bacillus, still overall clustering by day
+
+# Gene clustering heatmap with only apoptosis genes #
+# vector C_vir_apop transcript IDs
+# Search original counts for apoptosis genes and do rlog on just these
+ROD_Resistant_counts_apop <- ROD_Resistant_counts[row.names(ROD_Resistant_counts) %in% C_vir_rtracklayer_apop_product_final_ID,]
+ROD_Susceptible_counts_apop <- ROD_Susceptible_counts[row.names(ROD_Susceptible_counts) %in% C_vir_rtracklayer_apop_product_final_ID,]
+nrow(ROD_Resistant_counts_apop) #1026
+nrow( ROD_Susceptible_counts_apop) # 1026
+
+ROD_Resistant_counts_apop_dds <- DESeqDataSetFromMatrix(countData = ROD_Resistant_counts_apop,
+                                                        colData = ROD_Resistant_coldata,
+                                                        design = ~Time + Condition) # add time to control for time effect
+ROD_Susceptible_counts_apop_dds <- DESeqDataSetFromMatrix(countData = ROD_Susceptible_counts_apop,
+                                                          colData = ROD_Susceptible_coldata,
+                                                          design = ~Condition) # add time to control for time effect
+
+# Prefiltering the data and running rlog
+ROD_Resistant_counts_apop_dds<- ROD_Resistant_counts_apop_dds[ rowSums(counts(ROD_Resistant_counts_apop_dds)) > 10, ]
+ROD_Susceptible_counts_apop_dds<- ROD_Susceptible_counts_apop_dds[ rowSums(counts(ROD_Susceptible_counts_apop_dds)) > 10, ]
+
+ROD_Resistant_counts_apop_dds_rlog <- rlog(ROD_Resistant_counts_apop_dds, blind=TRUE)
+ROD_Susceptible_counts_apop_dds_rlog <- rlog(ROD_Susceptible_counts_apop_dds, blind=TRUE)
+
+
+## PCA plot of rlog transformed counts for apoptosis
+plotPCA(ROD_Resistant_counts_apop_dds_rlog  , intgroup="Time") # still overall clustering by time and not condition
+plotPCA(ROD_Susceptible_counts_apop_dds_rlog  , intgroup="Condition") # still overall clustering by time and not condition
+
+# heatmap of all apoptosis genes 
+ROD_Resistant_apop_assay <-  assay(ROD_Resistant_counts_apop_dds_rlog)[,]
+ROD_Resistant_apop_assay_mat <- ROD_Resistant_apop_assay - rowMeans(ROD_Resistant_apop_assay)
+ROD_Resistant_apop_assay_anno <- as.data.frame(colData(ROD_Resistant_counts_apop_dds_rlog )[, c("Condition","Time")])
+ROD_Resistant_apop_assay_heatmap <- pheatmap(ROD_Resistant_apop_assay_mat  , annotation_col = ROD_Resistant_apop_assay_anno)
+head(ROD_Resistant_apop_assay_mat ) # tighter grouping of challenge and control
+
+ROD_Susceptible_apop_assay <-  assay(ROD_Susceptible_counts_apop_dds_rlog)[,]
+ROD_Susceptible_apop_assay_mat <- ROD_Susceptible_apop_assay - rowMeans(ROD_Susceptible_apop_assay)
+ROD_Susceptible_apop_assay_anno <- as.data.frame(colData(ROD_Susceptible_counts_apop_dds_rlog )[, c("Condition","Time")])
+ROD_Susceptible_apop_assay_heatmap <- pheatmap(ROD_Susceptible_apop_assay_mat  , annotation_col = ROD_Susceptible_apop_assay_anno)
+head(ROD_Susceptible_apop_assay_mat ) # early and late cluster perfectly
+
+# heatmap of most variable apoptosis genes for Resistant family (this selects genes with the greatest variance in the sample)
+topVarGenes_ROD_Resistant_apop_assay <-  head(order(rowVars(assay(ROD_Resistant_counts_apop_dds_rlog)), decreasing = TRUE), 100) 
+top_Var_ROD_Resistant_apop_assay_mat<- assay(ROD_Resistant_counts_apop_dds_rlog)[topVarGenes_ROD_Resistant_apop_assay,]
+top_Var_ROD_Resistant_apop_assay_mat <- top_Var_ROD_Resistant_apop_assay_mat - rowMeans(top_Var_ROD_Resistant_apop_assay_mat)
+top_Var_ROD_Resistant_apop_assay_anno <- as.data.frame(colData(ROD_Resistant_counts_apop_dds_rlog)[, c("Condition","Time")])
+top_Var_ROD_Resistant_apop_assay_heatmap <- pheatmap(top_Var_ROD_Resistant_apop_assay_mat  , annotation_col = top_Var_ROD_Resistant_apop_assay_anno)
+head(top_Var_ROD_Resistant_apop_assay_mat )
+
+# annotate the top 100 most variable genes  
 # reorder annotation table to match ordering in heatmap 
-family_heatmap_reorder <-rownames(family_res_mat[family_heatmap$tree_row[["order"]],])
+top_Var_ROD_Resistant_apop_assay_heatmap_reorder <-rownames(top_Var_ROD_Resistant_apop_assay_mat[top_Var_ROD_Resistant_apop_assay_heatmap$tree_row[["order"]],])
 # annotate the row.names
-family_res_mat_prot <- as.data.frame(family_heatmap_reorder)
-colnames(family_res_mat_prot)[1] <- "transcript_id"
-family_res_mat_prot_annot <- family_res_mat_prot %>% left_join(select(C_vir_rtracklayer_transcripts_GO, transcript_id, product, gene), by = "transcript_id")
-#isolate interesting clusters
+top_Var_ROD_Resistant_apop_assay_prot <- as.data.frame(top_Var_ROD_Resistant_apop_assay_heatmap_reorder)
+colnames(top_Var_ROD_Resistant_apop_assay_prot)[1] <- "ID"
+top_Var_ROD_Resistant_apop_assay_prot_annot <- left_join(top_Var_ROD_Resistant_apop_assay_prot, select(C_vir_rtracklayer_apop_product_final, ID, product, gene), by = "ID")
 
-# LB vs. DA cluster
-LB_DA_cluster <- c("XM_022479343.1","XM_022473887.1","XM_022477354.1","XM_022477356.1")
-LB_DA_cluster <- as.data.frame(LB_DA_cluster)
-LB_DA_cluster <- rename(LB_DA_cluster, "transcript_id"=LB_DA_cluster)
-LB_DA_cluster_subset <- subset(family_res_mat_prot_annot, transcript_id %in% LB_DA_cluster$transcript_id)
-LB_DA_cluster_subset
-# grab 10 clusters assigned by pheatmap using cutree
-family_all_clusters <- cbind(family_res_mat, cluster=cutree(family_heatmap$tree_row, k=10))
+# heatmap of most variable apoptosis genes for Susceptible family (this selects genes with the greatest variance in the sample)
+topVarGenes_ROD_Susceptible_apop_assay <-  head(order(rowVars(assay(ROD_Susceptible_counts_apop_dds_rlog)), decreasing = TRUE), 100) 
+top_Var_ROD_Susceptible_apop_assay_mat<- assay(ROD_Susceptible_counts_apop_dds_rlog)[topVarGenes_ROD_Susceptible_apop_assay,]
+top_Var_ROD_Susceptible_apop_assay_mat <- top_Var_ROD_Susceptible_apop_assay_mat - rowMeans(top_Var_ROD_Susceptible_apop_assay_mat)
+top_Var_ROD_Susceptible_apop_assay_anno <- as.data.frame(colData(ROD_Susceptible_counts_apop_dds_rlog)[, c("Condition","Time")])
+top_Var_ROD_Susceptible_apop_assay_heatmap <- pheatmap(top_Var_ROD_Susceptible_apop_assay_mat  , annotation_col = top_Var_ROD_Susceptible_apop_assay_anno)
+head(top_Var_ROD_Susceptible_apop_assay_mat )
 
-#### Extract list of significant Apoptosis Genes ####
-Dermo_dds_family_res_LFC_sig_annot_APOP <- Dermo_dds_family_res_LFC_sig_annot[grepl(paste(Apoptosis_names,collapse="|"), 
-                                                                                    Dermo_dds_family_res_LFC_sig_annot$product, ignore.case = TRUE),]
-arrange(Dermo_dds_family_res_LFC_sig_annot_APOP, -log2FoldChange) 
-nrow(Dermo_dds_family_res_LFC_sig_annot_APOP) # 78
+# annotate the top 100 most variable genes  
+# reorder annotation table to match ordering in heatmap 
+top_Var_ROD_Susceptible_apop_assay_heatmap_reorder <-rownames(top_Var_ROD_Susceptible_apop_assay_mat[top_Var_ROD_Susceptible_apop_assay_heatmap$tree_row[["order"]],])
+# annotate the row.names
+top_Var_ROD_Susceptible_apop_assay_prot <- as.data.frame(top_Var_ROD_Susceptible_apop_assay_heatmap_reorder)
+colnames(top_Var_ROD_Susceptible_apop_assay_prot)[1] <- "ID"
+top_Var_ROD_Susceptible_apop_assay_prot_annot <- left_join(top_Var_ROD_Susceptible_apop_assay_prot, select(C_vir_rtracklayer_apop_product_final, ID, product, gene), by = "ID")
 
+### Extract list of significant Apoptosis Genes (not less than or greater than 1 LFC) using merge
+ROD_Susceptible_dds_res_LFC_sig_APOP <- merge(ROD_Susceptible_dds_res_LFC_sig, C_vir_rtracklayer_apop_product_final, by = "ID")
+ROD_Susceptible_dds_res_LFC_sig_APOP_arranged <- arrange(ROD_Susceptible_dds_res_LFC_sig_APOP, -log2FoldChange) 
+nrow(ROD_Susceptible_dds_res_LFC_sig_APOP) # 39
 
+ROD_Resistant_dds_res_LFC_sig_APOP <- merge(ROD_Resistant_dds_res_LFC_sig, C_vir_rtracklayer_apop_product_final, by = "ID")
+ROD_Resistant_dds_res_LFC_sig_APOP_arranged <- arrange(ROD_Resistant_dds_res_LFC_sig_APOP, -log2FoldChange) 
+nrow(ROD_Resistant_dds_res_LFC_sig_APOP) # 3
 
+ROD_Susceptible_dds_res_LFC_sig_APOP_plot <- ggplot(ROD_Susceptible_dds_res_LFC_sig_APOP , aes(x=product, y = log2FoldChange, fill=log2FoldChange)) + geom_col(position="dodge") +
+  coord_flip() + scale_fill_gradient2(low="purple",mid = "grey", high="darkgreen") + ggtitle("Susceptible Early vs Late") +
+  ylab("Log2 Fold Change")
+
+ROD_Resistant_dds_res_LFC_sig_APOP_plot <- ggplot(ROD_Resistant_dds_res_LFC_sig_APOP , aes(x=product, y = log2FoldChange, fill=log2FoldChange)) + geom_col(position="dodge") +
+  coord_flip() + scale_fill_gradient2(low="purple",mid = "grey", high="darkgreen") + ggtitle("Susceptible Early vs Late") +
+  ylab("Log2 Fold Change")
 
 
 #### SESSION INFO FOR RUNNING SCRIPTS FEB 2020 ####
