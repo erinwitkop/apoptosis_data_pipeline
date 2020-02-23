@@ -32,6 +32,7 @@ library(purrr)
 library(tibble)
 library(ggfortify)
 library(ggpubr)
+library(limma)
 
 # VERSIONS (see sessionInfo at bottom of script for full information)
 # R version 3.6.1 (2019-07-05)
@@ -1102,12 +1103,10 @@ Rubio_dds_deseq_J2_9_res <- results(Rubio_dds_deseq, alpha=0.05, name="Condition
 Rubio_dds_deseq_LGP32_res <- results(Rubio_dds_deseq, alpha=0.05, name="Condition_Vtasma_LGP32_vs_Control_untreated"   )
 Rubio_dds_deseq_LMG20012T_res <- results(Rubio_dds_deseq, alpha=0.05, name="Condition_Vtasma_LMG20012T_vs_Control_untreated"  )
 
-
 head(Rubio_dds_deseq_J2_8_res) # Condition Vcrass J2 8 vs Control untreated 
 head(Rubio_dds_deseq_J2_9_res) #  Condition Vcrass J2 9 vs Control untreated
 head(Rubio_dds_deseq_LGP32_res) # Condition Vtasma LGP32 vs Control untreated 
 head(Rubio_dds_deseq_LMG20012T_res) # Condition Vtasma LMG20012T vs Control untreated 
-
 
 ### Perform LFC Shrinkage with apeglm
 ## NOTES 
@@ -2483,6 +2482,9 @@ Dermo_Tolerant_dds <- DESeqDataSetFromMatrix(countData =Dermo_Tolerant_counts,
 Dermo_Susceptible_dds <- DESeqDataSetFromMatrix(countData = Dermo_Susceptible_counts,
                                               colData = Dermo_Susceptible_coldata,
                                               design = ~Lib_prep_date + Condition + Time) # keep time at end so I can look for condition effect through time
+## Collapse technical replicates
+Dermo_Tolerant_dds <- collapseReplicates(Dermo_Tolerant_dds, Dermo_Tolerant_dds$Sample_ID, Dermo_Tolerant_dds$Tech_rep)
+Dermo_Dermo_Susceptible_dds <- collapseReplicates(Dermo_Susceptible_dds, Dermo_Susceptible_dds$Sample_ID, Dermo_Susceptible_dds$Tech_rep)
 
 ## Prefiltering the data
 # Data prefiltering helps decrease the size of the data set and get rid of
@@ -2697,6 +2699,143 @@ Dermo_Tolerant_dds_7d_res_LFC_sig_APOP_plot <- ggplot(Dermo_Tolerant_dds_7d_res_
 Dermo_Tolerant_dds_28d_res_LFC_sig_APOP_plot <- ggplot(Dermo_Tolerant_dds_28d_res_LFC_sig_APOP , aes(x=product, y = log2FoldChange, fill=log2FoldChange)) + geom_col(position="dodge") +
   coord_flip() + scale_fill_gradient2(low="purple",mid = "grey", high="darkgreen") + ggtitle("Dermo Tolerant 28d vs 36hr") +
   ylab("Log2 Fold Change")
+
+#### COMPARING APOPTOSIS GENE EXPRESSION BETWEEN EXPERIMENTS PCA ####
+# some helpful forum posts on the topic: https://www.biostars.org/p/364768/
+# Suggest combining, using limma to remove batch effects for each experiment, and then calculate the rlog all together
+# Could combine pvalues from DEseq for comparison using metaRNAseq R package to compare p values with a Fisher method
+
+# Load allcoldata.csv 
+All_coldata <- read.csv("/Users/erinroberts/Documents/PhD_Research/Chapter_1_Apoptosis Paper/Chapter1_Apoptosis_Transcriptome_Analyses_2019/DATA ANALYSIS/apoptosis_data_pipeline/DESeq2/2020_Transcriptome_ANALYSIS/All_coldata.csv", row.names = 1 )
+View(All_coldata)  
+C_vir_coldata <- subset(All_coldata, Species =="C_vir")
+C_gig_coldata <-  subset(All_coldata, Species =="C_gig")
+
+## Combine raw counts data frames from C. virginica
+# All the rows should be in the same order because I used the same apoptosis data frame to join them
+all(rownames(Dermo_Susceptible_counts_apop) == rownames(Dermo_Tolerant_counts_apop)) # TRUE
+all(rownames(Dermo_Susceptible_counts_apop) %in% rownames(Dermo_Tolerant_counts_apop)) # TRUE
+
+# Check probiotic table order
+all(rownames(Probiotic_counts_apop) == rownames(Dermo_Tolerant_counts_apop)) # FALSE
+all(rownames(Probiotic_counts_apop) %in% rownames(Dermo_Tolerant_counts_apop)) # TRUE
+Probiotic_counts_apop <- Probiotic_counts_apop[row.names(Dermo_Tolerant_counts_apop),]
+all(rownames(Probiotic_counts_apop) == rownames(Dermo_Tolerant_counts_apop)) # TRUE
+
+# Check ROD order and change if necessary 
+all(rownames(ROD_Resistant_counts_apop) == rownames(Dermo_Tolerant_counts_apop)) # FALSE
+all(rownames(ROD_Resistant_counts_apop) %in% rownames(Dermo_Tolerant_counts_apop)) # TRUE
+ROD_Resistant_counts_apop <- ROD_Resistant_counts_apop[row.names(Dermo_Tolerant_counts_apop),]
+ROD_Susceptible_counts_apop <-  ROD_Susceptible_counts_apop[row.names(Dermo_Tolerant_counts_apop),]
+all(rownames(ROD_Resistant_counts_apop) == rownames(Dermo_Tolerant_counts_apop)) # TRUE
+all(rownames(ROD_Susceptible_counts_apop) == rownames(Dermo_Tolerant_counts_apop)) # TRUE
+all(rownames(ROD_Susceptible_counts_apop) == rownames(ROD_Resistant_counts_apop)) # TRUE
+
+# Colbind all C. virginica tables
+C_virginica_apop_counts <- cbind(Dermo_Susceptible_counts_apop,Dermo_Tolerant_counts_apop,
+                                 Probiotic_counts_apop,ROD_Resistant_counts_apop,
+                                 ROD_Susceptible_counts_apop)
+
+# Set equal the rownames and colnames of the coldata and count data
+all(rownames(C_vir_coldata ) %in% colnames(C_virginica_apop_counts))  #Should return TRUE
+# returns TRUE
+all(colnames(C_virginica_apop_counts) %in% rownames(C_vir_coldata  ))  
+# returns TRUE
+all(rownames(C_vir_coldata ) == colnames(C_virginica_apop_counts)) # FALSE
+
+# Fix the order
+C_virginica_apop_counts <- C_virginica_apop_counts[,row.names(C_vir_coldata)]
+
+all(rownames(C_vir_coldata ) %in% colnames(C_virginica_apop_counts))  #Should return TRUE
+# returns TRUE
+all(colnames(C_virginica_apop_counts) %in% rownames(C_vir_coldata  ))  
+# returns TRUE
+all(rownames(C_vir_coldata ) == colnames(C_virginica_apop_counts))  # TRUE
+
+# Make DEseq data set from matrix so that the coldata gets attached
+C_virginica_apop_counts_dds <- DESeqDataSetFromMatrix(countData = C_virginica_apop_counts,
+                                                      colData= C_vir_coldata,
+                                                      design = ~Condition)
+# Collapse technical replicates 
+C_virginica_apop_counts_dds <- collapseReplicates(C_virginica_apop_counts_dds, C_virginica_apop_counts_dds$Sample, C_virginica_apop_counts_dds$TechRep)
+
+# Calculate the vst
+C_virginica_apop_counts_vst <- varianceStabilizingTransformation(C_virginica_apop_counts_dds)
+
+## Combine C_gig data frame
+# Check row order before combining
+all(rownames(Zhang_counts_apop) == rownames(Rubio_counts_apop)) # FALSE
+all(rownames(Zhang_counts_apop) %in% rownames(Rubio_counts_apop)) # TRUE
+Zhang_counts_apop <- Zhang_counts_apop[row.names(Rubio_counts_apop),]
+all(rownames(Zhang_counts_apop) == rownames(Rubio_counts_apop)) # TRUE
+
+deLorgeril_Susceptible_counts_apop <- deLorgeril_Susceptible_counts_apop[row.names(Rubio_counts_apop),]
+deLorgeril_Resistant_counts_apop <- deLorgeril_Resistant_counts_apop[row.names(Rubio_counts_apop),]
+He_counts_apop <- He_counts_apop[row.names(Rubio_counts_apop),]
+all(rownames(deLorgeril_Susceptible_counts_apop) == rownames(Zhang_counts_apop)) # TRUE
+all(rownames(deLorgeril_Resistant_counts_apop) == rownames(Zhang_counts_apop)) # TRUE
+all(rownames(He_counts_apop) == rownames(Zhang_counts_apop)) # TRUE
+
+C_gigas_apop_counts <- cbind(Zhang_counts_apop,Rubio_counts_apop,deLorgeril_Susceptible_counts_apop,
+                             deLorgeril_Resistant_counts_apop,He_counts_apop)
+# Set equal the rownames and colnames of the coldata and count data
+all(rownames(C_gig_coldata ) %in% colnames(C_gigas_apop_counts))  #Should return TRUE
+# returns TRUE
+all(colnames(C_gigas_apop_counts) %in% rownames(C_gig_coldata  ))  
+# returns TRUE
+all(rownames(C_gig_coldata ) == colnames(C_gigas_apop_counts)) # FALSE
+
+# Fix the order
+C_gigas_apop_counts <- C_gigas_apop_counts[,row.names(C_gig_coldata)]
+
+all(rownames(C_gig_coldata ) %in% colnames(C_gigas_apop_counts))  #Should return TRUE
+# returns TRUE
+all(colnames(C_gigas_apop_counts) %in% rownames(C_gig_coldata  ))  
+# returns TRUE
+all(rownames(C_gig_coldata ) == colnames(C_gigas_apop_counts))  # TRUE
+
+# Make DEseq data set from matrix so that the coldata gets attached
+C_gigas_apop_dds <- DESeqDataSetFromMatrix(countData = C_gigas_apop_counts ,
+                                           colData = C_gig_coldata,
+                                           design = ~Condition)
+# Calculate the vst
+C_gigas_apop_counts_vst <- varianceStabilizingTransformation(C_gigas_apop_dds)
+
+## Remove Batch effects from experiment of each
+mat_C_vir <- assay(C_virginica_apop_counts_vst)
+mat_C_vir <- limma::removeBatchEffect(mat_C_vir, C_virginica_apop_counts_vst$Library_Prep_Date)
+
+assay(Dermo_dds_family_WGCNA_vsd) <- mat
+class(Dermo_dds_family_WGCNA_vsd)
+Dermo_dds_family_WGCNA_vsd_matrix <- assay(Dermo_dds_family_WGCNA_vsd)
+plotPCA(Dermo_dds_family_WGCNA_vsd, "Library_Prep_Date")
+plotPCA(Dermo_dds_family_WGCNA_vsd, "RNA_Extract_Date") # no effect
+plotPCA(Dermo_dds_family_WGCNA_vsd, "RNA.Extracted_by")
+plotPCA(Dermo_dds_family_WGCNA_vsd, "Library_Prep_by")
+plotPCA(Dermo_dds_family_WGCNA_vsd, "FamCode")
+plotPCA(Dermo_dds_family_WGCNA_vsd, "Sequence_Pool") # no effect
+plotPCA(Dermo_dds_family_WGCNA_vsd, "TruSeq_Kit")
+plotPCA(Dermo_dds_family_WGCNA_vsd, "Index") # no effect 
+plotPCA(Dermo_dds_family_WGCNA_vsd, intgroup = c("FamCode",'Treat'))
+
+
+
+Dermo_Susceptible_counts_apop_dds_vst
+Dermo_Tolerant_counts_apop_dds_vst
+Zhang_counts_apop_rlog
+Rubio_counts_apop_dds_rlog
+deLorgeril_Susceptible_counts_apop_dds_vst
+deLorgeril_Tolerant_counts_apop_dds_vst
+He_counts_apop_dds_vst
+Probiotic_counts_apop_dds_rlog
+ROD_Resistant_counts_apop_dds_rlog
+ROD_Susceptible_counts_apop_dds_rlog
+
+#### APOPTOSIS GENE SET ENRICHMENT ####
+
+
+
+
 
 #### SESSION INFO FOR RUNNING SCRIPTS FEB 2020 ####
 
