@@ -968,4 +968,58 @@ All done.
 
 ## 2/21/2020 Dermo Transcriptome analysis
 * Creating `Dermo_coldata.csv`. Flenames and technical replicates with their sample names using the `SRA_metadata_2019_paper_11_15_2019.xlsx` file and then added sample metadata (timepoint, logConc) by matching samplenames to those in `Dermo_trancript_count_matrix.csv` file. Not all the timepoints had units for time in the metadata, added units. Added an h to represent hours for each timepoint. Added Family column. Adding in library prep date also because this was found to be the cause of batch effects in Proestou et al., 2020.
-* Using the formula `~Lib_prep_date + Condition + Time` to control for the batch effect and then compare treatment and control and then look at the timepoint with the acute response. 
+* Using the formula `~Lib_prep_date + Condition + Time` to control for the batch effect and then compare treatment and control and then look at the timepoint with the acute response. The Susceptible family has a greater response
+
+## 2/24/2020 Compare transcriptomes across groups
+* 1. Combined apoptosis transcript matrices subset for apoptosis transcripts into a single table for each species. Then removed batch effects using limma to correct for the batch effect of each experiment. Then plotted PCAs and heatmaps for each species. This showed that ROD and probiotic were similar in response for Cvir and for Cgig the OsHV1 challenges were similar.
+  * I have been subsetting my genes first and then performing count transformation with rlog or vst after subsetting. Is this appropriate?? Should I perform rlog and then subset for apoptosis genes afterwards?
+    * https://support.bioconductor.org/p/109809/: Can plot PCA for a subset of genes using `plotPCA(vsd[idx,])` where IDx is the rows to subset
+    * https://www.biostars.org/p/336298/
+  * I think I should do the apoptosis subsetting the PCA after the vsd with the full dataset and correction for batch effect. I have added a new set of code that subsets for apoptosis genes after combining and performing vst.  
+  * I merge transcript tables by starting with the largest and add in 0 when it is missing. However, I should probably be only working with the consensus set of transcripts.....that way its not like I'm comparing apples to oranges in my heatmaps.
+  * I can investigate presence and absence of specific genes and transcripts by comparing the merged.annotated.gtf files from each transcriptome
+  *Only work with the consensus set of transcripts when comparing experiments*
+    - C virginica experiments have relatively close numbers of transcripts (each row is a transcript)
+     `nrow(Dermo_counts) # 67868
+      nrow(Probiotic_counts) # 67876
+      nrow(ROD_counts) # 67870`
+    - C gigas He experiment has a lot more transcripts however. The HE experiment may be affecting results
+     `nrow(deLorgeril_counts) # 53701
+      nrow(He_counts) # 86859
+      nrow(Zhang_counts ) # 53705
+      nrow(Rubio_counts) # 53705`
+  * I've performed my apoptosis analysis for heatmaps in three different ways, and the results keep coming up the same. Merging vs not merging the gene lists first has little effect.
+
+
+* 2. In order to combine across species, I think it makes more sense to look at apoptosis gene counts, so I make fewer assumptions about which transcripts are which. Going to try to join by gene name. What do I do for genes with the same name that have multiple copies? I could just choose the one with the highest average counts in each species or the most variance? Could try it both ways?
+  * As above, work with the consensus set of genes based on shared gene names (this is the best I can do short of aligning all the genes together and taking their best hits and creating a table). For cases where there are multiple entries per gene
+  * Could I do a whole genome alignment to actually match together the most similar genes?
+
+  * Pausing on this while I do some additional reading below
+
+* 3. Additional Reading regarding methods to compare gene expression across species (see notes in "Meta-analysis_of_transcritomes.docx")
+  * Martin and Frasier (2018) Nature Communications. Comparative expression profiling reveals widespread coordinated evolution of gene expression across eukaryotes
+  * Z hou, Yan, et al. “A Statistical Normalization Method and Differential Expression Analysis for RNA-Seq Data between Different Species.” BMC Bioinformatics, vol. 20, no. 1, BMC Bioinformatics, 2019, pp. 1–10, doi:10.1186/s12859-019-2745-1.
+  * Brawand, David, et al. “The Evolution of Gene Expression Levels in Mammalian Organs.” Nature, vol. 478, no. 7369, 2011, pp. 343–48, doi:10.1038/nature10532.
+  * Davidson, Rebecca M., et al. “Comparative Transcriptomics of Three Poaceae Species Reveals Patterns of Gene Expression Evolution.” Plant Journal, vol. 71, no. 3, 2012, pp. 492–502, doi:10.1111/j.1365-313X.2012.05005.x.
+  * Söllner, Julia F., et al. “An RNA-Seq Atlas of Gene Expression in Mouse and Rat Normal Tissues.” Scientific Data, vol. 4, The Author(s), 2017, pp. 1–11, doi:10.1038/sdata.2017.185.
+
+  * CONCLUSION: I NEED TO IDENTIFY ORTHOLOGS BETWEEN EASTERN AND PACIFIC OYSTER IN ORDER TO MAKE COMPARISONS BETWEEN EXPRESSION. I need to use the normalised counts of 1:1 orthologs. Then I can pipe these into WGCNA for analysis (See Yu et al 2020 for a good example of this). A common tool for this is OrthoFinder.
+    * `OrthoFinder/2.3.3-foss-2018b-Python-2.7.15` is available on the cluster!!
+
+* 3. Pathway enrichment analysis? Venn diagrams of the number of transcripts or genes expressed per challenge across gene families
+
+## 2/25/2020 Researching methods for finding orthologs between two species.
+
+1. General methods used in papers
+  1. Using the Ensembl database of 1:1 orthologous genes for each pair of species. Also can align cDNA sequences of orthologous gene families using TBA (see Cardoso-Moreira 2019 https://www.nature.com/articles/nature10532#Sec8. They filtered alignments for those that had no gaps) (Sollner et al. 2017, Ferrari 2019)
+  2. Using OrthoFinder to identify orthologs (Yu 2020)
+  3. Using the UniPropt100 database (Martin and Frasier 2018)
+
+2. OrthoFinder seems to be a widely used, applicable, and respected method for identifying orthologs between species (which is my goal). I am going through the OrthoFinder tutorial now. https://davidemms.github.io
+
+  - Input for Orthofinder is all of protein coding sequences for the species. The input files need to be unzipped in order to be used
+  - Downloaded the protein sequences for Cvir `GCF_002022765.2_C_virginica-3.0_protein.faa`
+    $ scp GCF_002022765.2_C_virginica-3.0_protein.faa erin_roberts@bluewaves:/data3/marine_diseases_lab/erin/2017_2020_Transcriptome_Analysis/pipeline_files/C_Vir_subset/Cvir_Genome_and_Indexes/
+  - Downloaded all the protein sequnces for Cgig
+    $ scp GCF_000297895.1_oyster_v9_protein.faa erin_roberts@bluewaves:/data3/marine_diseases_lab/erin/2017_2020_Transcriptome_Analysis/pipeline_files/C_gig_Bac_Viral_subset/Cgig_Genome_and_Indexes/
