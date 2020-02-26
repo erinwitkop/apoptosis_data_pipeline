@@ -6,8 +6,8 @@
 # Comparisons and formulas used to calculate differential expression for each experiment will be unique to that experiment, specifically
 # tailored to when the infection was most acute. Challenge group samlpes will always be compared to their own control.
 
-# This script contains all the multiple testing performed by Erin Roberts during analysis, while C_gig_C_vir_transcriptome_DE_GO_Plotting.R is the finished code
-# only including code necessary to recreate the analysis and create plots used for comparison and publication 
+# This script contains all the multiple testing performed by Erin Roberts during DEG analysis, while C_gig_C_vir_transcriptome_DE_GO_Plotting.R 
+# Contains the final DEG analysis presented in publication. 
 
 #### LOAD PACKAGES ####
 

@@ -1008,7 +1008,9 @@ All done.
     * `OrthoFinder/2.3.3-foss-2018b-Python-2.7.15` is available on the cluster!!
 
 * 3. Pathway enrichment analysis? Venn diagrams of the number of transcripts or genes expressed per challenge across gene families
-
+* 4. Self-clustering analysis? (used in Yu 2020 in the NEw Phytologist), also used by Nakayama et al., 2018
+  - It seems like SOM analysis is only done with significant DEs?
+  - possibly could do for my data. SOM requires scaling of the data to account for biases
 ## 2/25/2020 Researching methods for finding orthologs between two species.
 
 1. General methods used in papers
@@ -1016,10 +1018,86 @@ All done.
   2. Using OrthoFinder to identify orthologs (Yu 2020)
   3. Using the UniPropt100 database (Martin and Frasier 2018)
 
-2. OrthoFinder seems to be a widely used, applicable, and respected method for identifying orthologs between species (which is my goal). I am going through the OrthoFinder tutorial now. https://davidemms.github.io
+2. OrthoFinder seems to be a widely used, applicable, and respected method for identifying orthologs between species (which is my goal). I am going through the OrthoFinder tutorial now. https://davidemms.github.io. Running Orthofinder as below.
 
   - Input for Orthofinder is all of protein coding sequences for the species. The input files need to be unzipped in order to be used
   - Downloaded the protein sequences for Cvir `GCF_002022765.2_C_virginica-3.0_protein.faa`
-    $ scp GCF_002022765.2_C_virginica-3.0_protein.faa erin_roberts@bluewaves:/data3/marine_diseases_lab/erin/2017_2020_Transcriptome_Analysis/pipeline_files/C_Vir_subset/Cvir_Genome_and_Indexes/
+    ``$ scp GCF_002022765.2_C_virginica-3.0_protein.faa erin_roberts@bluewaves:/data3/marine_diseases_lab/erin/2017_2020_Transcriptome_Analysis/pipeline_files/C_Vir_subset/Cvir_Genome_and_Indexes/``
   - Downloaded all the protein sequnces for Cgig
-    $ scp GCF_000297895.1_oyster_v9_protein.faa erin_roberts@bluewaves:/data3/marine_diseases_lab/erin/2017_2020_Transcriptome_Analysis/pipeline_files/C_gig_Bac_Viral_subset/Cgig_Genome_and_Indexes/
+    `$ scp GCF_000297895.1_oyster_v9_protein.faa erin_roberts@bluewaves:/data3/marine_diseases_lab/erin/2017_2020_Transcriptome_Analysis/pipeline_files/C_gig_Bac_Viral_subset/Cgig_Genome_and_Indexes/`
+  - Make new directory for OrthoFinder Analysis
+    `$ mkdir OrthoFinder_2020
+     $ mv C_gig_Bac_Viral_subset/Cgig_Genome_and_Indexes/*faa OrthoFinder_2020/
+     $ mv C_Vir_subset/Cvir_Genome_and_Indexes/*.faa OrthoFinder_2020/`
+  - Created new script to run OrthoFinder `Orthofinder_C_vir_C_gig.sh`
+  - Ran overnight.
+
+## 2/26/2020
+
+1. Inspecting OrthoFinder Results
+  * Exploring OrthoFinder results:
+    1. Check how many genes were assigned to orthogroups. You want to see atleast 80% of your genes assigned to orthogroups.
+    2. Review the `Comparative_Genomics_Statistics/Statistics_PerSpecies.tsv` to look at orthogroup percentages per species and `Comparative_Genomics_Statistics/Statistics_Overall.tsv` to look at
+
+    `$ pwd  /data3/marine_diseases_lab/erin/2017_2020_Transcriptome_Analysis/pipeline_files/OrthoFinder_2020/OrthoFinder/Results_Feb25/Comparative_Genomics_Statistics
+    $ cat Statistics_Overall.tsv
+Number of species	2
+Number of genes	106961
+Number of genes in orthogroups	71402
+Number of unassigned genes	35559
+Percentage of genes in orthogroups	66.8
+Percentage of unassigned genes	33.2
+Number of orthogroups	18954
+Number of species-specific orthogroups	373
+Number of genes in species-specific orthogroups	3456
+Percentage of genes in species-specific orthogroups	3.2
+Mean orthogroup size	3.8
+Median orthogroup size	3.0
+G50 (assigned genes)	4
+G50 (all genes)	3
+O50 (assigned genes)	4632
+O50 (all genes)	10087
+Number of orthogroups with all species present	18581
+Number of single-copy orthogroups	8649
+Date	2020-02-25
+Orthogroups file	Orthogroups.tsv
+Unassigned genes file	Orthogroups_UnassignedGenes.tsv
+Per-species statistics	Statistics_PerSpecies.tsv
+Overall statistics	Statistics_Overall.tsv
+Orthogroups shared between species	Orthogroups_SpeciesOverlaps.tsv
+
+Average number of genes per-species in orthogroup	Number of orthogroups	Percentage of orthogroups	Number of genes	Percentage of genes
+<1	0	0.0	0	0.0
+'1	12905	68.1	30033	42.1
+'2	3186	16.8	13972	19.6
+'3	1276	6.7	8142	11.4
+'4	614	3.2	5187	7.3
+'5	351	1.9	3650	5.1
+'6	215	1.1	2674	3.7
+'7	127	0.7	1837	2.6
+'8	89	0.5	1467	2.1
+'9	64	0.3	1176	1.6
+'10	38	0.2	780	1.1
+11-15	72	0.4	1842	2.6
+16-20	13	0.1	449	0.6
+21-50	4	0.0	193	0.3
+51-100	0	0.0	0	0.0
+101-150	0	0.0	0	0.0
+151-200	0	0.0	0	0.0
+201-500	0	0.0	0	0.0
+501-1000	0	0.0	0	0.0
+'1001+	0	0.0	0	0.0
+
+Number of species in orthogroup	Number of orthogroups
+1	373
+2	18581
+
+$ cat OrthologuesStats_one-to-one.tsv
+	GCF_000297895.1_oyster_v9_protein	GCF_002022765.2_C_virginica-3.0_protein
+GCF_000297895.1_oyster_v9_protein	0.0	8714.0
+GCF_002022765.2_C_virginica-3.0_protein	8714.0	0.0`
+
+* Downloaded data from OrthoFinder results locally. Only moved over four directories
+        ` $ ls
+         Comparative_Genomics_Statistics	Log.txt				Orthogroups			Orthologues			WorkingDirectory`
+* Where is the list of genes that are 1:1 orthologs?
