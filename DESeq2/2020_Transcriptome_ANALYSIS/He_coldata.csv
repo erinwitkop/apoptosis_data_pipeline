@@ -1,7 +1,7 @@
 ,Condition,Time,Sample
-SRR2002821,Time0,Time0,Time0
-SRR2002822,Time0,Time0,Time0
-SRR2002823,Time0,Time0,Time0
+SRR2002821,control,Time0,Time0
+SRR2002822,control,Time0,Time0
+SRR2002823,control,Time0,Time0
 SRR2002844,control,6h,6h_control
 SRR2002845,control,6h,6h_control
 SRR2002846,control,6h,6h_control
