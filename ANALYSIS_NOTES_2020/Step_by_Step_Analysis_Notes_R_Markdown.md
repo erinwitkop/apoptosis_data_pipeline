@@ -1100,4 +1100,9 @@ GCF_002022765.2_C_virginica-3.0_protein	8714.0	0.0`
 * Downloaded data from OrthoFinder results locally. Only moved over four directories
         ` $ ls
          Comparative_Genomics_Statistics	Log.txt				Orthogroups			Orthologues			WorkingDirectory`
-* Where is the list of genes that are 1:1 orthologs?
+
+2. Isolating list of genes that are 1:1 orthologs of each other
+  * From the OrthoFinder README at `https://github.com/davidemms/OrthoFinder/blob/master/README.md`
+  - "Orthogroups_SingleCopyOrthologues.txt is a list of orthogroups that contain exactly one gene per species i.e. they contain one-to-one orthologues. They are ideally suited to between-species comparisons and to species tree inference."
+  - "Orthogroups.GeneCount.tsv is a tab separated text file that is identical in format to Orthogroups.csv but contains counts of the number of genes for each species in each orthogroup."
+  * Loading these into R is a bit of a challenge however due to the data format. In Excel loaded the `Orthogroups.tsv` and saved it as `Orthogroups.csv` and loaded this into R.
