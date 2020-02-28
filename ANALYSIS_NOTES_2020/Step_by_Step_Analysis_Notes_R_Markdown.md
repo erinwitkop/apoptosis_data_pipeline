@@ -1106,3 +1106,10 @@ GCF_002022765.2_C_virginica-3.0_protein	8714.0	0.0`
   - "Orthogroups_SingleCopyOrthologues.txt is a list of orthogroups that contain exactly one gene per species i.e. they contain one-to-one orthologues. They are ideally suited to between-species comparisons and to species tree inference."
   - "Orthogroups.GeneCount.tsv is a tab separated text file that is identical in format to Orthogroups.csv but contains counts of the number of genes for each species in each orthogroup."
   * Loading these into R is a bit of a challenge however due to the data format. In Excel loaded the `Orthogroups.tsv` and saved it as `Orthogroups.csv` and loaded this into R.
+  * Figured out how to correctly parse the tibble. Now working to find featureTables allowing me to match the XP with the XM
+
+## 2/28/2020 Summary Powerpoint discussion of Differential Expression Data
+
+* 1. Creating summary presentation showing Marta the Log2FC plots for all of my differential expression analysis so far, and how they were done. Also going back to look at the response through time for some challenges.
+  - At the end, I need to emphasize how we are going to characterize the response of each..by pathway? By number of transcripts in the gene family differentially expressed. The issue is that Differential expression can be affected by a lot of different factors.
+  - Trying to finish my counts ortholog matching to plot the PCA of counts before our meeting 

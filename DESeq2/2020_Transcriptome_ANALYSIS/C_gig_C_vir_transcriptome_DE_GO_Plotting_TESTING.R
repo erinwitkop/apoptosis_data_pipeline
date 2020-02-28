@@ -526,8 +526,6 @@ all(colnames(Zhang_counts) %in% rownames(Zhang_coldata))
 all(rownames(Zhang_coldata) == colnames(Zhang_counts))    # should return TRUE
 # returns TRUE
 
-# Fix the order using code format below if necessary 
-# Dermo_counts <- Dermo_counts[,colnames(Dermo_counts)]
 
 ### DATA QC PCA PLOT 
 # rlog transform data is recommended over vst for small data sets 
@@ -593,44 +591,40 @@ autoplot(pcZhang,
 ## Creating three here so I can compare the results
 Zhang_dds <- DESeqDataSetFromMatrix(countData = Zhang_counts,
                                     colData = Zhang_coldata,
-                                    design = ~ group) # add time to control for injection and time effect
-Zhang_dds_path <- DESeqDataSetFromMatrix(countData = Zhang_counts,
-                                                 colData = Zhang_coldata,
-                                                 design = ~  path) # add time to control for injection and time effect
+                                    design = ~time + group_by_sim) # add time to control for injection and time effect
+#Zhang_dds_path <- DESeqDataSetFromMatrix(countData = Zhang_counts,
+#                                                 colData = Zhang_coldata,
+#                                                 design = ~  path) # add time to control for injection and time effect
 
 # USE THIS ONE IN FUTURE OTHERS WERE FOR TESTING
-Zhang_dds_broken_group <- DESeqDataSetFromMatrix(countData = Zhang_counts,
-                                                 colData = Zhang_coldata,
-                                                 design = ~time+ group_by_sim) # add time to control for injection and time effect
+#Zhang_dds_broken_group <- DESeqDataSetFromMatrix(countData = Zhang_counts,
+#                                                 colData = Zhang_coldata,
+#                                                 design = ~time+ group_by_sim) # add time to control for injection and time effect
 
 ## Prefiltering the data
 # Data prefiltering helps decrease the size of the data set and get rid of
 # rows with no data or very minimal data (<10). Apply a minimal filtering here as more stringent filtering will be applied later
 Zhang_dds <- Zhang_dds[ rowSums(counts(Zhang_dds)) > 10, ]
-Zhang_dds_broken_group <- Zhang_dds_broken_group[ rowSums(counts(Zhang_dds_broken_group)) > 10, ]
-Zhang_dds_path <- Zhang_dds_path[ rowSums(counts(Zhang_dds_path)) > 10, ]
+#Zhang_dds_broken_group <- Zhang_dds_broken_group[ rowSums(counts(Zhang_dds_broken_group)) > 10, ]
+#Zhang_dds_path <- Zhang_dds_path[ rowSums(counts(Zhang_dds_path)) > 10, ]
 
 ## Check levels 
 # It is prefered in R that the first level of a factor be the reference level for comparison
 # (e.g. control, or untreated samples), so we can relevel the factor like so
 # Check factor levels, set it so that comparison group is the first
 levels(Zhang_coldata$condition) #"Control" "LPS"     "M_lut"   "PBS"     "V_aes"   "V_alg_1" "V_alg_2" "V_ang"   "V_tub"  
-levels(Zhang_coldata$group)# "challenge" "control"    
-Zhang_dds$group <- factor(Zhang_dds$group , levels = c("control","challenge"))
-levels(Zhang_dds$group)
-levels(Zhang_coldata$group_by_sim) # "control"             "LPS_M_lut"           "V_aes_V_alg1_V_alg2" "V_tub_V_ang"   
-levels(Zhang_coldata$path)  # [1] "control" "nonpath" "path"    don't need to relevel
-levels(Zhang_coldata$time) # "12h"          "No_injection"
-Zhang_dds$time <- factor(Zhang_dds$group , levels = c("12h"))
+levels(Zhang_coldata$group_by_sim) # "control"             "LPS_M_lut"           "V_aes_V_alg1_V_alg2" "V_tub_V_ang"    
+levels(Zhang_coldata$time) # 12hr, no injection
+Zhang_dds$time <- factor(Zhang_dds$time , levels = c("No_injection","12h"))
 
 ## DATA TRANSFORMATION AND VISUALIZATION
 # Assess sample clustering after setting initial formula for comparison
 Zhang_dds_rlog <- rlog(Zhang_dds, blind = TRUE) # keep blind = true before deseq function has been run
-Zhang_dds_broken_group_rlog <- rlog(Zhang_dds_broken_group, blind = TRUE)
-Zhang_dds_path_rlog <- rlog(Zhang_dds_path, blind = TRUE)
+#Zhang_dds_broken_group_rlog <- rlog(Zhang_dds_broken_group, blind = TRUE)
+#Zhang_dds_path_rlog <- rlog(Zhang_dds_path, blind = TRUE)
 
 ## PCA plot visualization of individuals in the family 
-plotPCA(Zhang_dds_rlog, intgroup=c("group", "condition"))
+plotPCA(Zhang_dds_rlog, intgroup=c("group_by_sim", "condition"))
   # control and PBS still clustering, LPS M. lut and V. aes clustering
   # with MSTRG removed, the LPS and M. lut cluster most closely 
 
@@ -641,16 +635,19 @@ plotPCA(Zhang_dds_rlog, intgroup=c("group", "condition"))
 # and fitting a generalized linear model.
 
 Zhang_dds_deseq <- DESeq(Zhang_dds) 
-Zhang_dds_broken_group_deseq <- DESeq(Zhang_dds_broken_group) # USE THIS ONE IN FUTURE OTHERS WERE FOR TESTING
-Zhang_dds_path_deseq <- DESeq(Zhang_dds_path)
+
+#Zhang_dds_broken_group_deseq <- DESeq(Zhang_dds_broken_group) # USE THIS ONE IN FUTURE OTHERS WERE FOR TESTING
+#Zhang_dds_path_deseq <- DESeq(Zhang_dds_path)
 
 ## Check the resultsNames object of each to look at the available coefficients for use in lfcShrink command
-resultsNames(Zhang_dds_deseq) # [1] "Intercept"                  "group_challenge_vs_control"
+resultsNames(Zhang_dds_deseq) # [1] "Intercept"                                   "time_12h_vs_No_injection"                   
+#[3] "group_by_sim_LPS_M_lut_vs_control"           "group_by_sim_V_aes_V_alg1_V_alg2_vs_control"
+#[5] "group_by_sim_V_tub_V_ang_vs_control" 
 resultsNames(Zhang_dds_broken_group_deseq) 
 #[1] "Intercept"                                   "time_No_injection_vs_12h"                    "group_by_sim_LPS_M_lut_vs_control"          
 #[4] "group_by_sim_V_aes_V_alg1_V_alg2_vs_control" "group_by_sim_V_tub_V_ang_vs_control" 
 
-resultsNames(Zhang_dds_path_deseq) 
+#resultsNames(Zhang_dds_path_deseq) 
 # [1] "Intercept"               "path_nonpath_vs_control" "path_path_vs_control"   
 
 ## BUILD THE RESULTS OBJECT
@@ -664,8 +661,8 @@ Zhang_dds_deseq_res_V_alg1 <- results(Zhang_dds_broken_group_deseq, alpha=0.05, 
 Zhang_dds_deseq_res_V_tub <- results(Zhang_dds_broken_group_deseq, alpha=0.05, name= "group_by_sim_V_tub_V_ang_vs_control" )
 Zhang_dds_deseq_res_LPS <- results(Zhang_dds_broken_group_deseq, alpha=0.05, name= "group_by_sim_LPS_M_lut_vs_control")
 
-Zhang_dds_path_deseq_res_path_nonpath <- results(Zhang_dds_path_deseq, alpha=0.05, name=  "path_nonpath_vs_control")
-Zhang_dds_path_deseq_res_path_path <- results(Zhang_dds_path_deseq, alpha=0.05, name=  "path_path_vs_control")
+# Zhang_dds_path_deseq_res_path_nonpath <- results(Zhang_dds_path_deseq, alpha=0.05, name=  "path_nonpath_vs_control")
+# Zhang_dds_path_deseq_res_path_path <- results(Zhang_dds_path_deseq, alpha=0.05, name=  "path_path_vs_control")
 
 head(Zhang_dds_deseq_res) # group challenge vs control 
 head(Zhang_dds_deseq_res_V_alg1) #  group by sim Vibrio vs control 
@@ -704,9 +701,9 @@ head(Zhang_dds_path_deseq_res_path_path) #  path path vs control
 
 ## DECISION: USE SAME RES OBJECT TO KEEP ALPHA ADJUSTMENT, and use LFCShrink apeglm
 
-Zhang_dds_deseq_res_LFC <- lfcShrink(Zhang_dds_deseq, coef="group_challenge_vs_control", type= "apeglm", res=Zhang_dds_deseq_res)
+#Zhang_dds_deseq_res_LFC <- lfcShrink(Zhang_dds_deseq, coef="group_challenge_vs_control", type= "apeglm", res=Zhang_dds_deseq_res)
 # Review results object summary
-summary(Zhang_dds_deseq_res_LFC) # SHOWS NUMBER OF SIGNIFICANT GENES
+#summary(Zhang_dds_deseq_res_LFC) # SHOWS NUMBER OF SIGNIFICANT GENES
 # MSTRG removed 
 #out of 32394 with nonzero total read count
 #adjusted p-value < 0.05
@@ -718,7 +715,7 @@ summary(Zhang_dds_deseq_res_LFC) # SHOWS NUMBER OF SIGNIFICANT GENES
 #[1] see 'cooksCutoff' argument of ?results
 #[2] see 'independentFiltering' argument of ?results
 
-Zhang_dds_deseq_res_V_alg1_LFC <- lfcShrink(Zhang_dds_broken_group_deseq, coef="group_by_sim_V_aes_V_alg1_V_alg2_vs_control" , type= "apeglm", res=Zhang_dds_deseq_res_V_alg1)
+Zhang_dds_deseq_res_V_alg1_LFC <- lfcShrink(Zhang_dds_deseq, coef="group_by_sim_V_aes_V_alg1_V_alg2_vs_control" , type= "apeglm", res=Zhang_dds_deseq_res_V_alg1)
 # Review results object summary
 summary(Zhang_dds_deseq_res_V_alg1_LFC)
 #out of 33418 with nonzero total read count
@@ -731,7 +728,7 @@ summary(Zhang_dds_deseq_res_V_alg1_LFC)
 #[1] see 'cooksCutoff' argument of ?results
 #[2] see 'independentFiltering' argument of ?results
 
-Zhang_dds_deseq_res_V_tub_LFC <- lfcShrink(Zhang_dds_broken_group_deseq, coef="group_by_sim_V_tub_V_ang_vs_control" , type= "apeglm", res=Zhang_dds_deseq_res_V_tub)
+Zhang_dds_deseq_res_V_tub_LFC <- lfcShrink(Zhang_dds_deseq, coef="group_by_sim_V_tub_V_ang_vs_control" , type= "apeglm", res=Zhang_dds_deseq_res_V_tub)
 summary(Zhang_dds_deseq_res_V_tub_LFC)
 #out of 33418 with nonzero total read count
 #adjusted p-value < 0.05
@@ -743,20 +740,20 @@ summary(Zhang_dds_deseq_res_V_tub_LFC)
 #[1] see 'cooksCutoff' argument of ?results
 #[2] see 'independentFiltering' argument of ?results
 
-Zhang_dds_deseq_res_LFC_LPS <- lfcShrink(Zhang_dds_broken_group_deseq, coef="group_by_sim_LPS_M_lut_vs_control", type= "apeglm", res=Zhang_dds_deseq_res_LPS)
+Zhang_dds_deseq_res_LFC_LPS <- lfcShrink(Zhang_dds_deseq, coef="group_by_sim_LPS_M_lut_vs_control", type= "apeglm", res=Zhang_dds_deseq_res_LPS)
 summary(Zhang_dds_deseq_res_LFC_LPS)
 #out of 33418 with nonzero total read count
 #adjusted p-value < 0.05
-#LFC > 0 (up)       : 615, 1.8%
-#LFC < 0 (down)     : 207, 0.62%
+#LFC > 0 (up)       : 612, 1.8%
+#LFC < 0 (down)     : 210, 0.63%
 #outliers [1]       : 0, 0%
 #low counts [2]     : 11662, 35%
 #(mean count < 13)
 #[1] see 'cooksCutoff' argument of ?results
 #[2] see 'independentFiltering' argument of ?results
 
-Zhang_dds_path_deseq_res_path_nonpath_LFC <- lfcShrink(Zhang_dds_path_deseq, coef="path_nonpath_vs_control", type= "apeglm", res=Zhang_dds_path_deseq_res_path_nonpath)
-summary(Zhang_dds_path_deseq_res_path_nonpath_LFC)
+#Zhang_dds_path_deseq_res_path_nonpath_LFC <- lfcShrink(Zhang_dds_path_deseq, coef="path_nonpath_vs_control", type= "apeglm", res=Zhang_dds_path_deseq_res_path_nonpath)
+#summary(Zhang_dds_path_deseq_res_path_nonpath_LFC)
 #out of 33418 with nonzero total read count
 #adjusted p-value < 0.05
 #LFC > 0 (up)       : 446, 1.3%
@@ -767,8 +764,8 @@ summary(Zhang_dds_path_deseq_res_path_nonpath_LFC)
 #[1] see 'cooksCutoff' argument of ?results
 #[2] see 'independentFiltering' argument of ?results
 
-Zhang_dds_path_deseq_res_path_path_LFC <- lfcShrink(Zhang_dds_path_deseq, coef="path_path_vs_control", type= "apeglm", res=Zhang_dds_path_deseq_res_path_path)
-summary(Zhang_dds_path_deseq_res_path_path_LFC)
+#Zhang_dds_path_deseq_res_path_path_LFC <- lfcShrink(Zhang_dds_path_deseq, coef="path_path_vs_control", type= "apeglm", res=Zhang_dds_path_deseq_res_path_path)
+#summary(Zhang_dds_path_deseq_res_path_path_LFC)
 #out of 33418 with nonzero total read count
 #adjusted p-value < 0.05
 #LFC > 0 (up)       : 289, 0.86%
@@ -810,15 +807,15 @@ Zhang_dds_deseq_res_LFC_LPS_sig $transcript_id <- row.names(Zhang_dds_deseq_res_
 Zhang_dds_deseq_res_LFC_LPS_sig  <- as.data.frame(Zhang_dds_deseq_res_LFC_LPS_sig)
 nrow(Zhang_dds_deseq_res_LFC_LPS_sig)  #822
 
-Zhang_dds_path_deseq_res_path_nonpath_LFC_sig <-subset(Zhang_dds_path_deseq_res_path_nonpath_LFC, padj < 0.05)
-Zhang_dds_path_deseq_res_path_nonpath_LFC_sig$transcript_id <- row.names(Zhang_dds_path_deseq_res_path_nonpath_LFC_sig )
-Zhang_dds_path_deseq_res_path_nonpath_LFC_sig <- as.data.frame(Zhang_dds_path_deseq_res_path_nonpath_LFC_sig)
-nrow(Zhang_dds_path_deseq_res_path_nonpath_LFC_sig )  #583
-
-Zhang_dds_path_deseq_res_path_path_LFC_sig  <-subset(Zhang_dds_path_deseq_res_path_path_LFC , padj < 0.05)
-Zhang_dds_path_deseq_res_path_path_LFC_sig $transcript_id <- row.names(Zhang_dds_path_deseq_res_path_path_LFC_sig  )
-Zhang_dds_path_deseq_res_path_path_LFC_sig  <- as.data.frame(Zhang_dds_path_deseq_res_path_path_LFC_sig )
-nrow(Zhang_dds_path_deseq_res_path_path_LFC_sig  )  #517
+# Zhang_dds_path_deseq_res_path_nonpath_LFC_sig <-subset(Zhang_dds_path_deseq_res_path_nonpath_LFC, padj < 0.05)
+# Zhang_dds_path_deseq_res_path_nonpath_LFC_sig$transcript_id <- row.names(Zhang_dds_path_deseq_res_path_nonpath_LFC_sig )
+# Zhang_dds_path_deseq_res_path_nonpath_LFC_sig <- as.data.frame(Zhang_dds_path_deseq_res_path_nonpath_LFC_sig)
+# nrow(Zhang_dds_path_deseq_res_path_nonpath_LFC_sig )  #583
+# 
+# Zhang_dds_path_deseq_res_path_path_LFC_sig  <-subset(Zhang_dds_path_deseq_res_path_path_LFC , padj < 0.05)
+# Zhang_dds_path_deseq_res_path_path_LFC_sig $transcript_id <- row.names(Zhang_dds_path_deseq_res_path_path_LFC_sig  )
+# Zhang_dds_path_deseq_res_path_path_LFC_sig  <- as.data.frame(Zhang_dds_path_deseq_res_path_path_LFC_sig )
+# nrow(Zhang_dds_path_deseq_res_path_path_LFC_sig  )  #517
 
 ### GENE CLUSTERING ANALYSIS HEATMAPS  
 # Extract genes with the highest variance across samples for each comparison using either vst or rlog transformed data
@@ -908,7 +905,6 @@ colnames(top_Var_Zhang_counts_apop_assay_prot)[1] <- "transcript_id"
 top_Var_Zhang_counts_apop_assay_prot_annot <- left_join(top_Var_Zhang_counts_apop_assay_prot, select(C_gig_rtracklayer_transcripts, transcript_id, product, gene), by = "transcript_id")
 #isolate interesting clusters
 
-
 ### Extract list of significant Apoptosis Genes (not less than or greater than 1 LFC) using merge
 Zhang_dds_deseq_res_LFC_sig_APOP <- merge(Zhang_dds_deseq_res_LFC_sig, C_gig_rtracklayer_apop_product_final, by = "transcript_id")
 Zhang_dds_deseq_res_LFC_sig_APOP_arranged <- arrange(Zhang_dds_deseq_res_LFC_sig_APOP, -log2FoldChange) 
@@ -927,13 +923,13 @@ Zhang_dds_deseq_res_LFC_LPS_sig_APOP <- merge(Zhang_dds_deseq_res_LFC_LPS_sig, C
 Zhang_dds_deseq_res_LFC_LPS_sig_APOP_arranged <- arrange(Zhang_dds_deseq_res_LFC_LPS_sig_APOP , -log2FoldChange) 
 nrow(Zhang_dds_deseq_res_LFC_LPS_sig_APOP )  #14
 
-Zhang_dds_path_deseq_res_path_nonpath_LFC_sig_APOP <- merge(Zhang_dds_path_deseq_res_path_nonpath_LFC_sig, C_gig_rtracklayer_apop_product_final, by = "transcript_id")
-Zhang_dds_path_deseq_res_path_nonpath_LFC_sig_APOP_arranged <- arrange(Zhang_dds_path_deseq_res_path_nonpath_LFC_sig_APOP , -log2FoldChange) 
-nrow(Zhang_dds_path_deseq_res_path_nonpath_LFC_sig_APOP ) # 9
-
-Zhang_dds_path_deseq_res_path_path_LFC_sig_APOP <- merge(Zhang_dds_path_deseq_res_path_path_LFC_sig, C_gig_rtracklayer_apop_product_final, by = "transcript_id")
-Zhang_dds_path_deseq_res_path_path_LFC_sig_APOP_arranged <- arrange(Zhang_dds_path_deseq_res_path_path_LFC_sig_APOP , -log2FoldChange) 
-nrow(Zhang_dds_path_deseq_res_path_path_LFC_sig_APOP ) # 6
+# Zhang_dds_path_deseq_res_path_nonpath_LFC_sig_APOP <- merge(Zhang_dds_path_deseq_res_path_nonpath_LFC_sig, C_gig_rtracklayer_apop_product_final, by = "transcript_id")
+# Zhang_dds_path_deseq_res_path_nonpath_LFC_sig_APOP_arranged <- arrange(Zhang_dds_path_deseq_res_path_nonpath_LFC_sig_APOP , -log2FoldChange) 
+# nrow(Zhang_dds_path_deseq_res_path_nonpath_LFC_sig_APOP ) # 9
+# 
+# Zhang_dds_path_deseq_res_path_path_LFC_sig_APOP <- merge(Zhang_dds_path_deseq_res_path_path_LFC_sig, C_gig_rtracklayer_apop_product_final, by = "transcript_id")
+# Zhang_dds_path_deseq_res_path_path_LFC_sig_APOP_arranged <- arrange(Zhang_dds_path_deseq_res_path_path_LFC_sig_APOP , -log2FoldChange) 
+# nrow(Zhang_dds_path_deseq_res_path_path_LFC_sig_APOP ) # 6
 
 # Compare apoptosis genes between group_by_sim groups
 Zhang_dds_deseq_res_V_alg1_APOP_short <- Zhang_dds_deseq_res_V_alg1_LFC_sig_APOP[,c(1:6,28)]
@@ -943,23 +939,32 @@ Zhang_dds_deseq_res_V_tub_APOP_short$group_by_sim <- "V_tub_V_ang"
 Zhang_dds_deseq_res_LPS_APOP_short <- Zhang_dds_deseq_res_LFC_LPS_sig_APOP[,c(1:6,28)] 
 Zhang_dds_deseq_res_LPS_APOP_short$group_by_sim <- "LPS_M_lut"
 
+# combine data frames 
+Zhang_upset_all_sig_APOP <- rbind(Zhang_dds_deseq_res_V_alg1_APOP_short[,c("product","group_by_sim","log2FoldChange")],
+                                  Zhang_dds_deseq_res_V_tub_APOP_short[,c("product","group_by_sim","log2FoldChange")],
+                                  Zhang_dds_deseq_res_LPS_APOP_short[,c("product","group_by_sim","log2FoldChange")] )
+
+
+# Convert into wide format using reshape
+Zhang_upset_all_sig_APOP_tally <- Zhang_upset_all_sig_APOP %>% group_by(product) %>% tally() 
+Zhang_upset_all_sig_APOP_upset <- Zhang_upset_all_sig_APOP %>% group_by(product) %>% mutate(value=1) %>% spread(group_by_sim, value, fill =0 )
+Zhang_upset_all_sig_APOP_upset <- as.matrix(Zhang_upset_all_sig_APOP_upset)
+
+# Make plot
+Zhang_full_LFC_plot <- ggplot(Zhang_upset_all_sig_APOP, aes(x=product,y=log2FoldChange, fill=group_by_sim )) + geom_col(position="dodge") + 
+  theme(axis.text.x = element_text(angle = 75, hjust = 1)) + coord_flip()
+
 Zhang_dds_deseq_res_V_alg1_APOP_short_plot <- ggplot(Zhang_dds_deseq_res_V_alg1_APOP_short, aes(x=product, y = log2FoldChange, fill=log2FoldChange)) + geom_col(position="dodge") +
-  coord_flip() + scale_fill_gradient2(low="purple",mid = "grey", high="darkgreen") + ggtitle("Zhang Non-pathogenic Vibrio vs Control") +
+  coord_flip() + scale_fill_gradient2(low="purple",mid = "grey", high="darkgreen") + ggtitle("Zhang V. alg, V. aes vs Control") +
   ylab("Log2 Fold Change")
 Zhang_dds_deseq_res_V_tub_APOP_short_plot <- ggplot(Zhang_dds_deseq_res_V_tub_APOP_short, aes(x=product, y = log2FoldChange, fill=log2FoldChange)) + geom_col(position="dodge") +
-  coord_flip() + scale_fill_gradient2(low="purple",mid = "grey", high="darkgreen") + ggtitle("Zhang Pathogenic Vibrio vs Control") +
+  coord_flip() + scale_fill_gradient2(low="purple",mid = "grey", high="darkgreen") + ggtitle("V. tub V. ang vs Control") +
   ylab("Log2 Fold Change")
 Zhang_dds_deseq_res_LPS_APOP_short_plot <- ggplot(Zhang_dds_deseq_res_LPS_APOP_short, aes(x=product, y = log2FoldChange, fill=log2FoldChange)) + geom_col(position="dodge") +
   coord_flip() + scale_fill_gradient2(low="purple",mid = "grey", high="darkgreen") + ggtitle("Zhang LPS and M Lut LFC vs Control") +
   ylab("Log2 Fold Change")
 
 ggarrange(Zhang_dds_deseq_res_V_alg1_APOP_short_plot , Zhang_dds_deseq_res_V_tub_APOP_short_plot,Zhang_dds_deseq_res_LPS_APOP_short_plot)
-
-# still working on this 
-Zhang_apop_group_by_sim_comparison <- rbind(Zhang_dds_deseq_res_V_alg1_APOP_short, Zhang_dds_deseq_res_V_tub_APOP_short,Zhang_dds_deseq_res_LPS_APOP_short)
-Zhang_apop_group_by_sim_comparison_LFC_plot <-  ggplot(Zhang_apop_group_by_sim_comparison, aes(x=product, y = log2FoldChange, fill=log2FoldChange)) + geom_col(position="dodge") +
-  coord_flip() + scale_fill_gradient2(low="purple",mid = "grey", high="darkgreen") + ggtitle("Zhang Pathogenic Vibrio, Non-pathogenic Vibrio, LPS and M Lut LFC vs Control") +
-  ylab("Log2 Fold Change")
 
 
 ## compe back to finishing this analysis after I have done the other dataset analyses
@@ -1247,9 +1252,23 @@ View(Rubio_dds_deseq_LMG20012T_res_LFC_sig_APOP_arranged)
 
 # Compare apoptosis genes between group_by_sim groups
 Rubio_dds_deseq_J2_8_res_LFC_sig_APOP_short <- Rubio_dds_deseq_J2_8_res_LFC_sig_APOP[,c(1:6,28)]
+Rubio_dds_deseq_J2_8_res_LFC_sig_APOP_short$group_by_sim <- "J2-8 non-vir"
 Rubio_dds_deseq_J2_9_res_LFC_sig_APOP_short <- Rubio_dds_deseq_J2_9_res_LFC_sig_APOP[,c(1:6,28)] 
+Rubio_dds_deseq_J2_9_res_LFC_sig_APOP_short$group_by_sim <- "J2-9 vir"
 Rubio_dds_deseq_LGP32_res_LFC_sig_APOP_short <-Rubio_dds_deseq_LGP32_res_LFC_sig_APOP[,c(1:6,28)] 
+Rubio_dds_deseq_LGP32_res_LFC_sig_APOP_short$group_by_sim <- "LGP32 vir"
 Rubio_dds_deseq_LMG20012T_res_LFC_sig_APOP_short <-Rubio_dds_deseq_LMG20012T_res_LFC_sig_APOP[,c(1:6,28)] 
+Rubio_dds_deseq_LMG20012T_res_LFC_sig_APOP_short$group_by_sim <- "LMG20012T non-vir"
+
+# combine data frames 
+Rubio_all_sig_APOP <- rbind(Rubio_dds_deseq_J2_8_res_LFC_sig_APOP_short[,c("product","group_by_sim","log2FoldChange")],
+                            Rubio_dds_deseq_J2_9_res_LFC_sig_APOP_short[,c("product","group_by_sim","log2FoldChange")],
+                            Rubio_dds_deseq_LGP32_res_LFC_sig_APOP_short[,c("product","group_by_sim","log2FoldChange")],
+                            Rubio_dds_deseq_LMG20012T_res_LFC_sig_APOP_short[,c("product","group_by_sim","log2FoldChange")])
+# Make plot
+Rubio_full_LFC_plot <- ggplot(Rubio_all_sig_APOP , aes(x=product,y=log2FoldChange, fill=group_by_sim )) + geom_col(position="dodge") + 
+  theme(axis.text.x = element_text(angle = 75, hjust = 1)) + coord_flip()
+
 
 Rubio_dds_deseq_J2_8_res_LFC_sig_APOP_short_plot <- ggplot(Rubio_dds_deseq_J2_8_res_LFC_sig_APOP_short , aes(x=product, y = log2FoldChange, fill=log2FoldChange)) + geom_col(position="dodge") +
   coord_flip() + scale_fill_gradient2(low="purple",mid = "grey", high="darkgreen") + ggtitle("J2-8 Non-Virulent vs Control") +
@@ -1619,6 +1638,31 @@ View(deLorgeril_Susceptible_dds_res_60_LFC_sig_APOP$product)
 View(deLorgeril_Susceptible_dds_res_72_LFC_sig_APOP$product)
 
 # Compare apoptosis genes between group_by_sim groups
+deLorgeril_Resistant_dds_res_48_LFC_sig_APOP  $group <- "Resistant_dds_res_48"
+deLorgeril_Resistant_dds_res_60_LFC_sig_APOP  $group <- "Resistant_dds_res_60"
+deLorgeril_Resistant_dds_res_72_LFC_sig_APOP  $group <- "Resistant_dds_res_72"
+deLorgeril_Susceptible_dds_res_48_LFC_sig_APOP$group <- "Susceptible_dds_res_48"
+deLorgeril_Susceptible_dds_res_60_LFC_sig_APOP$group <- "Susceptible_dds_res_60"
+deLorgeril_Susceptible_dds_res_72_LFC_sig_APOP$group <- "Susceptible_dds_res_72"
+
+# combine data frames 
+deLorgeril_all_sig_APOP <- rbind( 
+deLorgeril_Resistant_dds_res_48_LFC_sig_APOP[,c("product","group","log2FoldChange")],
+deLorgeril_Resistant_dds_res_60_LFC_sig_APOP[,c("product","group","log2FoldChange")],
+deLorgeril_Resistant_dds_res_72_LFC_sig_APOP[,c("product","group","log2FoldChange")],
+deLorgeril_Susceptible_dds_res_48_LFC_sig_APOP[,c("product","group","log2FoldChange")],
+deLorgeril_Susceptible_dds_res_60_LFC_sig_APOP[,c("product","group","log2FoldChange")],
+deLorgeril_Susceptible_dds_res_72_LFC_sig_APOP[,c("product","group","log2FoldChange")])
+
+# Make plot or up and downregulated
+deLorgeril_all_sig_APOP_downregulated <- deLorgeril_all_sig_APOP %>% filter(log2FoldChange <= 0)
+deLorgeril_all_sig_APOP_upregulated <- deLorgeril_all_sig_APOP %>% filter(log2FoldChange > 0)
+
+deLorgeril_all_sig_APOP_downregulated_plot <- ggplot(deLorgeril_all_sig_APOP_downregulated , aes(x=product,y=log2FoldChange, fill=group )) + geom_col(position="dodge") + 
+  theme(axis.text.x = element_text(angle = 75, hjust = 1)) + coord_flip()
+deLorgeril_all_sig_APOP_upregulated_plot <- ggplot(deLorgeril_all_sig_APOP_upregulated, aes(x=product,y=log2FoldChange, fill=group )) + geom_col(position="dodge") + 
+  theme(axis.text.x = element_text(angle = 75, hjust = 1)) + coord_flip()
+
 deLorgeril_Resistant_dds_res_48_LFC_sig_APOP <- ggplot(deLorgeril_Resistant_dds_res_48_LFC_sig_APOP, aes(x=product, y = log2FoldChange, fill=log2FoldChange)) + geom_col(position="dodge") +
   coord_flip() + scale_fill_gradient2(low="purple",mid = "grey", high="darkgreen") + ggtitle("Resistant 48hr vs Control") +
   ylab("Log2 Fold Change")
@@ -1719,7 +1763,7 @@ He_coldata$Time <- factor(He_coldata$Time, levels=c("Time0","6h", "12h", "24h" ,
 ## Creating three here so I can compare the results
 He_dds <- DESeqDataSetFromMatrix(countData = He_counts,
                                     colData = He_coldata,
-                                    design = ~ Time + Condition)  # again accounting for time in my formula, keeping condition as the last
+                                    design = ~ Condition + Time)  # again accounting for time in my formula, keeping condition as the last
 
 ## Prefiltering the data
 # Data prefiltering helps decrease the size of the data set and get rid of
@@ -1748,7 +1792,20 @@ resultsNames(He_dds_deseq) # [1] "Intercept", "Time_6h_vs_Time0","Time_12h_vs_Ti
 # use mcols to look at metadata for each table
 mcols(He_dds_deseq)
 He_dds_res <- results(He_dds_deseq, alpha=0.05, name= "Condition_OsHV1_vs_control")
+He_dds_res_6hr <- results(He_dds_deseq, alpha=0.05, name= "Time_6h_vs_Time0" )
+He_dds_res_12hr <- results(He_dds_deseq, alpha=0.05, name= "Time_12h_vs_Time0")
+He_dds_res_24hr <- results(He_dds_deseq, alpha=0.05, name=  "Time_24h_vs_Time0")
+He_dds_res_48hr <- results(He_dds_deseq, alpha=0.05, name= "Time_48h_vs_Time0")
+He_dds_res_120hr <- results(He_dds_deseq, alpha=0.05, name= "Time_120hr_vs_Time0")
+He_dds_res <- results(He_dds_deseq, alpha=0.05, name= "Condition_OsHV1_vs_control")
 head(He_dds_res) 
+
+summary(He_dds_res_6hr )
+summary(He_dds_res_12hr )
+summary(He_dds_res_24hr )
+summary(He_dds_res_48hr )
+summary(He_dds_res_120hr)
+
 
 ### Perform LFC Shrinkage with apeglm
 ## NOTES 
@@ -1758,10 +1815,20 @@ head(He_dds_res)
 
 ## DECISION: USE SAME RES OBJECT TO KEEP ALPHA ADJUSTMENT, and use LFCShrink apeglm
 He_dds_res_LFC<- lfcShrink(He_dds_deseq, coef="Condition_OsHV1_vs_control", type="apeglm", res= He_dds_res)
+He_dds_res_6hr  <- lfcShrink(He_dds_deseq, coef="Time_6h_vs_Time0"   , type= "apeglm", res=He_dds_res_6hr)
+He_dds_res_12hr <- lfcShrink(He_dds_deseq, coef="Time_12h_vs_Time0"  , type= "apeglm", res=He_dds_res_12hr )
+He_dds_res_24hr <- lfcShrink(He_dds_deseq, coef= "Time_24h_vs_Time0" , type= "apeglm", res=He_dds_res_24hr )
+He_dds_res_48hr <- lfcShrink(He_dds_deseq, coef="Time_48h_vs_Time0"  , type= "apeglm", res=He_dds_res_48hr )
+He_dds_res_120hr <- lfcShrink(He_dds_deseq, coef="Time_120hr_vs_Time0", type= "apeglm", res=He_dds_res_120hr)
 
 ## EXPLORATORY PLOTTING OF RESULTS 
 ## MA Plotting
 plotMA(He_dds_res_LFC, ylim = c(-5, 5))
+plotMA(He_dds_res_6hr  , ylim=c(-5,5))
+plotMA(He_dds_res_12hr , ylim=c(-5,5))
+plotMA(He_dds_res_24hr , ylim=c(-5,5))
+plotMA(He_dds_res_48hr , ylim=c(-5,5))
+plotMA(He_dds_res_120hr, ylim=c(-5,5))
 
 ## Histogram of P values 
 # exclude genes with very small counts to avoid spikes and plot using the LFCshrinkage
@@ -1774,7 +1841,32 @@ hist(He_dds_res_LFC$padj[He_dds_res_LFC$baseMean > 1], breaks = 0:20/20,
 He_dds_res_LFC_sig <-  subset(He_dds_res_LFC , padj < 0.05)
 He_dds_res_LFC_sig $transcript_id <- row.names(He_dds_res_LFC_sig )
 He_dds_res_LFC_sig  <- as.data.frame(He_dds_res_LFC_sig )
-nrow(He_dds_res_LFC_sig ) # 5432
+nrow(He_dds_res_LFC_sig ) # 3322
+summary(He_dds_res_LFC_sig)
+
+He_dds_res_6hr_sig <- subset(He_dds_res_6hr, padj < 0.05)
+He_dds_res_12hr_sig <- subset(He_dds_res_12hr, padj < 0.05)
+He_dds_res_24hr_sig <- subset(He_dds_res_24hr, padj < 0.05)
+He_dds_res_48hr_sig <- subset(He_dds_res_48hr, padj < 0.05)
+He_dds_res_120hr_sig  <- subset(He_dds_res_120hr, padj < 0.05)
+
+He_dds_res_6hr_sig $transcript_id <- row.names(He_dds_res_6hr_sig )
+He_dds_res_12hr_sig $transcript_id <- row.names(He_dds_res_12hr_sig )
+He_dds_res_24hr_sig $transcript_id <- row.names(He_dds_res_24hr_sig )
+He_dds_res_48hr_sig $transcript_id <- row.names(He_dds_res_48hr_sig )
+He_dds_res_120hr_sig$transcript_id <- row.names(He_dds_res_120hr_sig)
+
+He_dds_res_6hr_sig <- as.data.frame(He_dds_res_6hr_sig)
+He_dds_res_12hr_sig <- as.data.frame(He_dds_res_12hr_sig)
+He_dds_res_24hr_sig <- as.data.frame(He_dds_res_24hr_sig)
+He_dds_res_48hr_sig <- as.data.frame(He_dds_res_48hr_sig)
+He_dds_res_120hr_sig <- as.data.frame(He_dds_res_120hr_sig)
+
+nrow(He_dds_res_6hr_sig) #742
+nrow(He_dds_res_12hr_sig) # 525
+nrow(He_dds_res_24hr_sig) # 699
+nrow(He_dds_res_48hr_sig) # 641
+nrow(He_dds_res_120hr_sig) # 520 
 
 ### GENE CLUSTERING ANALYSIS HEATMAPS  
 # Extract genes with the highest variance across samples for each comparison using either vst or rlog transformed data
@@ -1838,8 +1930,44 @@ top_Var_He_counts_apop_assay_prot_annot <- left_join(top_Var_He_counts_apop_assa
 ### Extract list of significant Apoptosis Genes (not less than or greater than 1 LFC) using merge
 He_dds_res_LFC_sig_APOP <- merge(He_dds_res_LFC_sig , C_gig_rtracklayer_apop_product_final, by = "transcript_id")
 He_dds_res_LFC_sig_arranged <-arrange(He_dds_res_LFC_sig_APOP, -log2FoldChange)
-nrow(He_dds_res_LFC_sig_arranged ) #65
+nrow(He_dds_res_LFC_sig_arranged ) #66
 View(He_dds_res_LFC_sig_arranged)
+
+He_dds_res_6hr_sig_APOP <- merge(He_dds_res_6hr_sig,    C_gig_rtracklayer_apop_product_final, by = "transcript_id")
+He_dds_res_12hr_sig_APOP <- merge(He_dds_res_12hr_sig, C_gig_rtracklayer_apop_product_final, by = "transcript_id")
+He_dds_res_24hr_sig_APOP <- merge(He_dds_res_24hr_sig, C_gig_rtracklayer_apop_product_final, by = "transcript_id")
+He_dds_res_48hr_sig_APOP <- merge(He_dds_res_48hr_sig , C_gig_rtracklayer_apop_product_final, by = "transcript_id")
+He_dds_res_120hr_sig_APOP <- merge(He_dds_res_120hr_sig ,C_gig_rtracklayer_apop_product_final, by = "transcript_id" )
+
+He_dds_res_6hr_sig_arranged <- arrange(He_dds_res_6hr_sig_APOP , -log2FoldChange)
+He_dds_res_12hr_sig_arranged <- arrange(He_dds_res_12hr_sig_APOP , -log2FoldChange)
+He_dds_res_24hr_sig_arranged <- arrange(He_dds_res_24hr_sig_APOP , -log2FoldChange)
+He_dds_res_48hr_sig_arranged <- arrange(He_dds_res_48hr_sig_APOP , -log2FoldChange)
+He_dds_res_120hr_sig_arranged <- arrange(He_dds_res_120hr_sig_APOP, -log2FoldChange)
+
+nrow(He_dds_res_6hr_sig_arranged ) # 20
+nrow(He_dds_res_12hr_sig_arranged) # 14
+nrow(He_dds_res_24hr_sig_arranged) # 19
+nrow(He_dds_res_48hr_sig_arranged) # 15
+nrow(He_dds_res_120hr_sig_arranged) # 9
+
+He_dds_res_6hr_sig_APOP$group_by_sim <-"He_dds_res_6hr_sig_APOP"
+He_dds_res_12hr_sig_APOP$group_by_sim <-"He_dds_res_12hr_sig_APOP"
+He_dds_res_24hr_sig_APOP$group_by_sim <-"He_dds_res_24hr_sig_APOP"
+He_dds_res_48hr_sig_APOP$group_by_sim <-"He_dds_res_48hr_sig_APOP"
+He_dds_res_120hr_sig_APOP$group_by_sim <-"He_dds_res_120hr_sig_APOP"
+
+# combine data frames 
+He_all_sig_APOP <- rbind(He_dds_res_6hr_sig_APOP[,c("product","group_by_sim","log2FoldChange")],
+He_dds_res_12hr_sig_APOP[,c("product","group_by_sim","log2FoldChange")],
+He_dds_res_24hr_sig_APOP[,c("product","group_by_sim","log2FoldChange")],
+He_dds_res_48hr_sig_APOP[,c("product","group_by_sim","log2FoldChange")],
+He_dds_res_120hr_sig_APOP[,c("product","group_by_sim","log2FoldChange")])
+
+# Make plot
+He_full_LFC_plot <- ggplot(He_all_sig_APOP , aes(x=product,y=log2FoldChange, fill=group_by_sim )) + geom_col(position="dodge") + 
+  theme(axis.text.x = element_text(angle = 75, hjust = 1)) + coord_flip()
+
 
 # Compare apoptosis genes between group_by_sim groups
 He_dds_res_LFC_sig_APOP_plot <- ggplot(He_dds_res_LFC_sig_APOP , aes(x=product, y = log2FoldChange, fill=log2FoldChange)) + geom_col(position="dodge") +
@@ -1940,7 +2068,7 @@ levels(Probiotic_coldata$Time)
 ## Creating deseq data set from matrix, controlling for the effect of time
 Probiotic_dds <- DESeqDataSetFromMatrix(countData = Probiotic_counts,
                                     colData = Probiotic_coldata,
-                                    design = ~Time + Condition) 
+                                    design = ~ Time + Condition ) 
 
 ## Prefiltering the data
 # Data prefiltering helps decrease the size of the data set and get rid of
@@ -2191,7 +2319,7 @@ ROD_Resistant_dds_rlog <- rlog(ROD_Resistant_dds , blind = TRUE) # keep blind = 
 ROD_Susceptible_dds_rlog <- rlog(ROD_Susceptible_dds , blind = TRUE) # keep blind = true before deseq function has been run
 
 ## PCA plot visualization of individuals in the family 
-plotPCA(ROD_Resistant_dds_rlog, intgroup= "Condition") # no clustering by treatment
+plotPCA(ROD_Resistant_dds_rlog, intgroup= "Time") # no clustering by treatment
 plotPCA(ROD_Susceptible_dds_rlog , intgroup="Condition") # some clustering
 
 ### DIFFERENTIAL EXPRESSION ANALYSIS
@@ -2498,8 +2626,8 @@ Dermo_Tolerant_dds_vst <- vst(Dermo_Tolerant_dds , blind = TRUE) # keep blind = 
 Dermo_Susceptible_dds_vst <- vst(Dermo_Susceptible_dds , blind = TRUE) # keep blind = true before deseq function has been run
 
 ## PCA plot visualization of individuals in the family 
-plotPCA(Dermo_Tolerant_dds_vst, intgroup= "Condition") # no some clustering by treatment
-plotPCA(Dermo_Susceptible_dds_vst , intgroup="Condition") # some clustering
+plotPCA(Dermo_Tolerant_dds_vst, intgroup= c("Time","Condition")) # no some clustering by treatment
+plotPCA(Dermo_Susceptible_dds_vst , intgroup=c("Time","Condition")) # some clustering
 
 ### DIFFERENTIAL EXPRESSION ANALYSIS
 # run pipeline with single command because the formula has already been specified
