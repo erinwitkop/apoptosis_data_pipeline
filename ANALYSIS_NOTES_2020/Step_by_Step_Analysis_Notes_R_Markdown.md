@@ -1112,4 +1112,4 @@ GCF_002022765.2_C_virginica-3.0_protein	8714.0	0.0`
 
 * 1. Creating summary presentation showing Marta the Log2FC plots for all of my differential expression analysis so far, and how they were done. Also going back to look at the response through time for some challenges.
   - At the end, I need to emphasize how we are going to characterize the response of each..by pathway? By number of transcripts in the gene family differentially expressed. The issue is that Differential expression can be affected by a lot of different factors.
-  - Trying to finish my counts ortholog matching to plot the PCA of counts before our meeting 
+  - Trying to finish my counts ortholog matching to plot the PCA of counts before our meeting
