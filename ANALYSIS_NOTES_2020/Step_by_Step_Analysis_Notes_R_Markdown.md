@@ -1119,13 +1119,42 @@ GCF_002022765.2_C_virginica-3.0_protein	8714.0	0.0`
 1. Marta suggested adding Tejashree's lab challenge Vibrio and probiotic experiment. Created one single script on bluewaves that will perform all analyses.
   * Following the same analysis steps as above with these new transcriptomes.
     - 18 total transcriptomes, 3 control one from each line, 3 RE22, two RI from each line, two S4 from every line
-  * Downloaded metadata from NCBI, created own metadata file ` here  ` then it to the overall metadata sheet
+  * Downloaded metadata from NCBI, created own metadata file `Modak_Pro_RE22_metadata.csv` then it to the overall metadata sheet  `Organized_SRA_info.xlsx`
+  * Moved `Modak_Pro_RE22_SRA_ID.txt` with list of SRA IDs and copied the prepDE script over to this folder
+          `$ cp prepDE_Oct.2019.py ../C_vir_Pro_RE22_SRA/`
+  * Saved script with all combined code as ` C_vir_Pro_RE22_pipeline.sh `
+  * Ran the script  `$ sbatch C_vir_Pro_RE22_pipeline.sh `
+  * Checking progress as I go
+        `# Initial error on running SRA Toolkit
+        transfer incomplete while reading file within network system module -? Cannot KStreamRe
+        # github error suggests that maybe if I try the download again this error will fix itself and not reoccur
+        https://github.com/ncbi/sra-tools/issues/100
+        # Removing files from NCBI and running again
+        # Running the script again stopped the error!
+        `
 
   * Finished downloading and reviewing checksum
-
-
         `# Created new folder where this data will be housed
         $ pwd
         /data3/marine_diseases_lab/erin/2017_2020_Transcriptome_Analysis/pipeline_files/C_Vir_subset/2020_Raw_Transcriptome_Data/C_vir_Pro_RE22_SRA
 
         `
+  * Created coldata for DESeq2.
+  * Running DEseq2 for Pro_RE22 data: Formula used is `~Time + Condition` to control for the effect of the age of the larvae and then compare each condition to control.
+
+2. Investigating Cross Species DESeq2 analysis
+
+  * Can I perform DEseq2 differential expression analysis using on the orthologous genes from both species?
+    * Seems that yes I can at the level of gene counts : https://support.bioconductor.org/p/97936/
+      * Suggested method: "(2) Align reads from each species to its own reference genome. Discard all genes that don't have a 1:1 orthology relationship. Change the gene names in the species B raw counts files to the names of their species A orthologs. Proceed with downstream analysis as if these were two different treatments on species A, analyzing only these "shared" genes."
+      * Michael Love response "(2) sounds better. You can use the gene lengths as a normalization factor. Make a matrix which gives the gene length for each gene and each sample (so the same size as the count matrix). Then before you run DESeq(), you can store this matrix to:
+        `assays(dds)[["avgTxLength"]] <- mat` This will be picked up by DESeq() and used for normalization.
+
+    * In my DEseq2 formula maybe I can set it up like `~Experiment+species + Family:condition`. This should hopefully control for the different host material used for each experiment and batch effects due to how the experiments were conducted, and control for the species effect. The interaction term will allow for comparison of the response to treatment between each family the different experiments. Then I can pull out specific responses afterward. See this bioconductor response for help explaining this `https://support.bioconductor.org/p/58162/`. Small p-values for the interaction term mean the log fold change due to treatment is significantly different for the two conditions. Going to edit my full coldata to reflect these groups I want to compare.
+      - What do I do regarding the effect of time? I can use my initial determinations of what time is the "acute" response based on differential expression, to only compare the most acute response transcriptome timepoints? Or I can just calculate regardless of time and just focus on the affect of treatment?
+      - I could separate it into the overall analysis and the acute response analysis   
+
+    * Edits to `All_coldata.csv`
+        - I added the new Pro_RE22 coldata to my `All_coldata.csv` spreadsheet.
+        - Based on Marta's recommendation to not separate out all the Zhang Vibrio strains and to just call it all vibrio, I am combining all the Vibrio into one condition from the Zhang experiment.
+        - For the ROD experiment, the "CGX" family designation was changed to "GX" because is really the family used.

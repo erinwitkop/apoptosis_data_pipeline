@@ -2,7 +2,7 @@
 #SBATCH -t 200:00:00
 #SBATCH --nodes=1
 #SBATCH --export=NONE
-#SBATCH	-o /data3/marine_diseases_lab/erin/2017_2020_Transcriptome_Analysis/pipeline_files/2020_Scripts/Script_out_error_files/Probiotic_RE22_pipeline_error_3_2_2020
+#SBATCH	-o /data3/marine_diseases_lab/erin/2017_2020_Transcriptome_Analysis/pipeline_files/2020_Scripts/Script_out_error_files/Probiotic_RE22_pipeline_output_3_2_2020
 #SBATCH	-e /data3/marine_diseases_lab/erin/2017_2020_Transcriptome_Analysis/pipeline_files/2020_Scripts/Script_out_error_files/Probiotic_RE22_pipeline_ALL_error_3_2_2020
 
 echo "START $(date)"
@@ -29,7 +29,7 @@ vdb-validate --option-file $CPV/C_gig_deLorgeril_OsHV1_SRA/Modak_Pro_RE22_SRA_ID
 
 echo "C_vir_Pro_RE22 download DONE $(date)"
 
-# remove the prefetch files from home 
+# remove the prefetch files from home
 rm -r /home/erin_roberts/ncbi
 
 ##### SRA TRIM FILTER #####
