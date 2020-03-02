@@ -2190,6 +2190,213 @@ Probiotic_dds_deseq_Challenge_res_LFC_sig_APOP_plot <- ggplot(Probiotic_dds_dese
   ylab("Log2 Fold Change")
  # mostly downregulation of transcripts 
 
+#### MODAK PROBIOTIC RE22 TRANSCRIPTOME ANALYSIS ####
+
+## LOAD DATA
+Pro_RE22_counts <- read.csv("/Users/erinroberts/Documents/PhD_Research/Chapter_1_Apoptosis Paper/Chapter1_Apoptosis_Transcriptome_Analyses_2019/DATA ANALYSIS/apoptosis_data_pipeline/DESeq2/2020_Transcriptome_ANALYSIS/Probiotic_RE22_transcript_count_matrix.csv", header=TRUE,
+                             row.names = "transcript_id")
+head(Pro_RE22_counts )
+colnames(Pro_RE22_counts )
+
+# colnames all have "_1", remove this. It was an artifact of the PE sample names
+colnames(Pro_RE22_counts  ) <- sub('\\_[^_]+$', '', colnames(Pro_RE22_counts ))
+colnames(Pro_RE22_counts )
+
+# remove MSTRG novel transcript lines (can assess these later if necessary)
+Pro_RE22_counts  <- Pro_RE22_counts [!grepl("MSTRG", row.names(Pro_RE22_counts )),]
+row.names(Pro_RE22_counts ) <- remove_rna(row.names(Pro_RE22_counts ))
+head(Pro_RE22_counts )
+
+#Load in sample metadata
+Pro_RE22_coldata <- read.csv("/Users/erinroberts/Documents/PhD_Research/Chapter_1_Apoptosis Paper/Chapter1_Apoptosis_Transcriptome_Analyses_2019/DATA ANALYSIS/apoptosis_data_pipeline/DESeq2/2020_Transcriptome_ANALYSIS/Probiotic_coldata.csv", row.names = 1 )
+View(Pro_RE22_coldata)  
+nrow(Pro_RE22_coldata) 
+
+# Make sure the columns of the count matrix and rows of the column data (sample metadata) are in the same order. 
+all(rownames(Pro_RE22_coldata) %in% colnames(Pro_RE22_counts))  #Should return TRUE
+# returns TRUE
+all(colnames(Pro_RE22_counts) %in% rownames(Pro_RE22_coldata))  
+# returns TRUE
+all(rownames(Pro_RE22_coldata) == colnames(Pro_RE22_counts))
+# returns FALSE
+
+# Fix the order
+Pro_RE22_counts <-Pro_RE22_counts[,row.names(Pro_RE22_coldata)]
+row.names(Pro_RE22_coldata)
+
+all(rownames(Pro_RE22_coldata) %in% colnames(Pro_RE22_counts))  #Should return TRUE
+# returns TRUE
+all(colnames(Pro_RE22_counts) %in% rownames(Pro_RE22_coldata))  
+# returns TRUE
+all(rownames(Pro_RE22_coldata) == colnames(Pro_RE22_counts))
+# returns TRUE
+
+### DATA QC PCA PLOT 
+# rlog transform data is recommended over vst for small data sets 
+# PCA plots of data (https://bioinformatics-core-shared-training.github.io/cruk-summer-school-2018/RNASeq2018/html/02_Preprocessing_Data.nb.html#count-distribution-boxplots)
+Pro_RE22_counts_matrix <- as.matrix(Pro_RE22_counts)
+Pro_RE22rlogcounts <- rlog(Pro_RE22_counts_matrix, blind =TRUE)
+
+# run PCA
+pcPro_RE22 <- prcomp(t(Pro_RE22rlogcounts))
+
+# Plot PCA
+autoplot(pcPro_RE22,
+         data = Pro_RE22_coldata, 
+         colour="Condition", 
+         size=5) 
+
+# Plot PCA 2 and 3 for comparison
+autoplot(pcPro_RE22,
+         data = Pro_RE22_coldata, 
+         colour = "Condition", 
+         size = 5,
+         x = 2,
+         y = 3) 
+# Plot PCA 4 and 4 for comparison
+autoplot(pcPro_RE22,
+         data = Pro_RE22_coldata, 
+         colour = "Condition", 
+         size = 5,
+         x = 3,
+         y = 4)  # this PCA axis shows some clustering of samples by treatment
+
+## MAKE DESEQ DATA SET FROM MATRIX
+# This object specifies the count data and metadata you will work with. The design piece is critical.
+# Correct for batch effects if necessary in this original formula: see this thread https://support.bioconductor.org/p/121408/
+# do not correct counts using the removeBatchEffects from limma based on thread above 
+
+## Check levels 
+# It is prefered in R that the first level of a factor be the reference level for comparison
+# (e.g. control, or untreated samples), so we can relevel the factor like so
+# Check factor levels, set it so that comparison group is the first
+levels(Pro_RE22_coldata$Condition) # 
+Pro_RE22_coldata$Condition <- factor(Pro_RE22_coldata$Condition , levels = c())
+levels(Pro_RE22_coldata$Condition)
+levels(Pro_RE22_coldata$Time) # Time this is what I will control for
+Pro_RE22_coldata$Time <- factor(Pro_RE22_coldata$Time , levels = c())
+levels(Pro_RE22_coldata$Time)
+
+## Creating deseq data set from matrix, controlling for the effect of time
+Pro_RE22_dds <- DESeqDataSetFromMatrix(countData = Pro_RE22_counts,
+                                        colData = Pro_RE22_coldata,
+                                        design = ~ Time + Condition ) 
+
+## Prefiltering the data
+# Data prefiltering helps decrease the size of the data set and get rid of
+# rows with no data or very minimal data (<10). Apply a minimal filtering here as more stringent filtering will be applied later
+Pro_RE22_dds <- Pro_RE22_dds [ rowSums(counts(Pro_RE22_dds )) > 10, ]
+
+## DATA TRANSFORMATION AND VISUALIZATION
+# Assess sample clustering after setting initial formula for comparison
+Pro_RE22_dds_rlog <- rlog(Pro_RE22_dds , blind = TRUE) # keep blind = true before deseq function has been run
+
+## PCA plot visualization of individuals in the family 
+plotPCA(Pro_RE22_dds_rlog, intgroup=c("Sample", "Condition")) # clustering by time is not as tight
+
+### DIFFERENTIAL EXPRESSION ANALYSIS
+# run pipeline with single command because the formula has already been specified
+# Steps: estimation of size factors (controlling for differences in the sequencing depth of the samples), 
+# the estimation of dispersion values for each gene,and fitting a generalized linear model.
+Pro_RE22_dds_deseq <- DESeq(Pro_RE22_dds) 
+
+## Check the resultsNames object of each to look at the available coefficients for use in lfcShrink command
+resultsNames(Pro_RE22_dds_deseq) #
+
+## BUILD THE RESULTS OBJECT
+# Examining the results object, change alpha to p <0.05, looking at object metadata
+# use mcols to look at metadata for each table
+mcols(Pro_RE22_dds_deseq)
+Pro_RE22_dds_deseq_Challenge_res <- results(Pro_RE22_dds_deseq, alpha=0.05, name= "")
+head(Pro_RE22_dds_deseq_Challenge_res) # 
+
+### Perform LFC Shrinkage with apeglm
+## NOTES 
+# Before plotting we need to apply an LFC shrinkage, set the coef as the specific comparison in the ResultsNames function of the deseq object
+# Issue that the specific comparisons I set in my results formulas are not available in the ResultsNames coef list.
+# More detailed notes about LFC Shrinkage are in the code for the Zhang Vibrio
+
+## DECISION: USE SAME RES OBJECT TO KEEP ALPHA ADJUSTMENT, and use LFCShrink apeglm
+Pro_RE22_dds_deseq_Challenge_res_LFC<- lfcShrink(Pro_RE22_dds_deseq, coef="", type="apeglm", res= Pro_RE22_dds_deseq_Challenge_res)
+
+## EXPLORATORY PLOTTING OF RESULTS 
+## MA Plotting
+plotMA(Pro_RE22_dds_deseq_Challenge_res_LFC, ylim = c(-5, 5))
+
+## Histogram of P values 
+# exclude genes with very small counts to avoid spikes and plot using the LFCshrinkage
+hist(Pro_RE22_dds_deseq_Challenge_res_LFC$padj[Pro_RE22_dds_deseq_Challenge_res_LFC$baseMean > 1], breaks = 0:20/20,
+     col = "grey50", border = "white")
+
+### Subsetting Significant Genes by padj < 0.05
+# again, only working with the LFCshrinkage adjusted log fold changes, and with the BH adjusted p-value
+# first make sure to make the rownames with the transcript ID as a new column, then make it a dataframe for filtering
+Pro_RE22_dds_deseq_Challenge_res_LFC_sig <-  subset(Pro_RE22_dds_deseq_Challenge_res_LFC , padj < 0.05)
+Pro_RE22_dds_deseq_Challenge_res_LFC_sig$ID<- row.names(Pro_RE22_dds_deseq_Challenge_res_LFC_sig)
+Pro_RE22_dds_deseq_Challenge_res_LFC_sig <- as.data.frame(Pro_RE22_dds_deseq_Challenge_res_LFC_sig)
+nrow(Pro_RE22_dds_deseq_Challenge_res_LFC_sig) # 1762
+
+### GENE CLUSTERING ANALYSIS HEATMAPS  
+# Extract genes with the highest variance across samples for each comparison using either vst or rlog transformed data
+# This heatmap rather than plotting absolute expression strength plot the amount by which each gene deviates in a specific sample from the gene’s average across all samples. 
+# example codes from RNAseq workflow: https://www.bioconductor.org/packages/devel/workflows/vignettes/rnaseqGene/inst/doc/rnaseqGene.html#other-comparisons
+
+Pro_RE22_dds_deseq_Challenge_res_LFC_sig_assay <-  head(order(rowVars(assay(Pro_RE22_dds_rlog  )), decreasing = TRUE), 200)
+family_Pro_RE22_broken_mat <- assay(Pro_RE22_dds_rlog )[Pro_RE22_dds_deseq_Challenge_res_LFC_sig_assay ,]
+family_Pro_RE22_broken_mat <- family_Pro_RE22_broken_mat - rowMeans(family_Pro_RE22_broken_mat)
+family_Pro_RE22_broken_anno <- as.data.frame(colData(Pro_RE22_dds_rlog )[, c("Condition","Time")])
+family_Pro_RE22_broken_heatmap <- pheatmap(family_Pro_RE22_broken_mat , annotation_col = family_Pro_RE22_broken_anno)
+head(family_Pro_RE22_broken_mat) # 
+
+# Gene clustering heatmap with only apoptosis genes #
+# Search original Probiotic_counts for apoptosis genes and do rlog on just these
+Pro_RE22_counts_apop <- Pro_RE22_counts[row.names(Pro_RE22_counts) %in% C_vir_rtracklayer_apop_product_final_ID,]
+nrow(Pro_RE22_counts_apop) #1026
+head(Pro_RE22_counts_apop)
+Pro_RE22_counts_apop_dds <- DESeqDataSetFromMatrix(countData = Pro_RE22_counts_apop,
+                                                    colData = Pro_RE22_coldata,
+                                                    design = ~Time + Condition) # add time to control for larval age effect 
+# Prefiltering the data and running rlog
+Pro_RE22_counts_apop_dds<- Pro_RE22_counts_apop_dds[ rowSums(counts(Pro_RE22_counts_apop_dds)) > 10, ]
+Pro_RE22_counts_apop_dds_rlog <- rlog(Pro_RE22_counts_apop_dds, blind=TRUE)
+
+## PCA plot of rlog transformed counts for apoptosis
+plotPCA(Pro_RE22_counts_apop_dds_rlog , intgroup="Time") # still overall clustering by time and not condition
+
+# heatmap of all apoptosis genes 
+Pro_RE22_counts_apop_assay <-  assay(Pro_RE22_counts_apop_dds_rlog)[,]
+Pro_RE22_counts_apop_assay_mat <- Pro_RE22_counts_apop_assay - rowMeans(Pro_RE22_counts_apop_assay)
+Pro_RE22_counts_apop_assay_anno <- as.data.frame(colData(Pro_RE22_counts_apop_dds_rlog )[, c("Condition","Sample")])
+Pro_RE22_counts_apop_assay_heatmap <- pheatmap(Pro_RE22_counts_apop_assay_mat  , annotation_col = Pro_RE22_counts_apop_assay_anno)
+head(Pro_RE22_counts_apop_assay_mat ) # 
+
+# heatmap of most variable apoptosis genes (this selects genes with the greatest variance in the sample)
+topVarGenes_Pro_RE22_counts_apop_assay <-  head(order(rowVars(assay(Pro_RE22_counts_apop_dds_rlog)), decreasing = TRUE), 100) 
+top_Var_Pro_RE22_counts_apop_assay_mat<- assay(Pro_RE22_counts_apop_dds_rlog)[topVarGenes_Pro_RE22_counts_apop_assay,]
+top_Var_Pro_RE22_counts_apop_assay_mat <- top_Var_Pro_RE22_counts_apop_assay_mat - rowMeans(top_Var_Pro_RE22_counts_apop_assay_mat)
+top_Var_Pro_RE22_counts_apop_assay_anno <- as.data.frame(colData(Pro_RE22_counts_apop_dds_rlog)[, c("Condition","Time")])
+top_Var_Pro_RE22_counts_apop_assay_heatmap <- pheatmap(top_Var_Pro_RE22_counts_apop_assay_mat  , annotation_col = top_Var_Pro_RE22_counts_apop_assay_anno)
+head(top_Var_Pro_RE22_counts_apop_assay_mat )
+# some clustering patterns here in signature
+
+# annotate the top 100 most variable genes  
+# reorder annotation table to match ordering in heatmap 
+top_Var_Pro_RE22_counts_apop_assay_heatmap_reorder <-rownames(top_Var_Pro_RE22_counts_apop_assay_mat[top_Var_Pro_RE22_counts_apop_assay_heatmap$tree_row[["order"]],])
+# annotate the row.names
+top_Var_Pro_RE22_counts_apop_assay_prot <- as.data.frame(top_Var_Pro_RE22_counts_apop_assay_heatmap_reorder)
+colnames(top_Var_Pro_RE22_counts_apop_assay_prot)[1] <- "ID"
+top_Var_Pro_RE22_counts_apop_assay_prot_annot <- left_join(top_Var_Pro_RE22_counts_apop_assay_prot, select(C_vir_rtracklayer_apop_product_final, ID, product, gene), by = "ID")
+
+### Extract list of significant Apoptosis Genes (not less than or greater than 1 LFC) using merge
+Pro_RE22_dds_deseq_Challenge_res_LFC_sig_APOP <- merge(Pro_RE22_dds_deseq_Challenge_res_LFC_sig, C_vir_rtracklayer_apop_product_final, by = "ID")
+Pro_RE22_dds_deseq_Challenge_res_LFC_sig_APOP_arranged <- arrange(Pro_RE22_dds_deseq_Challenge_res_LFC_sig_APOP, -log2FoldChange) 
+nrow(Pro_RE22_dds_deseq_Challenge_res_LFC_sig_APOP) # 
+
+Pro_RE22_dds_deseq_Challenge_res_LFC_sig_APOP_plot <- ggplot(Pro_RE22_dds_deseq_Challenge_res_LFC_sig_APOP , aes(x=product, y = log2FoldChange, fill=log2FoldChange)) + geom_col(position="dodge") +
+  coord_flip() + scale_fill_gradient2(low="purple",mid = "grey", high="darkgreen") + ggtitle("") +
+  ylab("Log2 Fold Change")
+
+
 #### ROD TRANSCRIPTOME ANALYSIS #### 
 
 ROD_counts <- read.csv("/Users/erinroberts/Documents/PhD_Research/Chapter_1_Apoptosis Paper/Chapter1_Apoptosis_Transcriptome_Analyses_2019/DATA ANALYSIS/apoptosis_data_pipeline/DESeq2/2020_Transcriptome_ANALYSIS/ROD_transcript_count_matrix.csv", header=TRUE,
