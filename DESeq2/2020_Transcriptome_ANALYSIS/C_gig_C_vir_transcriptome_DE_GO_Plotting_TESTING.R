@@ -3295,7 +3295,7 @@ top_Var_C_gigas_apop_assay_anno <- as.data.frame(colData(C_gigas_apop_counts_vst
 top_Var_C_gigas_apop_assay_heatmap <- pheatmap(top_Var_C_gigas_apop_assay_mat  , annotation_col = top_Var_C_gigas_apop_assay_anno)
 head(top_Var_C_gigas_apop_assay_mat ) # OsHV1 susceptible clusters well with HE susceptible
 
-## How can I merge the results between species? merging the gene_count_matrix.csv by gene name may make the most sense
+
 
 #### COMPARING APOPTOSIS TRANSCRIPT EXPRESSION BETWEEN EXPERIMENTS PCA HEATMAPS VST ON FULL THEN SUBSET ####
 # some helpful forum posts on the topic: https://www.biostars.org/p/364768/

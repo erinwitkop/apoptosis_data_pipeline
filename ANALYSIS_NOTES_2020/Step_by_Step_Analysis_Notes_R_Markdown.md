@@ -1150,9 +1150,13 @@ GCF_002022765.2_C_virginica-3.0_protein	8714.0	0.0`
       * Michael Love response "(2) sounds better. You can use the gene lengths as a normalization factor. Make a matrix which gives the gene length for each gene and each sample (so the same size as the count matrix). Then before you run DESeq(), you can store this matrix to:
         `assays(dds)[["avgTxLength"]] <- mat` This will be picked up by DESeq() and used for normalization.
 
+          * NOTES: orthologous transcripts were not identified, only used the orthologous proteins to get orthologous gene counts
+
     * In my DEseq2 formula maybe I can set it up like `~Experiment+species + Family:condition`. This should hopefully control for the different host material used for each experiment and batch effects due to how the experiments were conducted, and control for the species effect. The interaction term will allow for comparison of the response to treatment between each family the different experiments. Then I can pull out specific responses afterward. See this bioconductor response for help explaining this `https://support.bioconductor.org/p/58162/`. Small p-values for the interaction term mean the log fold change due to treatment is significantly different for the two conditions. Going to edit my full coldata to reflect these groups I want to compare.
       - What do I do regarding the effect of time? I can use my initial determinations of what time is the "acute" response based on differential expression, to only compare the most acute response transcriptome timepoints? Or I can just calculate regardless of time and just focus on the affect of treatment?
       - I could separate it into the overall analysis and the acute response analysis   
+
+
 
     * Edits to `All_coldata.csv`
         - I added the new Pro_RE22 coldata to my `All_coldata.csv` spreadsheet.
