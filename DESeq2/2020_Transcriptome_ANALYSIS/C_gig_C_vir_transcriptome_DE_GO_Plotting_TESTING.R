@@ -2860,53 +2860,82 @@ Dermo_Tolerant_dds_28d_res_LFC_sig_APOP_plot <- ggplot(Dermo_Tolerant_dds_28d_re
 
 #### LFC PLOTS BY SPECIES ####
 
+ROD_Susceptible_dds_res_LFC_sig_APOP$group_by_sim <- "ROD_susceptible"
+ROD_Susceptible_dds_res_LFC_sig_APOP$experiment <- "ROD"
+ROD_Resistant_dds_res_LFC_sig_APOP$group_by_sim <- "ROD_resistant"
+ROD_Resistant_dds_res_LFC_sig_APOP$experiment <- "ROD"
+Probiotic_dds_deseq_Challenge_res_LFC_sig_APOP$group_by_sim <- "Probiotic"
+Probiotic_dds_deseq_Challenge_res_LFC_sig_APOP$experiment <- "Probiotic"
+Dermo_Susceptible_dds_7d_res_LFC_sig_APOP$experiment <- "Dermo"
+Dermo_Susceptible_dds_28d_res_LFC_sig_APOP$experiment <- "Dermo"
+Dermo_Tolerant_dds_7d_res_LFC_sig_APOP$experiment <- "Dermo"
+Dermo_Tolerant_dds_28d_res_LFC_sig_APOP$experiment <- "Dermo"
+
 C_vir_apop_LFC <- rbind(Dermo_Susceptible_dds_7d_res_LFC_sig_APOP[,c("product","group_by_sim","log2FoldChange", "experiment")],
 Dermo_Susceptible_dds_28d_res_LFC_sig_APOP[,c("product","group_by_sim","log2FoldChange","experiment")],
 Dermo_Tolerant_dds_7d_res_LFC_sig_APOP[,c("product","group_by_sim","log2FoldChange","experiment")],
-Dermo_Tolerant_dds_28d_res_LFC_sig_APOP[,c("product","group_by_sim","log2FoldChange","experiment")]) 
+Dermo_Tolerant_dds_28d_res_LFC_sig_APOP[,c("product","group_by_sim","log2FoldChange","experiment")],
+ROD_Susceptible_dds_res_LFC_sig_APOP[,c("product","group_by_sim","log2FoldChange","experiment")], 
+Probiotic_dds_deseq_Challenge_res_LFC_sig_APOP[,c("product","group_by_sim","log2FoldChange","experiment")]
+) 
 
-Zhang_upset_all_sig_APOP <- rbind(Zhang_dds_deseq_res_V_alg1_APOP_short[,c("product","group_by_sim","log2FoldChange","experiment")],
-                                  Zhang_dds_deseq_res_V_tub_APOP_short[,c("product","group_by_sim","log2FoldChange","experiment")],
-                                  Zhang_dds_deseq_res_LPS_APOP_short[,c("product","group_by_sim","log2FoldChange","experiment")] )
-
-
-
-Rubio_all_sig_APOP <- rbind(Rubio_dds_deseq_J2_8_res_LFC_sig_APOP_short[,c("product","group_by_sim","log2FoldChange")],
-                            Rubio_dds_deseq_J2_9_res_LFC_sig_APOP_short[,c("product","group_by_sim","log2FoldChange")],
-                            Rubio_dds_deseq_LGP32_res_LFC_sig_APOP_short[,c("product","group_by_sim","log2FoldChange")],
-                            Rubio_dds_deseq_LMG20012T_res_LFC_sig_APOP_short[,c("product","group_by_sim","log2FoldChange")])
-
-
-Dermo_all_sig_APOP <- rbind( 
-  Dermo_Susceptible_dds_7d_res_LFC_sig_APOP[,c("product","group_by_sim","log2FoldChange")],
-  Dermo_Susceptible_dds_28d_res_LFC_sig_APOP[,c("product","group_by_sim","log2FoldChange")],
-  Dermo_Tolerant_dds_7d_res_LFC_sig_APOP[,c("product","group_by_sim","log2FoldChange")],
-  Dermo_Tolerant_dds_28d_res_LFC_sig_APOP[,c("product","group_by_sim","log2FoldChange")]) 
-
-ROD_Susceptible_dds_res_LFC_sig_APOP 
-
-Probiotic_dds_deseq_Challenge_res_LFC_sig_APOP
-
-He_all_sig_APOP <- rbind(He_dds_res_6hr_sig_APOP[,c("product","group_by_sim","log2FoldChange")],
-                         He_dds_res_12hr_sig_APOP[,c("product","group_by_sim","log2FoldChange")],
-                         He_dds_res_24hr_sig_APOP[,c("product","group_by_sim","log2FoldChange")],
-                         He_dds_res_48hr_sig_APOP[,c("product","group_by_sim","log2FoldChange")],
-                         He_dds_res_120hr_sig_APOP[,c("product","group_by_sim","log2FoldChange")])
-
-deLorgeril_all_sig_APOP <- rbind( 
-  deLorgeril_Resistant_dds_res_48_LFC_sig_APOP[,c("product","group_by_sim","log2FoldChange")],
-  deLorgeril_Resistant_dds_res_60_LFC_sig_APOP[,c("product","group_by_sim","log2FoldChange")],
-  deLorgeril_Resistant_dds_res_72_LFC_sig_APOP[,c("product","group_by_sim","log2FoldChange")],
-  deLorgeril_Susceptible_dds_res_48_LFC_sig_APOP[,c("product","group_by_sim","log2FoldChange")],
-  deLorgeril_Susceptible_dds_res_60_LFC_sig_APOP[,c("product","group_by_sim","log2FoldChange")],
-  deLorgeril_Susceptible_dds_res_72_LFC_sig_APOP[,c("product","group_by_sim","log2FoldChange")])
-
-# Make plot or up and downregulated
-deLorgeril_all_sig_APOP_downregulated <- deLorgeril_all_sig_APOP %>% filter(log2FoldChange <= 0)
-deLorgeril_all_sig_APOP_upregulated <- deLorgeril_all_sig_APOP %>% filter(log2FoldChange > 0)
+# Make plot for up and downregulated
+C_vir_apop_APOP_downregulated <- C_vir_apop_LFC %>% filter(log2FoldChange <= 0)
+C_vir_apop_APOP_upregulated <- C_vir_apop_LFC %>% filter(log2FoldChange > 0)
 
 # Make plot
-He_full_LFC_plot <- ggplot(He_all_sig_APOP , aes(x=product,y=log2FoldChange, fill=group_by_sim )) + geom_col(position="dodge") + 
+C_vir_apop_APOP_downregulated_plot <- ggplot(C_vir_apop_APOP_downregulated , aes(x=product,y=log2FoldChange, fill=experiment )) + geom_col(position="dodge") + 
+  theme(axis.text.x = element_text(angle = 75, hjust = 1)) + coord_flip()
+C_vir_apop_APOP_upregulated_plot <- ggplot(C_vir_apop_APOP_upregulated , aes(x=product,y=log2FoldChange, fill=experiment )) + geom_col(position="dodge") + 
+  theme(axis.text.x = element_text(angle = 75, hjust = 1)) + coord_flip()
+
+# C_gig
+Zhang_dds_deseq_res_V_alg1_APOP_short$experiment <- "Zhang"
+Zhang_dds_deseq_res_V_tub_APOP_short$experiment <- "Zhang"
+Zhang_dds_deseq_res_LPS_APOP_short$experiment <- "Zhang"
+Rubio_dds_deseq_J2_8_res_LFC_sig_APOP_short$experiment <- "Rubio"
+Rubio_dds_deseq_J2_9_res_LFC_sig_APOP_short$experiment <- "Rubio"
+Rubio_dds_deseq_LGP32_res_LFC_sig_APOP_short$experiment <- "Rubio"
+Rubio_dds_deseq_LMG20012T_res_LFC_sig_APOP_short$experiment <- "Rubio"
+He_dds_res_6hr_sig_APOP$experiment <- "He"
+He_dds_res_12hr_sig_APOP$experiment <- "He"
+He_dds_res_24hr_sig_APOP$experiment <- "He"
+He_dds_res_48hr_sig_APOP$experiment <- "He"
+He_dds_res_120hr_sig_APOP$experiment <- "He"
+deLorgeril_Resistant_dds_res_48_LFC_sig_APOP$experiment <- "deLorgeril"
+deLorgeril_Resistant_dds_res_60_LFC_sig_APOP$experiment <- "deLorgeril"
+deLorgeril_Resistant_dds_res_72_LFC_sig_APOP$experiment <- "deLorgeril"
+deLorgeril_Susceptible_dds_res_48_LFC_sig_APOP$experiment <- "deLorgeril"
+deLorgeril_Susceptible_dds_res_60_LFC_sig_APOP$experiment <- "deLorgeril"
+deLorgeril_Susceptible_dds_res_72_LFC_sig_APOP$experiment <- "deLorgeril"
+
+C_gig_apop_LFC <- rbind(Zhang_dds_deseq_res_V_alg1_APOP_short[,c("product","group_by_sim","log2FoldChange","experiment")],
+                        Zhang_dds_deseq_res_V_tub_APOP_short[,c("product","group_by_sim","log2FoldChange","experiment")],
+                        Zhang_dds_deseq_res_LPS_APOP_short[,c("product","group_by_sim","log2FoldChange","experiment")],
+                        Rubio_dds_deseq_J2_8_res_LFC_sig_APOP_short[,c("product","group_by_sim","log2FoldChange","experiment")],
+                        Rubio_dds_deseq_J2_9_res_LFC_sig_APOP_short[,c("product","group_by_sim","log2FoldChange","experiment")],
+                        Rubio_dds_deseq_LGP32_res_LFC_sig_APOP_short[,c("product","group_by_sim","log2FoldChange","experiment")],
+                        Rubio_dds_deseq_LMG20012T_res_LFC_sig_APOP_short[,c("product","group_by_sim","log2FoldChange","experiment")],
+                        He_dds_res_6hr_sig_APOP[,c("product","group_by_sim","log2FoldChange","experiment")],
+                        He_dds_res_12hr_sig_APOP[,c("product","group_by_sim","log2FoldChange","experiment")],
+                        He_dds_res_24hr_sig_APOP[,c("product","group_by_sim","log2FoldChange","experiment")],
+                        He_dds_res_48hr_sig_APOP[,c("product","group_by_sim","log2FoldChange","experiment")],
+                        He_dds_res_120hr_sig_APOP[,c("product","group_by_sim","log2FoldChange","experiment")],
+                        deLorgeril_Resistant_dds_res_48_LFC_sig_APOP[,c("product","group_by_sim","log2FoldChange","experiment")],
+                        deLorgeril_Resistant_dds_res_60_LFC_sig_APOP[,c("product","group_by_sim","log2FoldChange","experiment")],
+                        deLorgeril_Resistant_dds_res_72_LFC_sig_APOP[,c("product","group_by_sim","log2FoldChange","experiment")],
+                        deLorgeril_Susceptible_dds_res_48_LFC_sig_APOP[,c("product","group_by_sim","log2FoldChange","experiment")],
+                        deLorgeril_Susceptible_dds_res_60_LFC_sig_APOP[,c("product","group_by_sim","log2FoldChange","experiment")],
+                        deLorgeril_Susceptible_dds_res_72_LFC_sig_APOP[,c("product","group_by_sim","log2FoldChange","experiment")])
+
+# Make plot for up and downregulated
+C_gig_apop_APOP_downregulated <- C_gig_apop_LFC %>% filter(log2FoldChange <= 0)
+C_gig_apop_APOP_upregulated <- C_gig_apop_LFC %>% filter(log2FoldChange > 0)
+
+# Make plot
+C_gig_apop_APOP_downregulated_plot <- ggplot(C_gig_apop_APOP_downregulated , aes(x=product,y=log2FoldChange, fill=experiment )) + geom_col(position="dodge") + 
+  theme(axis.text.x = element_text(angle = 75, hjust = 1)) + coord_flip()
+C_gig_apop_APOP_upregulated_plot <- ggplot(C_gig_apop_APOP_upregulated , aes(x=product,y=log2FoldChange, fill=experiment )) + geom_col(position="dodge") + 
   theme(axis.text.x = element_text(angle = 75, hjust = 1)) + coord_flip()
 
 #### COMPARING APOPTOSIS TRANSCRIPT EXPRESSION BETWEEN EXPERIMENTS PCA HEATMAPS VST ON APOP SUBSET ALONE ####

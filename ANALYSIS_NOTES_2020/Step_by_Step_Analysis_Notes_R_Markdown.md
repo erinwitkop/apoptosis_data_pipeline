@@ -1112,4 +1112,20 @@ GCF_002022765.2_C_virginica-3.0_protein	8714.0	0.0`
 
 * 1. Creating summary presentation showing Marta the Log2FC plots for all of my differential expression analysis so far, and how they were done. Also going back to look at the response through time for some challenges.
   - At the end, I need to emphasize how we are going to characterize the response of each..by pathway? By number of transcripts in the gene family differentially expressed. The issue is that Differential expression can be affected by a lot of different factors.
-  - Trying to finish my counts ortholog matching to plot the PCA of counts before our meeting
+  - Trying to finish my counts ortholog matching to plot the PCA of counts before our meeting. Did not finish this.
+
+## 3/2/2020 Adding Tejashree Vibrio and probiotic experiment, trying to subset orthologous genes and use for DEseq2?
+
+1. Marta suggested adding Tejashree's lab challenge Vibrio and probiotic experiment. Created one single script on bluewaves that will perform all analyses.
+  * Following the same analysis steps as above with these new transcriptomes.
+    - 18 total transcriptomes, 3 control one from each line, 3 RE22, two RI from each line, two S4 from every line
+  * Downloaded metadata from NCBI, created own metadata file ` here  ` then it to the overall metadata sheet
+
+  * Finished downloading and reviewing checksum
+
+
+        `# Created new folder where this data will be housed
+        $ pwd
+        /data3/marine_diseases_lab/erin/2017_2020_Transcriptome_Analysis/pipeline_files/C_Vir_subset/2020_Raw_Transcriptome_Data/C_vir_Pro_RE22_SRA
+
+        `
