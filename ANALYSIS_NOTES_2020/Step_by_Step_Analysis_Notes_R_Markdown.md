@@ -1137,11 +1137,23 @@ GCF_002022765.2_C_virginica-3.0_protein	8714.0	0.0`
         `# Created new folder where this data will be housed
         $ pwd
         /data3/marine_diseases_lab/erin/2017_2020_Transcriptome_Analysis/pipeline_files/C_Vir_subset/2020_Raw_Transcriptome_Data/C_vir_Pro_RE22_SRA
+        # vdb-validate had an error when reviewing the checksum
+        $ cat C_vir_Pro_RE22_sra_checksum.txt
+        2020-03-02T22:30:48 vdb-validate.2.9.0 int: file not found while opening manager within virtual file system module - VFSManagerOpenFileRead() failed
+        2020-03-02T22:30:48 vdb-validate.2.9.0 err: param insufficient while validating path - No paths to validate
+        Usage: vdb-validate [options] path [ path... ]
 
+        # However, all other steps proceeded smoothly, I'm going to trust that the data was successfully downloaded.`
+  * Full pipeline finished successfully!
+  * Deleting all the raw files
+  * Transferred the `Probiotic_RE22_transcript_count_matrix.csv` and the `Probiotic_RE22_gene_count_matrix.csv` to
+          `$ pwd
+/Users/erinroberts/Documents/PhD_Research/Chapter_1_Apoptosis Paper/Chapter1_Apoptosis_Transcriptome_Analyses_2019/DATA ANALYSIS/apoptosis_data_pipeline/DESeq2/2020_Transcriptome_ANALYSIS`
         `
-  * Created coldata for DESeq2.
-  * Running DEseq2 for Pro_RE22 data: Formula used is `~Time + Condition` to control for the effect of the age of the larvae and then compare each condition to control.
-
+  * Created coldata for Probiotic_RE22 for DESeq2.
+  * Running DEseq2 for Pro_RE22 data:
+    - Formula used is `~Time + Condition` to control for the effect of the age of the larvae, and source, and then compare each condition to control.
+    - Time and family are the same (each time point was a different family!) Controlling for this effect is important!
 2. Investigating Cross Species DESeq2 analysis
 
   * Can I perform DEseq2 differential expression analysis using on the orthologous genes from both species?
@@ -1155,8 +1167,6 @@ GCF_002022765.2_C_virginica-3.0_protein	8714.0	0.0`
     * In my DEseq2 formula maybe I can set it up like `~Experiment+species + Family:condition`. This should hopefully control for the different host material used for each experiment and batch effects due to how the experiments were conducted, and control for the species effect. The interaction term will allow for comparison of the response to treatment between each family the different experiments. Then I can pull out specific responses afterward. See this bioconductor response for help explaining this `https://support.bioconductor.org/p/58162/`. Small p-values for the interaction term mean the log fold change due to treatment is significantly different for the two conditions. Going to edit my full coldata to reflect these groups I want to compare.
       - What do I do regarding the effect of time? I can use my initial determinations of what time is the "acute" response based on differential expression, to only compare the most acute response transcriptome timepoints? Or I can just calculate regardless of time and just focus on the affect of treatment?
       - I could separate it into the overall analysis and the acute response analysis   
-
-
 
     * Edits to `All_coldata.csv`
         - I added the new Pro_RE22 coldata to my `All_coldata.csv` spreadsheet.
