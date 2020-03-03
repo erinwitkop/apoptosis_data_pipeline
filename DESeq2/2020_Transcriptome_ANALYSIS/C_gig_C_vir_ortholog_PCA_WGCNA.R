@@ -56,6 +56,7 @@ C_vir_orthogroups_single_copy  <- left_join(C_vir_orthogroups_single_copy ,  C_v
 # Load gene_count_matrix.csv
 Dermo_gene_counts <- read.csv("/Users/erinroberts/Documents/PhD_Research/Chapter_1_Apoptosis Paper/Chapter1_Apoptosis_Transcriptome_Analyses_2019/DATA ANALYSIS/apoptosis_data_pipeline/DESeq2/2020_Transcriptome_ANALYSIS/Dermo_gene_count_matrix.csv", row.names = 1 )
 Probiotic_gene_counts <- read.csv("/Users/erinroberts/Documents/PhD_Research/Chapter_1_Apoptosis Paper/Chapter1_Apoptosis_Transcriptome_Analyses_2019/DATA ANALYSIS/apoptosis_data_pipeline/DESeq2/2020_Transcriptome_ANALYSIS/Probiotic_gene_count_matrix.csv", row.names = 1 )
+Pro_RE22_gene_counts <- read.csv("/Users/erinroberts/Documents/PhD_Research/Chapter_1_Apoptosis Paper/Chapter1_Apoptosis_Transcriptome_Analyses_2019/DATA ANALYSIS/apoptosis_data_pipeline/DESeq2/2020_Transcriptome_ANALYSIS/Probiotic_RE22_gene_count_matrix.csv", row.names = 1 )
 Rubio_gene_counts <- read.csv("/Users/erinroberts/Documents/PhD_Research/Chapter_1_Apoptosis Paper/Chapter1_Apoptosis_Transcriptome_Analyses_2019/DATA ANALYSIS/apoptosis_data_pipeline/DESeq2/2020_Transcriptome_ANALYSIS/Rubio_gene_count_matrix.csv", row.names = 1 )
 deLorgeril_gene_counts <- read.csv("/Users/erinroberts/Documents/PhD_Research/Chapter_1_Apoptosis Paper/Chapter1_Apoptosis_Transcriptome_Analyses_2019/DATA ANALYSIS/apoptosis_data_pipeline/DESeq2/2020_Transcriptome_ANALYSIS/deLorgeril_gene_count_matrix.csv", row.names = 1 )
 He_gene_counts <- read.csv("/Users/erinroberts/Documents/PhD_Research/Chapter_1_Apoptosis Paper/Chapter1_Apoptosis_Transcriptome_Analyses_2019/DATA ANALYSIS/apoptosis_data_pipeline/DESeq2/2020_Transcriptome_ANALYSIS/He_gene_count_matrix.csv", row.names = 1 )
@@ -64,6 +65,7 @@ Zhang_gene_counts <- read.csv("/Users/erinroberts/Documents/PhD_Research/Chapter
 
 head(Dermo_gene_counts )
 head(Probiotic_gene_counts) # header need the "_1" removed
+head(Pro_RE22_gene_counts)
 head(Rubio_gene_counts) # header need the "_1" removed
 head(deLorgeril_gene_counts) # header need the "_1" removed
 head(He_gene_counts )
@@ -79,6 +81,7 @@ colnames(deLorgeril_gene_counts) <- sub('\\_[^_]+$', '', colnames(deLorgeril_gen
 head(Dermo_gene_counts)
 head(Probiotic_gene_counts)
 head(ROD_gene_counts)
+head(Pro_RE22_gene_counts)
 
 # C_gig gene file headers are gene-LOC|LOC..
 head(Rubio_gene_counts)
@@ -89,6 +92,7 @@ head(Zhang_gene_counts)
 # remove MSTRG novel gene lines (can assess these later if necessary)
 Dermo_gene_counts <- Dermo_gene_counts[!grepl("MSTRG", row.names(Dermo_gene_counts)),]
 Probiotic_gene_counts  <- Probiotic_gene_counts [!grepl("MSTRG", row.names(Probiotic_gene_counts )),]
+Pro_RE22_gene_counts <- Pro_RE22_gene_counts[!grepl("MSTRG", row.names(Pro_RE22_gene_counts)),]
 Rubio_gene_counts <- Rubio_gene_counts[!grepl("MSTRG", row.names(Rubio_gene_counts)),]
 deLorgeril_gene_counts <- deLorgeril_gene_counts[!grepl("MSTRG", row.names(deLorgeril_gene_counts)),]
 He_gene_counts <- He_gene_counts[!grepl("MSTRG", row.names(He_gene_counts)),]
@@ -99,6 +103,7 @@ Zhang_gene_counts <- Zhang_gene_counts[!grepl("MSTRG", row.names(Zhang_gene_coun
 Dermo_gene_counts$gene<- row.names(Dermo_gene_counts)
 Probiotic_gene_counts$gene <- row.names(Probiotic_gene_counts)
 ROD_gene_counts$gene <- row.names(ROD_gene_counts)
+Pro_RE22_gene_counts$gene <- row.names(Pro_RE22_gene_counts)
 Rubio_gene_counts$gene <- row.names(Rubio_gene_counts)
 deLorgeril_gene_counts$gene <- row.names(deLorgeril_gene_counts)
 He_gene_counts$gene <- row.names(He_gene_counts)
@@ -112,6 +117,7 @@ remove_gene_before = function(x){
 Dermo_gene_counts$gene <- remove_gene_before(Dermo_gene_counts$gene)
 Probiotic_gene_counts$gene <- remove_gene_before(Probiotic_gene_counts$gene)
 ROD_gene_counts$gene<- remove_gene_before(ROD_gene_counts$gene)
+Pro_RE22_gene_counts$gene<- remove_gene_before(Pro_RE22_gene_counts$gene)
 Rubio_gene_counts$gene <- remove_gene_before(Rubio_gene_counts$gene)
 deLorgeril_gene_counts$gene<- remove_gene_before(deLorgeril_gene_counts$gene)
 He_gene_counts$gene <- remove_gene_before(He_gene_counts$gene)
@@ -130,29 +136,36 @@ Probiotic_gene_counts_single_copy <- Probiotic_gene_counts[Probiotic_gene_counts
 Probiotic_gene_counts_single_copy <- left_join(Probiotic_gene_counts_single_copy, C_vir_orthogroups_single_copy_unique)
 nrow(Probiotic_gene_counts_single_copy) #772
 
-Probiotic_gene_counts_single_copy <- semi_join(Probiotic_gene_counts, C_vir_orthogroups_single_copy[c("gene","Orthogroup")], by = "gene")
-nrow(Probiotic_gene_counts_single_copy) #771
+Pro_RE22_gene_counts_single_copy <- Pro_RE22_gene_counts[Pro_RE22_gene_counts$gene %in% C_vir_orthogroups_single_copy_unique$gene]
+Pro_RE22_gene_counts_single_copy <- left_join(Pro_RE22_gene_counts_single_copy, C_vir_orthogroups_single_copy_unique)
+nrow(Pro_RE22_gene_counts_single_copy) #771
 
+ROD_gene_counts_single_copy <- ROD_gene_counts[ROD_gene_counts$gene %in% C_vir_orthogroups_single_copy_unique$gene]
+ROD_gene_counts_single_copy <- left_join(ROD_gene_counts_single_copy, C_vir_orthogroups_single_copy_unique)
+nrow(ROD_gene_counts_single_copy) #771
 
+Rubio_gene_counts_single_copy  <- ROD_gene_counts[ROD_gene_counts$gene %in% C_gig_orthogroups_single_copy_unique$gene]
+Rubio_gene_counts_single_copy  <- left_join(Rubio_gene_counts_single_copy, C_gig_orthogroups_single_copy_unique)
+nrow(Rubio_gene_counts_single_copy ) #771
 
-ROD_gene_counts_single_copy <- semi_join(ROD_gene_counts, C_vir_orthogroups_single_copy[c("gene","Orthogroup")], by = "gene")
-nrow(ROD_gene_counts_single_copy) # 620
+deLorgeril_gene_counts_single_copy <- deLorgeril_gene_counts[deLorgeril_gene_counts$gene %in% C_gig_orthogroups_single_copy_unique$gene]
+deLorgeril_gene_counts_single_copy <- left_join(deLorgeril_gene_counts_single_copy, C_gig_orthogroups_single_copy_unique)
+nrow(deLorgeril_gene_counts_single_copy ) #771
 
-Rubio_gene_counts_single_copy <- semi_join(Rubio_gene_counts, C_gig_orthogroups_single_copy[c("gene","Orthogroup")], by = "gene")
-nrow(Rubio_gene_counts_single_copy) # 705
-deLorgeril_gene_counts_single_copy <- semi_join(deLorgeril_gene_counts, C_gig_orthogroups_single_copy[c("gene","Orthogroup")], by = "gene")
-nrow(deLorgeril_gene_counts_single_copy) # 554
-He_gene_counts_single_copy <- semi_join(He_gene_counts, C_gig_orthogroups_single_copy[c("gene","Orthogroup")], by = "gene")
-nrow(He_gene_counts_single_copy) # 1068
-Zhang_gene_counts_single_copy <- semi_join(Zhang_gene_counts, C_gig_orthogroups_single_copy[c("gene","Orthogroup")], by = "gene")
-nrow(Zhang_gene_counts_single_copy) # 1776
+He_gene_counts_single_copy <- He_gene_counts[He_gene_counts$gene %in% C_gig_orthogroups_single_copy_unique$gene]
+He_gene_counts_single_copy <- left_join(He_gene_counts_single_copy, C_gig_orthogroups_single_copy_unique)
+nrow(He_gene_counts_single_copy ) #771
+
+Zhang_gene_counts_single_copy <- Zhang_gene_counts[Zhang_gene_counts$gene %in% C_gig_orthogroups_single_copy_unique$gene]
+Zhang_gene_counts_single_copy <- left_join(Zhang_gene_counts_single_copy, C_gig_orthogroups_single_copy_unique)
+nrow(Zhang_gene_counts_single_copy ) #771
 
 # Join within species based on gene and orthogroup, starting with one that has the most 
 C_vir_ortholog_gene_counts <- left_join(Probiotic_gene_counts_single_copy,ROD_gene_counts_single_copy, by =c("gene","Orthogroup"))
 
-
 Dermo_gene_counts_single_copy
-Probiotic_gene_counts_single_copy 
+Probiotic_gene_counts_single_copy
+Pro_RE22_gene_counts_single_copy
 ROD_gene_counts_single_copy
 Rubio_gene_counts_single_copy 
 deLorgeril_gene_counts_single_copy 
@@ -169,6 +182,13 @@ nrow(Rubio_gene_counts_single_copy )
 nrow(deLorgeril_gene_counts_single_copy)
 nrow(He_gene_counts_single_copy )
 nrow(Zhang_gene_counts_single_copy )
+
+## Merge data frames based on matching orthologroup IDs to get full table of counts 
+
+
+
+
+
 
 
 #### COMPARING APOPTOSIS GENE EXPRESSION BETWEEN EXPERIMENTS PCA HEATMAPS FULL THEN SUBSET ####

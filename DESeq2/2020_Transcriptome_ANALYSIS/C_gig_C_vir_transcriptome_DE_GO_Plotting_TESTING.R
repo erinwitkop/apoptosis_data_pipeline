@@ -2208,7 +2208,7 @@ row.names(Pro_RE22_counts ) <- remove_rna(row.names(Pro_RE22_counts ))
 head(Pro_RE22_counts )
 
 #Load in sample metadata
-Pro_RE22_coldata <- read.csv("/Users/erinroberts/Documents/PhD_Research/Chapter_1_Apoptosis Paper/Chapter1_Apoptosis_Transcriptome_Analyses_2019/DATA ANALYSIS/apoptosis_data_pipeline/DESeq2/2020_Transcriptome_ANALYSIS/Probiotic_coldata.csv", row.names = 1 )
+Pro_RE22_coldata <- read.csv("/Users/erinroberts/Documents/PhD_Research/Chapter_1_Apoptosis Paper/Chapter1_Apoptosis_Transcriptome_Analyses_2019/DATA ANALYSIS/apoptosis_data_pipeline/DESeq2/2020_Transcriptome_ANALYSIS/Modak_Pro_RE22_coldata.csv", row.names = 1 )
 View(Pro_RE22_coldata)  
 nrow(Pro_RE22_coldata) 
 
@@ -2245,11 +2245,25 @@ autoplot(pcPro_RE22,
          data = Pro_RE22_coldata, 
          colour="Condition", 
          size=5) 
+autoplot(pcPro_RE22,
+         data = Pro_RE22_coldata, 
+         colour="Family", # Family (source of material_) explains the largest amount of variance
+         size=5) 
+autoplot(pcPro_RE22,
+         data = Pro_RE22_coldata, 
+         colour="Time", #same exact pattern as the Family 
+         size=5) 
 
 # Plot PCA 2 and 3 for comparison
 autoplot(pcPro_RE22,
          data = Pro_RE22_coldata, 
          colour = "Condition", 
+         size = 5,
+         x = 2,
+         y = 3)
+autoplot(pcPro_RE22,
+         data = Pro_RE22_coldata, 
+         colour = "Family", 
          size = 5,
          x = 2,
          y = 3) 
@@ -2259,7 +2273,8 @@ autoplot(pcPro_RE22,
          colour = "Condition", 
          size = 5,
          x = 3,
-         y = 4)  # this PCA axis shows some clustering of samples by treatment
+         y = 4)  
+# Overall little to no clustering by treatment 
 
 ## MAKE DESEQ DATA SET FROM MATRIX
 # This object specifies the count data and metadata you will work with. The design piece is critical.
@@ -2271,11 +2286,15 @@ autoplot(pcPro_RE22,
 # (e.g. control, or untreated samples), so we can relevel the factor like so
 # Check factor levels, set it so that comparison group is the first
 levels(Pro_RE22_coldata$Condition) # 
-Pro_RE22_coldata$Condition <- factor(Pro_RE22_coldata$Condition , levels = c())
+#"Bacillus_pumilus_RI06_95_exposure_24h"   "Bacillus_pumilus_RI06_95_exposure_6h"    "Control_no_treatment"                   
+#"Phaeobacter_inhibens_S4_exposure_24h"    "Phaeobacter_inhibens_S4_exposure_6h"     "Vibrio_coralliilyticus_RE22_exposure_6h"
+
+Pro_RE22_coldata$Condition <- factor(Pro_RE22_coldata$Condition , levels = c("Control_no_treatment"  , "Bacillus_pumilus_RI06_95_exposure_6h" ,"Bacillus_pumilus_RI06_95_exposure_24h"    ,                   
+"Phaeobacter_inhibens_S4_exposure_6h" ,"Phaeobacter_inhibens_S4_exposure_24h" ,  "Vibrio_coralliilyticus_RE22_exposure_6h"
+))
+
 levels(Pro_RE22_coldata$Condition)
 levels(Pro_RE22_coldata$Time) # Time this is what I will control for
-Pro_RE22_coldata$Time <- factor(Pro_RE22_coldata$Time , levels = c())
-levels(Pro_RE22_coldata$Time)
 
 ## Creating deseq data set from matrix, controlling for the effect of time
 Pro_RE22_dds <- DESeqDataSetFromMatrix(countData = Pro_RE22_counts,
@@ -2292,7 +2311,7 @@ Pro_RE22_dds <- Pro_RE22_dds [ rowSums(counts(Pro_RE22_dds )) > 10, ]
 Pro_RE22_dds_rlog <- rlog(Pro_RE22_dds , blind = TRUE) # keep blind = true before deseq function has been run
 
 ## PCA plot visualization of individuals in the family 
-plotPCA(Pro_RE22_dds_rlog, intgroup=c("Sample", "Condition")) # clustering by time is not as tight
+plotPCA(Pro_RE22_dds_rlog, intgroup="Condition") # less clustering now by family, some clustering of different treatments
 
 ### DIFFERENTIAL EXPRESSION ANALYSIS
 # run pipeline with single command because the formula has already been specified
@@ -2301,14 +2320,24 @@ plotPCA(Pro_RE22_dds_rlog, intgroup=c("Sample", "Condition")) # clustering by ti
 Pro_RE22_dds_deseq <- DESeq(Pro_RE22_dds) 
 
 ## Check the resultsNames object of each to look at the available coefficients for use in lfcShrink command
-resultsNames(Pro_RE22_dds_deseq) #
+resultsNames(Pro_RE22_dds_deseq) #[1] "Intercept"                                                                
+# [2] "Time_6d_vs_10d"                                                           
+# [3] "Time_7d_vs_10d"                                                           
+# [4] "Condition_Bacillus_pumilus_RI06_95_exposure_6h_vs_Control_no_treatment"   
+# [5] "Condition_Bacillus_pumilus_RI06_95_exposure_24h_vs_Control_no_treatment"  
+# [6] "Condition_Phaeobacter_inhibens_S4_exposure_6h_vs_Control_no_treatment"    
+# [7] "Condition_Phaeobacter_inhibens_S4_exposure_24h_vs_Control_no_treatment"   
+# [8] "Condition_Vibrio_coralliilyticus_RE22_exposure_6h_vs_Control_no_treatment"
 
 ## BUILD THE RESULTS OBJECT
 # Examining the results object, change alpha to p <0.05, looking at object metadata
 # use mcols to look at metadata for each table
 mcols(Pro_RE22_dds_deseq)
-Pro_RE22_dds_deseq_Challenge_res <- results(Pro_RE22_dds_deseq, alpha=0.05, name= "")
-head(Pro_RE22_dds_deseq_Challenge_res) # 
+Pro_RE22_dds_deseq_res_RI_6h <- results(Pro_RE22_dds_deseq, alpha=0.05, name= "Condition_Bacillus_pumilus_RI06_95_exposure_6h_vs_Control_no_treatment")
+Pro_RE22_dds_deseq_res_RI_24h <- results(Pro_RE22_dds_deseq, alpha=0.05, name= "Condition_Bacillus_pumilus_RI06_95_exposure_24h_vs_Control_no_treatment" )
+Pro_RE22_dds_deseq_res_S4_6h <- results(Pro_RE22_dds_deseq, alpha=0.05, name= "Condition_Phaeobacter_inhibens_S4_exposure_6h_vs_Control_no_treatment"  )
+Pro_RE22_dds_deseq_res_S4_24h <- results(Pro_RE22_dds_deseq, alpha=0.05, name= "Condition_Phaeobacter_inhibens_S4_exposure_24h_vs_Control_no_treatment"   )
+Pro_RE22_dds_deseq_res_RE22 <- results(Pro_RE22_dds_deseq, alpha=0.05, name= "Condition_Vibrio_coralliilyticus_RE22_exposure_6h_vs_Control_no_treatment"  )
 
 ### Perform LFC Shrinkage with apeglm
 ## NOTES 
@@ -2317,24 +2346,55 @@ head(Pro_RE22_dds_deseq_Challenge_res) #
 # More detailed notes about LFC Shrinkage are in the code for the Zhang Vibrio
 
 ## DECISION: USE SAME RES OBJECT TO KEEP ALPHA ADJUSTMENT, and use LFCShrink apeglm
-Pro_RE22_dds_deseq_Challenge_res_LFC<- lfcShrink(Pro_RE22_dds_deseq, coef="", type="apeglm", res= Pro_RE22_dds_deseq_Challenge_res)
+Pro_RE22_dds_deseq_res_RI_6h_LFC <- lfcShrink(Pro_RE22_dds_deseq, coef="Condition_Bacillus_pumilus_RI06_95_exposure_6h_vs_Control_no_treatment", type="apeglm", res= Pro_RE22_dds_deseq_res_RI_6h )
+Pro_RE22_dds_deseq_res_RI_24h_LFC <- lfcShrink(Pro_RE22_dds_deseq, coef= "Condition_Bacillus_pumilus_RI06_95_exposure_24h_vs_Control_no_treatment" , type="apeglm", res= Pro_RE22_dds_deseq_res_RI_24h)
+Pro_RE22_dds_deseq_res_S4_6h_LFC <- lfcShrink(Pro_RE22_dds_deseq, coef="Condition_Phaeobacter_inhibens_S4_exposure_6h_vs_Control_no_treatment", type="apeglm", res= Pro_RE22_dds_deseq_res_S4_6h )
+Pro_RE22_dds_deseq_res_S4_24h_LFC <- lfcShrink(Pro_RE22_dds_deseq, coef= "Condition_Phaeobacter_inhibens_S4_exposure_24h_vs_Control_no_treatment"  , type="apeglm", res= Pro_RE22_dds_deseq_res_S4_24h)
+Pro_RE22_dds_deseq_res_RE22_LFC <- lfcShrink(Pro_RE22_dds_deseq, coef= "Condition_Vibrio_coralliilyticus_RE22_exposure_6h_vs_Control_no_treatment" , type="apeglm", res= Pro_RE22_dds_deseq_res_RE22 )
 
 ## EXPLORATORY PLOTTING OF RESULTS 
 ## MA Plotting
-plotMA(Pro_RE22_dds_deseq_Challenge_res_LFC, ylim = c(-5, 5))
+plotMA(Pro_RE22_dds_deseq_res_RI_6h_LFC , ylim=c(-5,5))
+plotMA(Pro_RE22_dds_deseq_res_RI_24h_LFC , ylim=c(-5,5))
+plotMA(Pro_RE22_dds_deseq_res_S4_6h_LFC , ylim=c(-5,5))
+plotMA(Pro_RE22_dds_deseq_res_S4_24h_LFC , ylim=c(-5,5))
+plotMA(Pro_RE22_dds_deseq_res_RE22_LFC , ylim=c(-5,5))
 
 ## Histogram of P values 
 # exclude genes with very small counts to avoid spikes and plot using the LFCshrinkage
-hist(Pro_RE22_dds_deseq_Challenge_res_LFC$padj[Pro_RE22_dds_deseq_Challenge_res_LFC$baseMean > 1], breaks = 0:20/20,
-     col = "grey50", border = "white")
+hist(Pro_RE22_dds_deseq_res_RI_6h_LFC$padj[Pro_RE22_dds_deseq_res_RI_6h_LFC$baseMean >1], breaks=0:20/20, col="grey50", border="white")
+hist(Pro_RE22_dds_deseq_res_RI_24h_LFC$padj[Pro_RE22_dds_deseq_res_RI_24h_LFC$baseMean >1], breaks=0:20/20, col="grey50", border="white")
+hist(Pro_RE22_dds_deseq_res_S4_6h_LFC$padj[Pro_RE22_dds_deseq_res_S4_6h_LFC$baseMean >1], breaks=0:20/20, col="grey50", border="white")
+hist(Pro_RE22_dds_deseq_res_S4_24h_LFC$padj[Pro_RE22_dds_deseq_res_S4_24h_LFC$baseMean >1], breaks=0:20/20, col="grey50", border="white")
+hist(Pro_RE22_dds_deseq_res_RE22_LFC$padj[Pro_RE22_dds_deseq_res_RE22_LFC$baseMean >1], breaks=0:20/20, col="grey50", border="white")
 
 ### Subsetting Significant Genes by padj < 0.05
 # again, only working with the LFCshrinkage adjusted log fold changes, and with the BH adjusted p-value
 # first make sure to make the rownames with the transcript ID as a new column, then make it a dataframe for filtering
-Pro_RE22_dds_deseq_Challenge_res_LFC_sig <-  subset(Pro_RE22_dds_deseq_Challenge_res_LFC , padj < 0.05)
-Pro_RE22_dds_deseq_Challenge_res_LFC_sig$ID<- row.names(Pro_RE22_dds_deseq_Challenge_res_LFC_sig)
-Pro_RE22_dds_deseq_Challenge_res_LFC_sig <- as.data.frame(Pro_RE22_dds_deseq_Challenge_res_LFC_sig)
-nrow(Pro_RE22_dds_deseq_Challenge_res_LFC_sig) # 1762
+
+Pro_RE22_dds_deseq_res_RI_6h_LFC_sig <- subset(Pro_RE22_dds_deseq_res_RI_6h_LFC , padj < 0.05)
+Pro_RE22_dds_deseq_res_RI_24h_LFC_sig <- subset(Pro_RE22_dds_deseq_res_RI_24h_LFC, padj < 0.05)
+Pro_RE22_dds_deseq_res_S4_6h_LFC_sig <-      subset(Pro_RE22_dds_deseq_res_S4_6h_LFC , padj < 0.05) 
+Pro_RE22_dds_deseq_res_S4_24h_LFC_sig <- subset(Pro_RE22_dds_deseq_res_S4_24h_LFC, padj < 0.05)
+Pro_RE22_dds_deseq_res_RE22_LFC_sig <-  subset(Pro_RE22_dds_deseq_res_RE22_LFC, padj < 0.05)
+
+Pro_RE22_dds_deseq_res_RI_6h_LFC_sig$ID <- row.names(Pro_RE22_dds_deseq_res_RI_6h_LFC_sig)
+Pro_RE22_dds_deseq_res_RI_24h_LFC_sig$ID <- row.names(Pro_RE22_dds_deseq_res_RI_24h_LFC_sig)
+Pro_RE22_dds_deseq_res_S4_6h_LFC_sig$ID <- row.names(Pro_RE22_dds_deseq_res_S4_6h_LFC_sig)
+Pro_RE22_dds_deseq_res_S4_24h_LFC_sig$ID <- row.names(Pro_RE22_dds_deseq_res_S4_24h_LFC_sig)
+Pro_RE22_dds_deseq_res_RE22_LFC_sig$ID <- row.names(Pro_RE22_dds_deseq_res_RE22_LFC_sig)
+
+Pro_RE22_dds_deseq_res_RI_6h_LFC_sig  <- as.data.frame(Pro_RE22_dds_deseq_res_RI_6h_LFC_sig)
+Pro_RE22_dds_deseq_res_RI_24h_LFC_sig <- as.data.frame(Pro_RE22_dds_deseq_res_RI_24h_LFC_sig)
+Pro_RE22_dds_deseq_res_S4_6h_LFC_sig  <- as.data.frame(Pro_RE22_dds_deseq_res_S4_6h_LFC_sig)
+Pro_RE22_dds_deseq_res_S4_24h_LFC_sig <- as.data.frame(Pro_RE22_dds_deseq_res_S4_24h_LFC_sig)
+Pro_RE22_dds_deseq_res_RE22_LFC_sig   <- as.data.frame(Pro_RE22_dds_deseq_res_RE22_LFC_sig)
+
+nrow(Pro_RE22_dds_deseq_res_RI_6h_LFC_sig ) # 1795
+nrow(Pro_RE22_dds_deseq_res_RI_24h_LFC_sig) # 2570
+nrow(Pro_RE22_dds_deseq_res_S4_6h_LFC_sig ) # 2424
+nrow(Pro_RE22_dds_deseq_res_S4_24h_LFC_sig) # 3683
+nrow(Pro_RE22_dds_deseq_res_RE22_LFC_sig  ) # 2005
 
 ### GENE CLUSTERING ANALYSIS HEATMAPS  
 # Extract genes with the highest variance across samples for each comparison using either vst or rlog transformed data
@@ -2344,9 +2404,9 @@ nrow(Pro_RE22_dds_deseq_Challenge_res_LFC_sig) # 1762
 Pro_RE22_dds_deseq_Challenge_res_LFC_sig_assay <-  head(order(rowVars(assay(Pro_RE22_dds_rlog  )), decreasing = TRUE), 200)
 family_Pro_RE22_broken_mat <- assay(Pro_RE22_dds_rlog )[Pro_RE22_dds_deseq_Challenge_res_LFC_sig_assay ,]
 family_Pro_RE22_broken_mat <- family_Pro_RE22_broken_mat - rowMeans(family_Pro_RE22_broken_mat)
-family_Pro_RE22_broken_anno <- as.data.frame(colData(Pro_RE22_dds_rlog )[, c("Condition","Time")])
+family_Pro_RE22_broken_anno <- as.data.frame(colData(Pro_RE22_dds_rlog )[, c("Condition","Family")])
 family_Pro_RE22_broken_heatmap <- pheatmap(family_Pro_RE22_broken_mat , annotation_col = family_Pro_RE22_broken_anno)
-head(family_Pro_RE22_broken_mat) # 
+head(family_Pro_RE22_broken_mat) # mostly clustering by treatment and still some by family 
 
 # Gene clustering heatmap with only apoptosis genes #
 # Search original Probiotic_counts for apoptosis genes and do rlog on just these
@@ -2355,29 +2415,28 @@ nrow(Pro_RE22_counts_apop) #1026
 head(Pro_RE22_counts_apop)
 Pro_RE22_counts_apop_dds <- DESeqDataSetFromMatrix(countData = Pro_RE22_counts_apop,
                                                     colData = Pro_RE22_coldata,
-                                                    design = ~Time + Condition) # add time to control for larval age effect 
+                                                    design = ~Time + Condition) # Control for larval age and source of larvae 
 # Prefiltering the data and running rlog
 Pro_RE22_counts_apop_dds<- Pro_RE22_counts_apop_dds[ rowSums(counts(Pro_RE22_counts_apop_dds)) > 10, ]
 Pro_RE22_counts_apop_dds_rlog <- rlog(Pro_RE22_counts_apop_dds, blind=TRUE)
 
 ## PCA plot of rlog transformed counts for apoptosis
-plotPCA(Pro_RE22_counts_apop_dds_rlog , intgroup="Time") # still overall clustering by time and not condition
+plotPCA(Pro_RE22_counts_apop_dds_rlog , intgroup="Family") # little clustering by treatment overall still clustering by family 
 
 # heatmap of all apoptosis genes 
 Pro_RE22_counts_apop_assay <-  assay(Pro_RE22_counts_apop_dds_rlog)[,]
 Pro_RE22_counts_apop_assay_mat <- Pro_RE22_counts_apop_assay - rowMeans(Pro_RE22_counts_apop_assay)
-Pro_RE22_counts_apop_assay_anno <- as.data.frame(colData(Pro_RE22_counts_apop_dds_rlog )[, c("Condition","Sample")])
+Pro_RE22_counts_apop_assay_anno <- as.data.frame(colData(Pro_RE22_counts_apop_dds_rlog )[, c("Condition","Family")])
 Pro_RE22_counts_apop_assay_heatmap <- pheatmap(Pro_RE22_counts_apop_assay_mat  , annotation_col = Pro_RE22_counts_apop_assay_anno)
-head(Pro_RE22_counts_apop_assay_mat ) # 
+head(Pro_RE22_counts_apop_assay_mat ) # more clustering by larvae source than by disease response 
 
 # heatmap of most variable apoptosis genes (this selects genes with the greatest variance in the sample)
 topVarGenes_Pro_RE22_counts_apop_assay <-  head(order(rowVars(assay(Pro_RE22_counts_apop_dds_rlog)), decreasing = TRUE), 100) 
 top_Var_Pro_RE22_counts_apop_assay_mat<- assay(Pro_RE22_counts_apop_dds_rlog)[topVarGenes_Pro_RE22_counts_apop_assay,]
 top_Var_Pro_RE22_counts_apop_assay_mat <- top_Var_Pro_RE22_counts_apop_assay_mat - rowMeans(top_Var_Pro_RE22_counts_apop_assay_mat)
-top_Var_Pro_RE22_counts_apop_assay_anno <- as.data.frame(colData(Pro_RE22_counts_apop_dds_rlog)[, c("Condition","Time")])
+top_Var_Pro_RE22_counts_apop_assay_anno <- as.data.frame(colData(Pro_RE22_counts_apop_dds_rlog)[, c("Condition","Family")])
 top_Var_Pro_RE22_counts_apop_assay_heatmap <- pheatmap(top_Var_Pro_RE22_counts_apop_assay_mat  , annotation_col = top_Var_Pro_RE22_counts_apop_assay_anno)
-head(top_Var_Pro_RE22_counts_apop_assay_mat )
-# some clustering patterns here in signature
+head(top_Var_Pro_RE22_counts_apop_assay_mat ) # very high amoung of variation
 
 # annotate the top 100 most variable genes  
 # reorder annotation table to match ordering in heatmap 
@@ -2388,13 +2447,54 @@ colnames(top_Var_Pro_RE22_counts_apop_assay_prot)[1] <- "ID"
 top_Var_Pro_RE22_counts_apop_assay_prot_annot <- left_join(top_Var_Pro_RE22_counts_apop_assay_prot, select(C_vir_rtracklayer_apop_product_final, ID, product, gene), by = "ID")
 
 ### Extract list of significant Apoptosis Genes (not less than or greater than 1 LFC) using merge
-Pro_RE22_dds_deseq_Challenge_res_LFC_sig_APOP <- merge(Pro_RE22_dds_deseq_Challenge_res_LFC_sig, C_vir_rtracklayer_apop_product_final, by = "ID")
-Pro_RE22_dds_deseq_Challenge_res_LFC_sig_APOP_arranged <- arrange(Pro_RE22_dds_deseq_Challenge_res_LFC_sig_APOP, -log2FoldChange) 
-nrow(Pro_RE22_dds_deseq_Challenge_res_LFC_sig_APOP) # 
+Pro_RE22_dds_deseq_res_RI_6h_LFC_sig_APOP <- merge(Pro_RE22_dds_deseq_res_RI_6h_LFC_sig, C_vir_rtracklayer_apop_product_final, by = "ID")
+Pro_RE22_dds_deseq_res_RI_24h_LFC_sig_APOP <- merge(Pro_RE22_dds_deseq_res_RI_24h_LFC_sig, C_vir_rtracklayer_apop_product_final, by =  "ID")
+Pro_RE22_dds_deseq_res_S4_6h_LFC_sig_APOP <- merge(Pro_RE22_dds_deseq_res_S4_6h_LFC_sig, C_vir_rtracklayer_apop_product_final, by = "ID")
+Pro_RE22_dds_deseq_res_S4_24h_LFC_sig_APOP <- merge(Pro_RE22_dds_deseq_res_S4_24h_LFC_sig, C_vir_rtracklayer_apop_product_final, by =  "ID")
+Pro_RE22_dds_deseq_res_RE22_LFC_sig_APOP <- merge(Pro_RE22_dds_deseq_res_RE22_LFC_sig, C_vir_rtracklayer_apop_product_final, by = "ID")
 
-Pro_RE22_dds_deseq_Challenge_res_LFC_sig_APOP_plot <- ggplot(Pro_RE22_dds_deseq_Challenge_res_LFC_sig_APOP , aes(x=product, y = log2FoldChange, fill=log2FoldChange)) + geom_col(position="dodge") +
-  coord_flip() + scale_fill_gradient2(low="purple",mid = "grey", high="darkgreen") + ggtitle("") +
-  ylab("Log2 Fold Change")
+nrow(Pro_RE22_dds_deseq_res_RI_6h_LFC_sig_APOP ) # 17
+nrow(Pro_RE22_dds_deseq_res_RI_24h_LFC_sig_APOP) # 32
+nrow(Pro_RE22_dds_deseq_res_S4_6h_LFC_sig_APOP ) # 40
+nrow(Pro_RE22_dds_deseq_res_S4_24h_LFC_sig_APOP) # 41
+nrow(Pro_RE22_dds_deseq_res_RE22_LFC_sig_APOP ) # 27 
+
+# Compare apoptosis genes between group_by_sim groups
+Pro_RE22_dds_deseq_res_RI_6h_LFC_sig_APOP $group_by_sim <- "RI_6h"
+Pro_RE22_dds_deseq_res_RI_24h_LFC_sig_APOP$group_by_sim <- "RI_24h"
+Pro_RE22_dds_deseq_res_S4_6h_LFC_sig_APOP $group_by_sim <- "S4_6h"
+Pro_RE22_dds_deseq_res_S4_24h_LFC_sig_APOP$group_by_sim <- "S4_24h"
+Pro_RE22_dds_deseq_res_RE22_LFC_sig_APOP $group_by_sim <-  "RE22"
+
+# combine data frames 
+Pro_RE22_all_sig_APOP <- rbind( 
+  Pro_RE22_dds_deseq_res_RI_6h_LFC_sig_APOP[,c("product","group_by_sim","log2FoldChange")],
+  Pro_RE22_dds_deseq_res_RI_24h_LFC_sig_APOP[,c("product","group_by_sim","log2FoldChange")],
+  Pro_RE22_dds_deseq_res_S4_6h_LFC_sig_APOP[,c("product","group_by_sim","log2FoldChange")],
+  Pro_RE22_dds_deseq_res_S4_24h_LFC_sig_APOP[,c("product","group_by_sim","log2FoldChange")],
+  Pro_RE22_dds_deseq_res_RE22_LFC_sig_APOP[,c("product","group_by_sim","log2FoldChange")])
+
+# Make plot or up and downregulated
+Pro_RE22_all_sig_APOP_downregulated <- Pro_RE22_all_sig_APOP  %>% filter(log2FoldChange <= 0)
+Pro_RE22_all_sig_APOP_upregulated <-   Pro_RE22_all_sig_APOP %>% filter(log2FoldChange > 0)
+
+Pro_RE22_all_sig_APOP_downregulated_plot <- ggplot(Pro_RE22_all_sig_APOP_downregulated  , aes(x=product,y=log2FoldChange, fill=group_by_sim )) + geom_col(position="dodge") + 
+  theme(axis.text.x = element_text(angle = 75, hjust = 1)) + coord_flip()
+Pro_RE22_all_sig_APOP_upregulated_plot <- ggplot(Pro_RE22_all_sig_APOP_upregulated, aes(x=product,y=log2FoldChange, fill=group_by_sim )) + geom_col(position="dodge") + 
+  theme(axis.text.x = element_text(angle = 75, hjust = 1)) + coord_flip()
+
+
+Pro_RE22_dds_deseq_res_RI_6h_LFC_sig_APOP_plot <- ggplot(Pro_RE22_dds_deseq_res_RI_6h_LFC_sig_APOP , aes(x=product, y = log2FoldChange, fill= log2FoldChange)) + geom_col(position="dodge") +
+  coord_flip() + scale_fill_gradient2(low="purple",mid = "grey", high="darkgreen") + ggtitle("RI 6h") 
+Pro_RE22_dds_deseq_res_RI_24h_LFC_sig_APOP_plot <- ggplot(Pro_RE22_dds_deseq_res_RI_24h_LFC_sig_APOP, aes(x=product, y = log2FoldChange, fill= log2FoldChange))+ geom_col(position="dodge") +
+  coord_flip() + scale_fill_gradient2(low="purple",mid = "grey", high="darkgreen") + ggtitle("RI 24h")
+Pro_RE22_dds_deseq_res_S4_6h_LFC_sig_APOP_plot <- ggplot(Pro_RE22_dds_deseq_res_S4_6h_LFC_sig_APOP , aes(x=product, y = log2FoldChange, fill= log2FoldChange)) + geom_col(position="dodge") +
+  coord_flip() + scale_fill_gradient2(low="purple",mid = "grey", high="darkgreen") + ggtitle("S4 6h")
+Pro_RE22_dds_deseq_res_S4_24h_LFC_sig_APOP_plot <- ggplot(Pro_RE22_dds_deseq_res_S4_24h_LFC_sig_APOP, aes(x=product, y = log2FoldChange, fill= log2FoldChange)) + geom_col(position="dodge") +
+  coord_flip() + scale_fill_gradient2(low="purple",mid = "grey", high="darkgreen") + ggtitle("S4 24h")
+Pro_RE22_dds_deseq_res_RE22_LFC_sig_APOP_plot <- ggplot(Pro_RE22_dds_deseq_res_RE22_LFC_sig_APOP, aes(x=product, y = log2FoldChange, fill= log2FoldChange)) + geom_col(position="dodge") +
+  coord_flip() + scale_fill_gradient2(low="purple",mid = "grey", high="darkgreen") + ggtitle("RE22 ")
+
 
 
 #### ROD TRANSCRIPTOME ANALYSIS #### 
@@ -3077,14 +3177,24 @@ Dermo_Susceptible_dds_7d_res_LFC_sig_APOP$experiment <- "Dermo"
 Dermo_Susceptible_dds_28d_res_LFC_sig_APOP$experiment <- "Dermo"
 Dermo_Tolerant_dds_7d_res_LFC_sig_APOP$experiment <- "Dermo"
 Dermo_Tolerant_dds_28d_res_LFC_sig_APOP$experiment <- "Dermo"
+Pro_RE22_dds_deseq_res_RI_6h_LFC_sig_APOP$experiment <- "Pro_RE22"
+Pro_RE22_dds_deseq_res_RI_24h_LFC_sig_APOP$experiment <- "Pro_RE22"
+Pro_RE22_dds_deseq_res_S4_6h_LFC_sig_APOP$experiment <- "Pro_RE22"
+Pro_RE22_dds_deseq_res_S4_24h_LFC_sig_APOP$experiment <- "Pro_RE22"
+Pro_RE22_dds_deseq_res_RE22_LFC_sig_APOP$experiment <- "RE22"
 
+# combine all data 
 C_vir_apop_LFC <- rbind(Dermo_Susceptible_dds_7d_res_LFC_sig_APOP[,c("product","group_by_sim","log2FoldChange", "experiment")],
 Dermo_Susceptible_dds_28d_res_LFC_sig_APOP[,c("product","group_by_sim","log2FoldChange","experiment")],
 Dermo_Tolerant_dds_7d_res_LFC_sig_APOP[,c("product","group_by_sim","log2FoldChange","experiment")],
 Dermo_Tolerant_dds_28d_res_LFC_sig_APOP[,c("product","group_by_sim","log2FoldChange","experiment")],
 ROD_Susceptible_dds_res_LFC_sig_APOP[,c("product","group_by_sim","log2FoldChange","experiment")], 
-Probiotic_dds_deseq_Challenge_res_LFC_sig_APOP[,c("product","group_by_sim","log2FoldChange","experiment")]
-) 
+Probiotic_dds_deseq_Challenge_res_LFC_sig_APOP[,c("product","group_by_sim","log2FoldChange","experiment")],
+Pro_RE22_dds_deseq_res_RI_6h_LFC_sig_APOP[,c("product","group_by_sim","log2FoldChange","experiment")],
+Pro_RE22_dds_deseq_res_RI_24h_LFC_sig_APOP[,c("product","group_by_sim","log2FoldChange","experiment")],
+Pro_RE22_dds_deseq_res_S4_6h_LFC_sig_APOP[,c("product","group_by_sim","log2FoldChange","experiment")],
+Pro_RE22_dds_deseq_res_S4_24h_LFC_sig_APOP[,c("product","group_by_sim","log2FoldChange","experiment")],
+Pro_RE22_dds_deseq_res_RE22_LFC_sig_APOP[,c("product","group_by_sim","log2FoldChange","experiment")])
 
 # Make plot for up and downregulated
 C_vir_apop_APOP_downregulated <- C_vir_apop_LFC %>% filter(log2FoldChange <= 0)
@@ -3492,19 +3602,6 @@ top_Var_C_gig_assay_mat_prot_annot <- left_join(top_Var_C_gig_apop_assay_mat_pro
 #six_hr_comparison_cluster <- as.data.frame(six_hr_comparison_cluster)
 #colnames(six_hr_comparison_cluster)[1] <- "transcript_id"
 #six_hr_comparison_cluster_subset <- subset(Res_mat_6hr_prot_annot, transcript_id %in% six_hr_comparison_cluster$transcript_id)
-
-
-#### COMPARATIVE VENN DIAGRAMS FOR EXPANDED GENE FAMILIES #####
-
-# This section will compare apoptosis transcript expression from each experiment with the 
-
-
-
-
-#### APOPTOSIS GENE SET ENRICHMENT ####
-
-
-
 
 
 #### SESSION INFO FOR RUNNING SCRIPTS FEB 2020 ####
