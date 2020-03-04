@@ -1176,6 +1176,7 @@ GCF_002022765.2_C_virginica-3.0_protein	8714.0	0.0`
 ## 3/3/2020 Joining Ortholog gene count tables, running DESeq2, making heatmas, WGCNA
 
 1. Successfully merged together the gene count tables for just orthologous genes between C_gigas and C_virginica.
+  * Total number of orthologous proteins for each species = 8649
 
 2. Running DESeq2
   * Error in trying to run vst on Full_ortholog_gene_count_only_matrix.
@@ -1198,7 +1199,42 @@ GCF_002022765.2_C_virginica-3.0_protein	8714.0	0.0`
 
 * Running DESeq2 on orthologs from with all the samples makes the matrix not full rank....ways to combat this I am going to try today.
   1. Going back to individual datasets and running DESeq2 on the gene count matrix for each individually. Then comparing the LFC for only the orthologous genes. - TALKED TO MARTA THIS IS GOING TO BE MY NEXT STEP
-    - So to compare responses within species I can look at the Transcripts, but to compare between species I need to only compare the orthologous genes!
-    - CONCLUSION IS THAT I CAN'T RUN DESEQ2 WITH ALL OF MY DATA, NEED TO STILL RUN INDIVIDUALLY AND COMPARE AFTERWARD
+    * So to compare responses within species I can look at the Transcripts, but to compare between species I need to only compare the orthologous genes!
+    * *CONCLUSION IS THAT I CAN'T RUN DESEQ2 WITH ALL OF MY DATA, NEED TO STILL RUN INDIVIDUALLY ON GENE COUNT MATRIX AND COMPARE AFTERWARD*
+    * Running each gene count matrix separately
+    * Is it valid to use DESeq to look at gene level differences:
+      - YES, this is in fact now recommended because estimations of gene level abundance are generally more accurate: https://bioinformatics.stackexchange.com/questions/4641/gene-level-versus-transcript-level-analysis
 
-    
+    * *RESULTS*: only He and deLorgeril actually have significant gene expression for apoptosis. No other data sets do. This eliminates really the possibility of comparing LFC between orthologs
+
+
+* Analyzing heatmap of counts of orthologous genes
+  1. After merging all of the counts tables for the single copy orthologous genes, only 79 genes were shared by all of the datasets for C. virginica, and 355 for C. gig.
+          `#C_ C_virginica            gene              product
+536 LOC111131569 toll-like receptor 6
+584 LOC111133520 toll-like receptor 6
+
+           # C_gigas
+           gene                    product
+1153 LOC105329274       toll-like receptor 4
+1706 LOC105334474      toll-like receptor 13
+3097 LOC105345889       toll-like receptor 4
+3417 LOC109618123       toll-like receptor 4
+3467 LOC109619402 netrin receptor UNC5D-like`
+
+  2. How do I proceed now?
+    * Should I re-run my search for orthologous genes by adding in more mollusc genomes to improve the orthology estimation?
+      * TRYING ADDING IN THE OTHER GENOMES USED FOR CAFE ANALYSIS:
+        - Mizuhopecten yessoensis, Biomphalaria glabrata and Octopus bimaculoides, all of which were annotated using the NCBI pipeline
+        - Downloaded the protein.faa files for each
+        `# Biomphalaria glabrata
+          GCF_000457365.1_ASM45736v1_protein.faa
+         # Mizuhopecten yessoensis
+         GCF_002113885.1_ASM211388v2_protein.faa
+         # Octopus bimaculoides
+         GCF_001194135.1_Octopus_bimaculoides_v2_0_protein.faa
+
+         # Moved into bluewaves OrthoFinder folder 
+         `
+    * I can possible look for the 1:1 orthologs XMs for the 1:1 ortholog XPs?
+    * I can do WGCNA just on the individual species and get interesting information?
