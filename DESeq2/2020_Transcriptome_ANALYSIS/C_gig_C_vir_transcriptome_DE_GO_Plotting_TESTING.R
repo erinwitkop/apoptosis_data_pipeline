@@ -25,6 +25,7 @@ library(tidyr)
 library(stringr)
 library(rtracklayer)
 library(UpSetR)
+library(ComplexHeatmap)
 library(reshape2)
 library(plyr)
 library(Repitools)
@@ -1474,7 +1475,6 @@ deLorgeril_Susceptible_dds_res_72 <- results(deLorgeril_Susceptible_dds_deseq , 
 deLorgeril_Resistant_dds_res_6_LFC <- lfcShrink(deLorgeril_Resistant_dds_deseq , coef="Time_6h_vs_0h", type="apeglm",res=deLorgeril_Resistant_dds_res_6)
 deLorgeril_Resistant_dds_res_12_LFC <- lfcShrink(deLorgeril_Resistant_dds_deseq , coef="Time_12h_vs_0h", type="apeglm",res=deLorgeril_Resistant_dds_res_12)
 deLorgeril_Resistant_dds_res_24_LFC <- lfcShrink(deLorgeril_Resistant_dds_deseq , coef="Time_24h_vs_0h", type="apeglm",res=deLorgeril_Resistant_dds_res_24)
-
 deLorgeril_Resistant_dds_res_48_LFC <- lfcShrink(deLorgeril_Resistant_dds_deseq , coef="Time_48h_vs_0h", type="apeglm",res=deLorgeril_Resistant_dds_res_48)
 deLorgeril_Resistant_dds_res_60_LFC <- lfcShrink(deLorgeril_Resistant_dds_deseq , coef="Time_60h_vs_0h", type="apeglm",res=deLorgeril_Resistant_dds_res_60)
 deLorgeril_Resistant_dds_res_72_LFC <- lfcShrink(deLorgeril_Resistant_dds_deseq , coef="Time_72h_vs_0h", type="apeglm",res=deLorgeril_Resistant_dds_res_72)
@@ -1562,15 +1562,15 @@ deLorgeril_Susceptible_dds_res_48_LFC_sig<-as.data.frame(deLorgeril_Susceptible_
 deLorgeril_Susceptible_dds_res_60_LFC_sig<-as.data.frame(deLorgeril_Susceptible_dds_res_60_LFC_sig)
 deLorgeril_Susceptible_dds_res_72_LFC_sig<-as.data.frame(deLorgeril_Susceptible_dds_res_72_LFC_sig)
 
-nrow(deLorgeril_Resistant_dds_res_6_LFC_sig) #1593
-nrow(deLorgeril_Resistant_dds_res_12_LFC_sig) #1593
-nrow(deLorgeril_Resistant_dds_res_24_LFC_sig) #1593
+nrow(deLorgeril_Resistant_dds_res_6_LFC_sig) #1644
+nrow(deLorgeril_Resistant_dds_res_12_LFC_sig) #1644
+nrow(deLorgeril_Resistant_dds_res_24_LFC_sig) #3775
 nrow(deLorgeril_Resistant_dds_res_48_LFC_sig) #1593
 nrow(deLorgeril_Resistant_dds_res_60_LFC_sig) # 3403
 nrow(deLorgeril_Resistant_dds_res_72_LFC_sig) # 2309
-nrow(deLorgeril_Susceptible_dds_res_6_LFC_sig) # 1778
-nrow(deLorgeril_Susceptible_dds_res_12_LFC_sig) # 1778
-nrow(deLorgeril_Susceptible_dds_res_24_LFC_sig) # 1778
+nrow(deLorgeril_Susceptible_dds_res_6_LFC_sig) # 1445
+nrow(deLorgeril_Susceptible_dds_res_12_LFC_sig) # 3435
+nrow(deLorgeril_Susceptible_dds_res_24_LFC_sig) # 8298
 nrow(deLorgeril_Susceptible_dds_res_48_LFC_sig) # 1778
 nrow(deLorgeril_Susceptible_dds_res_60_LFC_sig) # 10425
 nrow(deLorgeril_Susceptible_dds_res_72_LFC_sig) # 2991
@@ -1691,16 +1691,16 @@ deLorgeril_Susceptible_dds_res_48_LFC_sig_APOP <- arrange(deLorgeril_Susceptible
 deLorgeril_Susceptible_dds_res_60_LFC_sig_APOP <- arrange(deLorgeril_Susceptible_dds_res_60_LFC_sig_APOP, -log2FoldChange)
 deLorgeril_Susceptible_dds_res_72_LFC_sig_APOP <- arrange(deLorgeril_Susceptible_dds_res_72_LFC_sig_APOP, -log2FoldChange)
 
-nrow(deLorgeril_Resistant_dds_res_6_LFC_sig_APOP) #25
-nrow(deLorgeril_Resistant_dds_res_12_LFC_sig_APOP) #25
-nrow(deLorgeril_Resistant_dds_res_24_LFC_sig_APOP) #25
+nrow(deLorgeril_Resistant_dds_res_6_LFC_sig_APOP) #21
+nrow(deLorgeril_Resistant_dds_res_12_LFC_sig_APOP) #50
+nrow(deLorgeril_Resistant_dds_res_24_LFC_sig_APOP) #73
 nrow(deLorgeril_Resistant_dds_res_48_LFC_sig_APOP) #25
 nrow(deLorgeril_Resistant_dds_res_60_LFC_sig_APOP) # 54
 nrow(deLorgeril_Resistant_dds_res_72_LFC_sig_APOP) # 33
 
-nrow(deLorgeril_Susceptible_dds_res_6_LFC_sig_APOP) #34
-nrow(deLorgeril_Susceptible_dds_res_12_LFC_sig_APOP) #34
-nrow(deLorgeril_Susceptible_dds_res_24_LFC_sig_APOP) #34
+nrow(deLorgeril_Susceptible_dds_res_6_LFC_sig_APOP) #28
+nrow(deLorgeril_Susceptible_dds_res_12_LFC_sig_APOP) #85
+nrow(deLorgeril_Susceptible_dds_res_24_LFC_sig_APOP) #154
 nrow(deLorgeril_Susceptible_dds_res_48_LFC_sig_APOP) #34
 nrow(deLorgeril_Susceptible_dds_res_60_LFC_sig_APOP) # 186
 nrow(deLorgeril_Susceptible_dds_res_72_LFC_sig_APOP) # 47
@@ -3354,6 +3354,69 @@ C_gig_apop_APOP_downregulated_plot <- ggplot(C_gig_apop_APOP_downregulated , aes
   theme(axis.text.x = element_text(angle = 75, hjust = 1)) + coord_flip()
 C_gig_apop_APOP_upregulated_plot <- ggplot(C_gig_apop_APOP_upregulated , aes(x=product,y=log2FoldChange, fill=experiment )) + geom_col(position="dodge") + 
   theme(axis.text.x = element_text(angle = 75, hjust = 1)) + coord_flip()
+
+#### TRANSCRIPT UPSET PLOT ####
+# helpful link: https://jokergoo.github.io/ComplexHeatmap-reference/book/upset-plot.html
+# Using UpsetR NEED TO FIX THIS BELOW
+# Input data can be a list of sets where each set is a vector: https://jokergoo.github.io/ComplexHeatmap-reference/book/upset-plot.html#input-data
+Zhang_dds_deseq_res_V_alg1_LFC_sig_APOP_vector <- as.vector(Zhang_dds_deseq_res_V_alg1_LFC_sig_APOP$transcript_id)
+Zhang_dds_deseq_res_V_tub_LFC_sig_APOP_vector <- as.vector(Zhang_dds_deseq_res_V_tub_LFC_sig_APOP$transcript_id)
+Zhang_dds_deseq_res_LFC_LPS_sig_APOP_vector <- as.vector(Zhang_dds_deseq_res_LFC_LPS_sig_APOP$transcript_id)
+Rubio_dds_deseq_J2_8_res_LFC_sig_APOP_vector <- as.vector(Rubio_dds_deseq_J2_8_res_LFC_sig_APOP$transcript_id)
+Rubio_dds_deseq_J2_9_res_LFC_sig_APOP_vector <- as.vector(Rubio_dds_deseq_J2_9_res_LFC_sig_APOP$transcript_id)
+Rubio_dds_deseq_LGP32_res_LFC_sig_APOP_vector <- as.vector(Rubio_dds_deseq_LGP32_res_LFC_sig_APOP$transcript_id)
+Rubio_dds_deseq_LMG20012T_res_LFC_sig_APOP_vector <- as.vector(Rubio_dds_deseq_LMG20012T_res_LFC_sig_APOP$transcript_id)
+He_dds_res_6hr_sig_APOP_vector <- as.vector(He_dds_res_6hr_sig_APOP$transcript_id)
+He_dds_res_12hr_sig_APOP_vector <- as.vector(He_dds_res_12hr_sig_APOP$transcript_id)
+He_dds_res_24hr_sig_APOP_vector <- as.vector(He_dds_res_24hr_sig_APOP$transcript_id)
+He_dds_res_48hr_sig_APOP_vector <- as.vector(He_dds_res_48hr_sig_APOP$transcript_id)
+He_dds_res_120hr_sig_APOP_vector <- as.vector(He_dds_res_120hr_sig_APOP$transcript_id)
+deLorgeril_Resistant_dds_res_6_LFC_sig_APOP_vector <- as.vector(deLorgeril_Resistant_dds_res_6_LFC_sig_APOP$transcript_id)
+deLorgeril_Resistant_dds_res_12_LFC_sig_APOP_vector <- as.vector(deLorgeril_Resistant_dds_res_12_LFC_sig_APOP$transcript_id)
+deLorgeril_Resistant_dds_res_24_LFC_sig_APOP_vector <- as.vector(deLorgeril_Resistant_dds_res_24_LFC_sig_APOP$transcript_id)
+deLorgeril_Resistant_dds_res_48_LFC_sig_APOP_vector <- as.vector(deLorgeril_Resistant_dds_res_48_LFC_sig_APOP$transcript_id)
+deLorgeril_Resistant_dds_res_60_LFC_sig_APOP_vector <- as.vector(deLorgeril_Resistant_dds_res_60_LFC_sig_APOP$transcript_id)
+deLorgeril_Resistant_dds_res_72_LFC_sig_APOP_vector <- as.vector(deLorgeril_Resistant_dds_res_72_LFC_sig_APOP$transcript_id)
+deLorgeril_Susceptible_dds_res_6_LFC_sig_APOP_vector <- as.vector(deLorgeril_Susceptible_dds_res_6_LFC_sig_APOP$transcript_id)
+deLorgeril_Susceptible_dds_res_12_LFC_sig_APOP_vector <- as.vector(deLorgeril_Susceptible_dds_res_12_LFC_sig_APOP$transcript_id)
+deLorgeril_Susceptible_dds_res_24_LFC_sig_APOP_vector <- as.vector(deLorgeril_Susceptible_dds_res_24_LFC_sig_APOP$transcript_id)
+deLorgeril_Susceptible_dds_res_48_LFC_sig_APOP_vector <- as.vector(deLorgeril_Susceptible_dds_res_48_LFC_sig_APOP$transcript_id)
+deLorgeril_Susceptible_dds_res_60_LFC_sig_APOP_vector <- as.vector(deLorgeril_Susceptible_dds_res_60_LFC_sig_APOP$transcript_id)
+deLorgeril_Susceptible_dds_res_72_LFC_sig_APOP_vector <- as.vector(deLorgeril_Susceptible_dds_res_72_LFC_sig_APOP$transcript_id)
+
+# make list of vectors
+C_gig_transcript_list <- 
+  list(Zhang_dds_deseq_res_V_alg1_LFC_sig_APOP_vector = Zhang_dds_deseq_res_V_alg1_LFC_sig_APOP_vector,
+       Zhang_dds_deseq_res_V_tub_LFC_sig_APOP_vector = Zhang_dds_deseq_res_V_tub_LFC_sig_APOP_vector,
+       Zhang_dds_deseq_res_LFC_LPS_sig_APOP_vector = Zhang_dds_deseq_res_LFC_LPS_sig_APOP_vector,
+       Rubio_dds_deseq_J2_8_res_LFC_sig_APOP_vector = Rubio_dds_deseq_J2_8_res_LFC_sig_APOP_vector,
+       Rubio_dds_deseq_J2_9_res_LFC_sig_APOP_vector = Rubio_dds_deseq_J2_9_res_LFC_sig_APOP_vector,
+       Rubio_dds_deseq_LGP32_res_LFC_sig_APOP_vector = Rubio_dds_deseq_LGP32_res_LFC_sig_APOP_vector,
+       Rubio_dds_deseq_LMG20012T_res_LFC_sig_APOP_vector = Rubio_dds_deseq_LMG20012T_res_LFC_sig_APOP_vector,
+       He_dds_res_6hr_sig_APOP_vector = He_dds_res_6hr_sig_APOP_vector,
+       He_dds_res_12hr_sig_APOP_vector = He_dds_res_12hr_sig_APOP_vector,
+       He_dds_res_24hr_sig_APOP_vector = He_dds_res_24hr_sig_APOP_vector,
+       He_dds_res_48hr_sig_APOP_vector = He_dds_res_48hr_sig_APOP_vector,
+       He_dds_res_120hr_sig_APOP_vector = He_dds_res_120hr_sig_APOP_vector,
+       deLorgeril_Resistant_dds_res_6_LFC_sig_APOP_vector = deLorgeril_Resistant_dds_res_6_LFC_sig_APOP_vector,
+       deLorgeril_Resistant_dds_res_12_LFC_sig_APOP_vector = deLorgeril_Resistant_dds_res_12_LFC_sig_APOP_vector,
+       deLorgeril_Resistant_dds_res_24_LFC_sig_APOP_vector = deLorgeril_Resistant_dds_res_24_LFC_sig_APOP_vector,
+       deLorgeril_Resistant_dds_res_48_LFC_sig_APOP_vector = deLorgeril_Resistant_dds_res_48_LFC_sig_APOP_vector,
+       deLorgeril_Resistant_dds_res_60_LFC_sig_APOP_vector = deLorgeril_Resistant_dds_res_60_LFC_sig_APOP_vector,
+       deLorgeril_Resistant_dds_res_72_LFC_sig_APOP_vector = deLorgeril_Resistant_dds_res_72_LFC_sig_APOP_vector,
+       deLorgeril_Susceptible_dds_res_6_LFC_sig_APOP_vector = deLorgeril_Susceptible_dds_res_6_LFC_sig_APOP_vector,
+       deLorgeril_Susceptible_dds_res_12_LFC_sig_APOP_vector = deLorgeril_Susceptible_dds_res_12_LFC_sig_APOP_vector,
+       deLorgeril_Susceptible_dds_res_24_LFC_sig_APOP_vector = deLorgeril_Susceptible_dds_res_24_LFC_sig_APOP_vector,
+       deLorgeril_Susceptible_dds_res_48_LFC_sig_APOP_vector = deLorgeril_Susceptible_dds_res_48_LFC_sig_APOP_vector,
+       deLorgeril_Susceptible_dds_res_60_LFC_sig_APOP_vector = deLorgeril_Susceptible_dds_res_60_LFC_sig_APOP_vector,
+       deLorgeril_Susceptible_dds_res_72_LFC_sig_APOP_vector = deLorgeril_Susceptible_dds_res_72_LFC_sig_APOP_vector)
+
+# Make combination matrix in intersect mode with the list 
+C_gig_transcript_list_matrix_comb <- make_comb_mat(C_gig_transcript_list, mode = "intersect")
+
+# plot in intersect mode 
+C_gig_transcript_upset_plot <- UpSet(C_gig_transcript_list_matrix_comb)
+
 
 #### COMPARING APOPTOSIS TRANSCRIPT EXPRESSION BETWEEN EXPERIMENTS PCA HEATMAPS VST ON APOP SUBSET ALONE ####
 # some helpful forum posts on the topic: https://www.biostars.org/p/364768/
