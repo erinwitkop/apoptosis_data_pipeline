@@ -1155,7 +1155,6 @@ GCF_002022765.2_C_virginica-3.0_protein	8714.0	0.0`
     - Formula used is `~Time + Condition` to control for the effect of the age of the larvae, and source, and then compare each condition to control.
     - Time and family are the same (each time point was a different family!) Controlling for this effect is important!
 2. Investigating Cross Species DESeq2 analysis
-
   * Can I perform DEseq2 differential expression analysis using on the orthologous genes from both species?
     * Seems that yes I can at the level of gene counts : https://support.bioconductor.org/p/97936/
       * Suggested method: "(2) Align reads from each species to its own reference genome. Discard all genes that don't have a 1:1 orthology relationship. Change the gene names in the species B raw counts files to the names of their species A orthologs. Proceed with downstream analysis as if these were two different treatments on species A, analyzing only these "shared" genes."
@@ -1164,7 +1163,7 @@ GCF_002022765.2_C_virginica-3.0_protein	8714.0	0.0`
 
           * NOTES: orthologous transcripts were not identified, only used the orthologous proteins to get orthologous gene counts
 
-    * In my DEseq2 formula maybe I can set it up like `~Experiment+species + Family:condition`. This should hopefully control for the different host material used for each experiment and batch effects due to how the experiments were conducted, and control for the species effect. The interaction term will allow for comparison of the response to treatment between each family the different experiments. Then I can pull out specific responses afterward. See this bioconductor response for help explaining this `https://support.bioconductor.org/p/58162/`. Small p-values for the interaction term mean the log fold change due to treatment is significantly different for the two conditions. Going to edit my full coldata to reflect these groups I want to compare.
+    * In my DEseq2 formula maybe I can set it up like `~Family + Family:Condition`. This should hopefully control for the different host material used for each experiment and test for family specific effects of treatment The interaction term will allow for comparison of the response to treatment between each family the different experiments. Then I can pull out specific responses afterward. See this bioconductor response for help explaining this `https://support.bioconductor.org/p/58162/`. Small p-values for the interaction term mean the log fold change due to treatment is significantly different for the two conditions. Going to edit my full coldata to reflect these groups I want to compare. Also look at suggestion here for where I got the specific formula: https://support.bioconductor.org/p/78676/
       - What do I do regarding the effect of time? I can use my initial determinations of what time is the "acute" response based on differential expression, to only compare the most acute response transcriptome timepoints? Or I can just calculate regardless of time and just focus on the affect of treatment?
       - I could separate it into the overall analysis and the acute response analysis   
 
@@ -1172,3 +1171,34 @@ GCF_002022765.2_C_virginica-3.0_protein	8714.0	0.0`
         - I added the new Pro_RE22 coldata to my `All_coldata.csv` spreadsheet.
         - Based on Marta's recommendation to not separate out all the Zhang Vibrio strains and to just call it all vibrio, I am combining all the Vibrio into one condition from the Zhang experiment.
         - For the ROD experiment, the "CGX" family designation was changed to "GX" because is really the family used.
+        - changed all "-" to `_` so that R would be happy.
+
+## 3/3/2020 Joining Ortholog gene count tables, running DESeq2, making heatmas, WGCNA
+
+1. Successfully merged together the gene count tables for just orthologous genes between C_gigas and C_virginica.
+
+2. Running DESeq2
+  * Error in trying to run vst on Full_ortholog_gene_count_only_matrix.
+    `$ converting counts to integer mode
+     Error in estimateSizeFactorsForMatrix(counts(object), locfunc = locfunc,  :
+     every gene contains at least one zero, cannot compute log geometric means`
+    - Bioconductor support page for other people with 0s in their analysis (https://support.bioconductor.org/p/63229/)
+    - https://support.bioconductor.org/p/62246/#62250
+    - Instead of merging from the dataset with the most data, merge with that with the least first so I am only running DESeq on those genes that have counts in common. Only makes sense to compare these for DESeq. I can compare which genes are present and absent in expression using Venn diagrams (though I need to be careful not to assume that all have all the same genes present in the genome to work with)
+
+  * Error with model matrix not being full rank:
+    - Support page  (https://support.bioconductor.org/p/64480/) suggests I could make a "nested line" which distinguishes the lines within a condition
+    - https://support.bioconductor.org/p/62357/#62368: Considering a design like this: `~Family + Family:Condition.nexted + Family:Condition`. This would control for the difference in genetic material and also look at the family specific affects of treatment
+    - Maybe I should keep in only samples with the acute response I care about?
+    - Maybe I could duplicate controls?  (CANT HAVE DUPLICATE ROWNAMES, NOT DOING THIS)
+    - Since each experiment has several different treatment groups it says it's not full rank
+    - maybe I shouldnt' even be trying deseq on these? Or maybe only do it for shared genes?
+
+## 3/4/2020 DESEQ2, WGCNA continued
+
+* Running DESeq2 on orthologs from with all the samples makes the matrix not full rank....ways to combat this I am going to try today.
+  1. Going back to individual datasets and running DESeq2 on the gene count matrix for each individually. Then comparing the LFC for only the orthologous genes. - TALKED TO MARTA THIS IS GOING TO BE MY NEXT STEP
+    - So to compare responses within species I can look at the Transcripts, but to compare between species I need to only compare the orthologous genes!
+    - CONCLUSION IS THAT I CAN'T RUN DESEQ2 WITH ALL OF MY DATA, NEED TO STILL RUN INDIVIDUALLY AND COMPARE AFTERWARD
+
+    
