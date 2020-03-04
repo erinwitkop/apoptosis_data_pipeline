@@ -10,8 +10,6 @@
 
 # Load packages 
 library(tidyverse)
-library(UpSetR)
-library(ComplexHeatmap)
 
 #### LOAD ORTHOGROUP INFORMATION FROM ORTHOFINDER####
 # OrthoFinder 2.3.3 was used to acquire OrthoFinder information 
@@ -49,9 +47,18 @@ C_vir_orthogroups_single_copy <- C_vir_orthogroups[C_vir_orthogroups$Orthogroup 
 ## Isolate XPs and gene info from C_vir_rtracklayer and C_gig_rtracklayer
 colnames(C_gig_orthogroups_single_copy)[2] <- "protein_id"
 C_gig_orthogroups_single_copy <- left_join(C_gig_orthogroups_single_copy, C_gig_rtracklayer, by = "protein_id")
+# number orthologous proteins 
+C_gig_orthogroups_single_copy_unique <- unique(C_gig_orthogroups_single_copy$protein_id)
+length(C_gig_orthogroups_single_copy_unique) # 8649
+write.table(C_gig_orthogroups_single_copy_unique, file="C_gig_orthogroups_single_copy_unique.txt")
 
 colnames(C_vir_orthogroups_single_copy) [2] <- "protein_id"
 C_vir_orthogroups_single_copy  <- left_join(C_vir_orthogroups_single_copy ,  C_vir_rtracklayer, by="protein_id")
+C_vir_orthogroups_single_copy_unique <- unique(C_vir_orthogroups_single_copy$protein_id)
+length(C_vir_orthogroups_single_copy_unique) # 8649
+
+# create output files with the XPs for each 
+
 
 ##### LOAD GENE_COUNT_MATRICES ####
 
@@ -163,20 +170,35 @@ Zhang_gene_counts_single_copy <- Zhang_gene_counts[Zhang_gene_counts$gene %in% C
 Zhang_gene_counts_single_copy <- left_join(Zhang_gene_counts_single_copy, C_gig_orthogroups_single_copy_unique)
 nrow(Zhang_gene_counts_single_copy ) #1808
 
-# Join within species based on gene and orthogroup, starting with one that has the least (only can compare ones shared by all in expression)
-C_vir_ortholog_gene_counts <- left_join(Dermo_gene_counts_single_copy,ROD_gene_counts_single_copy, by =c("gene","Orthogroup"))
-C_vir_ortholog_gene_counts <- left_join(C_vir_ortholog_gene_counts ,Pro_RE22_gene_counts_single_copy, by =c("gene","Orthogroup"))
-C_vir_ortholog_gene_counts <- left_join(C_vir_ortholog_gene_counts,Probiotic_gene_counts_single_copy, by =c("gene","Orthogroup"))
-nrow(C_vir_ortholog_gene_counts) # 347 
+# NATURAL JOIN  within species based on gene and orthogroup, starting with one that has most 
+C_vir_ortholog_gene_counts <- merge(Probiotic_gene_counts_single_copy,ROD_gene_counts_single_copy, all = FALSE)
 
-C_gig_ortholog_gene_counts <- left_join(deLorgeril_gene_counts_single_copy,  Rubio_gene_counts_single_copy , by =c("gene","Orthogroup"))
-C_gig_ortholog_gene_counts <- left_join(C_gig_ortholog_gene_counts, He_gene_counts_single_copy , by =c("gene","Orthogroup"))
-C_gig_ortholog_gene_counts <- left_join(C_gig_ortholog_gene_counts, Zhang_gene_counts_single_copy, by =c("gene","Orthogroup"))
-nrow(C_gig_ortholog_gene_counts) # 557
+C_vir_ortholog_gene_counts <- Reduce(function(x,y) merge(x = x, y = y, by =c("gene","Orthogroup"), all = FALSE), 
+       list(Probiotic_gene_counts_single_copy,ROD_gene_counts_single_copy, Dermo_gene_counts_single_copy, Pro_RE22_gene_counts_single_copy))
+nrow(C_vir_ortholog_gene_counts) #79
+
+C_vir_ortholog_gene_counts_product <- left_join(C_vir_ortholog_gene_counts, C_vir_rtracklayer[,c("gene","product")], by = "gene")
+C_vir_ortholog_gene_counts_product_unique <- unique(C_vir_ortholog_gene_counts_product[,c("gene","product")])
+# pull out apoptosis genes 
+C_vir_ortholog_gene_counts_product_unique_apop <- C_vir_ortholog_gene_counts_product_unique [grepl(paste(Apoptosis_names_list,collapse="|"), 
+                                                 C_vir_ortholog_gene_counts_product_unique$product, ignore.case = TRUE),]
+
+C_gig_ortholog_gene_counts <-  Reduce(function(x,y) merge(x = x, y = y, by =c("gene","Orthogroup"), all = FALSE), 
+                                      list(deLorgeril_gene_counts_single_copy,Rubio_gene_counts_single_copy,
+                                           He_gene_counts_single_copy,Zhang_gene_counts_single_copy ))
+nrow(C_gig_ortholog_gene_counts) # 355
+
+# pull out apoptosis genes
+C_gig_ortholog_gene_counts_product <- left_join(C_gig_ortholog_gene_counts, C_gig_rtracklayer[,c("gene","product")], by = "gene")
+C_gig_ortholog_gene_counts_product_unique <- unique(C_gig_ortholog_gene_counts_product[,c("gene","product")])
+C_gig_ortholog_gene_counts_product_unique_apop <- C_gig_ortholog_gene_counts_product_unique [grepl(paste(Apoptosis_names_list_CG,collapse="|"), 
+                                                                                                   C_gig_ortholog_gene_counts_product_unique$product, ignore.case = TRUE),]
+
+
 
 ## Merge data frames based on matching orthologroup IDs to get full table of counts 
 Full_ortholog_gene_count <- left_join(C_vir_ortholog_gene_counts,C_gig_ortholog_gene_counts,  by ="Orthogroup")
-nrow(Full_ortholog_gene_count) # 347
+nrow(Full_ortholog_gene_count) # 79
 
 # set colnames as the unique orthogroup values (there are some duplicated gene names)
 row.names(Full_ortholog_gene_count) <- Full_ortholog_gene_count$Orthogroup
@@ -187,31 +209,375 @@ ncol(Full_ortholog_gene_count_only) #234
 Full_ortholog_gene_count_only[is.na(Full_ortholog_gene_count_only)] <-0
 head(Full_ortholog_gene_count_only)
 
-#### Ortholog Upset plot ####
 
-# Using UpsetR
-# Input data can be a list of sets where each set is a vector: https://jokergoo.github.io/ComplexHeatmap-reference/book/upset-plot.html#input-data
-Dermo_gene_counts_single_copy_vector <- as.vector(row.names(Dermo_gene_counts_single_copy))
-Probiotic_gene_counts_single_copy_vector <- as.vector(row.names(Probiotic_gene_counts_single_copy))
-ROD_gene_counts_single_copy_vector <- as.vector(row.names(ROD_gene_counts_single_copy))
-Pro_RE22_gene_counts_single_copy_vector <- as.vector(row.names(Pro_RE22_gene_counts_single_copy))
-Rubio_gene_counts_single_copy_vector <- as.vector(row.names(Rubio_gene_counts_single_copy))
-deLorgeril_gene_counts_single_copy_vector <- as.vector(row.names(deLorgeril_gene_counts_single_copy))
-He_gene_counts_single_copy_vector <- as.vector(row.names(He_gene_counts_single_copy))
-Zhang_gene_counts_single_copy_vector <- as.vector(row.names(Zhang_gene_counts_single_copy))
+#### PCA AND HEATMAPS OF ORTHOLOGOUS GENE COUNTS ####
 
-Ortholog_list <- 
-  list(Dermo_gene_counts_single_copy_vector = Dermo_gene_counts_single_copy_vector,
-       Probiotic_gene_counts_single_copy_vector = Probiotic_gene_counts_single_copy_vector,
-       ROD_gene_counts_single_copy_vector  =ROD_gene_counts_single_copy_vector ,
-       Pro_RE22_gene_counts_single_copy_vector  =Pro_RE22_gene_counts_single_copy_vector ,
-       Rubio_gene_counts_single_copy_vector =Rubio_gene_counts_single_copy_vector,
-       deLorgeril_gene_counts_single_copy_vector =deLorgeril_gene_counts_single_copy_vector,
-       He_gene_counts_single_copy_vector  =He_gene_counts_single_copy_vector ,
-       Zhang_gene_counts_single_copy_vector =Zhang_gene_counts_single_copy_vector
-     )
 
-Ortholog_list <- list_to_matrix(Ortholog_list)
+
+
+
+
+## Remove Batch effects from experiment for C_vir
+plotPCA(C_vir_full_counts_vst, "Experiment") # grouping by experiment, ROD and probiotic cluster more closely
+mat_C_vir <- assay(C_vir_full_counts_vst)
+mat_C_vir <- limma::removeBatchEffect(mat_C_vir, C_vir_full_counts_vst$Experiment)
+#Coefficients not estimable: batch1 batch3 batch5 batch6 
+#Warning message:
+#  Partial NA coefficients for 67876 probe(s) 
+assay(C_vir_full_counts_vst) <- mat_C_vir
+plotPCA(C_vir_full_counts_vst, "Experiment") # Probiotic and ROD now cluster together
+plotPCA(C_vir_full_counts_vst, "Sample")
+plotPCA(C_vir_full_counts_vst, "Time") # no clustering by time
+plotPCA(C_vir_full_counts_vst, "Family")
+
+plotPCA(C_gig_full_counts_vst, "Experiment") # grouping by experiment, Rubio delorgeril cluster, HE and Zhang far apart
+mat_C_gig <- assay(C_gig_full_counts_vst)
+mat_C_gig <- limma::removeBatchEffect(mat_C_gig, C_gig_full_counts_vst$Experiment)
+#Coefficients not estimable: batch4 batch5 batch6 
+#Warning message:
+#  Partial NA coefficients for 86859 probe(s) 
+assay(C_gig_full_counts_vst) <- mat_C_gig
+plotPCA(C_gig_full_counts_vst, "Experiment") # He, Rubio and Zhang cluster closely 
+plotPCA(C_gig_full_counts_vst, "Sample")
+plotPCA(C_gig_full_counts_vst, "Time") # no clustering by time
+plotPCA(C_gig_full_counts_vst, "Family")
+
+# subset PCA for apoptosis genes
+C_vir_full_counts_apop <- C_vir_full_counts[row.names(C_vir_full_counts) %in% C_vir_rtracklayer_apop_product_final_ID,]
+nrow(C_vir_full_counts_apop) # 1026
+all(row.names(C_vir_full_counts_apop) %in% C_vir_rtracklayer_apop_product_final_ID) # TRUE
+all(C_vir_rtracklayer_apop_product_final_ID %in% row.names(C_vir_full_counts_apop)) # TRUE
+
+C_vir_full_counts_apop_list <- row.names(C_vir_full_counts_apop)
+plotPCA(C_vir_full_counts_vst[C_vir_full_counts_apop_list,], "Experiment") # similar clustering where ROD and Probiotic cluster
+
+C_gig_full_counts_apop <- C_gig_full_counts[row.names(C_gig_full_counts) %in% C_gig_rtracklayer_apop_product_final_transcript_id,]
+C_gig_full_counts_apop_list <- row.names(C_gig_full_counts_apop)
+plotPCA(C_gig_full_counts_vst[C_gig_full_counts_apop_list,], "Experiment") # some more overlap between He and deLorgeril
+
+### Heatmaps of apoptosis gene vsts ###
+## C_virginica
+# heatmap of all apoptosis genes 
+C_vir_full_counts_apop_assay <-  assay(C_vir_full_counts_vst)[C_vir_full_counts_apop_list,]
+C_vir_full_counts_apop_assay_mat <- C_vir_full_counts_apop_assay - rowMeans(C_vir_full_counts_apop_assay)
+C_vir_full_counts_apop_assay_anno <- as.data.frame(colData(C_vir_full_counts_vst)[, c("Condition","Experiment")])
+C_vir_full_counts_apop_assay_heatmap <- pheatmap(C_vir_full_counts_apop_assay_mat  , annotation_col = C_vir_full_counts_apop_assay_anno)
+# Probiotic and ROD cluster closely, CGX and GX cluster more with Dermo DA (susceptible), while F3L and LB cluster more closely
+# the sucsceptible to Dermo are more tolerant to ROD (GX), and vice versa..interesting
+# The ROD Tolerant (GX and CGX), Dermo Susceptible DA and Probiotic are all in the same larger cluster
+# the ROD susceptible (F3L) and the Dermo tolerant LB are in the same larger cluster
+
+# heatmap of most variable apoptosis genes for both C_vir and C_gug (this selects genes with the greatest variance in the sample)
+topVarGenes_C_vir_full_counts_apop_assay <-  head(order(rowVars(C_vir_full_counts_apop_assay), decreasing = TRUE), 100) 
+top_Var_C_vir_full_counts_apop_assay_mat <- C_vir_full_counts_apop_assay[topVarGenes_C_vir_full_counts_apop_assay,]
+top_Var_C_vir_full_counts_apop_assay_mat <- top_Var_C_vir_full_counts_apop_assay_mat - rowMeans(top_Var_C_vir_full_counts_apop_assay_mat)
+top_Var_C_vir_full_counts_apop_assay_anno <- as.data.frame(colData(C_vir_full_counts_vst)[, c("Experiment","Condition")])
+top_Var_C_vir_full_counts_apop_assay_heatmap <- pheatmap(top_Var_C_vir_full_counts_apop_assay_mat  , annotation_col = top_Var_C_vir_full_counts_apop_assay_anno)
+head(top_Var_C_vir_full_counts_apop_assay_mat ) 
+# Same relationship as above, but tighter clustering
+
+# reorder annotation table to match ordering in heatmap 
+top_Var_C_vir_full_counts_apop_assay_heatmap_reorder <- rownames(top_Var_C_vir_full_counts_apop_assay_mat[top_Var_C_vir_full_counts_apop_assay_heatmap$tree_row[["order"]],])
+class(top_Var_C_vir_full_counts_apop_assay_heatmap_reorder)
+# annotate the row.names
+top_Var_C_virginica_apop_assay_mat_prot <- as.data.frame(top_Var_C_vir_full_counts_apop_assay_heatmap_reorder )
+class(top_Var_C_virginica_apop_assay_mat_prot)
+colnames(top_Var_C_virginica_apop_assay_mat_prot)[1] <- "ID"
+class(top_Var_C_virginica_apop_assay_mat_prot$ID)
+top_Var_C_virginica_apop_assay_mat_prot$ID <- as.character(top_Var_C_virginica_apop_assay_mat_prot$ID)
+top_Var_C_virginica_apop_assay_mat_prot_annot <- left_join(top_Var_C_virginica_apop_assay_mat_prot, select(C_vir_rtracklayer, ID, product), by = "ID")
+
+## C_gigas genes 
+C_gig_full_counts_apop_assay <-  assay(C_gig_full_counts_vst)[C_gig_full_counts_apop_list,]
+C_gig_full_counts_apop_assay_mat <- C_gig_full_counts_apop_assay - rowMeans(C_gig_full_counts_apop_assay)
+C_gig_full_counts_apop_assay_anno <- as.data.frame(colData(C_gig_full_counts_vst)[, c("Experiment","Condition")])
+C_gig_full_counts_apop_assay_heatmap <- pheatmap(C_gig_full_counts_apop_assay_mat  , annotation_col = C_gig_full_counts_apop_assay_anno)
+# clustering of delorgeril and HE: deLorgeril AF11 susceptible, HE OsHV1 challenge, 
+# delorgeril OsHV1 resistant are in their own separate cluster
+# Zhang and Rubio cluster very closely together
+# some delorgeril and rubio clustering
+
+# heatmap of most variable apoptosis genes for both C_vir and C_gug (this selects genes with the greatest variance in the sample)
+topVarGenes_C_gig_full_counts_apop_assay <-  head(order(rowVars(C_gig_full_counts_apop_assay), decreasing = TRUE), 100) 
+top_Var_C_gig_full_counts_apop_assay_mat <- C_gig_full_counts_apop_assay[topVarGenes_C_gig_full_counts_apop_assay,]
+top_Var_C_gig_full_counts_apop_assay_mat <- top_Var_C_gig_full_counts_apop_assay_mat - rowMeans(top_Var_C_gig_full_counts_apop_assay_mat)
+top_Var_C_gig_full_counts_apop_assay_anno <- as.data.frame(colData(C_gig_full_counts_vst)[, c("Experiment","Condition")])
+top_Var_C_gig_full_counts_apop_assay_heatmap <- pheatmap(top_Var_C_gig_full_counts_apop_assay_mat  , annotation_col = top_Var_C_gig_full_counts_apop_assay_anno)
+head(top_Var_C_gig_full_counts_apop_assay_mat ) 
+# Same relationship as above, but tighter clustering
+
+# reorder annotation table to match ordering in heatmap 
+top_Var_C_gig_full_counts_apop_assay_heatmap_reorder <- rownames(top_Var_C_gig_full_counts_apop_assay_mat[top_Var_C_gig_full_counts_apop_assay_heatmap$tree_row[["order"]],])
+class(top_Var_C_gig_full_counts_apop_assay_heatmap_reorder)
+# annotate the row.names
+top_Var_C_gig_apop_assay_mat_prot <- as.data.frame(top_Var_C_gig_full_counts_apop_assay_heatmap_reorder )
+class(top_Var_C_gig_apop_assay_mat_prot)
+colnames(top_Var_C_gig_apop_assay_mat_prot)[1] <- "transcript_id"
+class(top_Var_C_gig_apop_assay_mat_prot$transcript_id)
+top_Var_C_gig_apop_assay_mat_prot$transcript_id <- as.character(top_Var_C_gig_apop_assay_mat_prot$transcript_id)
+top_Var_C_gig_assay_mat_prot_annot <- left_join(top_Var_C_gig_apop_assay_mat_prot, select(C_gig_rtracklayer_apop_product_final, transcript_id, product), by = "transcript_id")
+
+#isolate interesting clusters
+#six_hr_comparison_cluster <- c("XM_022455505.1", "XM_022484575.1", "XM_022461506.1", "XM_022430618.1", "XM_022490512.1",
+#                               "XM_022461508.1", "XM_022464459.1", "XM_022483469.1", "XM_022483473.1", "XM_022442223.1", "XM_022457463.1", "XM_022442224.1")
+#six_hr_comparison_cluster <- as.data.frame(six_hr_comparison_cluster)
+#colnames(six_hr_comparison_cluster)[1] <- "transcript_id"
+#six_hr_comparison_cluster_subset <- subset(Res_mat_6hr_prot_annot, transcript_id %in% six_hr_comparison_cluster$transcript_id)
+
+
+## Extract apop genes from each and match to names ###
+# For C_vir the gene# is the "Parent" column  vector C_vir_apop transcript Parent
+C_vir_rtracklayer_apop_product_final_parent <- unique(C_vir_rtracklayer_apop_product_final$Parent)
+View(C_vir_rtracklayer_apop_product_final_parent)
+
+# C_vir: Search counts tables for apoptosis genes using the Parent column from genome
+Dermo_gene_counts_apop <- Dermo_gene_counts[row.names(Dermo_gene_counts) %in% C_vir_rtracklayer_apop_product_final_parent,]
+nrow(Dermo_gene_counts_apop) # 45
+View(Dermo_gene_counts_apop)
+Probiotic_gene_counts_apop <- Probiotic_gene_counts[row.names(Probiotic_gene_counts) %in% C_vir_rtracklayer_apop_product_final_parent,]
+nrow(Probiotic_gene_counts_apop) # 198
+head(Probiotic_gene_counts_apop)
+ROD_gene_counts_apop <- ROD_gene_counts[row.names(ROD_gene_counts) %in% C_vir_rtracklayer_apop_product_final_parent,]
+nrow(ROD_gene_counts_apop) # 98
+head(ROD_gene_counts_apop)
+# Make the rownames a column for each so I can merge on it 
+Dermo_gene_counts_apop$Parent <- row.names(Dermo_gene_counts_apop)
+Probiotic_gene_counts_apop$Parent <- row.names(Probiotic_gene_counts_apop)
+ROD_gene_counts_apop$Parent <- row.names(ROD_gene_counts_apop)
+
+# Combine dataframes starting with largest first (probiotic)
+C_vir_apop_gene_counts <- left_join(Probiotic_gene_counts_apop, ROD_gene_counts_apop, by = "Parent")
+C_vir_apop_gene_counts <- left_join(C_vir_apop_gene_counts,Dermo_gene_counts_apop, by = "Parent")
+class(C_vir_apop_gene_counts$Parent) # character
+class(C_vir_rtracklayer_apop_product_final$Parent) # AsIs
+C_vir_rtracklayer_apop_product_final$Parent <- as.character(C_vir_rtracklayer_apop_product_final$Parent) # change the class to character
+View(C_vir_apop_gene_counts)
+nrow(C_vir_apop_gene_counts) # 198
+
+# Combine product name 
+C_vir_apop_gene_counts <- left_join(C_vir_apop_gene_counts,C_vir_rtracklayer_apop_product_final[,c("Parent","product")], by = "Parent")
+View(C_vir_apop_gene_counts)
+# extra rows added because of the ", transcript id" 
+nrow(C_vir_apop_gene_counts) #283
+# Annotate C_vir rownames
+
+
+
+# For C_gig: the LOC is the gene column C_gig: Search counts tables for apoptosis genes using the Parent column from genome
+# vector C_gig_apop transcript IDs
+C_gig_rtracklayer_apop_product_final_gene <- unique(C_gig_rtracklayer_apop_product_final$gene)
+
+nrow(Rubio_gene_counts) #6888
+nrow(deLorgeril_gene_counts) # 5023
+nrow(He_gene_counts) # 7888
+nrow(Zhang_gene_counts)
+
+
+deLorgeril_Resistant_counts_apop <- deLorgeril_Resistant_counts[row.names(deLorgeril_Resistant_counts) %in% C_gig_rtracklayer_apop_product_final_transcript_id,]
+deLorgeril_Susceptible_counts_apop <- deLorgeril_Susceptible_counts[row.names(deLorgeril_Susceptible_counts) %in% C_gig_rtracklayer_apop_product_final_transcript_id,]
+nrow(deLorgeril_Resistant_counts_apop ) #659
+nrow(deLorgeril_Susceptible_counts_apop ) #659
+
+
+
+# Merge tables 
+
+# Search original counts for apoptosis genes and do rlog on just these
+Dermo_Tolerant_counts_apop <- Dermo_Tolerant_counts[row.names(Dermo_Tolerant_counts) %in% C_vir_rtracklayer_apop_product_final_ID,]
+Dermo_Susceptible_counts_apop <- Dermo_Susceptible_counts[row.names(Dermo_Susceptible_counts) %in% C_vir_rtracklayer_apop_product_final_ID,]
+nrow(Dermo_Tolerant_counts_apop) #1026
+nrow( Dermo_Susceptible_counts_apop) # 1026
+
+top_Var_Dermo_Tolerant_apop_assay_prot <- as.data.frame(top_Var_Dermo_Tolerant_apop_assay_heatmap_reorder)
+colnames(top_Var_Dermo_Tolerant_apop_assay_prot)[1] <- "ID"
+top_Var_Dermo_Tolerant_apop_assay_prot_annot <- left_join(top_Var_Dermo_Tolerant_apop_assay_prot, select(C_vir_rtracklayer_apop_product_final, ID, product, gene), by = "ID")
+
+
+
+top_Var_Dermo_Susceptible_apop_assay_prot_annot <- left_join(top_Var_Dermo_Susceptible_apop_assay_prot, select(C_vir_rtracklayer_apop_product_final, ID, product, gene), by = "ID")
+
+# unique gene name lists for both species
+C_vir_rtracklayer_apop_product_final_product_joined_split_product_unique_gene_name <- C_vir_rtracklayer_apop_product_final_product_joined_split_product_unique[!duplicated(C_vir_rtracklayer_apop_product_final_product_joined_split_product_unique$gene_name),]
+C_gig_rtracklayer_apop_product_final_product_joined_split_product_unique_gene_name <- C_gig_rtracklayer_apop_product_final_product_joined_split_product_unique[!duplicated(C_gig_rtracklayer_apop_product_final_product_joined_split_product_unique$gene_name),]
+
+# rename gene column for joining
+colnames(C_vir_rtracklayer_apop_product_final_product_joined_split_product_unique_gene_name)[1] <- "C_vir_gene_LOC"
+colnames(C_gig_rtracklayer_apop_product_final_product_joined_split_product_unique_gene_name)[1] <- "C_gig_gene_LOC"
+
+#remove "-like" from  gene name for correct name joining using regex
+# this isn't exactly working
+# https://datascience.stackexchange.com/questions/8922/removing-strings-after-a-certain-character-in-a-given-text 
+C_vir_rtracklayer_apop_product_final_product_joined_split_product_unique_gene_name$gene_name <-  stringr::str_remove(C_vir_rtracklayer_apop_product_final_product_joined_split_product_unique_gene_name$gene_name, "\\like$")
+C_gig_rtracklayer_apop_product_final_product_joined_split_product_unique_gene_name$gene_name <-  stringr::str_remove(C_gig_rtracklayer_apop_product_final_product_joined_split_product_unique_gene_name$gene_name, "\\like$")
+C_vir_rtracklayer_apop_product_final_product_joined_split_product_unique_gene_name$gene_name <-  stringr::str_remove(C_vir_rtracklayer_apop_product_final_product_joined_split_product_unique_gene_name$gene_name, "\\-$")
+C_gig_rtracklayer_apop_product_final_product_joined_split_product_unique_gene_name$gene_name <-  stringr::str_remove(C_gig_rtracklayer_apop_product_final_product_joined_split_product_unique_gene_name$gene_name, "\\-$")
+
+# https://stackoverflow.com/questions/50861626/removing-dot-from-the-end-of-string
+# full join and places where names don't match will get an NA
+combined_gene_name_yes_no_table <- full_join(C_vir_rtracklayer_apop_product_final_product_joined_split_product_unique_gene_name, C_gig_rtracklayer_apop_product_final_product_joined_split_product_unique_gene_name,
+                                             by = "gene_name")
+#remove duplicate gene names
+combined_gene_name_yes_no_table_unique <- combined_gene_name_yes_no_table[!duplicated(combined_gene_name_yes_no_table$gene_name),]
+
+#join on the pathway descriptions for the molecules 
+# load in table with pathway descriptions for each 
+
+# Still a few discrepancies in the gene names, namely when they are named in C. virginica "* homolog"
+# Need to mention in methods that I rmemoved "like" from the end of names
+# C_ virginica: lipopolysaccharide-induced tumor necrosis factor-alpha factor homolog, C_gig: lipopolysaccharide-induced tumor necrosis factor-alpha
+# C_vir: putative transcription factor p65 homolog, C_gig: transcription factor p65 homolog
+# C_vir: macrophage migration inhibitory factor homolog, C_gig: macrophage migration inhibitory factor
+
+# Genes in C vir and not in C gig (all the C_gig_gene_LOC NA's)
+c_vir_not_c_gig <- combined_gene_name_yes_no_table_unique %>% filter(is.na(C_gig_gene_LOC))
+# Genes in C gig and not in C vir (all the C_vir_gene_LOC NA's)
+c_gig_not_c_vir <- combined_gene_name_yes_no_table_unique %>% filter(is.na(C_vir_gene_LOC))
+# shared in both 
+shared_apoptosis_gene_names <- na.omit(combined_gene_name_yes_no_table_unique)
+
+# Load gene pathway key with protein aliases curated in excel
+gene_name_pathway_key_merged <- read.csv("Gene_name_pathway_key.csv", head=TRUE)
+
+
+
+## Combine raw counts data frames from C. virginica
+# All the rows should be in the same order because I used the same apoptosis data frame to join them
+all(rownames(Dermo_Susceptible_counts_apop) == rownames(Dermo_Tolerant_counts_apop)) # TRUE
+all(rownames(Dermo_Susceptible_counts_apop) %in% rownames(Dermo_Tolerant_counts_apop)) # TRUE
+
+# Check probiotic table order
+all(rownames(Probiotic_counts_apop) == rownames(Dermo_Tolerant_counts_apop)) # FALSE
+all(rownames(Probiotic_counts_apop) %in% rownames(Dermo_Tolerant_counts_apop)) # TRUE
+Probiotic_counts_apop <- Probiotic_counts_apop[row.names(Dermo_Tolerant_counts_apop),]
+all(rownames(Probiotic_counts_apop) == rownames(Dermo_Tolerant_counts_apop)) # TRUE
+
+# Check ROD order and change if necessary 
+all(rownames(ROD_Resistant_counts_apop) == rownames(Dermo_Tolerant_counts_apop)) # FALSE
+all(rownames(ROD_Resistant_counts_apop) %in% rownames(Dermo_Tolerant_counts_apop)) # TRUE
+ROD_Resistant_counts_apop <- ROD_Resistant_counts_apop[row.names(Dermo_Tolerant_counts_apop),]
+ROD_Susceptible_counts_apop <-  ROD_Susceptible_counts_apop[row.names(Dermo_Tolerant_counts_apop),]
+all(rownames(ROD_Resistant_counts_apop) == rownames(Dermo_Tolerant_counts_apop)) # TRUE
+all(rownames(ROD_Susceptible_counts_apop) == rownames(Dermo_Tolerant_counts_apop)) # TRUE
+all(rownames(ROD_Susceptible_counts_apop) == rownames(ROD_Resistant_counts_apop)) # TRUE
+
+# Colbind all C. virginica tables
+C_virginica_apop_counts <- cbind(Dermo_Susceptible_counts_apop,Dermo_Tolerant_counts_apop,
+                                 Probiotic_counts_apop,ROD_Resistant_counts_apop,
+                                 ROD_Susceptible_counts_apop)
+
+# Set equal the rownames and colnames of the coldata and count data
+all(rownames(C_vir_coldata ) %in% colnames(C_virginica_apop_counts))  #Should return TRUE
+# returns TRUE
+all(colnames(C_virginica_apop_counts) %in% rownames(C_vir_coldata  ))  
+# returns TRUE
+all(rownames(C_vir_coldata ) == colnames(C_virginica_apop_counts)) # FALSE
+
+# Fix the order
+C_virginica_apop_counts <- C_virginica_apop_counts[,row.names(C_vir_coldata)]
+
+all(rownames(C_vir_coldata ) %in% colnames(C_virginica_apop_counts))  #Should return TRUE
+# returns TRUE
+all(colnames(C_virginica_apop_counts) %in% rownames(C_vir_coldata  ))  
+# returns TRUE
+all(rownames(C_vir_coldata ) == colnames(C_virginica_apop_counts))  # TRUE
+
+# Make DEseq data set from matrix so that the coldata gets attached
+C_virginica_apop_counts_dds <- DESeqDataSetFromMatrix(countData = C_virginica_apop_counts,
+                                                      colData= C_vir_coldata,
+                                                      design = ~Condition)
+# Collapse technical replicates 
+C_virginica_apop_counts_dds <- collapseReplicates(C_virginica_apop_counts_dds, C_virginica_apop_counts_dds$Sample, C_virginica_apop_counts_dds$TechRep)
+
+# Calculate the vst
+C_virginica_apop_counts_vst <- varianceStabilizingTransformation(C_virginica_apop_counts_dds)
+
+## Combine C_gig data frame
+# Check row order before combining
+all(rownames(Zhang_counts_apop) == rownames(Rubio_counts_apop)) # FALSE
+all(rownames(Zhang_counts_apop) %in% rownames(Rubio_counts_apop)) # TRUE
+Zhang_counts_apop <- Zhang_counts_apop[row.names(Rubio_counts_apop),]
+all(rownames(Zhang_counts_apop) == rownames(Rubio_counts_apop)) # TRUE
+
+deLorgeril_Susceptible_counts_apop <- deLorgeril_Susceptible_counts_apop[row.names(Rubio_counts_apop),]
+deLorgeril_Resistant_counts_apop <- deLorgeril_Resistant_counts_apop[row.names(Rubio_counts_apop),]
+He_counts_apop <- He_counts_apop[row.names(Rubio_counts_apop),]
+all(rownames(deLorgeril_Susceptible_counts_apop) == rownames(Zhang_counts_apop)) # TRUE
+all(rownames(deLorgeril_Resistant_counts_apop) == rownames(Zhang_counts_apop)) # TRUE
+all(rownames(He_counts_apop) == rownames(Zhang_counts_apop)) # TRUE
+
+C_gigas_apop_counts <- cbind(Zhang_counts_apop,Rubio_counts_apop,deLorgeril_Susceptible_counts_apop,
+                             deLorgeril_Resistant_counts_apop,He_counts_apop)
+# Set equal the rownames and colnames of the coldata and count data
+all(rownames(C_gig_coldata ) %in% colnames(C_gigas_apop_counts))  #Should return TRUE
+# returns TRUE
+all(colnames(C_gigas_apop_counts) %in% rownames(C_gig_coldata  ))  
+# returns TRUE
+all(rownames(C_gig_coldata ) == colnames(C_gigas_apop_counts)) # FALSE
+
+# Fix the order
+C_gigas_apop_counts <- C_gigas_apop_counts[,row.names(C_gig_coldata)]
+
+all(rownames(C_gig_coldata ) %in% colnames(C_gigas_apop_counts))  #Should return TRUE
+# returns TRUE
+all(colnames(C_gigas_apop_counts) %in% rownames(C_gig_coldata  ))  
+# returns TRUE
+all(rownames(C_gig_coldata ) == colnames(C_gigas_apop_counts))  # TRUE
+
+# Make DEseq data set from matrix so that the coldata gets attached
+C_gigas_apop_dds <- DESeqDataSetFromMatrix(countData = C_gigas_apop_counts ,
+                                           colData = C_gig_coldata,
+                                           design = ~Condition)
+# Calculate the vst
+C_gigas_apop_counts_vst <- varianceStabilizingTransformation(C_gigas_apop_dds)
+
+## Remove Batch effects from experiment for C_vir
+plotPCA(C_virginica_apop_counts_vst, "Experiment") # grouping by experiment
+mat_C_vir <- assay(C_virginica_apop_counts_vst)
+mat_C_vir <- limma::removeBatchEffect(mat_C_vir, C_virginica_apop_counts_vst$Experiment)
+assay(C_virginica_apop_counts_vst) <- mat_C_vir
+plotPCA(C_virginica_apop_counts_vst, "Experiment") # Probiotic and ROD now cluster together
+plotPCA(C_virginica_apop_counts_vst, "Sample")
+plotPCA(C_virginica_apop_counts_vst, "Time") # no clustering by time
+plotPCA(C_virginica_apop_counts_vst, "Family")
+
+## Remove Batch effects from experiment for C_vir
+plotPCA(C_gigas_apop_counts_vst, "Experiment") # grouping by experiment, but He and Zhang also cluster
+mat_C_gig <- assay(C_gigas_apop_counts_vst)
+mat_C_gig <- limma::removeBatchEffect(mat_C_gig, C_gigas_apop_counts_vst$Experiment)
+assay(C_gigas_apop_counts_vst) <- mat_C_gig
+plotPCA(C_gigas_apop_counts_vst, "Experiment") # He and deLorgeril cluster some, Rubio and Zhang definitely cluster
+plotPCA(C_gigas_apop_counts_vst, "Sample")
+plotPCA(C_gigas_apop_counts_vst, "Time") # no clustering by time
+plotPCA(C_gigas_apop_counts_vst, "Family")
+
+### Heatmaps of apoptosis gene vsts ###
+
+# heatmap of all apoptosis genes 
+C_virginica_apop_counts_assay <-  assay(C_virginica_apop_counts_vst)[,]
+C_virginica_apop_counts_assay_mat <- C_virginica_apop_counts_assay - rowMeans(C_virginica_apop_counts_assay)
+C_virginica_apop_counts_assay_anno <- as.data.frame(colData(C_virginica_apop_counts_vst)[, c("Condition","Time","Experiment")])
+C_virginica_apop_counts_assay_heatmap <- pheatmap(C_virginica_apop_counts_assay_mat  , annotation_col = C_virginica_apop_counts_assay_anno)
+
+C_gigas_apop_counts_assay <-  assay(C_gigas_apop_counts_vst)[,]
+C_gigas_apop_counts_assay_mat <- C_gigas_apop_counts_assay - rowMeans(C_gigas_apop_counts_assay)
+C_gigas_apop_counts_assay_anno <- as.data.frame(colData(C_gigas_apop_counts_vst)[, c("Condition","Experiment")])
+C_gigas_apop_counts_assay_heatmap <- pheatmap(C_gigas_apop_counts_assay_mat  , annotation_col = C_gigas_apop_counts_assay_anno)
+# clustering of delorgeril and HE
+
+# heatmap of most variable apoptosis genes for C_vir (this selects genes with the greatest variance in the sample)
+topVarGenes_C_virginica_apop_assay <-  head(order(rowVars(assay(C_virginica_apop_counts_vst)), decreasing = TRUE), 100) 
+top_Var_C_virginica_apop_assay_mat<- assay(C_virginica_apop_counts_vst)[topVarGenes_C_virginica_apop_assay,]
+top_Var_C_virginica_apop_assay_mat <- top_Var_C_virginica_apop_assay_mat - rowMeans(top_Var_C_virginica_apop_assay_mat)
+top_Var_C_virginica_apop_assay_anno <- as.data.frame(colData(C_virginica_apop_counts_vst)[, c("Experiment","Condition")])
+top_Var_C_virginica_apop_assay_heatmap <- pheatmap(top_Var_C_virginica_apop_assay_mat  , annotation_col = top_Var_C_virginica_apop_assay_anno)
+head(top_Var_C_virginica_apop_assay_mat ) # some ROD and probiotic clustering..dermo samples mostly cluster together
+
+topVarGenes_C_gigas_apop_assay <-  head(order(rowVars(assay(C_gigas_apop_counts_vst)), decreasing = TRUE), 100) 
+top_Var_C_gigas_apop_assay_mat<- assay(C_gigas_apop_counts_vst)[topVarGenes_C_gigas_apop_assay,]
+top_Var_C_gigas_apop_assay_mat <- top_Var_C_gigas_apop_assay_mat - rowMeans(top_Var_C_gigas_apop_assay_mat)
+top_Var_C_gigas_apop_assay_anno <- as.data.frame(colData(C_gigas_apop_counts_vst)[, c("Family", "Experiment")])
+top_Var_C_gigas_apop_assay_heatmap <- pheatmap(top_Var_C_gigas_apop_assay_mat  , annotation_col = top_Var_C_gigas_apop_assay_anno)
+head(top_Var_C_gigas_apop_assay_mat ) # OsHV1 susceptible clusters well with HE susceptible
 
 
 ##### DIFFERENTIAL EXPRESSION OF GENE COUNT MATRICES FOR EACH EXPERIMENT ######
@@ -288,12 +654,18 @@ Zhang_gene_dds_deseq_res_LPS <- results(Zhang_gene_dds_deseq, alpha=0.1, name= "
 ### Perform LFC Shrinkage with apeglm
 Zhang_gene_dds_deseq_res_V_alg1_LFC <- lfcShrink(Zhang_gene_dds_deseq, coef="group_by_sim_V_aes_V_alg1_V_alg2_vs_control" , type= "apeglm", res=Zhang_gene_dds_deseq_res_V_alg1)
 summary(Zhang_gene_dds_deseq_res_V_alg1_LFC) # 1 significant gene
+merge(Zhang_gene_dds_deseq_res_V_alg1_LFC, C_gig_rtracklayer_apop_product_final, by = "transcript_id")
+
+Zhang_gene_dds_deseq_res_V_alg1_LFC$transcript_id <- row.names(Zhang_gene_dds_deseq_res_V_alg1_LFC)
+Zhang_gene_dds_deseq_res_V_alg1_LFC <- as.data.frame(Zhang_gene_dds_deseq_res_V_alg1_LFC)
+merge(Zhang_gene_dds_deseq_res_V_alg1_LFC, C_gig_rtracklayer_apop_product_final, by = "transcript_id") # 0
 
 Zhang_gene_dds_deseq_res_V_tub_LFC <- lfcShrink(Zhang_gene_dds_deseq, coef="group_by_sim_V_tub_V_ang_vs_control" , type= "apeglm", res=Zhang_gene_dds_deseq_res_V_tub)
 summary(Zhang_gene_dds_deseq_res_V_tub_LFC) # 0
 
 Zhang_gene_dds_deseq_res_LFC_LPS <- lfcShrink(Zhang_gene_dds_deseq, coef="group_by_sim_LPS_M_lut_vs_control", type= "apeglm", res=Zhang_gene_dds_deseq_res_LPS)
 summary(Zhang_gene_dds_deseq_res_LFC_LPS) # 0
+
 
 #### RUBIO ####
 Rubio_gene_counts
@@ -702,17 +1074,19 @@ deLorgeril_Susceptible_gene_dds_deseq <- DESeq(deLorgeril_Susceptible_gene_dds)
 resultsNames(deLorgeril_Resistant_gene_dds_deseq ) #"Intercept""Time_6h_vs_0h"  "Time_12h_vs_0h" "Time_24h_vs_0h" "Time_48h_vs_0h" "Time_60h_vs_0h" "Time_72h_vs_0h"
 resultsNames(deLorgeril_Susceptible_gene_dds_deseq ) #"Intercept"      "Time_6h_vs_0h"  "Time_12h_vs_0h" "Time_24h_vs_0h" "Time_48h_vs_0h" "Time_60h_vs_0h" "Time_72h_vs_0h"
 
-## BUILD THE RESULTS OBJECT
+deLorgeril_Resistant_gene_dds_res_6 <-  results(deLorgeril_Resistant_gene_dds_deseq , alpha=0.05, name= "Time_6h_vs_0h" )
 deLorgeril_Resistant_gene_dds_res_12 <- results(deLorgeril_Resistant_gene_dds_deseq , alpha=0.05, name= "Time_12h_vs_0h" )
 deLorgeril_Resistant_gene_dds_res_24 <- results(deLorgeril_Resistant_gene_dds_deseq , alpha=0.05, name= "Time_24h_vs_0h" )
 deLorgeril_Resistant_gene_dds_res_48 <- results(deLorgeril_Resistant_gene_dds_deseq , alpha=0.05, name= "Time_48h_vs_0h" )
 deLorgeril_Resistant_gene_dds_res_60 <- results(deLorgeril_Resistant_gene_dds_deseq , alpha=0.05, name= "Time_60h_vs_0h" )
 deLorgeril_Resistant_gene_dds_res_72 <- results(deLorgeril_Resistant_gene_dds_deseq , alpha=0.05, name= "Time_72h_vs_0h" )
 
-mcols(deLorgeril_Susceptible_dds_deseq)
-deLorgeril_Susceptible_dds_res_48 <- results(deLorgeril_Susceptible_dds_deseq , alpha=0.05, name= "Time_48h_vs_0h" )
-deLorgeril_Susceptible_dds_res_60 <- results(deLorgeril_Susceptible_dds_deseq , alpha=0.05, name= "Time_60h_vs_0h" )
-deLorgeril_Susceptible_dds_res_72 <- results(deLorgeril_Susceptible_dds_deseq , alpha=0.05, name= "Time_72h_vs_0h" )
+deLorgeril_Susceptible_gene_dds_res_6 <-  results(deLorgeril_Susceptible_gene_dds_deseq , alpha=0.05, name= "Time_6h_vs_0h" )
+deLorgeril_Susceptible_gene_dds_res_12 <- results(deLorgeril_Susceptible_gene_dds_deseq , alpha=0.05, name= "Time_12h_vs_0h" )
+deLorgeril_Susceptible_gene_dds_res_24 <- results(deLorgeril_Susceptible_gene_dds_deseq , alpha=0.05, name= "Time_24h_vs_0h" )
+deLorgeril_Susceptible_gene_dds_res_48 <- results(deLorgeril_Susceptible_gene_dds_deseq , alpha=0.05, name= "Time_48h_vs_0h" )
+deLorgeril_Susceptible_gene_dds_res_60 <- results(deLorgeril_Susceptible_gene_dds_deseq , alpha=0.05, name= "Time_60h_vs_0h" )
+deLorgeril_Susceptible_gene_dds_res_72 <- results(deLorgeril_Susceptible_gene_dds_deseq , alpha=0.05, name= "Time_72h_vs_0h" )
 
 ### Perform LFC Shrinkage with apeglm
 ## NOTES 
@@ -721,659 +1095,801 @@ deLorgeril_Susceptible_dds_res_72 <- results(deLorgeril_Susceptible_dds_deseq , 
 # More detailed notes about LFC Shrinkage are in the code for the Zhang Vibrio
 
 ## DECISION: USE SAME RES OBJECT TO KEEP ALPHA ADJUSTMENT, and use LFCShrink apeglm
-deLorgeril_Resistant_dds_res_48_LFC <- lfcShrink(deLorgeril_Resistant_dds_deseq , coef="Time_48h_vs_0h", type="apeglm",res=deLorgeril_Resistant_dds_res_48)
-deLorgeril_Resistant_dds_res_60_LFC <- lfcShrink(deLorgeril_Resistant_dds_deseq , coef="Time_60h_vs_0h", type="apeglm",res=deLorgeril_Resistant_dds_res_60)
-deLorgeril_Resistant_dds_res_72_LFC <- lfcShrink(deLorgeril_Resistant_dds_deseq , coef="Time_72h_vs_0h", type="apeglm",res=deLorgeril_Resistant_dds_res_72)
-deLorgeril_Susceptible_dds_res_48_LFC <- lfcShrink(deLorgeril_Susceptible_dds_deseq , coef= "Time_48h_vs_0h", type="apeglm", res=deLorgeril_Susceptible_dds_res_48)
-deLorgeril_Susceptible_dds_res_60_LFC <- lfcShrink(deLorgeril_Susceptible_dds_deseq , coef= "Time_60h_vs_0h", type="apeglm", res=deLorgeril_Susceptible_dds_res_60)
-deLorgeril_Susceptible_dds_res_72_LFC <- lfcShrink(deLorgeril_Susceptible_dds_deseq , coef= "Time_72h_vs_0h", type="apeglm", res=deLorgeril_Susceptible_dds_res_72)
+deLorgeril_Resistant_gene_dds_res_6_LFC <-  lfcShrink(deLorgeril_Resistant_gene_dds_deseq , coef="Time_6h_vs_0h", type="apeglm", res=deLorgeril_Resistant_gene_dds_res_6)
+deLorgeril_Resistant_gene_dds_res_12_LFC <- lfcShrink(deLorgeril_Resistant_gene_dds_deseq , coef="Time_12h_vs_0h", type="apeglm",res=deLorgeril_Resistant_gene_dds_res_12)
+deLorgeril_Resistant_gene_dds_res_24_LFC <- lfcShrink(deLorgeril_Resistant_gene_dds_deseq , coef="Time_24h_vs_0h", type="apeglm",res=deLorgeril_Resistant_gene_dds_res_24)
+deLorgeril_Resistant_gene_dds_res_48_LFC <- lfcShrink(deLorgeril_Resistant_gene_dds_deseq , coef="Time_48h_vs_0h", type="apeglm",res=deLorgeril_Resistant_gene_dds_res_48)
+deLorgeril_Resistant_gene_dds_res_60_LFC <- lfcShrink(deLorgeril_Resistant_gene_dds_deseq , coef="Time_60h_vs_0h", type="apeglm",res=deLorgeril_Resistant_gene_dds_res_60)
+deLorgeril_Resistant_gene_dds_res_72_LFC <- lfcShrink(deLorgeril_Resistant_gene_dds_deseq , coef="Time_72h_vs_0h", type="apeglm",res=deLorgeril_Resistant_gene_dds_res_72)
+
+deLorgeril_Susceptible_gene_dds_res_6_LFC <-  lfcShrink(deLorgeril_Susceptible_gene_dds_deseq , coef= "Time_6h_vs_0h", type="apeglm",  res=deLorgeril_Susceptible_gene_dds_res_6)
+deLorgeril_Susceptible_gene_dds_res_12_LFC <- lfcShrink(deLorgeril_Susceptible_gene_dds_deseq , coef= "Time_12h_vs_0h", type="apeglm", res=deLorgeril_Susceptible_gene_dds_res_12)
+deLorgeril_Susceptible_gene_dds_res_24_LFC <- lfcShrink(deLorgeril_Susceptible_gene_dds_deseq , coef= "Time_24h_vs_0h", type="apeglm", res=deLorgeril_Susceptible_gene_dds_res_24)
+deLorgeril_Susceptible_gene_dds_res_48_LFC <- lfcShrink(deLorgeril_Susceptible_gene_dds_deseq , coef= "Time_48h_vs_0h", type="apeglm", res=deLorgeril_Susceptible_gene_dds_res_48)
+deLorgeril_Susceptible_gene_dds_res_60_LFC <- lfcShrink(deLorgeril_Susceptible_gene_dds_deseq , coef= "Time_60h_vs_0h", type="apeglm", res=deLorgeril_Susceptible_gene_dds_res_60)
+deLorgeril_Susceptible_gene_dds_res_72_LFC <- lfcShrink(deLorgeril_Susceptible_gene_dds_deseq , coef= "Time_72h_vs_0h", type="apeglm", res=deLorgeril_Susceptible_gene_dds_res_72)
 
 ## EXPLORATORY PLOTTING OF RESULTS 
-## MA Plotting
-plotMA(deLorgeril_Resistant_dds_res_48_LFC , ylim = c(-5, 5))
-plotMA(deLorgeril_Resistant_dds_res_60_LFC , ylim = c(-5, 5)) # 60hr has more significant genes
-plotMA(deLorgeril_Resistant_dds_res_72_LFC , ylim = c(-5, 5)) # 72 hrs has less
-plotMA(deLorgeril_Susceptible_dds_res_48_LFC, ylim = c(-5, 5))
-plotMA(deLorgeril_Susceptible_dds_res_60_LFC, ylim = c(-5, 5)) # 60hr has many more significant genes
-plotMA(deLorgeril_Susceptible_dds_res_72_LFC, ylim = c(-5, 5)) # 72hr has less
-
 ## Histogram of P values 
-# exclude genes with very small counts to avoid spikes and plot using the LFCshrinkage
-hist(deLorgeril_Resistant_dds_res_48_LFC $padj[deLorgeril_Resistant_dds_res_48_LFC$baseMean > 1], breaks = 0:20/20, col = "grey50", border = "white")
-hist(deLorgeril_Resistant_dds_res_60_LFC $padj[deLorgeril_Resistant_dds_res_60_LFC$baseMean > 1], breaks = 0:20/20, col = "grey50", border = "white")
-hist(deLorgeril_Resistant_dds_res_72_LFC $padj[deLorgeril_Resistant_dds_res_72_LFC$baseMean > 1], breaks = 0:20/20, col = "grey50", border = "white")
-hist(deLorgeril_Susceptible_dds_res_48_LFC$padj[deLorgeril_Susceptible_dds_res_48_LFC$baseMean > 1], breaks = 0:20/20, col = "grey50", border = "white")
-hist(deLorgeril_Susceptible_dds_res_60_LFC$padj[deLorgeril_Susceptible_dds_res_60_LFC$baseMean > 1], breaks = 0:20/20, col = "grey50", border = "white")
-hist(deLorgeril_Susceptible_dds_res_72_LFC$padj[deLorgeril_Susceptible_dds_res_72_LFC$baseMean > 1], breaks = 0:20/20, col = "grey50", border = "white")
+hist(deLorgeril_Resistant_gene_dds_res_6_LFC  $padj[deLorgeril_Resistant_gene_dds_res_6_LFC$baseMean > 1], breaks = 0:20/20, col = "grey50", border = "white")
+hist(deLorgeril_Resistant_gene_dds_res_12_LFC $padj[deLorgeril_Resistant_gene_dds_res_12_LFC$baseMean > 1], breaks = 0:20/20, col = "grey50", border = "white")
+hist(deLorgeril_Resistant_gene_dds_res_24_LFC $padj[deLorgeril_Resistant_gene_dds_res_24_LFC$baseMean > 1], breaks = 0:20/20, col = "grey50", border = "white")
+hist(deLorgeril_Resistant_gene_dds_res_48_LFC $padj[deLorgeril_Resistant_gene_dds_res_48_LFC$baseMean > 1], breaks = 0:20/20, col = "grey50", border = "white")
+hist(deLorgeril_Resistant_gene_dds_res_60_LFC $padj[deLorgeril_Resistant_gene_dds_res_60_LFC$baseMean > 1], breaks = 0:20/20, col = "grey50", border = "white")
+hist(deLorgeril_Resistant_gene_dds_res_72_LFC $padj[deLorgeril_Resistant_gene_dds_res_72_LFC$baseMean > 1], breaks = 0:20/20, col = "grey50", border = "white")
+
+hist(deLorgeril_Susceptible_gene_dds_res_6_LFC$padj[deLorgeril_Susceptible_gene_dds_res_6_LFC$baseMean > 1], breaks = 0:20/20, col = "grey50", border = "white")
+hist(deLorgeril_Susceptible_gene_dds_res_12_LFC$padj[deLorgeril_Susceptible_gene_dds_res_12_LFC$baseMean > 1], breaks = 0:20/20, col = "grey50", border = "white")
+hist(deLorgeril_Susceptible_gene_dds_res_24_LFC$padj[deLorgeril_Susceptible_gene_dds_res_24_LFC$baseMean > 1], breaks = 0:20/20, col = "grey50", border = "white")
+hist(deLorgeril_Susceptible_gene_dds_res_48_LFC$padj[deLorgeril_Susceptible_gene_dds_res_48_LFC$baseMean > 1], breaks = 0:20/20, col = "grey50", border = "white")
+hist(deLorgeril_Susceptible_gene_dds_res_60_LFC$padj[deLorgeril_Susceptible_gene_dds_res_60_LFC$baseMean > 1], breaks = 0:20/20, col = "grey50", border = "white")
+hist(deLorgeril_Susceptible_gene_dds_res_72_LFC$padj[deLorgeril_Susceptible_gene_dds_res_72_LFC$baseMean > 1], breaks = 0:20/20, col = "grey50", border = "white")
 
 ### Subsetting Significant Genes by padj < 0.05
 # again, only working with the LFCshrinkage adjusted log fold changes, and with the BH adjusted p-value
 # first make sure to make the rownames with the transcript ID as a new column, then make it a dataframe for filtering
-deLorgeril_Resistant_dds_res_48_LFC_sig <- subset(  deLorgeril_Resistant_dds_res_48_LFC, padj < 0.05)
-deLorgeril_Resistant_dds_res_60_LFC_sig <- subset(  deLorgeril_Resistant_dds_res_60_LFC, padj < 0.05)
-deLorgeril_Resistant_dds_res_72_LFC_sig <- subset(  deLorgeril_Resistant_dds_res_72_LFC, padj < 0.05)
-deLorgeril_Susceptible_dds_res_48_LFC_sig <- subset(deLorgeril_Susceptible_dds_res_48_LFC, padj < 0.05)
-deLorgeril_Susceptible_dds_res_60_LFC_sig <- subset(deLorgeril_Susceptible_dds_res_60_LFC, padj < 0.05)
-deLorgeril_Susceptible_dds_res_72_LFC_sig <- subset(deLorgeril_Susceptible_dds_res_72_LFC, padj < 0.05)
+deLorgeril_Resistant_gene_dds_res_6_LFC_sig <- subset(   deLorgeril_Resistant_gene_dds_res_6_LFC, padj < 0.05)
+deLorgeril_Resistant_gene_dds_res_12_LFC_sig <- subset(  deLorgeril_Resistant_gene_dds_res_12_LFC, padj < 0.05)
+deLorgeril_Resistant_gene_dds_res_24_LFC_sig <- subset(  deLorgeril_Resistant_gene_dds_res_24_LFC, padj < 0.05)
+deLorgeril_Resistant_gene_dds_res_48_LFC_sig <- subset(  deLorgeril_Resistant_gene_dds_res_48_LFC, padj < 0.05)
+deLorgeril_Resistant_gene_dds_res_60_LFC_sig <- subset(  deLorgeril_Resistant_gene_dds_res_60_LFC, padj < 0.05)
+deLorgeril_Resistant_gene_dds_res_72_LFC_sig <- subset(  deLorgeril_Resistant_gene_dds_res_72_LFC, padj < 0.05)
 
-deLorgeril_Resistant_dds_res_48_LFC_sig$transcript_id <- row.names(  deLorgeril_Resistant_dds_res_48_LFC_sig) 
-deLorgeril_Resistant_dds_res_60_LFC_sig$transcript_id <- row.names(  deLorgeril_Resistant_dds_res_60_LFC_sig) 
-deLorgeril_Resistant_dds_res_72_LFC_sig$transcript_id <- row.names(  deLorgeril_Resistant_dds_res_72_LFC_sig) 
-deLorgeril_Susceptible_dds_res_48_LFC_sig$transcript_id <- row.names(deLorgeril_Susceptible_dds_res_48_LFC_sig) 
-deLorgeril_Susceptible_dds_res_60_LFC_sig$transcript_id <- row.names(deLorgeril_Susceptible_dds_res_60_LFC_sig) 
-deLorgeril_Susceptible_dds_res_72_LFC_sig$transcript_id <- row.names(deLorgeril_Susceptible_dds_res_72_LFC_sig) 
+deLorgeril_Susceptible_gene_dds_res_6_LFC_sig <-  subset(deLorgeril_Susceptible_gene_dds_res_6_LFC, padj < 0.05)
+deLorgeril_Susceptible_gene_dds_res_12_LFC_sig <- subset(deLorgeril_Susceptible_gene_dds_res_12_LFC, padj < 0.05)
+deLorgeril_Susceptible_gene_dds_res_24_LFC_sig <- subset(deLorgeril_Susceptible_gene_dds_res_24_LFC, padj < 0.05)
+deLorgeril_Susceptible_gene_dds_res_48_LFC_sig <- subset(deLorgeril_Susceptible_gene_dds_res_48_LFC, padj < 0.05)
+deLorgeril_Susceptible_gene_dds_res_60_LFC_sig <- subset(deLorgeril_Susceptible_gene_dds_res_60_LFC, padj < 0.05)
+deLorgeril_Susceptible_gene_dds_res_72_LFC_sig <- subset(deLorgeril_Susceptible_gene_dds_res_72_LFC, padj < 0.05)
 
-deLorgeril_Resistant_dds_res_48_LFC_sig   <-as.data.frame(deLorgeril_Resistant_dds_res_48_LFC_sig)
-deLorgeril_Resistant_dds_res_60_LFC_sig   <-as.data.frame(deLorgeril_Resistant_dds_res_60_LFC_sig)
-deLorgeril_Resistant_dds_res_72_LFC_sig   <-as.data.frame(deLorgeril_Resistant_dds_res_72_LFC_sig)
-deLorgeril_Susceptible_dds_res_48_LFC_sig<-as.data.frame(deLorgeril_Susceptible_dds_res_48_LFC_sig)
-deLorgeril_Susceptible_dds_res_60_LFC_sig<-as.data.frame(deLorgeril_Susceptible_dds_res_60_LFC_sig)
-deLorgeril_Susceptible_dds_res_72_LFC_sig<-as.data.frame(deLorgeril_Susceptible_dds_res_72_LFC_sig)
+deLorgeril_Resistant_gene_dds_res_6_LFC_sig$transcript_id <- row.names(   deLorgeril_Resistant_gene_dds_res_6_LFC_sig) 
+deLorgeril_Resistant_gene_dds_res_12_LFC_sig$transcript_id <- row.names(  deLorgeril_Resistant_gene_dds_res_12_LFC_sig) 
+deLorgeril_Resistant_gene_dds_res_24_LFC_sig$transcript_id <- row.names(  deLorgeril_Resistant_gene_dds_res_24_LFC_sig) 
+deLorgeril_Resistant_gene_dds_res_48_LFC_sig$transcript_id <- row.names(  deLorgeril_Resistant_gene_dds_res_48_LFC_sig) 
+deLorgeril_Resistant_gene_dds_res_60_LFC_sig$transcript_id <- row.names(  deLorgeril_Resistant_gene_dds_res_60_LFC_sig) 
+deLorgeril_Resistant_gene_dds_res_72_LFC_sig$transcript_id <- row.names(  deLorgeril_Resistant_gene_dds_res_72_LFC_sig) 
 
-nrow(deLorgeril_Resistant_dds_res_48_LFC_sig) #1593
-nrow(deLorgeril_Resistant_dds_res_60_LFC_sig) # 3403
-nrow(deLorgeril_Resistant_dds_res_72_LFC_sig) # 2309
-nrow(deLorgeril_Susceptible_dds_res_48_LFC_sig) # 1778
-nrow(deLorgeril_Susceptible_dds_res_60_LFC_sig) # 10425
-nrow(deLorgeril_Susceptible_dds_res_72_LFC_sig) # 2991
+deLorgeril_Susceptible_gene_dds_res_6_LFC_sig$transcript_id <-  row.names(deLorgeril_Susceptible_gene_dds_res_6_LFC_sig) 
+deLorgeril_Susceptible_gene_dds_res_12_LFC_sig$transcript_id <- row.names(deLorgeril_Susceptible_gene_dds_res_12_LFC_sig) 
+deLorgeril_Susceptible_gene_dds_res_24_LFC_sig$transcript_id <- row.names(deLorgeril_Susceptible_gene_dds_res_24_LFC_sig) 
+deLorgeril_Susceptible_gene_dds_res_48_LFC_sig$transcript_id <- row.names(deLorgeril_Susceptible_gene_dds_res_48_LFC_sig) 
+deLorgeril_Susceptible_gene_dds_res_60_LFC_sig$transcript_id <- row.names(deLorgeril_Susceptible_gene_dds_res_60_LFC_sig) 
+deLorgeril_Susceptible_gene_dds_res_72_LFC_sig$transcript_id <- row.names(deLorgeril_Susceptible_gene_dds_res_72_LFC_sig) 
 
-### GENE CLUSTERING ANALYSIS HEATMAPS  
-# Extract genes with the highest variance across samples for each comparison using either vst or rlog transformed data
-# This heatmap rather than plotting absolute expression strength plot the amount by which each gene deviates in a specific sample from the gene’s average across all samples. 
-# example codes from RNAseq workflow: https://www.bioconductor.org/packages/devel/workflows/vignettes/rnaseqGene/inst/doc/rnaseqGene.html#other-comparisons
-deLorgeril_Resistant_dds_vst_assay  <-  head(order(rowVars(assay(deLorgeril_Resistant_dds_vst  )), decreasing = TRUE), 200)
-deLorgeril_res_mat <- assay(deLorgeril_Resistant_dds_vst )[deLorgeril_Resistant_dds_vst_assay ,]
-deLorgeril_res_mat <- deLorgeril_res_mat - rowMeans(deLorgeril_res_mat)
-deLorgeril_res_anno <- as.data.frame(colData(deLorgeril_Resistant_dds_vst )[, c("Condition","Time")])
-deLorgeril_res_heatmap <- pheatmap(deLorgeril_res_mat, annotation_col = deLorgeril_res_anno)
-head(deLorgeril_res_mat) # largely clustering by time
+deLorgeril_Resistant_gene_dds_res_6_LFC_sig   <- as.data.frame(deLorgeril_Resistant_gene_dds_res_6_LFC_sig)
+deLorgeril_Resistant_gene_dds_res_12_LFC_sig   <-as.data.frame(deLorgeril_Resistant_gene_dds_res_12_LFC_sig)
+deLorgeril_Resistant_gene_dds_res_24_LFC_sig   <-as.data.frame(deLorgeril_Resistant_gene_dds_res_24_LFC_sig)
+deLorgeril_Resistant_gene_dds_res_48_LFC_sig   <-as.data.frame(deLorgeril_Resistant_gene_dds_res_48_LFC_sig)
+deLorgeril_Resistant_gene_dds_res_60_LFC_sig   <-as.data.frame(deLorgeril_Resistant_gene_dds_res_60_LFC_sig)
+deLorgeril_Resistant_gene_dds_res_72_LFC_sig   <-as.data.frame(deLorgeril_Resistant_gene_dds_res_72_LFC_sig)
 
-deLorgeril_Susceptible_dds_vst_assay  <-  head(order(rowVars(assay(deLorgeril_Susceptible_dds_vst  )), decreasing = TRUE), 200)
-deLorgeril_mat <- assay(deLorgeril_Susceptible_dds_vst )[deLorgeril_Resistant_dds_vst_assay ,]
-deLorgeril_mat <- deLorgeril_mat - rowMeans(deLorgeril_mat)
-deLorgeril_anno <- as.data.frame(colData(deLorgeril_Susceptible_dds_vst )[, c("Condition","Time")])
-deLorgeril_heatmap <- pheatmap(deLorgeril_mat, annotation_col = deLorgeril_anno)
-head(deLorgeril_mat)  # largely clustering by time
+deLorgeril_Susceptible_gene_dds_res_6_LFC_sig<- as.data.frame(deLorgeril_Susceptible_gene_dds_res_6_LFC_sig)
+deLorgeril_Susceptible_gene_dds_res_12_LFC_sig<-as.data.frame(deLorgeril_Susceptible_gene_dds_res_12_LFC_sig)
+deLorgeril_Susceptible_gene_dds_res_24_LFC_sig<-as.data.frame(deLorgeril_Susceptible_gene_dds_res_24_LFC_sig)
+deLorgeril_Susceptible_gene_dds_res_48_LFC_sig<-as.data.frame(deLorgeril_Susceptible_gene_dds_res_48_LFC_sig)
+deLorgeril_Susceptible_gene_dds_res_60_LFC_sig<-as.data.frame(deLorgeril_Susceptible_gene_dds_res_60_LFC_sig)
+deLorgeril_Susceptible_gene_dds_res_72_LFC_sig<-as.data.frame(deLorgeril_Susceptible_gene_dds_res_72_LFC_sig)
 
-# Gene clustering heatmap with only apoptosis genes #
-# vector C_gig_apop transcript IDs
-C_gig_rtracklayer_apop_product_final_transcript_id 
-# Search original counts table for apoptosis genes and do vst on just these
-deLorgeril_Resistant_counts_apop <- deLorgeril_Resistant_counts[row.names(deLorgeril_Resistant_counts) %in% C_gig_rtracklayer_apop_product_final_transcript_id,]
-deLorgeril_Susceptible_counts_apop <- deLorgeril_Susceptible_counts[row.names(deLorgeril_Susceptible_counts) %in% C_gig_rtracklayer_apop_product_final_transcript_id,]
-nrow(deLorgeril_Resistant_counts_apop ) #659
-nrow(deLorgeril_Susceptible_counts_apop ) #659
-
-deLorgeril_Resistant_counts_apop_dds <- DESeqDataSetFromMatrix(countData = deLorgeril_Resistant_counts_apop,
-                                                               colData = deLorgeril_Resistant_coldata,
-                                                               design = ~ Time) # using same formula as before
-deLorgeril_Susceptible_counts_apop_dds <- DESeqDataSetFromMatrix(countData = deLorgeril_Susceptible_counts_apop,
-                                                                 colData = deLorgeril_Susceptible_coldata,
-                                                                 design = ~ Time) # using same formula as before
-
-# Prefiltering the data and running vst
-deLorgeril_Resistant_counts_apop_dds <- deLorgeril_Resistant_counts_apop_dds[ rowSums(counts(deLorgeril_Resistant_counts_apop_dds)) > 10, ]
-deLorgeril_Susceptible_counts_apop_dds <- deLorgeril_Susceptible_counts_apop_dds[ rowSums(counts(deLorgeril_Susceptible_counts_apop_dds)) > 10, ]
-deLorgeril_Resistant_counts_apop_dds_vst <- varianceStabilizingTransformation(deLorgeril_Resistant_counts_apop_dds, blind=TRUE)
-deLorgeril_Susceptible_counts_apop_dds_vst <- varianceStabilizingTransformation(deLorgeril_Susceptible_counts_apop_dds, blind=TRUE)
-
-## PCA plot of rlog transformed counts for apoptosis
-plotPCA(deLorgeril_Resistant_counts_apop_dds_vst , intgroup="Time") # 0hr are outliers in apoptosis gene expression
-# all timepoints other than time 0 cluster pretty closely together with not much separation
-plotPCA(deLorgeril_Susceptible_counts_apop_dds_vst, intgroup="Time") # greater separation of timepoints
-
-# heatmap of apoptosis genes 
-deLorgeril_Resistant_counts_apop_dds_vst_assay <-  assay(deLorgeril_Resistant_counts_apop_dds_vst)[,]
-deLorgeril_Resistant_apop_assay_mat <- deLorgeril_Resistant_counts_apop_dds_vst_assay  - rowMeans(deLorgeril_Resistant_counts_apop_dds_vst_assay )
-deLorgeril_Resistant_apop_assay_anno <- as.data.frame(colData(deLorgeril_Resistant_counts_apop_dds_vst)[, c("Condition","Time")])
-deLorgeril_Resistant_apop_assay_heatmap <- pheatmap(deLorgeril_Resistant_apop_assay_mat  , annotation_col = deLorgeril_Resistant_apop_assay_anno)
-head(deLorgeril_Resistant_apop_assay_mat ) 
-
-deLorgeril_Susceptible_counts_apop_dds_vst_assay <-  assay(deLorgeril_Susceptible_counts_apop_dds_vst)[,]
-deLorgeril_Susceptible_apop_assay_mat <- deLorgeril_Susceptible_counts_apop_dds_vst_assay  - rowMeans(deLorgeril_Susceptible_counts_apop_dds_vst_assay )
-deLorgeril_Susceptible_apop_assay_anno <- as.data.frame(colData(deLorgeril_Susceptible_counts_apop_dds_vst)[, c("Condition","Time")])
-deLorgeril_Susceptible_apop_assay_heatmap <- pheatmap(deLorgeril_Susceptible_apop_assay_mat  , annotation_col = deLorgeril_Susceptible_apop_assay_anno)
-head(deLorgeril_Susceptible_apop_assay_mat ) 
-
-# heatmap of most variable apoptosis genes (this selects genes with the greatest variance in the sample)
-topVarGenes_Resistant_counts_apop_assay <-  head(order(rowVars(assay(deLorgeril_Resistant_counts_apop_dds_vst )), decreasing = TRUE), 100) 
-top_Var_Resistant_counts_apop_assay_mat<- assay(deLorgeril_Resistant_counts_apop_dds_vst)[topVarGenes_Resistant_counts_apop_assay,]
-top_Var_Resistant_counts_apop_assay_mat <- top_Var_Resistant_counts_apop_assay_mat - rowMeans(top_Var_Resistant_counts_apop_assay_mat)
-top_Var_Resistant_counts_apop_assay_anno <- as.data.frame(colData(deLorgeril_Resistant_counts_apop_dds_vst)[, c("Condition","Time")])
-top_Var_Resistant_counts_apop_assay_heatmap <- pheatmap(top_Var_Resistant_counts_apop_assay_mat  , annotation_col = top_Var_Resistant_counts_apop_assay_anno)
-head(top_Var_Resistant_counts_apop_assay_mat )
-
-topVarGenes_Susceptible_counts_apop_assay <-  head(order(rowVars(assay(deLorgeril_Susceptible_counts_apop_dds_vst )), decreasing = TRUE), 100) 
-top_Var_Susceptible_counts_apop_assay_mat<- assay(deLorgeril_Susceptible_counts_apop_dds_vst)[topVarGenes_Susceptible_counts_apop_assay,]
-top_Var_Susceptible_counts_apop_assay_mat <- top_Var_Susceptible_counts_apop_assay_mat - rowMeans(top_Var_Susceptible_counts_apop_assay_mat)
-top_Var_Susceptible_counts_apop_assay_anno <- as.data.frame(colData(deLorgeril_Susceptible_counts_apop_dds_vst)[, c("Condition","Time")])
-top_Var_Susceptible_counts_apop_assay_heatmap <- pheatmap(top_Var_Susceptible_counts_apop_assay_mat  , annotation_col = top_Var_Susceptible_counts_apop_assay_anno)
-head(top_Var_Susceptible_counts_apop_assay_mat )
-
-# annotate the top 100 most variable genes  
-# reorder annotation table to match ordering in heatmap 
-top_Var_Susceptible_counts_apop_assay_heatmap_reorder <-rownames(top_Var_Susceptible_counts_apop_assay_mat[top_Var_Susceptible_counts_apop_assay_heatmap$tree_row[["order"]],])
-# annotate the row.names
-top_Var_Susceptible_counts_apop_assay_prot <- as.data.frame(top_Var_Susceptible_counts_apop_assay_heatmap_reorder)
-colnames(top_Var_Susceptible_counts_apop_assay_prot)[1] <- "transcript_id"
-top_Var_Susceptible_counts_apop_assay_prot_annot <- left_join(top_Var_Susceptible_counts_apop_assay_prot, select(C_gig_rtracklayer_transcripts, transcript_id, product, gene), by = "transcript_id")
-
-top_Var_Resistant_counts_apop_assay_heatmap_reorder <-rownames(top_Var_Resistant_counts_apop_assay_mat[top_Var_Resistant_counts_apop_assay_heatmap$tree_row[["order"]],])
-# annotate the row.names
-top_Var_Resistant_counts_apop_assay_prot <- as.data.frame(top_Var_Resistant_counts_apop_assay_heatmap_reorder)
-colnames(top_Var_Resistant_counts_apop_assay_prot)[1] <- "transcript_id"
-top_Var_Resistant_counts_apop_assay_prot_annot <- left_join(top_Var_Resistant_counts_apop_assay_prot, select(C_gig_rtracklayer_transcripts, transcript_id, product, gene), by = "transcript_id")
+nrow(deLorgeril_Resistant_gene_dds_res_6_LFC_sig) #973
+nrow(deLorgeril_Resistant_gene_dds_res_12_LFC_sig) #1438
+nrow(deLorgeril_Resistant_gene_dds_res_24_LFC_sig) #2110
+nrow(deLorgeril_Resistant_gene_dds_res_48_LFC_sig) #873
+nrow(deLorgeril_Resistant_gene_dds_res_60_LFC_sig) #1883
+nrow(deLorgeril_Resistant_gene_dds_res_72_LFC_sig) # 1298
+nrow(deLorgeril_Susceptible_gene_dds_res_6_LFC_sig) # 798
+nrow(deLorgeril_Susceptible_gene_dds_res_12_LFC_sig) # 1889
+nrow(deLorgeril_Susceptible_gene_dds_res_24_LFC_sig) # 4650
+nrow(deLorgeril_Susceptible_gene_dds_res_48_LFC_sig) # 964
+nrow(deLorgeril_Susceptible_gene_dds_res_60_LFC_sig) # 5818
+nrow(deLorgeril_Susceptible_gene_dds_res_72_LFC_sig) # 1684
 
 ### Extract list of significant Apoptosis Genes (not less than or greater than 1 LFC) using merge
-deLorgeril_Resistant_dds_res_48_LFC_sig_APOP <- merge(deLorgeril_Resistant_dds_res_48_LFC_sig, C_gig_rtracklayer_apop_product_final, by = "transcript_id" )
-deLorgeril_Resistant_dds_res_60_LFC_sig_APOP <- merge(deLorgeril_Resistant_dds_res_60_LFC_sig, C_gig_rtracklayer_apop_product_final, by = "transcript_id" )
-deLorgeril_Resistant_dds_res_72_LFC_sig_APOP <- merge(deLorgeril_Resistant_dds_res_72_LFC_sig, C_gig_rtracklayer_apop_product_final, by = "transcript_id" )
-deLorgeril_Susceptible_dds_res_48_LFC_sig_APOP <- merge(deLorgeril_Susceptible_dds_res_48_LFC_sig, C_gig_rtracklayer_apop_product_final, by = "transcript_id")
-deLorgeril_Susceptible_dds_res_60_LFC_sig_APOP <- merge(deLorgeril_Susceptible_dds_res_60_LFC_sig, C_gig_rtracklayer_apop_product_final, by = "transcript_id")
-deLorgeril_Susceptible_dds_res_72_LFC_sig_APOP <- merge(deLorgeril_Susceptible_dds_res_72_LFC_sig, C_gig_rtracklayer_apop_product_final, by = "transcript_id")
+deLorgeril_Resistant_gene_dds_res_6_LFC_sig_APOP <-  merge(deLorgeril_Resistant_gene_dds_res_6_LFC_sig, C_gig_rtracklayer_apop_product_final, by = "transcript_id" )
+deLorgeril_Resistant_gene_dds_res_12_LFC_sig_APOP <- merge(deLorgeril_Resistant_gene_dds_res_12_LFC_sig, C_gig_rtracklayer_apop_product_final, by = "transcript_id" )
+deLorgeril_Resistant_gene_dds_res_24_LFC_sig_APOP <- merge(deLorgeril_Resistant_gene_dds_res_24_LFC_sig, C_gig_rtracklayer_apop_product_final, by = "transcript_id" )
+deLorgeril_Resistant_gene_dds_res_48_LFC_sig_APOP <- merge(deLorgeril_Resistant_gene_dds_res_48_LFC_sig, C_gig_rtracklayer_apop_product_final, by = "transcript_id" )
+deLorgeril_Resistant_gene_dds_res_60_LFC_sig_APOP <- merge(deLorgeril_Resistant_gene_dds_res_60_LFC_sig, C_gig_rtracklayer_apop_product_final, by = "transcript_id" )
+deLorgeril_Resistant_gene_dds_res_72_LFC_sig_APOP <- merge(deLorgeril_Resistant_gene_dds_res_72_LFC_sig, C_gig_rtracklayer_apop_product_final, by = "transcript_id" )
 
-deLorgeril_Resistant_dds_res_48_LFC_sig_APOP  <- arrange(deLorgeril_Resistant_dds_res_48_LFC_sig_APOP , -log2FoldChange)
-deLorgeril_Resistant_dds_res_60_LFC_sig_APOP  <- arrange(deLorgeril_Resistant_dds_res_60_LFC_sig_APOP , -log2FoldChange)
-deLorgeril_Resistant_dds_res_72_LFC_sig_APOP  <- arrange(deLorgeril_Resistant_dds_res_72_LFC_sig_APOP , -log2FoldChange)
-deLorgeril_Susceptible_dds_res_48_LFC_sig_APOP <- arrange(deLorgeril_Susceptible_dds_res_48_LFC_sig_APOP, -log2FoldChange)
-deLorgeril_Susceptible_dds_res_60_LFC_sig_APOP <- arrange(deLorgeril_Susceptible_dds_res_60_LFC_sig_APOP, -log2FoldChange)
-deLorgeril_Susceptible_dds_res_72_LFC_sig_APOP <- arrange(deLorgeril_Susceptible_dds_res_72_LFC_sig_APOP, -log2FoldChange)
+deLorgeril_Susceptible_gene_dds_res_6_LFC_sig_APOP <-  merge(deLorgeril_Susceptible_gene_dds_res_6_LFC_sig, C_gig_rtracklayer_apop_product_final, by = "transcript_id")
+deLorgeril_Susceptible_gene_dds_res_12_LFC_sig_APOP <- merge(deLorgeril_Susceptible_gene_dds_res_12_LFC_sig, C_gig_rtracklayer_apop_product_final, by = "transcript_id")
+deLorgeril_Susceptible_gene_dds_res_24_LFC_sig_APOP <- merge(deLorgeril_Susceptible_gene_dds_res_24_LFC_sig, C_gig_rtracklayer_apop_product_final, by = "transcript_id")
+deLorgeril_Susceptible_gene_dds_res_48_LFC_sig_APOP <- merge(deLorgeril_Susceptible_gene_dds_res_48_LFC_sig, C_gig_rtracklayer_apop_product_final, by = "transcript_id")
+deLorgeril_Susceptible_gene_dds_res_60_LFC_sig_APOP <- merge(deLorgeril_Susceptible_gene_dds_res_60_LFC_sig, C_gig_rtracklayer_apop_product_final, by = "transcript_id")
+deLorgeril_Susceptible_gene_dds_res_72_LFC_sig_APOP <- merge(deLorgeril_Susceptible_gene_dds_res_72_LFC_sig, C_gig_rtracklayer_apop_product_final, by = "transcript_id")
 
-nrow(deLorgeril_Resistant_dds_res_48_LFC_sig_APOP) #25
-nrow(deLorgeril_Resistant_dds_res_60_LFC_sig_APOP) # 54
-nrow(deLorgeril_Resistant_dds_res_72_LFC_sig_APOP) # 33
-nrow(deLorgeril_Susceptible_dds_res_48_LFC_sig_APOP) #34
-nrow(deLorgeril_Susceptible_dds_res_60_LFC_sig_APOP) # 186
-nrow(deLorgeril_Susceptible_dds_res_72_LFC_sig_APOP) # 47
+deLorgeril_Resistant_gene_dds_res_6_LFC_sig_APOP  <-  arrange(deLorgeril_Resistant_gene_dds_res_6_LFC_sig_APOP , -log2FoldChange)
+deLorgeril_Resistant_gene_dds_res_12_LFC_sig_APOP  <- arrange(deLorgeril_Resistant_gene_dds_res_12_LFC_sig_APOP , -log2FoldChange)
+deLorgeril_Resistant_gene_dds_res_24_LFC_sig_APOP  <- arrange(deLorgeril_Resistant_gene_dds_res_24_LFC_sig_APOP , -log2FoldChange)
+deLorgeril_Resistant_gene_dds_res_48_LFC_sig_APOP  <- arrange(deLorgeril_Resistant_gene_dds_res_48_LFC_sig_APOP , -log2FoldChange)
+deLorgeril_Resistant_gene_dds_res_60_LFC_sig_APOP  <- arrange(deLorgeril_Resistant_gene_dds_res_60_LFC_sig_APOP , -log2FoldChange)
+deLorgeril_Resistant_gene_dds_res_72_LFC_sig_APOP  <- arrange(deLorgeril_Resistant_gene_dds_res_72_LFC_sig_APOP , -log2FoldChange)
 
-View(deLorgeril_Resistant_dds_res_48_LFC_sig_APOP  $product)
-View(deLorgeril_Resistant_dds_res_60_LFC_sig_APOP  $product)
-View(deLorgeril_Resistant_dds_res_72_LFC_sig_APOP  $product)
-View(deLorgeril_Susceptible_dds_res_48_LFC_sig_APOP$product)
-View(deLorgeril_Susceptible_dds_res_60_LFC_sig_APOP$product) 
-View(deLorgeril_Susceptible_dds_res_72_LFC_sig_APOP$product)
+deLorgeril_Susceptible_gene_dds_res_6_LFC_sig_APOP <-  arrange(deLorgeril_Susceptible_gene_dds_res_6_LFC_sig_APOP, -log2FoldChange)
+deLorgeril_Susceptible_gene_dds_res_12_LFC_sig_APOP <- arrange(deLorgeril_Susceptible_gene_dds_res_12_LFC_sig_APOP, -log2FoldChange)
+deLorgeril_Susceptible_gene_dds_res_24_LFC_sig_APOP <- arrange(deLorgeril_Susceptible_gene_dds_res_24_LFC_sig_APOP, -log2FoldChange)
+deLorgeril_Susceptible_gene_dds_res_48_LFC_sig_APOP <- arrange(deLorgeril_Susceptible_gene_dds_res_48_LFC_sig_APOP, -log2FoldChange)
+deLorgeril_Susceptible_gene_dds_res_60_LFC_sig_APOP <- arrange(deLorgeril_Susceptible_gene_dds_res_60_LFC_sig_APOP, -log2FoldChange)
+deLorgeril_Susceptible_gene_dds_res_72_LFC_sig_APOP <- arrange(deLorgeril_Susceptible_gene_dds_res_72_LFC_sig_APOP, -log2FoldChange)
+
+nrow(deLorgeril_Resistant_gene_dds_res_6_LFC_sig_APOP) #15
+nrow(deLorgeril_Resistant_gene_dds_res_12_LFC_sig_APOP) #32
+nrow(deLorgeril_Resistant_gene_dds_res_24_LFC_sig_APOP) #44
+nrow(deLorgeril_Resistant_gene_dds_res_48_LFC_sig_APOP) #18
+nrow(deLorgeril_Resistant_gene_dds_res_60_LFC_sig_APOP) # 32
+nrow(deLorgeril_Resistant_gene_dds_res_72_LFC_sig_APOP) # 21
+
+nrow(deLorgeril_Susceptible_gene_dds_res_6_LFC_sig_APOP) #16
+nrow(deLorgeril_Susceptible_gene_dds_res_12_LFC_sig_APOP) #44
+nrow(deLorgeril_Susceptible_gene_dds_res_24_LFC_sig_APOP) #82
+nrow(deLorgeril_Susceptible_gene_dds_res_48_LFC_sig_APOP) #16
+nrow(deLorgeril_Susceptible_gene_dds_res_60_LFC_sig_APOP) # 104
+nrow(deLorgeril_Susceptible_gene_dds_res_72_LFC_sig_APOP) # 20
 
 # Compare apoptosis genes between group_by_sim groups
-deLorgeril_Resistant_dds_res_48_LFC_sig_APOP  $group_by_sim <- "Resistant_dds_res_48"
-deLorgeril_Resistant_dds_res_60_LFC_sig_APOP  $group_by_sim <- "Resistant_dds_res_60"
-deLorgeril_Resistant_dds_res_72_LFC_sig_APOP  $group_by_sim <- "Resistant_dds_res_72"
-deLorgeril_Susceptible_dds_res_48_LFC_sig_APOP$group_by_sim <- "Susceptible_dds_res_48"
-deLorgeril_Susceptible_dds_res_60_LFC_sig_APOP$group_by_sim <- "Susceptible_dds_res_60"
-deLorgeril_Susceptible_dds_res_72_LFC_sig_APOP$group_by_sim <- "Susceptible_dds_res_72"
+deLorgeril_Resistant_gene_dds_res_6_LFC_sig_APOP  $group_by_sim <-  "Resistant_gene_dds_res_6"
+deLorgeril_Resistant_gene_dds_res_12_LFC_sig_APOP  $group_by_sim <- "Resistant_gene_dds_res_12"
+deLorgeril_Resistant_gene_dds_res_24_LFC_sig_APOP  $group_by_sim <- "Resistant_gene_dds_res_24"
+deLorgeril_Resistant_gene_dds_res_48_LFC_sig_APOP  $group_by_sim <- "Resistant_gene_dds_res_48"
+deLorgeril_Resistant_gene_dds_res_60_LFC_sig_APOP  $group_by_sim <- "Resistant_gene_dds_res_60"
+deLorgeril_Resistant_gene_dds_res_72_LFC_sig_APOP  $group_by_sim <- "Resistant_gene_dds_res_72"
+
+deLorgeril_Susceptible_gene_dds_res_6_LFC_sig_APOP$group_by_sim <-  "Susceptible_gene_dds_res_6"
+deLorgeril_Susceptible_gene_dds_res_12_LFC_sig_APOP$group_by_sim <- "Susceptible_gene_dds_res_12"
+deLorgeril_Susceptible_gene_dds_res_24_LFC_sig_APOP$group_by_sim <- "Susceptible_gene_dds_res_24"
+deLorgeril_Susceptible_gene_dds_res_48_LFC_sig_APOP$group_by_sim <- "Susceptible_gene_dds_res_48"
+deLorgeril_Susceptible_gene_dds_res_60_LFC_sig_APOP$group_by_sim <- "Susceptible_gene_dds_res_60"
+deLorgeril_Susceptible_gene_dds_res_72_LFC_sig_APOP$group_by_sim <- "Susceptible_gene_dds_res_72"
 
 # combine data frames 
-deLorgeril_all_sig_APOP <- rbind( 
-  deLorgeril_Resistant_dds_res_48_LFC_sig_APOP[,c("product","group_by_sim","log2FoldChange")],
-  deLorgeril_Resistant_dds_res_60_LFC_sig_APOP[,c("product","group_by_sim","log2FoldChange")],
-  deLorgeril_Resistant_dds_res_72_LFC_sig_APOP[,c("product","group_by_sim","log2FoldChange")],
-  deLorgeril_Susceptible_dds_res_48_LFC_sig_APOP[,c("product","group_by_sim","log2FoldChange")],
-  deLorgeril_Susceptible_dds_res_60_LFC_sig_APOP[,c("product","group_by_sim","log2FoldChange")],
-  deLorgeril_Susceptible_dds_res_72_LFC_sig_APOP[,c("product","group_by_sim","log2FoldChange")])
+deLorgeril_gene_all_sig_APOP <- rbind( 
+  deLorgeril_Resistant_gene_dds_res_6_LFC_sig_APOP[,c("product","group_by_sim","log2FoldChange")],
+  deLorgeril_Resistant_gene_dds_res_12_LFC_sig_APOP[,c("product","group_by_sim","log2FoldChange")],
+  deLorgeril_Resistant_gene_dds_res_24_LFC_sig_APOP[,c("product","group_by_sim","log2FoldChange")],
+  deLorgeril_Resistant_gene_dds_res_48_LFC_sig_APOP[,c("product","group_by_sim","log2FoldChange")],
+  deLorgeril_Resistant_gene_dds_res_60_LFC_sig_APOP[,c("product","group_by_sim","log2FoldChange")],
+  deLorgeril_Resistant_gene_dds_res_72_LFC_sig_APOP[,c("product","group_by_sim","log2FoldChange")],
+  deLorgeril_Susceptible_gene_dds_res_6_LFC_sig_APOP[,c("product","group_by_sim","log2FoldChange")],
+  deLorgeril_Susceptible_gene_dds_res_12_LFC_sig_APOP[,c("product","group_by_sim","log2FoldChange")],
+  deLorgeril_Susceptible_gene_dds_res_24_LFC_sig_APOP[,c("product","group_by_sim","log2FoldChange")],
+  deLorgeril_Susceptible_gene_dds_res_48_LFC_sig_APOP[,c("product","group_by_sim","log2FoldChange")],
+  deLorgeril_Susceptible_gene_dds_res_60_LFC_sig_APOP[,c("product","group_by_sim","log2FoldChange")],
+  deLorgeril_Susceptible_gene_dds_res_72_LFC_sig_APOP[,c("product","group_by_sim","log2FoldChange")])
 
 # Make plot or up and downregulated
-deLorgeril_all_sig_APOP_downregulated <- deLorgeril_all_sig_APOP %>% filter(log2FoldChange <= 0)
-deLorgeril_all_sig_APOP_upregulated <- deLorgeril_all_sig_APOP %>% filter(log2FoldChange > 0)
+deLorgeril_gene_all_sig_APOP_downregulated <- deLorgeril_gene_all_sig_APOP %>% filter(log2FoldChange <= 0)
+deLorgeril_gene_all_sig_APOP_upregulated <-   deLorgeril_gene_all_sig_APOP %>% filter(log2FoldChange > 0)
 
-deLorgeril_all_sig_APOP_downregulated_plot <- ggplot(deLorgeril_all_sig_APOP_downregulated , aes(x=product,y=log2FoldChange, fill=group )) + geom_col(position="dodge") + 
-  theme(axis.text.x = element_text(angle = 75, hjust = 1)) + coord_flip()
-deLorgeril_all_sig_APOP_upregulated_plot <- ggplot(deLorgeril_all_sig_APOP_upregulated, aes(x=product,y=log2FoldChange, fill=group )) + geom_col(position="dodge") + 
+deLorgeril_gene_all_sig_APOP_plot <- ggplot(deLorgeril_gene_all_sig_APOP , aes(x=product,y=log2FoldChange, fill=group_by_sim )) + geom_col(position="dodge") + 
   theme(axis.text.x = element_text(angle = 75, hjust = 1)) + coord_flip()
 
-deLorgeril_Resistant_dds_res_48_LFC_sig_APOP <- ggplot(deLorgeril_Resistant_dds_res_48_LFC_sig_APOP, aes(x=product, y = log2FoldChange, fill=log2FoldChange)) + geom_col(position="dodge") +
-  coord_flip() + scale_fill_gradient2(low="purple",mid = "grey", high="darkgreen") + ggtitle("Resistant 48hr vs Control") +
-  ylab("Log2 Fold Change")
-deLorgeril_Resistant_dds_res_60_LFC_sig_APOP   <- ggplot(deLorgeril_Resistant_dds_res_60_LFC_sig_APOP, aes(x=product, y = log2FoldChange, fill=log2FoldChange)) + geom_col(position="dodge") +
-  coord_flip() + scale_fill_gradient2(low="purple",mid = "grey", high="darkgreen") + ggtitle("Resistant 60hr vs Control") +
-  ylab("Log2 Fold Change") # mostly upregulation
-deLorgeril_Resistant_dds_res_72_LFC_sig_APOP   <- ggplot(deLorgeril_Resistant_dds_res_72_LFC_sig_APOP, aes(x=product, y = log2FoldChange, fill=log2FoldChange)) + geom_col(position="dodge") +
-  coord_flip() + scale_fill_gradient2(low="purple",mid = "grey", high="darkgreen") + ggtitle("Resistant 72hr vs Control") +
-  ylab("Log2 Fold Change") # downregulation of cathepsins
+deLorgeril_gene_all_sig_APOP_downregulated_plot <- ggplot(deLorgeril_gene_all_sig_APOP_downregulated , aes(x=product,y=log2FoldChange, fill=group_by_sim )) + geom_col(position="dodge") + 
+  theme(axis.text.x = element_text(angle = 75, hjust = 1)) + coord_flip()
+deLorgeril_gene_all_sig_APOP_upregulated_plot <- ggplot(deLorgeril_gene_all_sig_APOP_upregulated, aes(x=product,y=log2FoldChange, fill=group_by_sim )) + geom_col(position="dodge") + 
+  theme(axis.text.x = element_text(angle = 75, hjust = 1)) + coord_flip()
 
-deLorgeril_Susceptible_dds_res_48_LFC_sig_APOP <- ggplot(deLorgeril_Susceptible_dds_res_48_LFC_sig_APOP, aes(x=product, y = log2FoldChange, fill=log2FoldChange)) + geom_col(position="dodge") +
-  coord_flip() + scale_fill_gradient2(low="purple",mid = "grey", high="darkgreen") + ggtitle("Susceptible 48hr vs Control") +
-  ylab("Log2 Fold Change")
-deLorgeril_Susceptible_dds_res_60_LFC_sig_APOP <- ggplot(deLorgeril_Susceptible_dds_res_60_LFC_sig_APOP, aes(x=product, y = log2FoldChange, fill=log2FoldChange)) + geom_col(position="dodge") +
-  coord_flip() + scale_fill_gradient2(low="purple",mid = "grey", high="darkgreen") + ggtitle("Susceptible 60hr vs Control") +
-  ylab("Log2 Fold Change") # TLR downregulation, a lot of upregulation
-deLorgeril_Susceptible_dds_res_72_LFC_sig_APOP <- ggplot(deLorgeril_Susceptible_dds_res_72_LFC_sig_APOP, aes(x=product, y = log2FoldChange, fill=log2FoldChange)) + geom_col(position="dodge") +
-  coord_flip() + scale_fill_gradient2(low="purple",mid = "grey", high="darkgreen") + ggtitle("Resistant 72hr vs Control") +
-  ylab("Log2 Fold Change") 
-
-
+#### DERMO #### 
 Dermo_gene_counts
-Probiotic_gene_counts
-ROD_gene_counts
-Pro_RE22_gene_counts
+colnames(Dermo_gene_counts)
+Dermo_gene_counts <- Dermo_gene_counts[,-98]
+colnames(Dermo_gene_counts)
 
+#Load in sample metadata
+Dermo_coldata <- read.csv("/Users/erinroberts/Documents/PhD_Research/Chapter_1_Apoptosis Paper/Chapter1_Apoptosis_Transcriptome_Analyses_2019/DATA ANALYSIS/apoptosis_data_pipeline/DESeq2/2020_Transcriptome_ANALYSIS/Dermo_coldata.csv", row.names = 1 )
+View(Dermo_coldata )  
+nrow(Dermo_coldata ) 
 
-
-
-
-
-#### PCA AND HEATMAPS OF ORTHOLOGOUS GENE COUNTS ####
-
-
-## Remove Batch effects from experiment for C_vir
-plotPCA(C_vir_full_counts_vst, "Experiment") # grouping by experiment, ROD and probiotic cluster more closely
-mat_C_vir <- assay(C_vir_full_counts_vst)
-mat_C_vir <- limma::removeBatchEffect(mat_C_vir, C_vir_full_counts_vst$Experiment)
-#Coefficients not estimable: batch1 batch3 batch5 batch6 
-#Warning message:
-#  Partial NA coefficients for 67876 probe(s) 
-assay(C_vir_full_counts_vst) <- mat_C_vir
-plotPCA(C_vir_full_counts_vst, "Experiment") # Probiotic and ROD now cluster together
-plotPCA(C_vir_full_counts_vst, "Sample")
-plotPCA(C_vir_full_counts_vst, "Time") # no clustering by time
-plotPCA(C_vir_full_counts_vst, "Family")
-
-plotPCA(C_gig_full_counts_vst, "Experiment") # grouping by experiment, Rubio delorgeril cluster, HE and Zhang far apart
-mat_C_gig <- assay(C_gig_full_counts_vst)
-mat_C_gig <- limma::removeBatchEffect(mat_C_gig, C_gig_full_counts_vst$Experiment)
-#Coefficients not estimable: batch4 batch5 batch6 
-#Warning message:
-#  Partial NA coefficients for 86859 probe(s) 
-assay(C_gig_full_counts_vst) <- mat_C_gig
-plotPCA(C_gig_full_counts_vst, "Experiment") # He, Rubio and Zhang cluster closely 
-plotPCA(C_gig_full_counts_vst, "Sample")
-plotPCA(C_gig_full_counts_vst, "Time") # no clustering by time
-plotPCA(C_gig_full_counts_vst, "Family")
-
-# subset PCA for apoptosis genes
-C_vir_full_counts_apop <- C_vir_full_counts[row.names(C_vir_full_counts) %in% C_vir_rtracklayer_apop_product_final_ID,]
-nrow(C_vir_full_counts_apop) # 1026
-all(row.names(C_vir_full_counts_apop) %in% C_vir_rtracklayer_apop_product_final_ID) # TRUE
-all(C_vir_rtracklayer_apop_product_final_ID %in% row.names(C_vir_full_counts_apop)) # TRUE
-
-C_vir_full_counts_apop_list <- row.names(C_vir_full_counts_apop)
-plotPCA(C_vir_full_counts_vst[C_vir_full_counts_apop_list,], "Experiment") # similar clustering where ROD and Probiotic cluster
-
-C_gig_full_counts_apop <- C_gig_full_counts[row.names(C_gig_full_counts) %in% C_gig_rtracklayer_apop_product_final_transcript_id,]
-C_gig_full_counts_apop_list <- row.names(C_gig_full_counts_apop)
-plotPCA(C_gig_full_counts_vst[C_gig_full_counts_apop_list,], "Experiment") # some more overlap between He and deLorgeril
-
-### Heatmaps of apoptosis gene vsts ###
-## C_virginica
-# heatmap of all apoptosis genes 
-C_vir_full_counts_apop_assay <-  assay(C_vir_full_counts_vst)[C_vir_full_counts_apop_list,]
-C_vir_full_counts_apop_assay_mat <- C_vir_full_counts_apop_assay - rowMeans(C_vir_full_counts_apop_assay)
-C_vir_full_counts_apop_assay_anno <- as.data.frame(colData(C_vir_full_counts_vst)[, c("Condition","Experiment")])
-C_vir_full_counts_apop_assay_heatmap <- pheatmap(C_vir_full_counts_apop_assay_mat  , annotation_col = C_vir_full_counts_apop_assay_anno)
-# Probiotic and ROD cluster closely, CGX and GX cluster more with Dermo DA (susceptible), while F3L and LB cluster more closely
-# the sucsceptible to Dermo are more tolerant to ROD (GX), and vice versa..interesting
-# The ROD Tolerant (GX and CGX), Dermo Susceptible DA and Probiotic are all in the same larger cluster
-# the ROD susceptible (F3L) and the Dermo tolerant LB are in the same larger cluster
-
-# heatmap of most variable apoptosis genes for both C_vir and C_gug (this selects genes with the greatest variance in the sample)
-topVarGenes_C_vir_full_counts_apop_assay <-  head(order(rowVars(C_vir_full_counts_apop_assay), decreasing = TRUE), 100) 
-top_Var_C_vir_full_counts_apop_assay_mat <- C_vir_full_counts_apop_assay[topVarGenes_C_vir_full_counts_apop_assay,]
-top_Var_C_vir_full_counts_apop_assay_mat <- top_Var_C_vir_full_counts_apop_assay_mat - rowMeans(top_Var_C_vir_full_counts_apop_assay_mat)
-top_Var_C_vir_full_counts_apop_assay_anno <- as.data.frame(colData(C_vir_full_counts_vst)[, c("Experiment","Condition")])
-top_Var_C_vir_full_counts_apop_assay_heatmap <- pheatmap(top_Var_C_vir_full_counts_apop_assay_mat  , annotation_col = top_Var_C_vir_full_counts_apop_assay_anno)
-head(top_Var_C_vir_full_counts_apop_assay_mat ) 
-# Same relationship as above, but tighter clustering
-
-# reorder annotation table to match ordering in heatmap 
-top_Var_C_vir_full_counts_apop_assay_heatmap_reorder <- rownames(top_Var_C_vir_full_counts_apop_assay_mat[top_Var_C_vir_full_counts_apop_assay_heatmap$tree_row[["order"]],])
-class(top_Var_C_vir_full_counts_apop_assay_heatmap_reorder)
-# annotate the row.names
-top_Var_C_virginica_apop_assay_mat_prot <- as.data.frame(top_Var_C_vir_full_counts_apop_assay_heatmap_reorder )
-class(top_Var_C_virginica_apop_assay_mat_prot)
-colnames(top_Var_C_virginica_apop_assay_mat_prot)[1] <- "ID"
-class(top_Var_C_virginica_apop_assay_mat_prot$ID)
-top_Var_C_virginica_apop_assay_mat_prot$ID <- as.character(top_Var_C_virginica_apop_assay_mat_prot$ID)
-top_Var_C_virginica_apop_assay_mat_prot_annot <- left_join(top_Var_C_virginica_apop_assay_mat_prot, select(C_vir_rtracklayer, ID, product), by = "ID")
-
-## C_gigas genes 
-C_gig_full_counts_apop_assay <-  assay(C_gig_full_counts_vst)[C_gig_full_counts_apop_list,]
-C_gig_full_counts_apop_assay_mat <- C_gig_full_counts_apop_assay - rowMeans(C_gig_full_counts_apop_assay)
-C_gig_full_counts_apop_assay_anno <- as.data.frame(colData(C_gig_full_counts_vst)[, c("Experiment","Condition")])
-C_gig_full_counts_apop_assay_heatmap <- pheatmap(C_gig_full_counts_apop_assay_mat  , annotation_col = C_gig_full_counts_apop_assay_anno)
-# clustering of delorgeril and HE: deLorgeril AF11 susceptible, HE OsHV1 challenge, 
-# delorgeril OsHV1 resistant are in their own separate cluster
-# Zhang and Rubio cluster very closely together
-# some delorgeril and rubio clustering
-
-# heatmap of most variable apoptosis genes for both C_vir and C_gug (this selects genes with the greatest variance in the sample)
-topVarGenes_C_gig_full_counts_apop_assay <-  head(order(rowVars(C_gig_full_counts_apop_assay), decreasing = TRUE), 100) 
-top_Var_C_gig_full_counts_apop_assay_mat <- C_gig_full_counts_apop_assay[topVarGenes_C_gig_full_counts_apop_assay,]
-top_Var_C_gig_full_counts_apop_assay_mat <- top_Var_C_gig_full_counts_apop_assay_mat - rowMeans(top_Var_C_gig_full_counts_apop_assay_mat)
-top_Var_C_gig_full_counts_apop_assay_anno <- as.data.frame(colData(C_gig_full_counts_vst)[, c("Experiment","Condition")])
-top_Var_C_gig_full_counts_apop_assay_heatmap <- pheatmap(top_Var_C_gig_full_counts_apop_assay_mat  , annotation_col = top_Var_C_gig_full_counts_apop_assay_anno)
-head(top_Var_C_gig_full_counts_apop_assay_mat ) 
-# Same relationship as above, but tighter clustering
-
-# reorder annotation table to match ordering in heatmap 
-top_Var_C_gig_full_counts_apop_assay_heatmap_reorder <- rownames(top_Var_C_gig_full_counts_apop_assay_mat[top_Var_C_gig_full_counts_apop_assay_heatmap$tree_row[["order"]],])
-class(top_Var_C_gig_full_counts_apop_assay_heatmap_reorder)
-# annotate the row.names
-top_Var_C_gig_apop_assay_mat_prot <- as.data.frame(top_Var_C_gig_full_counts_apop_assay_heatmap_reorder )
-class(top_Var_C_gig_apop_assay_mat_prot)
-colnames(top_Var_C_gig_apop_assay_mat_prot)[1] <- "transcript_id"
-class(top_Var_C_gig_apop_assay_mat_prot$transcript_id)
-top_Var_C_gig_apop_assay_mat_prot$transcript_id <- as.character(top_Var_C_gig_apop_assay_mat_prot$transcript_id)
-top_Var_C_gig_assay_mat_prot_annot <- left_join(top_Var_C_gig_apop_assay_mat_prot, select(C_gig_rtracklayer_apop_product_final, transcript_id, product), by = "transcript_id")
-
-#isolate interesting clusters
-#six_hr_comparison_cluster <- c("XM_022455505.1", "XM_022484575.1", "XM_022461506.1", "XM_022430618.1", "XM_022490512.1",
-#                               "XM_022461508.1", "XM_022464459.1", "XM_022483469.1", "XM_022483473.1", "XM_022442223.1", "XM_022457463.1", "XM_022442224.1")
-#six_hr_comparison_cluster <- as.data.frame(six_hr_comparison_cluster)
-#colnames(six_hr_comparison_cluster)[1] <- "transcript_id"
-#six_hr_comparison_cluster_subset <- subset(Res_mat_6hr_prot_annot, transcript_id %in% six_hr_comparison_cluster$transcript_id)
-
-
-## Extract apop genes from each and match to names ###
-# For C_vir the gene# is the "Parent" column  vector C_vir_apop transcript Parent
-C_vir_rtracklayer_apop_product_final_parent <- unique(C_vir_rtracklayer_apop_product_final$Parent)
-View(C_vir_rtracklayer_apop_product_final_parent)
-
-# C_vir: Search counts tables for apoptosis genes using the Parent column from genome
-Dermo_gene_counts_apop <- Dermo_gene_counts[row.names(Dermo_gene_counts) %in% C_vir_rtracklayer_apop_product_final_parent,]
-nrow(Dermo_gene_counts_apop) # 45
-View(Dermo_gene_counts_apop)
-Probiotic_gene_counts_apop <- Probiotic_gene_counts[row.names(Probiotic_gene_counts) %in% C_vir_rtracklayer_apop_product_final_parent,]
-nrow(Probiotic_gene_counts_apop) # 198
-head(Probiotic_gene_counts_apop)
-ROD_gene_counts_apop <- ROD_gene_counts[row.names(ROD_gene_counts) %in% C_vir_rtracklayer_apop_product_final_parent,]
-nrow(ROD_gene_counts_apop) # 98
-head(ROD_gene_counts_apop)
-# Make the rownames a column for each so I can merge on it 
-Dermo_gene_counts_apop$Parent <- row.names(Dermo_gene_counts_apop)
-Probiotic_gene_counts_apop$Parent <- row.names(Probiotic_gene_counts_apop)
-ROD_gene_counts_apop$Parent <- row.names(ROD_gene_counts_apop)
-
-# Combine dataframes starting with largest first (probiotic)
-C_vir_apop_gene_counts <- left_join(Probiotic_gene_counts_apop, ROD_gene_counts_apop, by = "Parent")
-C_vir_apop_gene_counts <- left_join(C_vir_apop_gene_counts,Dermo_gene_counts_apop, by = "Parent")
-class(C_vir_apop_gene_counts$Parent) # character
-class(C_vir_rtracklayer_apop_product_final$Parent) # AsIs
-C_vir_rtracklayer_apop_product_final$Parent <- as.character(C_vir_rtracklayer_apop_product_final$Parent) # change the class to character
-View(C_vir_apop_gene_counts)
-nrow(C_vir_apop_gene_counts) # 198
-
-# Combine product name 
-C_vir_apop_gene_counts <- left_join(C_vir_apop_gene_counts,C_vir_rtracklayer_apop_product_final[,c("Parent","product")], by = "Parent")
-View(C_vir_apop_gene_counts)
-# extra rows added because of the ", transcript id" 
-nrow(C_vir_apop_gene_counts) #283
-# Annotate C_vir rownames
-
-
-
-# For C_gig: the LOC is the gene column C_gig: Search counts tables for apoptosis genes using the Parent column from genome
-# vector C_gig_apop transcript IDs
-C_gig_rtracklayer_apop_product_final_gene <- unique(C_gig_rtracklayer_apop_product_final$gene)
-
-nrow(Rubio_gene_counts) #6888
-nrow(deLorgeril_gene_counts) # 5023
-nrow(He_gene_counts) # 7888
-nrow(Zhang_gene_counts)
-
-
-deLorgeril_Resistant_counts_apop <- deLorgeril_Resistant_counts[row.names(deLorgeril_Resistant_counts) %in% C_gig_rtracklayer_apop_product_final_transcript_id,]
-deLorgeril_Susceptible_counts_apop <- deLorgeril_Susceptible_counts[row.names(deLorgeril_Susceptible_counts) %in% C_gig_rtracklayer_apop_product_final_transcript_id,]
-nrow(deLorgeril_Resistant_counts_apop ) #659
-nrow(deLorgeril_Susceptible_counts_apop ) #659
-
-
-
-# Merge tables 
-
-# Search original counts for apoptosis genes and do rlog on just these
-Dermo_Tolerant_counts_apop <- Dermo_Tolerant_counts[row.names(Dermo_Tolerant_counts) %in% C_vir_rtracklayer_apop_product_final_ID,]
-Dermo_Susceptible_counts_apop <- Dermo_Susceptible_counts[row.names(Dermo_Susceptible_counts) %in% C_vir_rtracklayer_apop_product_final_ID,]
-nrow(Dermo_Tolerant_counts_apop) #1026
-nrow( Dermo_Susceptible_counts_apop) # 1026
-
-top_Var_Dermo_Tolerant_apop_assay_prot <- as.data.frame(top_Var_Dermo_Tolerant_apop_assay_heatmap_reorder)
-colnames(top_Var_Dermo_Tolerant_apop_assay_prot)[1] <- "ID"
-top_Var_Dermo_Tolerant_apop_assay_prot_annot <- left_join(top_Var_Dermo_Tolerant_apop_assay_prot, select(C_vir_rtracklayer_apop_product_final, ID, product, gene), by = "ID")
-
-
-
-top_Var_Dermo_Susceptible_apop_assay_prot_annot <- left_join(top_Var_Dermo_Susceptible_apop_assay_prot, select(C_vir_rtracklayer_apop_product_final, ID, product, gene), by = "ID")
-
-# unique gene name lists for both species
-C_vir_rtracklayer_apop_product_final_product_joined_split_product_unique_gene_name <- C_vir_rtracklayer_apop_product_final_product_joined_split_product_unique[!duplicated(C_vir_rtracklayer_apop_product_final_product_joined_split_product_unique$gene_name),]
-C_gig_rtracklayer_apop_product_final_product_joined_split_product_unique_gene_name <- C_gig_rtracklayer_apop_product_final_product_joined_split_product_unique[!duplicated(C_gig_rtracklayer_apop_product_final_product_joined_split_product_unique$gene_name),]
-
-# rename gene column for joining
-colnames(C_vir_rtracklayer_apop_product_final_product_joined_split_product_unique_gene_name)[1] <- "C_vir_gene_LOC"
-colnames(C_gig_rtracklayer_apop_product_final_product_joined_split_product_unique_gene_name)[1] <- "C_gig_gene_LOC"
-
-#remove "-like" from  gene name for correct name joining using regex
-# this isn't exactly working
-# https://datascience.stackexchange.com/questions/8922/removing-strings-after-a-certain-character-in-a-given-text 
-C_vir_rtracklayer_apop_product_final_product_joined_split_product_unique_gene_name$gene_name <-  stringr::str_remove(C_vir_rtracklayer_apop_product_final_product_joined_split_product_unique_gene_name$gene_name, "\\like$")
-C_gig_rtracklayer_apop_product_final_product_joined_split_product_unique_gene_name$gene_name <-  stringr::str_remove(C_gig_rtracklayer_apop_product_final_product_joined_split_product_unique_gene_name$gene_name, "\\like$")
-C_vir_rtracklayer_apop_product_final_product_joined_split_product_unique_gene_name$gene_name <-  stringr::str_remove(C_vir_rtracklayer_apop_product_final_product_joined_split_product_unique_gene_name$gene_name, "\\-$")
-C_gig_rtracklayer_apop_product_final_product_joined_split_product_unique_gene_name$gene_name <-  stringr::str_remove(C_gig_rtracklayer_apop_product_final_product_joined_split_product_unique_gene_name$gene_name, "\\-$")
-
-# https://stackoverflow.com/questions/50861626/removing-dot-from-the-end-of-string
-# full join and places where names don't match will get an NA
-combined_gene_name_yes_no_table <- full_join(C_vir_rtracklayer_apop_product_final_product_joined_split_product_unique_gene_name, C_gig_rtracklayer_apop_product_final_product_joined_split_product_unique_gene_name,
-                                             by = "gene_name")
-#remove duplicate gene names
-combined_gene_name_yes_no_table_unique <- combined_gene_name_yes_no_table[!duplicated(combined_gene_name_yes_no_table$gene_name),]
-
-#join on the pathway descriptions for the molecules 
-# load in table with pathway descriptions for each 
-
-# Still a few discrepancies in the gene names, namely when they are named in C. virginica "* homolog"
-# Need to mention in methods that I rmemoved "like" from the end of names
-# C_ virginica: lipopolysaccharide-induced tumor necrosis factor-alpha factor homolog, C_gig: lipopolysaccharide-induced tumor necrosis factor-alpha
-# C_vir: putative transcription factor p65 homolog, C_gig: transcription factor p65 homolog
-# C_vir: macrophage migration inhibitory factor homolog, C_gig: macrophage migration inhibitory factor
-
-# Genes in C vir and not in C gig (all the C_gig_gene_LOC NA's)
-c_vir_not_c_gig <- combined_gene_name_yes_no_table_unique %>% filter(is.na(C_gig_gene_LOC))
-# Genes in C gig and not in C vir (all the C_vir_gene_LOC NA's)
-c_gig_not_c_vir <- combined_gene_name_yes_no_table_unique %>% filter(is.na(C_vir_gene_LOC))
-# shared in both 
-shared_apoptosis_gene_names <- na.omit(combined_gene_name_yes_no_table_unique)
-
-# Load gene pathway key with protein aliases curated in excel
-gene_name_pathway_key_merged <- read.csv("Gene_name_pathway_key.csv", head=TRUE)
-
-
-
-## Combine raw counts data frames from C. virginica
-# All the rows should be in the same order because I used the same apoptosis data frame to join them
-all(rownames(Dermo_Susceptible_counts_apop) == rownames(Dermo_Tolerant_counts_apop)) # TRUE
-all(rownames(Dermo_Susceptible_counts_apop) %in% rownames(Dermo_Tolerant_counts_apop)) # TRUE
-
-# Check probiotic table order
-all(rownames(Probiotic_counts_apop) == rownames(Dermo_Tolerant_counts_apop)) # FALSE
-all(rownames(Probiotic_counts_apop) %in% rownames(Dermo_Tolerant_counts_apop)) # TRUE
-Probiotic_counts_apop <- Probiotic_counts_apop[row.names(Dermo_Tolerant_counts_apop),]
-all(rownames(Probiotic_counts_apop) == rownames(Dermo_Tolerant_counts_apop)) # TRUE
-
-# Check ROD order and change if necessary 
-all(rownames(ROD_Resistant_counts_apop) == rownames(Dermo_Tolerant_counts_apop)) # FALSE
-all(rownames(ROD_Resistant_counts_apop) %in% rownames(Dermo_Tolerant_counts_apop)) # TRUE
-ROD_Resistant_counts_apop <- ROD_Resistant_counts_apop[row.names(Dermo_Tolerant_counts_apop),]
-ROD_Susceptible_counts_apop <-  ROD_Susceptible_counts_apop[row.names(Dermo_Tolerant_counts_apop),]
-all(rownames(ROD_Resistant_counts_apop) == rownames(Dermo_Tolerant_counts_apop)) # TRUE
-all(rownames(ROD_Susceptible_counts_apop) == rownames(Dermo_Tolerant_counts_apop)) # TRUE
-all(rownames(ROD_Susceptible_counts_apop) == rownames(ROD_Resistant_counts_apop)) # TRUE
-
-# Colbind all C. virginica tables
-C_virginica_apop_counts <- cbind(Dermo_Susceptible_counts_apop,Dermo_Tolerant_counts_apop,
-                                 Probiotic_counts_apop,ROD_Resistant_counts_apop,
-                                 ROD_Susceptible_counts_apop)
-
-# Set equal the rownames and colnames of the coldata and count data
-all(rownames(C_vir_coldata ) %in% colnames(C_virginica_apop_counts))  #Should return TRUE
+# Make sure the columns of the count matrix and rows of the column data (sample metadata) are in the same order. 
+all(rownames(Dermo_coldata ) %in% colnames(Dermo_gene_counts))  #Should return TRUE
 # returns TRUE
-all(colnames(C_virginica_apop_counts) %in% rownames(C_vir_coldata  ))  
+all(colnames(Dermo_gene_counts) %in% rownames(Dermo_coldata ))  
 # returns TRUE
-all(rownames(C_vir_coldata ) == colnames(C_virginica_apop_counts)) # FALSE
+all(rownames(Dermo_coldata ) == colnames(Dermo_gene_counts))
 
 # Fix the order
-C_virginica_apop_counts <- C_virginica_apop_counts[,row.names(C_vir_coldata)]
+Dermo_gene_counts <- Dermo_gene_counts[,row.names(Dermo_coldata)]
 
-all(rownames(C_vir_coldata ) %in% colnames(C_virginica_apop_counts))  #Should return TRUE
+all(rownames(Dermo_coldata ) %in% colnames(Dermo_gene_counts))  #Should return TRUE
 # returns TRUE
-all(colnames(C_virginica_apop_counts) %in% rownames(C_vir_coldata  ))  
+all(colnames(Dermo_gene_counts) %in% rownames(Dermo_coldata))  
 # returns TRUE
-all(rownames(C_vir_coldata ) == colnames(C_virginica_apop_counts))  # TRUE
-
-# Make DEseq data set from matrix so that the coldata gets attached
-C_virginica_apop_counts_dds <- DESeqDataSetFromMatrix(countData = C_virginica_apop_counts,
-                                                      colData= C_vir_coldata,
-                                                      design = ~Condition)
-# Collapse technical replicates 
-C_virginica_apop_counts_dds <- collapseReplicates(C_virginica_apop_counts_dds, C_virginica_apop_counts_dds$Sample, C_virginica_apop_counts_dds$TechRep)
-
-# Calculate the vst
-C_virginica_apop_counts_vst <- varianceStabilizingTransformation(C_virginica_apop_counts_dds)
-
-## Combine C_gig data frame
-# Check row order before combining
-all(rownames(Zhang_counts_apop) == rownames(Rubio_counts_apop)) # FALSE
-all(rownames(Zhang_counts_apop) %in% rownames(Rubio_counts_apop)) # TRUE
-Zhang_counts_apop <- Zhang_counts_apop[row.names(Rubio_counts_apop),]
-all(rownames(Zhang_counts_apop) == rownames(Rubio_counts_apop)) # TRUE
-
-deLorgeril_Susceptible_counts_apop <- deLorgeril_Susceptible_counts_apop[row.names(Rubio_counts_apop),]
-deLorgeril_Resistant_counts_apop <- deLorgeril_Resistant_counts_apop[row.names(Rubio_counts_apop),]
-He_counts_apop <- He_counts_apop[row.names(Rubio_counts_apop),]
-all(rownames(deLorgeril_Susceptible_counts_apop) == rownames(Zhang_counts_apop)) # TRUE
-all(rownames(deLorgeril_Resistant_counts_apop) == rownames(Zhang_counts_apop)) # TRUE
-all(rownames(He_counts_apop) == rownames(Zhang_counts_apop)) # TRUE
-
-C_gigas_apop_counts <- cbind(Zhang_counts_apop,Rubio_counts_apop,deLorgeril_Susceptible_counts_apop,
-                             deLorgeril_Resistant_counts_apop,He_counts_apop)
-# Set equal the rownames and colnames of the coldata and count data
-all(rownames(C_gig_coldata ) %in% colnames(C_gigas_apop_counts))  #Should return TRUE
+all(rownames(Dermo_coldata ) == colnames(Dermo_counts))
 # returns TRUE
-all(colnames(C_gigas_apop_counts) %in% rownames(C_gig_coldata  ))  
-# returns TRUE
-all(rownames(C_gig_coldata ) == colnames(C_gigas_apop_counts)) # FALSE
 
-# Fix the order
-C_gigas_apop_counts <- C_gigas_apop_counts[,row.names(C_gig_coldata)]
+# going to split the analysis into DA and LB 
+Dermo_Susceptible_coldata <- Dermo_coldata %>%  subset(Family == "DA") # subset() keeps rownames
+row.names(Dermo_Susceptible_coldata )
+Dermo_Susceptible_gene_counts <- Dermo_gene_counts[,row.names(Dermo_Susceptible_coldata )]
+colnames(Dermo_Susceptible_gene_counts)
+Dermo_Tolerant_coldata <- Dermo_coldata %>%  subset(Family == "LB") # subset() keeps rownames
+Dermo_Tolerant_gene_counts <- Dermo_gene_counts[,row.names(Dermo_Tolerant_coldata)]
 
-all(rownames(C_gig_coldata ) %in% colnames(C_gigas_apop_counts))  #Should return TRUE
-# returns TRUE
-all(colnames(C_gigas_apop_counts) %in% rownames(C_gig_coldata  ))  
-# returns TRUE
-all(rownames(C_gig_coldata ) == colnames(C_gigas_apop_counts))  # TRUE
+### DATA QC PCA PLOT 
+# rlog transform data is recommended over vst for small data sets 
+# PCA plots of data (https://bioinformatics-core-shared-training.github.io/cruk-summer-school-2018/RNASeq2018/html/02_Preprocessing_Data.nb.html#count-distribution-boxplots)
+Dermo_Susceptible_gene_counts_matrix <- as.matrix(Dermo_Susceptible_gene_counts)
+Dermo_Tolerant_gene_counts_matrix <-    as.matrix(Dermo_Tolerant_gene_counts)
 
-# Make DEseq data set from matrix so that the coldata gets attached
-C_gigas_apop_dds <- DESeqDataSetFromMatrix(countData = C_gigas_apop_counts ,
-                                           colData = C_gig_coldata,
-                                           design = ~Condition)
-# Calculate the vst
-C_gigas_apop_counts_vst <- varianceStabilizingTransformation(C_gigas_apop_dds)
+Dermo_Susceptible_vstgene_counts <- varianceStabilizingTransformation(Dermo_Susceptible_gene_counts_matrix , blind =TRUE)
+Dermo_Tolerant_vstgene_counts <-    varianceStabilizingTransformation(Dermo_Tolerant_gene_counts_matrix, blind =TRUE)
 
-## Remove Batch effects from experiment for C_vir
-plotPCA(C_virginica_apop_counts_vst, "Experiment") # grouping by experiment
-mat_C_vir <- assay(C_virginica_apop_counts_vst)
-mat_C_vir <- limma::removeBatchEffect(mat_C_vir, C_virginica_apop_counts_vst$Experiment)
-assay(C_virginica_apop_counts_vst) <- mat_C_vir
-plotPCA(C_virginica_apop_counts_vst, "Experiment") # Probiotic and ROD now cluster together
-plotPCA(C_virginica_apop_counts_vst, "Sample")
-plotPCA(C_virginica_apop_counts_vst, "Time") # no clustering by time
-plotPCA(C_virginica_apop_counts_vst, "Family")
+# run PCA
+pcDermo_Susceptible_gene <- prcomp(t(Dermo_Susceptible_vstgene_counts))
+pcDermo_Tolerant_gene <-   prcomp(t(Dermo_Tolerant_vstgene_counts))
 
-## Remove Batch effects from experiment for C_vir
-plotPCA(C_gigas_apop_counts_vst, "Experiment") # grouping by experiment, but He and Zhang also cluster
-mat_C_gig <- assay(C_gigas_apop_counts_vst)
-mat_C_gig <- limma::removeBatchEffect(mat_C_gig, C_gigas_apop_counts_vst$Experiment)
-assay(C_gigas_apop_counts_vst) <- mat_C_gig
-plotPCA(C_gigas_apop_counts_vst, "Experiment") # He and deLorgeril cluster some, Rubio and Zhang definitely cluster
-plotPCA(C_gigas_apop_counts_vst, "Sample")
-plotPCA(C_gigas_apop_counts_vst, "Time") # no clustering by time
-plotPCA(C_gigas_apop_counts_vst, "Family")
+# Plot PCA
+autoplot(pcDermo_Susceptible_gene,
+         data = Dermo_Susceptible_coldata, 
+         colour="Time", 
+         size=5) # little variation explained
+autoplot(pcDermo_Susceptible_gene,
+         data = Dermo_Susceptible_coldata, 
+         colour="LogConc", 
+         size=5)
+autoplot(pcDermo_Susceptible_gene,
+         data = Dermo_Susceptible_coldata, 
+         colour="Condition", 
+         size=5)
+autoplot(pcDermo_Tolerant_gene,
+         data = Dermo_Tolerant_coldata, 
+         colour="Time", 
+         size=5) #some clustering by time
+autoplot(pcDermo_Tolerant_gene,
+         data = Dermo_Tolerant_coldata, 
+         colour="Condition", 
+         size=5) # some clustering by condition
 
-### Heatmaps of apoptosis gene vsts ###
+## MAKE DESEQ DATA SET FROM MATRIX
+## Check levels 
+levels(Dermo_Susceptible_coldata$Condition) #"Control"  "Injected"
+levels(Dermo_Tolerant_coldata$Condition) #"Control"  "Injected"
+levels(Dermo_Susceptible_coldata$Time) # "28d" "36h" "7d" 
+levels(Dermo_Tolerant_coldata$Time) # "28d" "36h" "7d"
+levels(Dermo_Tolerant_coldata$Lib_prep_date)
+levels(Dermo_Susceptible_coldata$Lib_prep_date)
+Dermo_Susceptible_coldata$Time <- factor(Dermo_Susceptible_coldata$Time, levels= c("36h","7d","28d"))
+Dermo_Tolerant_coldata$Time <- factor(Dermo_Tolerant_coldata$Time, levels= c("36h","7d","28d"))
 
-# heatmap of all apoptosis genes 
-C_virginica_apop_counts_assay <-  assay(C_virginica_apop_counts_vst)[,]
-C_virginica_apop_counts_assay_mat <- C_virginica_apop_counts_assay - rowMeans(C_virginica_apop_counts_assay)
-C_virginica_apop_counts_assay_anno <- as.data.frame(colData(C_virginica_apop_counts_vst)[, c("Condition","Time","Experiment")])
-C_virginica_apop_counts_assay_heatmap <- pheatmap(C_virginica_apop_counts_assay_mat  , annotation_col = C_virginica_apop_counts_assay_anno)
+## Creating two data set from matrix, one for each family  
+Dermo_Tolerant_gene_dds <- DESeqDataSetFromMatrix(countData =Dermo_Tolerant_gene_counts,
+                                             colData = Dermo_Tolerant_coldata,
+                                             design = ~Lib_prep_date + Condition + Time) # keep time at end so I can look for condition effect through time
+Dermo_Susceptible_gene_dds <- DESeqDataSetFromMatrix(countData = Dermo_Susceptible_gene_counts,
+                                                colData = Dermo_Susceptible_coldata,
+                                                design = ~Lib_prep_date + Condition + Time) # keep time at end so I can look for condition effect through time
+## Collapse technical replicates
+Dermo_Tolerant_gene_dds <- collapseReplicates(Dermo_Tolerant_gene_dds, Dermo_Tolerant_gene_dds$Sample_ID, Dermo_Tolerant_gene_dds$Tech_rep)
+Dermo_Dermo_Susceptible_gene_dds <- collapseReplicates(Dermo_Susceptible_gene_dds, Dermo_Susceptible_gene_dds$Sample_ID, Dermo_Susceptible_gene_dds$Tech_rep)
 
-C_gigas_apop_counts_assay <-  assay(C_gigas_apop_counts_vst)[,]
-C_gigas_apop_counts_assay_mat <- C_gigas_apop_counts_assay - rowMeans(C_gigas_apop_counts_assay)
-C_gigas_apop_counts_assay_anno <- as.data.frame(colData(C_gigas_apop_counts_vst)[, c("Condition","Experiment")])
-C_gigas_apop_counts_assay_heatmap <- pheatmap(C_gigas_apop_counts_assay_mat  , annotation_col = C_gigas_apop_counts_assay_anno)
-# clustering of delorgeril and HE
+## Prefiltering the data
+Dermo_Tolerant_gene_dds <- Dermo_Tolerant_gene_dds[ rowSums(counts(Dermo_Tolerant_gene_dds )) > 10, ]
+Dermo_Susceptible_gene_dds <- Dermo_Susceptible_gene_dds[rowSums(counts(Dermo_Susceptible_gene_dds )) > 10, ]
 
-# heatmap of most variable apoptosis genes for C_vir (this selects genes with the greatest variance in the sample)
-topVarGenes_C_virginica_apop_assay <-  head(order(rowVars(assay(C_virginica_apop_counts_vst)), decreasing = TRUE), 100) 
-top_Var_C_virginica_apop_assay_mat<- assay(C_virginica_apop_counts_vst)[topVarGenes_C_virginica_apop_assay,]
-top_Var_C_virginica_apop_assay_mat <- top_Var_C_virginica_apop_assay_mat - rowMeans(top_Var_C_virginica_apop_assay_mat)
-top_Var_C_virginica_apop_assay_anno <- as.data.frame(colData(C_virginica_apop_counts_vst)[, c("Experiment","Condition")])
-top_Var_C_virginica_apop_assay_heatmap <- pheatmap(top_Var_C_virginica_apop_assay_mat  , annotation_col = top_Var_C_virginica_apop_assay_anno)
-head(top_Var_C_virginica_apop_assay_mat ) # some ROD and probiotic clustering..dermo samples mostly cluster together
+## DATA TRANSFORMATION AND VISUALIZATION
+Dermo_Tolerant_gene_dds_vst <- varianceStabilizingTransformation(Dermo_Tolerant_gene_dds , blind = TRUE) # keep blind = true before deseq function has been run
+Dermo_Susceptible_gene_dds_vst <- varianceStabilizingTransformation(Dermo_Susceptible_gene_dds , blind = TRUE) # keep blind = true before deseq function has been run
 
-topVarGenes_C_gigas_apop_assay <-  head(order(rowVars(assay(C_gigas_apop_counts_vst)), decreasing = TRUE), 100) 
-top_Var_C_gigas_apop_assay_mat<- assay(C_gigas_apop_counts_vst)[topVarGenes_C_gigas_apop_assay,]
-top_Var_C_gigas_apop_assay_mat <- top_Var_C_gigas_apop_assay_mat - rowMeans(top_Var_C_gigas_apop_assay_mat)
-top_Var_C_gigas_apop_assay_anno <- as.data.frame(colData(C_gigas_apop_counts_vst)[, c("Family", "Experiment")])
-top_Var_C_gigas_apop_assay_heatmap <- pheatmap(top_Var_C_gigas_apop_assay_mat  , annotation_col = top_Var_C_gigas_apop_assay_anno)
-head(top_Var_C_gigas_apop_assay_mat ) # OsHV1 susceptible clusters well with HE susceptible
+## PCA plot visualization of individuals in the family 
+plotPCA(Dermo_Tolerant_gene_dds_vst, intgroup= c("Time","Condition")) # some clustering by treatment
+plotPCA(Dermo_Susceptible_gene_dds_vst , intgroup=c("Time","Condition")) # some clustering
 
-#### DIFFERENTIAL EXPRESSION ANALYSIS ####
+### DIFFERENTIAL EXPRESSION ANALYSIS
+# run pipeline with single command because the formula has already been specified
+# Steps: estimation of size factors (controlling for differences in the sequencing depth of the samples), 
+# the estimation of dispersion values for each gene,and fitting a generalized linear model.
+Dermo_Tolerant_gene_dds_deseq <- DESeq(Dermo_Tolerant_gene_dds) 
+Dermo_Susceptible_gene_dds_deseq <- DESeq(Dermo_Susceptible_gene_dds) 
 
+## Check the resultsNames object of each to look at the available coefficients for use in lfcShrink command
+resultsNames(Dermo_Tolerant_gene_dds_deseq) 
+#[1] "Intercept"                              "Lib_prep_date_12_17_2020_vs_12_15_2020"
+#[3] "Condition_Injected_vs_Control"          "Time_7d_vs_36h"                        
+#[5] "Time_28d_vs_36h"  
+resultsNames(Dermo_Susceptible_gene_dds_deseq )  
+#[1] "Intercept"                              "Lib_prep_date_12_17_2020_vs_12_15_2020"
+#[3] "Condition_Injected_vs_Control"          "Time_7d_vs_36h"                        
+#[5] "Time_28d_vs_36h"    
 
-### GENE CLUSTERING ANALYSIS HEATMAPS  
-# Extract genes with the highest variance across samples for each comparison using either vst or rlog transformed data
-# This heatmap rather than plotting absolute expression strength plot the amount by which each gene deviates in a specific sample from the gene’s average across all samples. 
-# example codes from RNAseq workflow: https://www.bioconductor.org/packages/devel/workflows/vignettes/rnaseqGene/inst/doc/rnaseqGene.html#other-comparisons
+## BUILD THE RESULTS OBJECT
+Dermo_Tolerant_gene_dds_7d_res <-    results(Dermo_Tolerant_gene_dds_deseq, alpha=0.05, name="Time_7d_vs_36h" )
+Dermo_Tolerant_gene_dds_28d_res <-   results(Dermo_Tolerant_gene_dds_deseq, alpha=0.05, name="Time_28d_vs_36h"  )
+Dermo_Susceptible_gene_dds_7d_res <- results(Dermo_Susceptible_gene_dds_deseq, alpha=0.05, name="Time_7d_vs_36h" )
+Dermo_Susceptible_gene_dds_28d_res <-results(Dermo_Susceptible_gene_dds_deseq, alpha=0.05, name="Time_28d_vs_36h" )
 
-Pro_RE22_dds_deseq_Challenge_res_LFC_sig_assay <-  head(order(rowVars(assay(Pro_RE22_dds_rlog  )), decreasing = TRUE), 200)
-family_Pro_RE22_broken_mat <- assay(Pro_RE22_dds_rlog )[Pro_RE22_dds_deseq_Challenge_res_LFC_sig_assay ,]
-family_Pro_RE22_broken_mat <- family_Pro_RE22_broken_mat - rowMeans(family_Pro_RE22_broken_mat)
-family_Pro_RE22_broken_anno <- as.data.frame(colData(Pro_RE22_dds_rlog )[, c("Condition","Time")])
-family_Pro_RE22_broken_heatmap <- pheatmap(family_Pro_RE22_broken_mat , annotation_col = family_Pro_RE22_broken_anno)
-head(family_Pro_RE22_broken_mat) # 
+### Perform LFC Shrinkage with apeglm
+Dermo_Tolerant_gene_dds_7d_res_LFC <- lfcShrink(Dermo_Tolerant_gene_dds_deseq, coef="Time_7d_vs_36h", type="apeglm", res= Dermo_Tolerant_gene_dds_7d_res)
+Dermo_Tolerant_gene_dds_28d_res_LFC <- lfcShrink(Dermo_Tolerant_gene_dds_deseq, coef="Time_28d_vs_36h", type="apeglm", res= Dermo_Tolerant_gene_dds_28d_res)
+Dermo_Susceptible_gene_dds_7d_res_LFC <- lfcShrink(Dermo_Susceptible_gene_dds_deseq, coef="Time_7d_vs_36h", type="apeglm", res=Dermo_Susceptible_gene_dds_7d_res)
+Dermo_Susceptible_gene_dds_28d_res_LFC <- lfcShrink(Dermo_Susceptible_gene_dds_deseq, coef="Time_28d_vs_36h", type="apeglm", res=Dermo_Susceptible_gene_dds_28d_res)
 
-# Gene clustering heatmap with only apoptosis genes #
-# Search original Probiotic_counts for apoptosis genes and do rlog on just these
-Pro_RE22_counts_apop <- Pro_RE22_counts[row.names(Pro_RE22_counts) %in% C_vir_rtracklayer_apop_product_final_ID,]
-nrow(Pro_RE22_counts_apop) #1026
-head(Pro_RE22_counts_apop)
-Pro_RE22_counts_apop_dds <- DESeqDataSetFromMatrix(countData = Pro_RE22_counts_apop,
-                                                   colData = Pro_RE22_coldata,
-                                                   design = ~Time + Condition) # add time to control for larval age effect 
-# Prefiltering the data and running rlog
-Pro_RE22_counts_apop_dds<- Pro_RE22_counts_apop_dds[ rowSums(counts(Pro_RE22_counts_apop_dds)) > 10, ]
-Pro_RE22_counts_apop_dds_rlog <- rlog(Pro_RE22_counts_apop_dds, blind=TRUE)
+## EXPLORATORY PLOTTING OF RESULTS 
+## Histogram of P values 
+hist(Dermo_Tolerant_gene_dds_7d_res_LFC$padj[Dermo_Tolerant_gene_dds_7d_res_LFC$baseMean > 1], breaks = 0:20/20,
+     col = "grey50", border = "white")
+hist(Dermo_Tolerant_gene_dds_28d_res_LFC$padj[Dermo_Tolerant_gene_dds_28d_res_LFC$baseMean > 1], breaks = 0:20/20,
+     col = "grey50", border = "white")
+hist(Dermo_Susceptible_gene_dds_7d_res_LFC$padj[Dermo_Susceptible_gene_dds_7d_res_LFC$baseMean > 1], breaks = 0:20/20,
+     col = "grey50", border = "white")
+hist(Dermo_Susceptible_gene_dds_28d_res_LFC$padj[Dermo_Susceptible_gene_dds_28d_res_LFC$baseMean > 1], breaks = 0:20/20,
+     col = "grey50", border = "white")
 
-## PCA plot of rlog transformed counts for apoptosis
-plotPCA(Pro_RE22_counts_apop_dds_rlog , intgroup="Time") # still overall clustering by time and not condition
+### Subsetting Significant Genes by padj < 0.05
+Dermo_Tolerant_gene_dds_7d_res_LFC_sig <-  subset(Dermo_Tolerant_gene_dds_7d_res_LFC , padj < 0.05)
+Dermo_Tolerant_gene_dds_7d_res_LFC_sig$ID<- row.names(Dermo_Tolerant_gene_dds_7d_res_LFC_sig)
+Dermo_Tolerant_gene_dds_7d_res_LFC_sig <- as.data.frame(Dermo_Tolerant_gene_dds_7d_res_LFC_sig)
+nrow(Dermo_Tolerant_gene_dds_7d_res_LFC_sig) #18
 
-# heatmap of all apoptosis genes 
-Pro_RE22_counts_apop_assay <-  assay(Pro_RE22_counts_apop_dds_rlog)[,]
-Pro_RE22_counts_apop_assay_mat <- Pro_RE22_counts_apop_assay - rowMeans(Pro_RE22_counts_apop_assay)
-Pro_RE22_counts_apop_assay_anno <- as.data.frame(colData(Pro_RE22_counts_apop_dds_rlog )[, c("Condition","Sample")])
-Pro_RE22_counts_apop_assay_heatmap <- pheatmap(Pro_RE22_counts_apop_assay_mat  , annotation_col = Pro_RE22_counts_apop_assay_anno)
-head(Pro_RE22_counts_apop_assay_mat ) # 
+Dermo_Tolerant_gene_dds_28d_res_LFC_sig <-  subset(Dermo_Tolerant_gene_dds_28d_res_LFC , padj < 0.05)
+Dermo_Tolerant_gene_dds_28d_res_LFC_sig$ID<- row.names(Dermo_Tolerant_gene_dds_28d_res_LFC_sig)
+Dermo_Tolerant_gene_dds_28d_res_LFC_sig <- as.data.frame(Dermo_Tolerant_gene_dds_28d_res_LFC_sig)
+nrow(Dermo_Tolerant_gene_dds_28d_res_LFC_sig) # 21
 
-# heatmap of most variable apoptosis genes (this selects genes with the greatest variance in the sample)
-topVarGenes_Pro_RE22_counts_apop_assay <-  head(order(rowVars(assay(Pro_RE22_counts_apop_dds_rlog)), decreasing = TRUE), 100) 
-top_Var_Pro_RE22_counts_apop_assay_mat<- assay(Pro_RE22_counts_apop_dds_rlog)[topVarGenes_Pro_RE22_counts_apop_assay,]
-top_Var_Pro_RE22_counts_apop_assay_mat <- top_Var_Pro_RE22_counts_apop_assay_mat - rowMeans(top_Var_Pro_RE22_counts_apop_assay_mat)
-top_Var_Pro_RE22_counts_apop_assay_anno <- as.data.frame(colData(Pro_RE22_counts_apop_dds_rlog)[, c("Condition","Time")])
-top_Var_Pro_RE22_counts_apop_assay_heatmap <- pheatmap(top_Var_Pro_RE22_counts_apop_assay_mat  , annotation_col = top_Var_Pro_RE22_counts_apop_assay_anno)
-head(top_Var_Pro_RE22_counts_apop_assay_mat )
-# some clustering patterns here in signature
+Dermo_Susceptible_gene_dds_7d_res_LFC_sig <-  subset(Dermo_Susceptible_gene_dds_7d_res_LFC , padj < 0.05)
+Dermo_Susceptible_gene_dds_7d_res_LFC_sig$ID<- row.names(Dermo_Susceptible_gene_dds_7d_res_LFC_sig)
+Dermo_Susceptible_gene_dds_7d_res_LFC_sig <- as.data.frame(Dermo_Susceptible_gene_dds_7d_res_LFC_sig)
+nrow(Dermo_Susceptible_gene_dds_7d_res_LFC_sig)  #7
 
-# annotate the top 100 most variable genes  
-# reorder annotation table to match ordering in heatmap 
-top_Var_Pro_RE22_counts_apop_assay_heatmap_reorder <-rownames(top_Var_Pro_RE22_counts_apop_assay_mat[top_Var_Pro_RE22_counts_apop_assay_heatmap$tree_row[["order"]],])
-# annotate the row.names
-top_Var_Pro_RE22_counts_apop_assay_prot <- as.data.frame(top_Var_Pro_RE22_counts_apop_assay_heatmap_reorder)
-colnames(top_Var_Pro_RE22_counts_apop_assay_prot)[1] <- "ID"
-top_Var_Pro_RE22_counts_apop_assay_prot_annot <- left_join(top_Var_Pro_RE22_counts_apop_assay_prot, select(C_vir_rtracklayer_apop_product_final, ID, product, gene), by = "ID")
+Dermo_Susceptible_gene_dds_28d_res_LFC_sig <-  subset(Dermo_Susceptible_gene_dds_28d_res_LFC , padj < 0.05)
+Dermo_Susceptible_gene_dds_28d_res_LFC_sig$ID<- row.names(Dermo_Susceptible_gene_dds_28d_res_LFC_sig)
+Dermo_Susceptible_gene_dds_28d_res_LFC_sig <- as.data.frame(Dermo_Susceptible_gene_dds_28d_res_LFC_sig)
+nrow(Dermo_Susceptible_gene_dds_28d_res_LFC_sig)  #10
 
 ### Extract list of significant Apoptosis Genes (not less than or greater than 1 LFC) using merge
-Pro_RE22_dds_deseq_Challenge_res_LFC_sig_APOP <- merge(Pro_RE22_dds_deseq_Challenge_res_LFC_sig, C_vir_rtracklayer_apop_product_final, by = "ID")
-Pro_RE22_dds_deseq_Challenge_res_LFC_sig_APOP_arranged <- arrange(Pro_RE22_dds_deseq_Challenge_res_LFC_sig_APOP, -log2FoldChange) 
-nrow(Pro_RE22_dds_deseq_Challenge_res_LFC_sig_APOP) # 
+Dermo_Susceptible_gene_dds_7d_res_LFC_sig_APOP <- merge(Dermo_Susceptible_gene_dds_7d_res_LFC_sig, C_vir_rtracklayer_apop_product_final, by = "ID")
+Dermo_Susceptible_gene_dds_7d_res_LFC_sig_APOP_arranged <- arrange(Dermo_Susceptible_gene_dds_7d_res_LFC_sig_APOP, -log2FoldChange) 
+nrow(Dermo_Susceptible_gene_dds_7d_res_LFC_sig_APOP) # 0
 
-Pro_RE22_dds_deseq_Challenge_res_LFC_sig_APOP_plot <- ggplot(Pro_RE22_dds_deseq_Challenge_res_LFC_sig_APOP , aes(x=product, y = log2FoldChange, fill=log2FoldChange)) + geom_col(position="dodge") +
-  coord_flip() + scale_fill_gradient2(low="purple",mid = "grey", high="darkgreen") + ggtitle("") +
-  ylab("Log2 Fold Change")
+Dermo_Susceptible_gene_dds_28d_res_LFC_sig_APOP <- merge(Dermo_Susceptible_gene_dds_28d_res_LFC_sig, C_vir_rtracklayer_apop_product_final, by = "ID")
+Dermo_Susceptible_gene_dds_28d_res_LFC_sig_APOP_arranged <- arrange(Dermo_Susceptible_gene_dds_28d_res_LFC_sig_APOP, -log2FoldChange) 
+nrow(Dermo_Susceptible_gene_dds_28d_res_LFC_sig_APOP) # 0
+
+Dermo_Tolerant_gene_dds_7d_res_LFC_sig_APOP <- merge(Dermo_Tolerant_gene_dds_7d_res_LFC_sig, C_vir_rtracklayer_apop_product_final, by = "ID")
+Dermo_Tolerant_gene_dds_7d_res_LFC_sig_APOP_arranged <- arrange(Dermo_Tolerant_gene_dds_7d_res_LFC_sig_APOP, -log2FoldChange) 
+nrow(Dermo_Tolerant_gene_dds_7d_res_LFC_sig_APOP) # 0
+
+Dermo_Tolerant_gene_dds_28d_res_LFC_sig_APOP <- merge(Dermo_Tolerant_gene_dds_28d_res_LFC_sig, C_vir_rtracklayer_apop_product_final, by = "ID")
+Dermo_Tolerant_gene_dds_28d_res_LFC_sig_APOP_arranged <- arrange(Dermo_Tolerant_gene_dds_28d_res_LFC_sig_APOP, -log2FoldChange) 
+nrow(Dermo_Tolerant_gene_dds_28d_res_LFC_sig_APOP) # 0
+
+#### PROBIOTIC ####
+
+colnames(Probiotic_gene_counts)
+Probiotic_gene_counts <- Probiotic_gene_counts[,-7]
+
+#Load in sample metadata
+Probiotic_coldata <- read.csv("/Users/erinroberts/Documents/PhD_Research/Chapter_1_Apoptosis Paper/Chapter1_Apoptosis_Transcriptome_Analyses_2019/DATA ANALYSIS/apoptosis_data_pipeline/DESeq2/2020_Transcriptome_ANALYSIS/Probiotic_coldata.csv", row.names = 1 )
+View(Probiotic_coldata)  
+nrow(Probiotic_coldata) 
+
+# Make sure the columns of the count matrix and rows of the column data (sample metadata) are in the same order. 
+all(rownames(Probiotic_coldata) %in% colnames(Probiotic_gene_counts))  #Should return TRUE
+# returns TRUE
+all(colnames(Probiotic_gene_counts) %in% rownames(Probiotic_coldata))  
+# returns TRUE
+all(rownames(Probiotic_coldata) == colnames(Probiotic_gene_counts))
+# returns FALSE
+
+# Fix the order
+Probiotic_gene_counts <-Probiotic_gene_counts[,row.names(Probiotic_coldata)]
+row.names(Probiotic_coldata)
+
+all(rownames(Probiotic_coldata) %in% colnames(Probiotic_gene_counts))  #Should return TRUE
+# returns TRUE
+all(colnames(Probiotic_gene_counts) %in% rownames(Probiotic_coldata))  
+# returns TRUE
+all(rownames(Probiotic_coldata) == colnames(Probiotic_gene_counts))
+# returns TRUE
+
+### DATA QC PCA PLOT 
+# rlog transform data is recommended over vst for small data sets 
+# PCA plots of data (https://bioinformatics-core-shared-training.github.io/cruk-summer-school-2018/RNASeq2018/html/02_Preprocessing_Data.nb.html#count-distribution-boxplots)
+Probiotic_gene_counts_matrix <- as.matrix(Probiotic_gene_counts)
+Probioticrloggene_counts <- rlog(Probiotic_gene_counts_matrix, blind =TRUE)
+
+# run PCA
+pcProbioticgene <- prcomp(t(Probioticrloggene_counts))
+
+# Plot PCA
+autoplot(pcProbioticgene,
+         data = Probiotic_coldata, 
+         colour="Time", 
+         size=5) # strong clustering by Day!!, ~50% of the variation explained by these first two PCA axes. 
+
+## MAKE DESEQ DATA SET FROM MATRIX
+## Check levels 
+levels(Probiotic_coldata$Condition) # "Bacillus_pumilus_RI0695" "Untreated_control" 
+Probiotic_coldata$Condition <- factor(Probiotic_coldata$Condition , levels = c("Untreated_control","Bacillus_pumilus_RI0695"))
+levels(Probiotic_coldata$Condition)
+levels(Probiotic_coldata$Time) # "12_d" "16_d" "5_d" 
+Probiotic_coldata$Time <- factor(Probiotic_coldata$Time , levels = c("5_d","12_d", "16_d"))
+levels(Probiotic_coldata$Time)
+
+## Creating deseq data set from matrix, controlling for the effect of time
+Probiotic_gene_dds <- DESeqDataSetFromMatrix(countData = Probiotic_gene_counts,
+                                        colData = Probiotic_coldata,
+                                        design = ~ Time + Condition ) 
+
+## Prefiltering the data
+# Data prefiltering helps decrease the size of the data set and get rid of
+# rows with no data or very minimal data (<10). Apply a minimal filtering here as more stringent filtering will be applied later
+Probiotic_gene_dds <- Probiotic_gene_dds [ rowSums(counts(Probiotic_gene_dds )) > 10, ]
+
+## DATA TRANSFORMATION AND VISUALIZATION
+# Assess sample clustering after setting initial formula for comparison
+Probiotic_gene_dds_rlog <- rlog(Probiotic_gene_dds , blind = TRUE) # keep blind = true before deseq function has been run
+
+## PCA plot visualization of individuals in the family 
+plotPCA(Probiotic_gene_dds_rlog, intgroup=c("Sample", "Condition")) # clustering by time is not as tight
+
+### DIFFERENTIAL EXPRESSION ANALYSIS
+Probiotic_gene_dds_deseq <- DESeq(Probiotic_gene_dds) 
+resultsNames(Probiotic_gene_dds_deseq) # [1] "Intercept", "Time_12_d_vs_5_d", "Time_16_d_vs_5_d", "Condition_Bacillus_pumilus_RI0695_vs_Untreated_control"
+
+## BUILD THE RESULTS OBJECT
+# Examining the results object, change alpha to p <0.05, looking at object metadata
+# use mcols to look at metadata for each table
+mcols(Probiotic_gene_dds_deseq)
+Probiotic_gene_dds_deseq_Challenge_res <- results(Probiotic_gene_dds_deseq, alpha=0.05, name= "Condition_Bacillus_pumilus_RI0695_vs_Untreated_control")
+head(Probiotic_gene_dds_deseq_Challenge_res) # Condition Bacillus pumilus RI0695 vs Untreated control 
+
+### Perform LFC Shrinkage with apeglm
+Probiotic_gene_dds_deseq_Challenge_res_LFC<- lfcShrink(Probiotic_gene_dds_deseq, coef="Condition_Bacillus_pumilus_RI0695_vs_Untreated_control", type="apeglm", res= Probiotic_gene_dds_deseq_Challenge_res)
+
+## EXPLORATORY PLOTTING OF RESULTS 
+## MA Plotting
+plotMA(Probiotic_gene_dds_deseq_Challenge_res_LFC, ylim = c(-5, 5))
+
+## Histogram of P values 
+# exclude genes with very small counts to avoid spikes and plot using the LFCshrinkage
+hist(Probiotic_gene_dds_deseq_Challenge_res_LFC$padj[Probiotic_gene_dds_deseq_Challenge_res_LFC$baseMean > 1], breaks = 0:20/20,
+     col = "grey50", border = "white")
+
+### Subsetting Significant Genes by padj < 0.05
+Probiotic_gene_dds_deseq_Challenge_res_LFC_sig <-  subset(Probiotic_gene_dds_deseq_Challenge_res_LFC , padj < 0.05)
+Probiotic_gene_dds_deseq_Challenge_res_LFC_sig$ID<- row.names(Probiotic_gene_dds_deseq_Challenge_res_LFC_sig)
+Probiotic_gene_dds_deseq_Challenge_res_LFC_sig <- as.data.frame(Probiotic_gene_dds_deseq_Challenge_res_LFC_sig)
+nrow(Probiotic_gene_dds_deseq_Challenge_res_LFC_sig) # 1
+
+### Extract list of significant Apoptosis Genes (not less than or greater than 1 LFC) using merge
+Probiotic_gene_dds_deseq_Challenge_res_LFC_sig_APOP <- merge(Probiotic_gene_dds_deseq_Challenge_res_LFC_sig, C_vir_rtracklayer_apop_product_final, by = "ID")
+Probiotic_gene_dds_deseq_Challenge_res_LFC_sig_APOP_arranged <- arrange(Probiotic_gene_dds_deseq_Challenge_res_LFC_sig_APOP, -log2FoldChange) 
+nrow(Probiotic_gene_dds_deseq_Challenge_res_LFC_sig_APOP) # 0
+
+#### MODAK PROBIOTIC RE22 TRANSCRIPTOME ANALYSIS ####
+
+Pro_RE22_gene_counts
+colnames(Pro_RE22_gene_counts)
+Pro_RE22_gene_counts <- Pro_RE22_gene_counts[,-19]
+
+#Load in sample metadata
+Pro_RE22_coldata <- read.csv("/Users/erinroberts/Documents/PhD_Research/Chapter_1_Apoptosis Paper/Chapter1_Apoptosis_Transcriptome_Analyses_2019/DATA ANALYSIS/apoptosis_data_pipeline/DESeq2/2020_Transcriptome_ANALYSIS/Modak_Pro_RE22_coldata.csv", row.names = 1 )
+View(Pro_RE22_coldata)  
+nrow(Pro_RE22_coldata) 
+
+# Make sure the columns of the count matrix and rows of the column data (sample metadata) are in the same order. 
+all(rownames(Pro_RE22_coldata) %in% colnames(Pro_RE22_gene_counts))  #Should return TRUE
+# returns TRUE
+all(colnames(Pro_RE22_gene_counts) %in% rownames(Pro_RE22_coldata))  
+# returns TRUE
+all(rownames(Pro_RE22_coldata) == colnames(Pro_RE22_gene_counts))
+# returns FALSE
+
+# Fix the order
+Pro_RE22_gene_counts <-Pro_RE22_gene_counts[,row.names(Pro_RE22_coldata)]
+row.names(Pro_RE22_coldata)
+
+all(rownames(Pro_RE22_coldata) %in% colnames(Pro_RE22_gene_counts))  #Should return TRUE
+# returns TRUE
+all(colnames(Pro_RE22_gene_counts) %in% rownames(Pro_RE22_coldata))  
+# returns TRUE
+all(rownames(Pro_RE22_coldata) == colnames(Pro_RE22_gene_counts))
+# returns TRUE
+
+### DATA QC PCA PLOT 
+# rlog transform data is recommended over vst for small data sets 
+# PCA plots of data (https://bioinformatics-core-shared-training.github.io/cruk-summer-school-2018/RNASeq2018/html/02_Preprocessing_Data.nb.html#count-distribution-boxplots)
+Pro_RE22_gene_counts_matrix <- as.matrix(Pro_RE22_gene_counts)
+Pro_RE22rloggene_counts <- rlog(Pro_RE22_gene_counts_matrix, blind =TRUE)
+
+# run PCA
+pcPro_RE22_gene <- prcomp(t(Pro_RE22rloggene_counts))
+
+# Plot PCA
+autoplot(pcPro_RE22_gene,
+         data = Pro_RE22_coldata, 
+         colour="Condition", 
+         size=5) 
+autoplot(pcPro_RE22_gene,
+         data = Pro_RE22_coldata, 
+         colour="Family", # Family (source of material) explains the largest amount of variance
+         size=5) 
+
+## MAKE DESEQ DATA SET FROM MATRIX
+## Check levels 
+levels(Pro_RE22_coldata$Condition) # 
+#"Bacillus_pumilus_RI06_95_exposure_24h"   "Bacillus_pumilus_RI06_95_exposure_6h"    "Control_no_treatment"                   
+#"Phaeobacter_inhibens_S4_exposure_24h"    "Phaeobacter_inhibens_S4_exposure_6h"     "Vibrio_coralliilyticus_RE22_exposure_6h"
+
+Pro_RE22_coldata$Condition <- factor(Pro_RE22_coldata$Condition , levels = c("Control_no_treatment"  , "Bacillus_pumilus_RI06_95_exposure_6h" ,"Bacillus_pumilus_RI06_95_exposure_24h"    ,                   
+                                                                             "Phaeobacter_inhibens_S4_exposure_6h" ,"Phaeobacter_inhibens_S4_exposure_24h" ,  "Vibrio_coralliilyticus_RE22_exposure_6h"
+))
+
+levels(Pro_RE22_coldata$Condition)
+levels(Pro_RE22_coldata$Time) # Time this is what I will control for
+
+## Creating deseq data set from matrix, controlling for the effect of time
+Pro_RE22_gene_dds <- DESeqDataSetFromMatrix(countData = Pro_RE22_gene_counts,
+                                       colData = Pro_RE22_coldata,
+                                       design = ~ Time + Condition ) 
+
+## Prefiltering the data
+Pro_RE22_gene_dds <- Pro_RE22_gene_dds [ rowSums(counts(Pro_RE22_gene_dds )) > 10, ]
+
+## DATA TRANSFORMATION AND VISUALIZATION
+Pro_RE22_gene_dds_rlog <- rlog(Pro_RE22_gene_dds , blind = TRUE) # keep blind = true before deseq function has been run
+
+## PCA plot visualization of individuals in the family 
+plotPCA(Pro_RE22_gene_dds_rlog, intgroup="Condition") # less clustering now by family, some clustering of different treatments
+
+### DIFFERENTIAL EXPRESSION ANALYSIS
+Pro_RE22_gene_dds_deseq <- DESeq(Pro_RE22_gene_dds) 
+
+## Check the resultsNames object of each to look at the available coefficients for use in lfcShrink command
+resultsNames(Pro_RE22_gene_dds_deseq) #[1] "Intercept"                                                                
+# [2] "Time_6d_vs_10d"                                                           
+# [3] "Time_7d_vs_10d"                                                           
+# [4] "Condition_Bacillus_pumilus_RI06_95_exposure_6h_vs_Control_no_treatment"   
+# [5] "Condition_Bacillus_pumilus_RI06_95_exposure_24h_vs_Control_no_treatment"  
+# [6] "Condition_Phaeobacter_inhibens_S4_exposure_6h_vs_Control_no_treatment"    
+# [7] "Condition_Phaeobacter_inhibens_S4_exposure_24h_vs_Control_no_treatment"   
+# [8] "Condition_Vibrio_coralliilyticus_RE22_exposure_6h_vs_Control_no_treatment"
+
+## BUILD THE RESULTS OBJECT
+# Examining the results object, change alpha to p <0.05, looking at object metadata
+# use mcols to look at metadata for each table
+Pro_RE22_gene_dds_deseq_res_RI_6h <-  results(Pro_RE22_gene_dds_deseq, alpha=0.05, name= "Condition_Bacillus_pumilus_RI06_95_exposure_6h_vs_Control_no_treatment")
+Pro_RE22_gene_dds_deseq_res_RI_24h <- results(Pro_RE22_gene_dds_deseq, alpha=0.05, name= "Condition_Bacillus_pumilus_RI06_95_exposure_24h_vs_Control_no_treatment" )
+Pro_RE22_gene_dds_deseq_res_S4_6h <-  results(Pro_RE22_gene_dds_deseq, alpha=0.05, name= "Condition_Phaeobacter_inhibens_S4_exposure_6h_vs_Control_no_treatment"  )
+Pro_RE22_gene_dds_deseq_res_S4_24h <- results(Pro_RE22_gene_dds_deseq, alpha=0.05, name= "Condition_Phaeobacter_inhibens_S4_exposure_24h_vs_Control_no_treatment"   )
+Pro_RE22_gene_dds_deseq_res_RE22 <-   results(Pro_RE22_gene_dds_deseq, alpha=0.05, name= "Condition_Vibrio_coralliilyticus_RE22_exposure_6h_vs_Control_no_treatment"  )
+
+### Perform LFC Shrinkage with apeglm
+Pro_RE22_gene_dds_deseq_res_RI_6h_LFC <-  lfcShrink(Pro_RE22_gene_dds_deseq, coef="Condition_Bacillus_pumilus_RI06_95_exposure_6h_vs_Control_no_treatment", type="apeglm", res= Pro_RE22_gene_dds_deseq_res_RI_6h )
+Pro_RE22_gene_dds_deseq_res_RI_24h_LFC <- lfcShrink(Pro_RE22_gene_dds_deseq, coef= "Condition_Bacillus_pumilus_RI06_95_exposure_24h_vs_Control_no_treatment" , type="apeglm", res= Pro_RE22_gene_dds_deseq_res_RI_24h)
+Pro_RE22_gene_dds_deseq_res_S4_6h_LFC <-  lfcShrink(Pro_RE22_gene_dds_deseq, coef="Condition_Phaeobacter_inhibens_S4_exposure_6h_vs_Control_no_treatment", type="apeglm", res= Pro_RE22_gene_dds_deseq_res_S4_6h )
+Pro_RE22_gene_dds_deseq_res_S4_24h_LFC <- lfcShrink(Pro_RE22_gene_dds_deseq, coef= "Condition_Phaeobacter_inhibens_S4_exposure_24h_vs_Control_no_treatment"  , type="apeglm", res= Pro_RE22_gene_dds_deseq_res_S4_24h)
+Pro_RE22_gene_dds_deseq_res_RE22_LFC <-   lfcShrink(Pro_RE22_gene_dds_deseq, coef= "Condition_Vibrio_coralliilyticus_RE22_exposure_6h_vs_Control_no_treatment" , type="apeglm", res= Pro_RE22_gene_dds_deseq_res_RE22 )
+
+## EXPLORATORY PLOTTING OF RESULTS 
+## Histogram of P values 
+hist(Pro_RE22_gene_dds_deseq_res_RI_6h_LFC$padj[Pro_RE22_gene_dds_deseq_res_RI_6h_LFC$baseMean >1], breaks=0:20/20, col="grey50", border="white")
+hist(Pro_RE22_gene_dds_deseq_res_RI_24h_LFC$padj[Pro_RE22_gene_dds_deseq_res_RI_24h_LFC$baseMean >1], breaks=0:20/20, col="grey50", border="white")
+hist(Pro_RE22_gene_dds_deseq_res_S4_6h_LFC$padj[Pro_RE22_gene_dds_deseq_res_S4_6h_LFC$baseMean >1], breaks=0:20/20, col="grey50", border="white")
+hist(Pro_RE22_gene_dds_deseq_res_S4_24h_LFC$padj[Pro_RE22_gene_dds_deseq_res_S4_24h_LFC$baseMean >1], breaks=0:20/20, col="grey50", border="white")
+hist(Pro_RE22_gene_dds_deseq_res_RE22_LFC$padj[Pro_RE22_gene_dds_deseq_res_RE22_LFC$baseMean >1], breaks=0:20/20, col="grey50", border="white")
+
+### Subsetting Significant Genes by padj < 0.05
+Pro_RE22_gene_dds_deseq_res_RI_6h_LFC_sig <-  subset(Pro_RE22_gene_dds_deseq_res_RI_6h_LFC , padj < 0.05)
+Pro_RE22_gene_dds_deseq_res_RI_24h_LFC_sig <- subset(Pro_RE22_gene_dds_deseq_res_RI_24h_LFC, padj < 0.05)
+Pro_RE22_gene_dds_deseq_res_S4_6h_LFC_sig <-  subset(Pro_RE22_gene_dds_deseq_res_S4_6h_LFC , padj < 0.05) 
+Pro_RE22_gene_dds_deseq_res_S4_24h_LFC_sig <- subset(Pro_RE22_gene_dds_deseq_res_S4_24h_LFC, padj < 0.05)
+Pro_RE22_gene_dds_deseq_res_RE22_LFC_sig <-   subset(Pro_RE22_gene_dds_deseq_res_RE22_LFC, padj < 0.05)
+
+Pro_RE22_gene_dds_deseq_res_RI_6h_LFC_sig$ID <-  row.names(Pro_RE22_gene_dds_deseq_res_RI_6h_LFC_sig)
+Pro_RE22_gene_dds_deseq_res_RI_24h_LFC_sig$ID <- row.names(Pro_RE22_gene_dds_deseq_res_RI_24h_LFC_sig)
+Pro_RE22_gene_dds_deseq_res_S4_6h_LFC_sig$ID <-  row.names(Pro_RE22_gene_dds_deseq_res_S4_6h_LFC_sig)
+Pro_RE22_gene_dds_deseq_res_S4_24h_LFC_sig$ID <- row.names(Pro_RE22_gene_dds_deseq_res_S4_24h_LFC_sig)
+Pro_RE22_gene_dds_deseq_res_RE22_LFC_sig$ID <-   row.names(Pro_RE22_gene_dds_deseq_res_RE22_LFC_sig)
+
+Pro_RE22_gene_dds_deseq_res_RI_6h_LFC_sig  <- as.data.frame(Pro_RE22_gene_dds_deseq_res_RI_6h_LFC_sig)
+Pro_RE22_gene_dds_deseq_res_RI_24h_LFC_sig <- as.data.frame(Pro_RE22_gene_dds_deseq_res_RI_24h_LFC_sig)
+Pro_RE22_gene_dds_deseq_res_S4_6h_LFC_sig  <- as.data.frame(Pro_RE22_gene_dds_deseq_res_S4_6h_LFC_sig)
+Pro_RE22_gene_dds_deseq_res_S4_24h_LFC_sig <- as.data.frame(Pro_RE22_gene_dds_deseq_res_S4_24h_LFC_sig)
+Pro_RE22_gene_dds_deseq_res_RE22_LFC_sig   <- as.data.frame(Pro_RE22_gene_dds_deseq_res_RE22_LFC_sig)
+
+nrow(Pro_RE22_gene_dds_deseq_res_RI_6h_LFC_sig )  #61
+nrow(Pro_RE22_gene_dds_deseq_res_RI_24h_LFC_sig) #56
+nrow(Pro_RE22_gene_dds_deseq_res_S4_6h_LFC_sig ) #92
+nrow(Pro_RE22_gene_dds_deseq_res_S4_24h_LFC_sig) #92
+nrow(Pro_RE22_gene_dds_deseq_res_RE22_LFC_sig  ) #54
+
+### Extract list of significant Apoptosis Genes (not less than or greater than 1 LFC) using merge
+Pro_RE22_gene_dds_deseq_res_RI_6h_LFC_sig_APOP <-  merge(Pro_RE22_gene_dds_deseq_res_RI_6h_LFC_sig, C_vir_rtracklayer_apop_product_final, by = "ID")
+Pro_RE22_gene_dds_deseq_res_RI_24h_LFC_sig_APOP <- merge(Pro_RE22_gene_dds_deseq_res_RI_24h_LFC_sig, C_vir_rtracklayer_apop_product_final, by =  "ID")
+Pro_RE22_gene_dds_deseq_res_S4_6h_LFC_sig_APOP <-  merge(Pro_RE22_gene_dds_deseq_res_S4_6h_LFC_sig, C_vir_rtracklayer_apop_product_final, by = "ID")
+Pro_RE22_gene_dds_deseq_res_S4_24h_LFC_sig_APOP <- merge(Pro_RE22_gene_dds_deseq_res_S4_24h_LFC_sig, C_vir_rtracklayer_apop_product_final, by =  "ID")
+Pro_RE22_gene_dds_deseq_res_RE22_LFC_sig_APOP <-   merge(Pro_RE22_gene_dds_deseq_res_RE22_LFC_sig, C_vir_rtracklayer_apop_product_final, by = "ID")
+
+nrow(Pro_RE22_gene_dds_deseq_res_RI_6h_LFC_sig_APOP ) #0
+nrow(Pro_RE22_gene_dds_deseq_res_RI_24h_LFC_sig_APOP) #0
+nrow(Pro_RE22_gene_dds_deseq_res_S4_6h_LFC_sig_APOP ) #0
+nrow(Pro_RE22_gene_dds_deseq_res_S4_24h_LFC_sig_APOP) #0
+nrow(Pro_RE22_gene_dds_deseq_res_RE22_LFC_sig_APOP ) # 0
+
+#### ROD ####
+ROD_gene_counts
+colnames(ROD_gene_counts) 
+ROD_gene_counts <- ROD_gene_counts[,-13]
+
+#Load in sample metadata
+ROD_coldata <- read.csv("/Users/erinroberts/Documents/PhD_Research/Chapter_1_Apoptosis Paper/Chapter1_Apoptosis_Transcriptome_Analyses_2019/DATA ANALYSIS/apoptosis_data_pipeline/DESeq2/2020_Transcriptome_ANALYSIS/ROD_coldata.csv", row.names = 1 )
+View(ROD_coldata )  
+nrow(ROD_coldata ) 
+
+# Make sure the columns of the count matrix and rows of the column data (sample metadata) are in the same order. 
+all(rownames(ROD_coldata ) %in% colnames(ROD_gene_counts))  #Should return TRUE
+# returns TRUE
+all(colnames(ROD_gene_counts) %in% rownames(ROD_coldata ))  
+# returns TRUE
+all(rownames(ROD_coldata ) == colnames(ROD_gene_counts))
+# returns FALSE
+
+# Fix the order
+ROD_gene_counts<- ROD_gene_counts[,row.names(ROD_coldata)]
+
+all(rownames(ROD_coldata ) %in% colnames(ROD_gene_counts))  #Should return TRUE
+# returns TRUE
+all(colnames(ROD_gene_counts) %in% rownames(ROD_coldata ))  
+# returns TRUE
+all(rownames(ROD_coldata ) == colnames(ROD_gene_counts))
+# returns TRUE
+
+# going to split the analysis into the Susceptible 1d and 5d vs. Susceptible 5d 15, and then the control and resistant going to be controlled 
+ROD_Susceptible_coldata <- ROD_coldata %>%  subset(Breed == "F3L") # subset() keeps rownames
+row.names(ROD_Susceptible_coldata )
+ROD_Susceptible_gene_counts <- ROD_gene_counts[,row.names(ROD_Susceptible_coldata )]
+colnames(ROD_Susceptible_counts)
+ROD_Resistant_coldata <- ROD_coldata %>%  subset(Breed == "GX09") # subset() keeps rownames
+ROD_Resistant_gene_counts <- ROD_gene_counts[,row.names(ROD_Resistant_coldata)]
+
+### DATA QC PCA PLOT 
+# rlog transform data is recommended over vst for small data sets 
+# PCA plots of data (https://bioinformatics-core-shared-training.github.io/cruk-summer-school-2018/RNASeq2018/html/02_Preprocessing_Data.nb.html#count-distribution-boxplots)
+ROD_Susceptible_gene_counts_matrix <- as.matrix(ROD_Susceptible_gene_counts)
+ROD_Resistant_gene_counts_matrix <- as.matrix(ROD_Resistant_gene_counts)
+
+ROD_Susceptible_rloggene_counts <- rlog(ROD_Susceptible_gene_counts_matrix , blind =TRUE)
+ROD_Resistant_rloggene_counts <- rlog(ROD_Resistant_gene_counts_matrix , blind =TRUE)
+
+# run PCA
+pcROD_Susceptiblegene <- prcomp(t(ROD_Susceptible_rloggene_counts))
+pcROD_Resistantgene <- prcomp(t(ROD_Resistant_rloggene_counts))
+
+# Plot PCA
+autoplot(pcROD_Susceptiblegene,
+         data = ROD_Susceptible_coldata, 
+         colour="Time", 
+         size=5) # 1d and 15 days actually cluster most closely
+autoplot(pcROD_Resistantgene,
+         data = ROD_Resistant_coldata, 
+         colour="Time", 
+         size=5) 
+
+## MAKE DESEQ DATA SET FROM MATRIX
+## Check levels 
+levels(ROD_Susceptible_coldata$Condition) #"Control_Resistant"     "Resistant_Challenge"   "Susceptible_Challenge"
+ROD_Susceptible_coldata$Condition <- droplevels(ROD_Susceptible_coldata$Condition)
+levels(ROD_Susceptible_coldata$Condition)
+levels(ROD_Susceptible_coldata$Disease_stage) # [1] "No _signs_of_ROD", "Signs_of_ROD_15%_cumulative_percent_mortality",  "Signs_of_ROD_30%_cumulative_percent_mortality"
+#[4] "Signs_of_ROD_5%_cumulative_percent_mortality" 
+
+levels(ROD_Resistant_coldata$Condition) # "Control_Resistant"   "Early_Susceptible"   "Late_Susecptible"    "Resistant_Challenge" 
+ROD_Resistant_coldata$Condition <- droplevels(ROD_Resistant_coldata$Condition)
+levels(ROD_Resistant_coldata$Condition)
+levels(ROD_Resistant_coldata$Time ) # "15d" "1d"  "30d" "5d" 
+ROD_Resistant_coldata$Time<- factor(ROD_Resistant_coldata$Time, levels = c( "1d","5d","15d",  "30d" ))
+
+## Creating two data set from matrix, one for each family  
+ROD_Resistant_gene_dds <- DESeqDataSetFromMatrix(countData = ROD_Resistant_gene_counts,
+                                            colData = ROD_Resistant_coldata,
+                                            design = ~Time + Condition) # control for time effect here to get at challenge response only 
+ROD_Susceptible_gene_dds <- DESeqDataSetFromMatrix(countData = ROD_Susceptible_gene_counts,
+                                              colData = ROD_Susceptible_coldata,
+                                              design = ~ Condition) # not adding in time here because basically condition here is representing early vs late response 
+
+## Prefiltering the data
+# Data prefiltering helps decrease the size of the data set and get rid of
+# rows with no data or very minimal data (<10). Apply a minimal filtering here as more stringent filtering will be applied later
+ROD_Resistant_gene_dds <- ROD_Resistant_gene_dds[ rowSums(counts(ROD_Resistant_gene_dds )) > 10, ]
+ROD_Susceptible_gene_dds <- ROD_Susceptible_gene_dds[rowSums(counts(ROD_Susceptible_gene_dds )) > 10, ]
+
+## DATA TRANSFORMATION AND VISUALIZATION
+ROD_Resistant_gene_dds_rlog <- rlog(ROD_Resistant_gene_dds , blind = TRUE) # keep blind = true before deseq function has been run
+ROD_Susceptible_gene_dds_rlog <- rlog(ROD_Susceptible_gene_dds , blind = TRUE) # keep blind = true before deseq function has been run
+
+## PCA plot visualization of individuals in the family 
+plotPCA(ROD_Resistant_gene_dds_rlog, intgroup= "Time") # no clustering by treatment
+plotPCA(ROD_Susceptible_gene_dds_rlog , intgroup="Condition") # some clustering
+
+### DIFFERENTIAL EXPRESSION ANALYSIS
+ROD_Resistant_gene_dds_deseq <- DESeq(ROD_Resistant_gene_dds) 
+ROD_Susceptible_gene_dds_deseq <- DESeq(ROD_Susceptible_gene_dds) 
+
+## Check the resultsNames object of each to look at the available coefficients for use in lfcShrink command
+resultsNames(ROD_Resistant_gene_dds_deseq) # [1] "Intercept" , "Time_5d_vs_1d" , "Time_15d_vs_1d", "Time_30d_vs_1d", "Condition_Resistant_Challenge_vs_Control_Resistant"
+resultsNames(ROD_Susceptible_gene_dds_deseq) # [1] "Intercept"  "Condition_Late_Susecptible_vs_Early_Susceptible"
+
+## BUILD THE RESULTS OBJECT
+ROD_Resistant_gene_dds_res <- results(ROD_Resistant_gene_dds_deseq, alpha=0.05, name= "Condition_Resistant_Challenge_vs_Control_Resistant")
+ROD_Susceptible_gene_dds_res <- results(ROD_Susceptible_gene_dds_deseq, alpha=0.05, name= "Condition_Late_Susecptible_vs_Early_Susceptible")
+
+### Perform LFC Shrinkage with apeglm
+ROD_Resistant_gene_dds_res_LFC<- lfcShrink(ROD_Resistant_gene_dds_deseq, coef="Condition_Resistant_Challenge_vs_Control_Resistant", type="apeglm", res= ROD_Resistant_gene_dds_res)
+ROD_Susceptible_gene_dds_res_LFC <- lfcShrink(ROD_Susceptible_gene_dds_deseq, coef="Condition_Late_Susecptible_vs_Early_Susceptible", type="apeglm", res=ROD_Susceptible_gene_dds_res)
+
+## EXPLORATORY PLOTTING OF RESULTS 
+# Histogram of P values 
+hist(ROD_Resistant_gene_dds_res_LFC$padj[ROD_Resistant_gene_dds_res_LFC$baseMean > 1], breaks = 0:20/20,
+     col = "grey50", border = "white")
+hist(ROD_Susceptible_gene_dds_res_LFC$padj[ROD_Susceptible_gene_dds_res_LFC$baseMean > 1], breaks = 0:20/20,
+     col = "grey50", border = "white")
+
+### Subsetting Significant Genes by padj < 0.05
+ROD_Resistant_gene_dds_res_LFC_sig <-  subset(ROD_Resistant_gene_dds_res_LFC , padj < 0.05)
+ROD_Resistant_gene_dds_res_LFC_sig$ID<- row.names(ROD_Resistant_gene_dds_res_LFC_sig)
+ROD_Resistant_gene_dds_res_LFC_sig <- as.data.frame(ROD_Resistant_gene_dds_res_LFC_sig)
+nrow(ROD_Resistant_gene_dds_res_LFC_sig) # 0
+
+ROD_Susceptible_gene_dds_res_LFC_sig <-  subset(ROD_Susceptible_gene_dds_res_LFC , padj < 0.05)
+ROD_Susceptible_gene_dds_res_LFC_sig$ID<- row.names(ROD_Susceptible_gene_dds_res_LFC_sig)
+ROD_Susceptible_gene_dds_res_LFC_sig <- as.data.frame(ROD_Susceptible_gene_dds_res_LFC_sig)
+nrow(ROD_Susceptible_gene_dds_res_LFC_sig)  #30
+
+### Extract list of significant Apoptosis Genes (not less than or greater than 1 LFC) using merge
+ROD_Susceptible_gene_dds_res_LFC_sig_APOP <- merge(ROD_Susceptible_gene_dds_res_LFC_sig, C_vir_rtracklayer_apop_product_final, by = "ID")
+ROD_Susceptible_gene_dds_res_LFC_sig_APOP_arranged <- arrange(ROD_Susceptible_gene_dds_res_LFC_sig_APOP, -log2FoldChange) 
+nrow(ROD_Susceptible_gene_dds_res_LFC_sig_APOP) # 0
+
+#### LFC PLOT OF COMBINED SPECIES ####
+
+# WHICH HAD SIGNIFICANT APOP GENE EXPRESSION
+
+# none significant for C virginica? They had significant genes but just not gene expression 
+# ROD = 0
+# Pro_RE22 = 0
+# Probiotic = 0
+# Dermo = 0
+# Zhang =0
+# Rubio = 0
+
+# Plotting significant genes from He and delorgeril (don't need to subset for orthologs here)
+deLorgeril_Resistant_gene_dds_res_6_LFC_sig_APOP$experiment <- "deLorgeril"
+deLorgeril_Resistant_gene_dds_res_12_LFC_sig_APOP$experiment <- "deLorgeril"
+deLorgeril_Resistant_gene_dds_res_24_LFC_sig_APOP$experiment <- "deLorgeril"
+deLorgeril_Resistant_gene_dds_res_48_LFC_sig_APOP$experiment <- "deLorgeril"
+deLorgeril_Resistant_gene_dds_res_60_LFC_sig_APOP$experiment <- "deLorgeril"
+deLorgeril_Resistant_gene_dds_res_72_LFC_sig_APOP$experiment <- "deLorgeril"
+deLorgeril_Susceptible_gene_dds_res_6_LFC_sig_APOP$experiment <- "deLorgeril"
+deLorgeril_Susceptible_gene_dds_res_12_LFC_sig_APOP$experiment <- "deLorgeril"
+deLorgeril_Susceptible_gene_dds_res_24_LFC_sig_APOP$experiment <- "deLorgeril"
+deLorgeril_Susceptible_gene_dds_res_48_LFC_sig_APOP$experiment <- "deLorgeril"
+deLorgeril_Susceptible_gene_dds_res_60_LFC_sig_APOP$experiment <- "deLorgeril"
+deLorgeril_Susceptible_gene_dds_res_72_LFC_sig_APOP$experiment <- "deLorgeril"
+He_gene_dds_res_6hr_sig_APOP$experiment <- "He"
+He_gene_dds_res_12hr_sig_APOP$experiment <- "He"
+He_gene_dds_res_24hr_sig_APOP$experiment <- "He"
+He_gene_dds_res_48hr_sig_APOP$experiment <- "He"
+He_gene_dds_res_120hr_sig_APOP$experiment <- "He"
+
+Ortholog_all_sig_APOP <- rbind( 
+  deLorgeril_Resistant_gene_dds_res_6_LFC_sig_APOP[,c("product","group_by_sim","log2FoldChange","experiment")],
+  deLorgeril_Resistant_gene_dds_res_12_LFC_sig_APOP[,c("product","group_by_sim","log2FoldChange","experiment")],
+  deLorgeril_Resistant_gene_dds_res_24_LFC_sig_APOP[,c("product","group_by_sim","log2FoldChange","experiment")],
+  deLorgeril_Resistant_gene_dds_res_48_LFC_sig_APOP[,c("product","group_by_sim","log2FoldChange","experiment")],
+  deLorgeril_Resistant_gene_dds_res_60_LFC_sig_APOP[,c("product","group_by_sim","log2FoldChange","experiment")],
+  deLorgeril_Resistant_gene_dds_res_72_LFC_sig_APOP[,c("product","group_by_sim","log2FoldChange","experiment")],
+  deLorgeril_Susceptible_gene_dds_res_6_LFC_sig_APOP[,c("product","group_by_sim","log2FoldChange","experiment")],
+  deLorgeril_Susceptible_gene_dds_res_12_LFC_sig_APOP[,c("product","group_by_sim","log2FoldChange","experiment")],
+  deLorgeril_Susceptible_gene_dds_res_24_LFC_sig_APOP[,c("product","group_by_sim","log2FoldChange","experiment")],
+  deLorgeril_Susceptible_gene_dds_res_48_LFC_sig_APOP[,c("product","group_by_sim","log2FoldChange","experiment")],
+  deLorgeril_Susceptible_gene_dds_res_60_LFC_sig_APOP[,c("product","group_by_sim","log2FoldChange","experiment")],
+  deLorgeril_Susceptible_gene_dds_res_72_LFC_sig_APOP[,c("product","group_by_sim","log2FoldChange","experiment")],
+  He_gene_dds_res_6hr_sig_APOP[,c("product","group_by_sim","log2FoldChange","experiment")],
+  He_gene_dds_res_12hr_sig_APOP[,c("product","group_by_sim","log2FoldChange","experiment")],
+  He_gene_dds_res_24hr_sig_APOP[,c("product","group_by_sim","log2FoldChange","experiment")],
+  He_gene_dds_res_48hr_sig_APOP[,c("product","group_by_sim","log2FoldChange","experiment")],
+  He_gene_dds_res_120hr_sig_APOP[,c("product","group_by_sim","log2FoldChange","experiment")])
+
+Ortholog_all_sig_APOP_plot <- ggplot(Ortholog_all_sig_APOP , aes(x=product,y=log2FoldChange, fill=experiment )) + geom_col(position="dodge") + 
+  theme(axis.text.x = element_text(angle = 75, hjust = 1)) + coord_flip()
+
