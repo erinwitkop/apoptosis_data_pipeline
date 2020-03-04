@@ -1449,11 +1449,17 @@ resultsNames(deLorgeril_Susceptible_dds_deseq ) #"Intercept"      "Time_6h_vs_0h
 # Examining the results object, change alpha to p <0.05, looking at object metadata
 # use mcols to look at metadata for each table, creating three results objects to look find the acute response. The paper observed acute response around 48hr
 mcols(deLorgeril_Resistant_dds_deseq)
+deLorgeril_Resistant_dds_res_6 <- results(deLorgeril_Resistant_dds_deseq , alpha=0.05, name= "Time_6h_vs_0h" )
+deLorgeril_Resistant_dds_res_12 <- results(deLorgeril_Resistant_dds_deseq , alpha=0.05, name= "Time_12h_vs_0h" )
+deLorgeril_Resistant_dds_res_24 <- results(deLorgeril_Resistant_dds_deseq , alpha=0.05, name= "Time_24h_vs_0h" )
 deLorgeril_Resistant_dds_res_48 <- results(deLorgeril_Resistant_dds_deseq , alpha=0.05, name= "Time_48h_vs_0h" )
 deLorgeril_Resistant_dds_res_60 <- results(deLorgeril_Resistant_dds_deseq , alpha=0.05, name= "Time_60h_vs_0h" )
 deLorgeril_Resistant_dds_res_72 <- results(deLorgeril_Resistant_dds_deseq , alpha=0.05, name= "Time_72h_vs_0h" )
 
 mcols(deLorgeril_Susceptible_dds_deseq)
+deLorgeril_Susceptible_dds_res_6 <- results(deLorgeril_Susceptible_dds_deseq , alpha=0.05, name= "Time_6h_vs_0h" )
+deLorgeril_Susceptible_dds_res_12 <- results(deLorgeril_Susceptible_dds_deseq , alpha=0.05, name= "Time_12h_vs_0h" )
+deLorgeril_Susceptible_dds_res_24 <- results(deLorgeril_Susceptible_dds_deseq , alpha=0.05, name= "Time_24h_vs_0h" )
 deLorgeril_Susceptible_dds_res_48 <- results(deLorgeril_Susceptible_dds_deseq , alpha=0.05, name= "Time_48h_vs_0h" )
 deLorgeril_Susceptible_dds_res_60 <- results(deLorgeril_Susceptible_dds_deseq , alpha=0.05, name= "Time_60h_vs_0h" )
 deLorgeril_Susceptible_dds_res_72 <- results(deLorgeril_Susceptible_dds_deseq , alpha=0.05, name= "Time_72h_vs_0h" )
@@ -1465,27 +1471,48 @@ deLorgeril_Susceptible_dds_res_72 <- results(deLorgeril_Susceptible_dds_deseq , 
 # More detailed notes about LFC Shrinkage are in the code for the Zhang Vibrio
 
 ## DECISION: USE SAME RES OBJECT TO KEEP ALPHA ADJUSTMENT, and use LFCShrink apeglm
+deLorgeril_Resistant_dds_res_6_LFC <- lfcShrink(deLorgeril_Resistant_dds_deseq , coef="Time_6h_vs_0h", type="apeglm",res=deLorgeril_Resistant_dds_res_6)
+deLorgeril_Resistant_dds_res_12_LFC <- lfcShrink(deLorgeril_Resistant_dds_deseq , coef="Time_12h_vs_0h", type="apeglm",res=deLorgeril_Resistant_dds_res_12)
+deLorgeril_Resistant_dds_res_24_LFC <- lfcShrink(deLorgeril_Resistant_dds_deseq , coef="Time_24h_vs_0h", type="apeglm",res=deLorgeril_Resistant_dds_res_24)
+
 deLorgeril_Resistant_dds_res_48_LFC <- lfcShrink(deLorgeril_Resistant_dds_deseq , coef="Time_48h_vs_0h", type="apeglm",res=deLorgeril_Resistant_dds_res_48)
 deLorgeril_Resistant_dds_res_60_LFC <- lfcShrink(deLorgeril_Resistant_dds_deseq , coef="Time_60h_vs_0h", type="apeglm",res=deLorgeril_Resistant_dds_res_60)
 deLorgeril_Resistant_dds_res_72_LFC <- lfcShrink(deLorgeril_Resistant_dds_deseq , coef="Time_72h_vs_0h", type="apeglm",res=deLorgeril_Resistant_dds_res_72)
+
+deLorgeril_Susceptible_dds_res_6_LFC <- lfcShrink(deLorgeril_Susceptible_dds_deseq , coef= "Time_6h_vs_0h", type="apeglm", res=deLorgeril_Susceptible_dds_res_6)
+deLorgeril_Susceptible_dds_res_12_LFC <- lfcShrink(deLorgeril_Susceptible_dds_deseq , coef= "Time_12h_vs_0h", type="apeglm", res=deLorgeril_Susceptible_dds_res_12)
+deLorgeril_Susceptible_dds_res_24_LFC <- lfcShrink(deLorgeril_Susceptible_dds_deseq , coef= "Time_24h_vs_0h", type="apeglm", res=deLorgeril_Susceptible_dds_res_24)
 deLorgeril_Susceptible_dds_res_48_LFC <- lfcShrink(deLorgeril_Susceptible_dds_deseq , coef= "Time_48h_vs_0h", type="apeglm", res=deLorgeril_Susceptible_dds_res_48)
 deLorgeril_Susceptible_dds_res_60_LFC <- lfcShrink(deLorgeril_Susceptible_dds_deseq , coef= "Time_60h_vs_0h", type="apeglm", res=deLorgeril_Susceptible_dds_res_60)
 deLorgeril_Susceptible_dds_res_72_LFC <- lfcShrink(deLorgeril_Susceptible_dds_deseq , coef= "Time_72h_vs_0h", type="apeglm", res=deLorgeril_Susceptible_dds_res_72)
 
 ## EXPLORATORY PLOTTING OF RESULTS 
 ## MA Plotting
+plotMA(deLorgeril_Resistant_dds_res_6_LFC , ylim = c(-5, 5))
+plotMA(deLorgeril_Resistant_dds_res_12_LFC , ylim = c(-5, 5))
+plotMA(deLorgeril_Resistant_dds_res_24_LFC , ylim = c(-5, 5))
 plotMA(deLorgeril_Resistant_dds_res_48_LFC , ylim = c(-5, 5))
 plotMA(deLorgeril_Resistant_dds_res_60_LFC , ylim = c(-5, 5)) # 60hr has more significant genes
 plotMA(deLorgeril_Resistant_dds_res_72_LFC , ylim = c(-5, 5)) # 72 hrs has less
+plotMA(deLorgeril_Susceptible_dds_res_6_LFC, ylim = c(-5, 5))
+plotMA(deLorgeril_Susceptible_dds_res_12_LFC, ylim = c(-5, 5))
+plotMA(deLorgeril_Susceptible_dds_res_24_LFC, ylim = c(-5, 5))
 plotMA(deLorgeril_Susceptible_dds_res_48_LFC, ylim = c(-5, 5))
 plotMA(deLorgeril_Susceptible_dds_res_60_LFC, ylim = c(-5, 5)) # 60hr has many more significant genes
 plotMA(deLorgeril_Susceptible_dds_res_72_LFC, ylim = c(-5, 5)) # 72hr has less
 
 ## Histogram of P values 
 # exclude genes with very small counts to avoid spikes and plot using the LFCshrinkage
+hist(deLorgeril_Resistant_dds_res_6_LFC $padj[deLorgeril_Resistant_dds_res_6_LFC$baseMean > 1], breaks = 0:20/20, col = "grey50", border = "white")
+hist(deLorgeril_Resistant_dds_res_12_LFC $padj[deLorgeril_Resistant_dds_res_12_LFC$baseMean > 1], breaks = 0:20/20, col = "grey50", border = "white")
+hist(deLorgeril_Resistant_dds_res_24_LFC $padj[deLorgeril_Resistant_dds_res_24_LFC$baseMean > 1], breaks = 0:20/20, col = "grey50", border = "white")
 hist(deLorgeril_Resistant_dds_res_48_LFC $padj[deLorgeril_Resistant_dds_res_48_LFC$baseMean > 1], breaks = 0:20/20, col = "grey50", border = "white")
 hist(deLorgeril_Resistant_dds_res_60_LFC $padj[deLorgeril_Resistant_dds_res_60_LFC$baseMean > 1], breaks = 0:20/20, col = "grey50", border = "white")
 hist(deLorgeril_Resistant_dds_res_72_LFC $padj[deLorgeril_Resistant_dds_res_72_LFC$baseMean > 1], breaks = 0:20/20, col = "grey50", border = "white")
+
+hist(deLorgeril_Susceptible_dds_res_6_LFC$padj[deLorgeril_Susceptible_dds_res_6_LFC$baseMean > 1], breaks = 0:20/20, col = "grey50", border = "white")
+hist(deLorgeril_Susceptible_dds_res_12_LFC$padj[deLorgeril_Susceptible_dds_res_12_LFC$baseMean > 1], breaks = 0:20/20, col = "grey50", border = "white")
+hist(deLorgeril_Susceptible_dds_res_24_LFC$padj[deLorgeril_Susceptible_dds_res_24_LFC$baseMean > 1], breaks = 0:20/20, col = "grey50", border = "white")
 hist(deLorgeril_Susceptible_dds_res_48_LFC$padj[deLorgeril_Susceptible_dds_res_48_LFC$baseMean > 1], breaks = 0:20/20, col = "grey50", border = "white")
 hist(deLorgeril_Susceptible_dds_res_60_LFC$padj[deLorgeril_Susceptible_dds_res_60_LFC$baseMean > 1], breaks = 0:20/20, col = "grey50", border = "white")
 hist(deLorgeril_Susceptible_dds_res_72_LFC$padj[deLorgeril_Susceptible_dds_res_72_LFC$baseMean > 1], breaks = 0:20/20, col = "grey50", border = "white")
@@ -1493,30 +1520,57 @@ hist(deLorgeril_Susceptible_dds_res_72_LFC$padj[deLorgeril_Susceptible_dds_res_7
 ### Subsetting Significant Genes by padj < 0.05
 # again, only working with the LFCshrinkage adjusted log fold changes, and with the BH adjusted p-value
 # first make sure to make the rownames with the transcript ID as a new column, then make it a dataframe for filtering
+deLorgeril_Resistant_dds_res_6_LFC_sig <- subset(  deLorgeril_Resistant_dds_res_6_LFC, padj < 0.05)
+deLorgeril_Resistant_dds_res_12_LFC_sig <- subset(  deLorgeril_Resistant_dds_res_12_LFC, padj < 0.05)
+deLorgeril_Resistant_dds_res_24_LFC_sig <- subset(  deLorgeril_Resistant_dds_res_24_LFC, padj < 0.05)
 deLorgeril_Resistant_dds_res_48_LFC_sig <- subset(  deLorgeril_Resistant_dds_res_48_LFC, padj < 0.05)
 deLorgeril_Resistant_dds_res_60_LFC_sig <- subset(  deLorgeril_Resistant_dds_res_60_LFC, padj < 0.05)
 deLorgeril_Resistant_dds_res_72_LFC_sig <- subset(  deLorgeril_Resistant_dds_res_72_LFC, padj < 0.05)
+
+deLorgeril_Susceptible_dds_res_6_LFC_sig <- subset(deLorgeril_Susceptible_dds_res_6_LFC, padj < 0.05)
+deLorgeril_Susceptible_dds_res_12_LFC_sig <- subset(deLorgeril_Susceptible_dds_res_12_LFC, padj < 0.05)
+deLorgeril_Susceptible_dds_res_24_LFC_sig <- subset(deLorgeril_Susceptible_dds_res_24_LFC, padj < 0.05)
 deLorgeril_Susceptible_dds_res_48_LFC_sig <- subset(deLorgeril_Susceptible_dds_res_48_LFC, padj < 0.05)
 deLorgeril_Susceptible_dds_res_60_LFC_sig <- subset(deLorgeril_Susceptible_dds_res_60_LFC, padj < 0.05)
 deLorgeril_Susceptible_dds_res_72_LFC_sig <- subset(deLorgeril_Susceptible_dds_res_72_LFC, padj < 0.05)
  
+deLorgeril_Resistant_dds_res_6_LFC_sig$transcript_id <- row.names(  deLorgeril_Resistant_dds_res_6_LFC_sig) 
+deLorgeril_Resistant_dds_res_12_LFC_sig$transcript_id <- row.names(  deLorgeril_Resistant_dds_res_12_LFC_sig) 
+deLorgeril_Resistant_dds_res_24_LFC_sig$transcript_id <- row.names(  deLorgeril_Resistant_dds_res_24_LFC_sig) 
 deLorgeril_Resistant_dds_res_48_LFC_sig$transcript_id <- row.names(  deLorgeril_Resistant_dds_res_48_LFC_sig) 
 deLorgeril_Resistant_dds_res_60_LFC_sig$transcript_id <- row.names(  deLorgeril_Resistant_dds_res_60_LFC_sig) 
 deLorgeril_Resistant_dds_res_72_LFC_sig$transcript_id <- row.names(  deLorgeril_Resistant_dds_res_72_LFC_sig) 
+
+deLorgeril_Susceptible_dds_res_6_LFC_sig$transcript_id <- row.names(deLorgeril_Susceptible_dds_res_6_LFC_sig) 
+deLorgeril_Susceptible_dds_res_12_LFC_sig$transcript_id <- row.names(deLorgeril_Susceptible_dds_res_12_LFC_sig) 
+deLorgeril_Susceptible_dds_res_24_LFC_sig$transcript_id <- row.names(deLorgeril_Susceptible_dds_res_24_LFC_sig) 
 deLorgeril_Susceptible_dds_res_48_LFC_sig$transcript_id <- row.names(deLorgeril_Susceptible_dds_res_48_LFC_sig) 
 deLorgeril_Susceptible_dds_res_60_LFC_sig$transcript_id <- row.names(deLorgeril_Susceptible_dds_res_60_LFC_sig) 
 deLorgeril_Susceptible_dds_res_72_LFC_sig$transcript_id <- row.names(deLorgeril_Susceptible_dds_res_72_LFC_sig) 
 
+deLorgeril_Resistant_dds_res_6_LFC_sig   <-as.data.frame(deLorgeril_Resistant_dds_res_6_LFC_sig)
+deLorgeril_Resistant_dds_res_12_LFC_sig   <-as.data.frame(deLorgeril_Resistant_dds_res_12_LFC_sig)
+deLorgeril_Resistant_dds_res_24_LFC_sig   <-as.data.frame(deLorgeril_Resistant_dds_res_24_LFC_sig)
 deLorgeril_Resistant_dds_res_48_LFC_sig   <-as.data.frame(deLorgeril_Resistant_dds_res_48_LFC_sig)
 deLorgeril_Resistant_dds_res_60_LFC_sig   <-as.data.frame(deLorgeril_Resistant_dds_res_60_LFC_sig)
 deLorgeril_Resistant_dds_res_72_LFC_sig   <-as.data.frame(deLorgeril_Resistant_dds_res_72_LFC_sig)
+
+deLorgeril_Susceptible_dds_res_6_LFC_sig<-as.data.frame(deLorgeril_Susceptible_dds_res_6_LFC_sig)
+deLorgeril_Susceptible_dds_res_12_LFC_sig<-as.data.frame(deLorgeril_Susceptible_dds_res_12_LFC_sig)
+deLorgeril_Susceptible_dds_res_24_LFC_sig<-as.data.frame(deLorgeril_Susceptible_dds_res_24_LFC_sig)
 deLorgeril_Susceptible_dds_res_48_LFC_sig<-as.data.frame(deLorgeril_Susceptible_dds_res_48_LFC_sig)
 deLorgeril_Susceptible_dds_res_60_LFC_sig<-as.data.frame(deLorgeril_Susceptible_dds_res_60_LFC_sig)
 deLorgeril_Susceptible_dds_res_72_LFC_sig<-as.data.frame(deLorgeril_Susceptible_dds_res_72_LFC_sig)
 
+nrow(deLorgeril_Resistant_dds_res_6_LFC_sig) #1593
+nrow(deLorgeril_Resistant_dds_res_12_LFC_sig) #1593
+nrow(deLorgeril_Resistant_dds_res_24_LFC_sig) #1593
 nrow(deLorgeril_Resistant_dds_res_48_LFC_sig) #1593
 nrow(deLorgeril_Resistant_dds_res_60_LFC_sig) # 3403
 nrow(deLorgeril_Resistant_dds_res_72_LFC_sig) # 2309
+nrow(deLorgeril_Susceptible_dds_res_6_LFC_sig) # 1778
+nrow(deLorgeril_Susceptible_dds_res_12_LFC_sig) # 1778
+nrow(deLorgeril_Susceptible_dds_res_24_LFC_sig) # 1778
 nrow(deLorgeril_Susceptible_dds_res_48_LFC_sig) # 1778
 nrow(deLorgeril_Susceptible_dds_res_60_LFC_sig) # 10425
 nrow(deLorgeril_Susceptible_dds_res_72_LFC_sig) # 2991
@@ -1609,23 +1663,44 @@ colnames(top_Var_Resistant_counts_apop_assay_prot)[1] <- "transcript_id"
 top_Var_Resistant_counts_apop_assay_prot_annot <- left_join(top_Var_Resistant_counts_apop_assay_prot, select(C_gig_rtracklayer_transcripts, transcript_id, product, gene), by = "transcript_id")
 
 ### Extract list of significant Apoptosis Genes (not less than or greater than 1 LFC) using merge
+deLorgeril_Resistant_dds_res_6_LFC_sig_APOP <-  merge(deLorgeril_Resistant_dds_res_6_LFC_sig, C_gig_rtracklayer_apop_product_final, by = "transcript_id" )
+deLorgeril_Resistant_dds_res_12_LFC_sig_APOP <- merge(deLorgeril_Resistant_dds_res_12_LFC_sig, C_gig_rtracklayer_apop_product_final, by = "transcript_id" )
+deLorgeril_Resistant_dds_res_24_LFC_sig_APOP <- merge(deLorgeril_Resistant_dds_res_24_LFC_sig, C_gig_rtracklayer_apop_product_final, by = "transcript_id" )
 deLorgeril_Resistant_dds_res_48_LFC_sig_APOP <- merge(deLorgeril_Resistant_dds_res_48_LFC_sig, C_gig_rtracklayer_apop_product_final, by = "transcript_id" )
 deLorgeril_Resistant_dds_res_60_LFC_sig_APOP <- merge(deLorgeril_Resistant_dds_res_60_LFC_sig, C_gig_rtracklayer_apop_product_final, by = "transcript_id" )
 deLorgeril_Resistant_dds_res_72_LFC_sig_APOP <- merge(deLorgeril_Resistant_dds_res_72_LFC_sig, C_gig_rtracklayer_apop_product_final, by = "transcript_id" )
+
+deLorgeril_Susceptible_dds_res_6_LFC_sig_APOP <-  merge(deLorgeril_Susceptible_dds_res_6_LFC_sig, C_gig_rtracklayer_apop_product_final, by = "transcript_id")
+deLorgeril_Susceptible_dds_res_12_LFC_sig_APOP <- merge(deLorgeril_Susceptible_dds_res_12_LFC_sig, C_gig_rtracklayer_apop_product_final, by = "transcript_id")
+deLorgeril_Susceptible_dds_res_24_LFC_sig_APOP <- merge(deLorgeril_Susceptible_dds_res_24_LFC_sig, C_gig_rtracklayer_apop_product_final, by = "transcript_id")
 deLorgeril_Susceptible_dds_res_48_LFC_sig_APOP <- merge(deLorgeril_Susceptible_dds_res_48_LFC_sig, C_gig_rtracklayer_apop_product_final, by = "transcript_id")
 deLorgeril_Susceptible_dds_res_60_LFC_sig_APOP <- merge(deLorgeril_Susceptible_dds_res_60_LFC_sig, C_gig_rtracklayer_apop_product_final, by = "transcript_id")
 deLorgeril_Susceptible_dds_res_72_LFC_sig_APOP <- merge(deLorgeril_Susceptible_dds_res_72_LFC_sig, C_gig_rtracklayer_apop_product_final, by = "transcript_id")
 
+deLorgeril_Resistant_dds_res_6_LFC_sig_APOP  <- arrange(deLorgeril_Resistant_dds_res_6_LFC_sig_APOP , -log2FoldChange)
+deLorgeril_Resistant_dds_res_12_LFC_sig_APOP  <- arrange(deLorgeril_Resistant_dds_res_12_LFC_sig_APOP , -log2FoldChange)
+deLorgeril_Resistant_dds_res_24_LFC_sig_APOP  <- arrange(deLorgeril_Resistant_dds_res_24_LFC_sig_APOP , -log2FoldChange)
 deLorgeril_Resistant_dds_res_48_LFC_sig_APOP  <- arrange(deLorgeril_Resistant_dds_res_48_LFC_sig_APOP , -log2FoldChange)
 deLorgeril_Resistant_dds_res_60_LFC_sig_APOP  <- arrange(deLorgeril_Resistant_dds_res_60_LFC_sig_APOP , -log2FoldChange)
 deLorgeril_Resistant_dds_res_72_LFC_sig_APOP  <- arrange(deLorgeril_Resistant_dds_res_72_LFC_sig_APOP , -log2FoldChange)
+
+deLorgeril_Susceptible_dds_res_6_LFC_sig_APOP <- arrange(deLorgeril_Susceptible_dds_res_6_LFC_sig_APOP, -log2FoldChange)
+deLorgeril_Susceptible_dds_res_12_LFC_sig_APOP <- arrange(deLorgeril_Susceptible_dds_res_12_LFC_sig_APOP, -log2FoldChange)
+deLorgeril_Susceptible_dds_res_24_LFC_sig_APOP <- arrange(deLorgeril_Susceptible_dds_res_24_LFC_sig_APOP, -log2FoldChange)
 deLorgeril_Susceptible_dds_res_48_LFC_sig_APOP <- arrange(deLorgeril_Susceptible_dds_res_48_LFC_sig_APOP, -log2FoldChange)
 deLorgeril_Susceptible_dds_res_60_LFC_sig_APOP <- arrange(deLorgeril_Susceptible_dds_res_60_LFC_sig_APOP, -log2FoldChange)
 deLorgeril_Susceptible_dds_res_72_LFC_sig_APOP <- arrange(deLorgeril_Susceptible_dds_res_72_LFC_sig_APOP, -log2FoldChange)
 
+nrow(deLorgeril_Resistant_dds_res_6_LFC_sig_APOP) #25
+nrow(deLorgeril_Resistant_dds_res_12_LFC_sig_APOP) #25
+nrow(deLorgeril_Resistant_dds_res_24_LFC_sig_APOP) #25
 nrow(deLorgeril_Resistant_dds_res_48_LFC_sig_APOP) #25
 nrow(deLorgeril_Resistant_dds_res_60_LFC_sig_APOP) # 54
 nrow(deLorgeril_Resistant_dds_res_72_LFC_sig_APOP) # 33
+
+nrow(deLorgeril_Susceptible_dds_res_6_LFC_sig_APOP) #34
+nrow(deLorgeril_Susceptible_dds_res_12_LFC_sig_APOP) #34
+nrow(deLorgeril_Susceptible_dds_res_24_LFC_sig_APOP) #34
 nrow(deLorgeril_Susceptible_dds_res_48_LFC_sig_APOP) #34
 nrow(deLorgeril_Susceptible_dds_res_60_LFC_sig_APOP) # 186
 nrow(deLorgeril_Susceptible_dds_res_72_LFC_sig_APOP) # 47
@@ -1638,18 +1713,31 @@ View(deLorgeril_Susceptible_dds_res_60_LFC_sig_APOP$product)
 View(deLorgeril_Susceptible_dds_res_72_LFC_sig_APOP$product)
 
 # Compare apoptosis genes between group_by_sim groups
+deLorgeril_Resistant_dds_res_6_LFC_sig_APOP  $group_by_sim <- "Resistant_dds_res_6"
+deLorgeril_Resistant_dds_res_12_LFC_sig_APOP  $group_by_sim <- "Resistant_dds_res_12"
+deLorgeril_Resistant_dds_res_24_LFC_sig_APOP  $group_by_sim <- "Resistant_dds_res_24"
 deLorgeril_Resistant_dds_res_48_LFC_sig_APOP  $group_by_sim <- "Resistant_dds_res_48"
 deLorgeril_Resistant_dds_res_60_LFC_sig_APOP  $group_by_sim <- "Resistant_dds_res_60"
 deLorgeril_Resistant_dds_res_72_LFC_sig_APOP  $group_by_sim <- "Resistant_dds_res_72"
+
+deLorgeril_Susceptible_dds_res_6_LFC_sig_APOP$group_by_sim <- "Susceptible_dds_res_6"
+deLorgeril_Susceptible_dds_res_12_LFC_sig_APOP$group_by_sim <- "Susceptible_dds_res_12"
+deLorgeril_Susceptible_dds_res_24_LFC_sig_APOP$group_by_sim <- "Susceptible_dds_res_24"
 deLorgeril_Susceptible_dds_res_48_LFC_sig_APOP$group_by_sim <- "Susceptible_dds_res_48"
 deLorgeril_Susceptible_dds_res_60_LFC_sig_APOP$group_by_sim <- "Susceptible_dds_res_60"
 deLorgeril_Susceptible_dds_res_72_LFC_sig_APOP$group_by_sim <- "Susceptible_dds_res_72"
 
 # combine data frames 
 deLorgeril_all_sig_APOP <- rbind( 
+  deLorgeril_Resistant_dds_res_6_LFC_sig_APOP[,c("product","group_by_sim","log2FoldChange")],
+  deLorgeril_Resistant_dds_res_12_LFC_sig_APOP[,c("product","group_by_sim","log2FoldChange")],
+  deLorgeril_Resistant_dds_res_24_LFC_sig_APOP[,c("product","group_by_sim","log2FoldChange")],
 deLorgeril_Resistant_dds_res_48_LFC_sig_APOP[,c("product","group_by_sim","log2FoldChange")],
 deLorgeril_Resistant_dds_res_60_LFC_sig_APOP[,c("product","group_by_sim","log2FoldChange")],
 deLorgeril_Resistant_dds_res_72_LFC_sig_APOP[,c("product","group_by_sim","log2FoldChange")],
+deLorgeril_Susceptible_dds_res_6_LFC_sig_APOP[,c("product","group_by_sim","log2FoldChange")],
+deLorgeril_Susceptible_dds_res_12_LFC_sig_APOP[,c("product","group_by_sim","log2FoldChange")],
+deLorgeril_Susceptible_dds_res_24_LFC_sig_APOP[,c("product","group_by_sim","log2FoldChange")],
 deLorgeril_Susceptible_dds_res_48_LFC_sig_APOP[,c("product","group_by_sim","log2FoldChange")],
 deLorgeril_Susceptible_dds_res_60_LFC_sig_APOP[,c("product","group_by_sim","log2FoldChange")],
 deLorgeril_Susceptible_dds_res_72_LFC_sig_APOP[,c("product","group_by_sim","log2FoldChange")])
@@ -3219,9 +3307,15 @@ He_dds_res_12hr_sig_APOP$experiment <- "He"
 He_dds_res_24hr_sig_APOP$experiment <- "He"
 He_dds_res_48hr_sig_APOP$experiment <- "He"
 He_dds_res_120hr_sig_APOP$experiment <- "He"
+deLorgeril_Resistant_dds_res_6_LFC_sig_APOP$experiment <- "deLorgeril"
+deLorgeril_Resistant_dds_res_12_LFC_sig_APOP$experiment <- "deLorgeril"
+deLorgeril_Resistant_dds_res_24_LFC_sig_APOP$experiment <- "deLorgeril"
 deLorgeril_Resistant_dds_res_48_LFC_sig_APOP$experiment <- "deLorgeril"
 deLorgeril_Resistant_dds_res_60_LFC_sig_APOP$experiment <- "deLorgeril"
 deLorgeril_Resistant_dds_res_72_LFC_sig_APOP$experiment <- "deLorgeril"
+deLorgeril_Susceptible_dds_res_6_LFC_sig_APOP$experiment <- "deLorgeril"
+deLorgeril_Susceptible_dds_res_12_LFC_sig_APOP$experiment <- "deLorgeril"
+deLorgeril_Susceptible_dds_res_24_LFC_sig_APOP$experiment <- "deLorgeril"
 deLorgeril_Susceptible_dds_res_48_LFC_sig_APOP$experiment <- "deLorgeril"
 deLorgeril_Susceptible_dds_res_60_LFC_sig_APOP$experiment <- "deLorgeril"
 deLorgeril_Susceptible_dds_res_72_LFC_sig_APOP$experiment <- "deLorgeril"
@@ -3238,9 +3332,15 @@ C_gig_apop_LFC <- rbind(Zhang_dds_deseq_res_V_alg1_APOP_short[,c("product","grou
                         He_dds_res_24hr_sig_APOP[,c("product","group_by_sim","log2FoldChange","experiment")],
                         He_dds_res_48hr_sig_APOP[,c("product","group_by_sim","log2FoldChange","experiment")],
                         He_dds_res_120hr_sig_APOP[,c("product","group_by_sim","log2FoldChange","experiment")],
+                        deLorgeril_Resistant_dds_res_6_LFC_sig_APOP[,c("product","group_by_sim","log2FoldChange","experiment")],
+                        deLorgeril_Resistant_dds_res_12_LFC_sig_APOP[,c("product","group_by_sim","log2FoldChange","experiment")],
+                        deLorgeril_Resistant_dds_res_24_LFC_sig_APOP[,c("product","group_by_sim","log2FoldChange","experiment")],
                         deLorgeril_Resistant_dds_res_48_LFC_sig_APOP[,c("product","group_by_sim","log2FoldChange","experiment")],
                         deLorgeril_Resistant_dds_res_60_LFC_sig_APOP[,c("product","group_by_sim","log2FoldChange","experiment")],
                         deLorgeril_Resistant_dds_res_72_LFC_sig_APOP[,c("product","group_by_sim","log2FoldChange","experiment")],
+                        deLorgeril_Susceptible_dds_res_6_LFC_sig_APOP[,c("product","group_by_sim","log2FoldChange","experiment")],
+                        deLorgeril_Susceptible_dds_res_12_LFC_sig_APOP[,c("product","group_by_sim","log2FoldChange","experiment")],
+                        deLorgeril_Susceptible_dds_res_24_LFC_sig_APOP[,c("product","group_by_sim","log2FoldChange","experiment")],
                         deLorgeril_Susceptible_dds_res_48_LFC_sig_APOP[,c("product","group_by_sim","log2FoldChange","experiment")],
                         deLorgeril_Susceptible_dds_res_60_LFC_sig_APOP[,c("product","group_by_sim","log2FoldChange","experiment")],
                         deLorgeril_Susceptible_dds_res_72_LFC_sig_APOP[,c("product","group_by_sim","log2FoldChange","experiment")])
