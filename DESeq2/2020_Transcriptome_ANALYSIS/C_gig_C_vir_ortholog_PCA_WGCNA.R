@@ -11,15 +11,17 @@
 # Load packages 
 library(tidyverse)
 
-#### LOAD ORTHOGROUP INFORMATION FROM ORTHOFINDER####
+#### ISOLATE SINGLE COPY ORTHOLOG GENES FROM (C_VIR C_GIG ORTHOFINDER) FROM GENE_COUNT_MATRIX FOR EACH EXPERIMENT ####
+
+### LOAD THE DATA ###
 # OrthoFinder 2.3.3 was used to acquire OrthoFinder information 
 # Load Orthogroups.tsv containing proteins in each orthogroup,Orthogroups_SingleCopyOrthologues.txt which lists the 1:1 orthologs,
   # and Orthogroups.GeneCount.tsv which lists the number of genes in each orthogroup
 
-Single_copy_orthogroups <- read_table("/Users/erinroberts/Documents/PhD_Research/Chapter_1_Apoptosis Paper/Chapter_1_Apoptosis_Annotation_Data_Analyses_2019/DATA/OrthoFinder/Results_Feb25/Orthogroups/Orthogroups_SingleCopyOrthologues.txt",
+Single_copy_orthologs <- read_table("/Users/erinroberts/Documents/PhD_Research/Chapter_1_Apoptosis Paper/Chapter_1_Apoptosis_Annotation_Data_Analyses_2019/DATA/OrthoFinder/Results_Feb25/Orthogroups/Orthogroups_SingleCopyOrthologues.txt",
                                       col_names = "Orthogroup")
-Single_copy_orthogroups <- as.data.frame(Single_copy_orthogroups)
-class(Single_copy_orthogroups)
+Single_copy_orthologs <- as.data.frame(Single_copy_orthologs)
+class(Single_copy_orthologs)
 
 # Load and Parse orthogroup tsv
 Orthogroups <- read_tsv("/Users/erinroberts/Documents/PhD_Research/Chapter_1_Apoptosis Paper/Chapter_1_Apoptosis_Annotation_Data_Analyses_2019/DATA/OrthoFinder/Results_Feb25/Orthogroups/Orthogroups.tsv", 
@@ -37,7 +39,7 @@ C_gig_orthogroups <- data.frame(Orthogroup = rep(Orthogroups_Cgig$Orthogroup, sa
 C <- strsplit(Orthogroups_Cvir$C_virginica, split = ",")
 C_vir_orthogroups <-data.frame(Orthogroup = rep(Orthogroups_Cvir$Orthogroup, sapply(C, length)), C_virginica = unlist(C))
 
-#### ISOLATE SINGLE COPY ORTHOLOGS, XPs FROM ORTHOGROUPS #### 
+### ISOLATE SINGLE COPY ORTHOLOGS, XPs FROM ORTHOGROUPS FROM C_VIR AND C_GIG ONLY RUN #### 
 # NOTE: decided not to try to match the XPs to the XMs. It is too big of a jump to say that because XPs are orthologous that the XMs are orthologous 
 
 ## Isolate single copy orthologs from each table
@@ -1893,3 +1895,4 @@ Ortholog_all_sig_APOP <- rbind(
 Ortholog_all_sig_APOP_plot <- ggplot(Ortholog_all_sig_APOP , aes(x=product,y=log2FoldChange, fill=experiment )) + geom_col(position="dodge") + 
   theme(axis.text.x = element_text(angle = 75, hjust = 1)) + coord_flip()
 
+#### COMPARISON OF TRANSCRIPT EXPRESSION FROM ORTHOLOGOUS PROTEINS ####
