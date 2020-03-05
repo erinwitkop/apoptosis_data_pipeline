@@ -1223,8 +1223,8 @@ GCF_002022765.2_C_virginica-3.0_protein	8714.0	0.0`
 3467 LOC109619402 netrin receptor UNC5D-like`
 
   2. How do I proceed now?
-    * Should I re-run my search for orthologous genes by adding in more mollusc genomes to improve the orthology estimation?
-      * TRYING ADDING IN THE OTHER GENOMES USED FOR CAFE ANALYSIS:
+    * Re-run my search for orthologous genes by adding in more mollusc genomes to improve the orthology estimation
+      * ADDING IN THE OTHER GENOMES USED FOR CAFE ANALYSIS:
         - Mizuhopecten yessoensis, Biomphalaria glabrata and Octopus bimaculoides, all of which were annotated using the NCBI pipeline
         - Downloaded the protein.faa files for each
         `# Biomphalaria glabrata
@@ -1234,7 +1234,148 @@ GCF_002022765.2_C_virginica-3.0_protein	8714.0	0.0`
          # Octopus bimaculoides
          GCF_001194135.1_Octopus_bimaculoides_v2_0_protein.faa
 
-         # Moved into bluewaves OrthoFinder folder 
-         `
-    * I can possible look for the 1:1 orthologs XMs for the 1:1 ortholog XPs?
-    * I can do WGCNA just on the individual species and get interesting information?
+         # Moved into bluewaves OrthoFinder folder
+         $ pwd
+         /data3/marine_diseases_lab/erin/2017_2020_Transcriptome_Analysis/pipeline_files/OrthoFinder_2020
+
+         # Created new script called OrthoFinder_C_gig_C_vir_relatives.sh
+         # Running script now on the cluster
+         # Results created here
+         $ pwd
+         /data3/marine_diseases_lab/erin/2017_2020_Transcriptome_Analysis/pipeline_files/OrthoFinder_2020/OrthoFinder/Results_Mar04
+
+         # Going to assess the output of this tomorrow morning.  `
+
+
+## 3/5/2020 Investigating OrthoFinder Output and deciding future directions
+
+1. Investigating OrthoFinder output after running with 5 species
+` # Morning of March 5th, 2020
+   # OrthoFinder finished running:
+   OrthoFinder assigned 161284 genes (77.1% of total) to 18407 orthogroups. Fifty percent of all genes were in orthogroups with 8 or more genes (G50 was 8) and were contained in the largest 6420 orthogroups (O50 was 6420). There were 7686 orthogroups with all species present and 966 of these consisted entirely of single-copy genes.
+   # This is increased compared to the level of genes mapped previously with just the C. gigas and C. virginica data included (66.8% mapped last time).
+
+   # Downloaded the results locally:  $ scp -r erin_roberts@bluewaves:/data3/marine_diseases_lab/erin/2017_2020_Transcriptome_Analysis/pipeline_files/OrthoFinder_2020/OrthoFinder/Results_Mar04 .
+
+$ cat Statistics_PerSpecies.tsv
+GCF_000297895.1_oyster_v9_protein	GCF_000457365.1_ASM45736v1_protein	GCF_001194135.1_Octopus_bimaculoides_v2_0_protein	GCF_002022765.2_C_virginica-3.0_protein	GCF_002113885.1_ASM211388v2_protein
+Number of genes	46748	36675	23994	60213	41567
+Number of genes in orthogroups	39895	22358	17994	49249	31788
+Number of unassigned genes	6853	14317	6000	10964	9779
+Percentage of genes in orthogroups	85.3	61.0	75.0	81.8	76.5
+Percentage of unassigned genes	14.7	39.0	25.0	18.2	23.5
+Number of orthogroups containing species	16705	10681	9648	16266	13127
+Percentage of orthogroups containing species	90.8	58.0	52.4	88.4	71.3
+Number of species-specific orthogroups	102	207	127	123	222
+Number of genes in species-specific orthogroups	595	1065	592	913	1176
+Percentage of genes in species-specific orthogroups	1.3	2.9	2.5	1.5	2.8
+
+$ cat Statistics_Overall.tsv
+Number of species	5
+Number of genes	209197
+Number of genes in orthogroups	161284
+Number of unassigned genes	47913
+Percentage of genes in orthogroups	77.1
+Percentage of unassigned genes	22.9
+Number of orthogroups	18407
+Number of species-specific orthogroups	781
+Number of genes in species-specific orthogroups	4341
+Percentage of genes in species-specific orthogroups	2.1
+Mean orthogroup size	8.8
+Median orthogroup size	6.0
+G50 (assigned genes)	11
+G50 (all genes)	8
+O50 (assigned genes)	3908
+O50 (all genes)	6420
+Number of orthogroups with all species present	7686
+Number of single-copy orthogroups	966
+Date	2020-03-04
+Orthogroups file	Orthogroups.tsv
+Unassigned genes file	Orthogroups_UnassignedGenes.tsv
+Per-species statistics	Statistics_PerSpecies.tsv
+Overall statistics	Statistics_Overall.tsv
+Orthogroups shared between species	Orthogroups_SpeciesOverlaps.tsv
+
+Average number of genes per-species in orthogroup	Number of orthogroups	Percentage of orthogroups	Number of genes	Percentage of genes
+<1	5351	29.1	15682	9.7
+'1	7911	43.0	52167	32.3
+'2	2692	14.6	31165	19.3
+'3	1078	5.9	17983	11.1
+'4	496	2.7	10788	6.7
+'5	318	1.7	8503	5.3
+'6	190	1.0	6053	3.8
+'7	111	0.6	4103	2.5
+'8	64	0.3	2680	1.7
+'9	52	0.3	2425	1.5
+'10	41	0.2	2121	1.3
+11-15	79	0.4	4999	3.1
+16-20	15	0.1	1315	0.8
+21-50	9	0.0	1300	0.8
+51-100	0	0.0	0	0.0
+101-150	0	0.0	0	0.0
+151-200	0	0.0	0	0.0
+201-500	0	0.0	0	0.0
+501-1000	0	0.0	0	0.0
+'1001+	0	0.0	0	0.0
+
+Number of species in orthogroup	Number of orthogroups
+1	781
+2	4988
+3	2568
+4	2384
+5	7686
+
+# Opening up Species tree on the internet called Species_Tree/SpeciesTree_rooted.txt in http://etetoolkit.org/treeview/
+# Saved file image as OrthoFinder_Species_tree_Mar04.png. This tree is exactly as expected, with Octopus as the outgroup, the two Crassostrea species clustered together as sister species, the M. yessoensis next to it in a cluster, and then B. glabrata as the next outgroup of this. This tree is as we would expect.
+
+`
+2.  Potential strategies moving forward:
+  - Rather than looking at `Orthogroups/Orthogroups_SingleCopyOrthologues.txt` which is the single copy orthologs across all groups, I can identify 1:1orthologs within the individual ortholog files for each species:
+       `# Orthologues_GCF_002022765.2_C_virginica-3.0_protein/GCF_002022765.2_C_virginica-3.0_protein__v__GCF_000297895.1_oyster_v9_protein.tsv shows the C. virginica proteins that have Orthologs in crassostrea virginica
+        # Orthologues_GCF_000297895.1_oyster_v9_protein/GCF_000297895.1_oyster_v9_protein__v__GCF_002022765.2_C_virginica-3.0_protein.tsv
+
+        # To do this I can just grep out all lines that have a comma
+        $ pwd
+        /Users/erinroberts/Documents/PhD_Research/Chapter_1_Apoptosis Paper/Chapter1_Apoptosis_Transcriptome_Analyses_2019/DATA ANALYSIS/apoptosis_data_pipeline/Transcriptome_Bluewaves_Cluster_Analysis_2020/OrthoFinder/Results_Mar04/Orthologues/Orthologues_GCF_000297895.1_oyster_v9_protein
+        $ head GCF_000297895.1_oyster_v9_protein__v__GCF_002022765.2_C_virginica-3.0_protein.tsv > test.tsv
+        $ sed '/,/d' test.tsv
+        $ sed '/,/d' GCF_000297895.1_oyster_v9_protein__v__GCF_002022765.2_C_virginica-3.0_protein.tsv > GCF_000297895.1_oyster_v9_protein__v__GCF_002022765.2_C_virginica-3.0_protein_single_copy.tsv
+        $ cat GCF_000297895.1_oyster_v9_protein__v__GCF_002022765.2_C_virginica-3.0_protein_single_copy.tsv | wc -l
+        5760
+
+
+        $ pwd
+        /Users/erinroberts/Documents/PhD_Research/Chapter_1_Apoptosis Paper/Chapter1_Apoptosis_Transcriptome_Analyses_2019/DATA ANALYSIS/apoptosis_data_pipeline/Transcriptome_Bluewaves_Cluster_Analysis_2020/OrthoFinder/Results_Mar04/Orthologues/Orthologues_GCF_002022765.2_C_virginica-3.0_protein
+        $ sed '/,/'d GCF_002022765.2_C_virginica-3.0_protein__v__GCF_000297895.1_oyster_v9_protein.tsv > GCF_002022765.2_C_virginica-3.0_protein__v__GCF_000297895.1_oyster_v9_protein_single_copy.tsv
+        $ cat GCF_002022765.2_C_virginica-3.0_protein__v__GCF_000297895.1_oyster_v9_protein_single_copy.tsv | wc -l
+        5760
+
+        # Each has the same number of single copy orthologs, but less than were identified before when I was only comparing the two species  
+        `
+
+  - Pull out the orthologs for the apoptosis genes I care about and compare the XMs for those genes specifically (since we know that there is largely evolutionary conservation). I could look at the individual gene trees for each to confirm this.
+  -
+
+
+
+
+3. Reading OrthoFinder Publication and online tutorial (https://davidemms.github.io/orthofinder_tutorials/exploring-orthofinders-results.html) again for clues as to why there were few single copy orthologs and whether I am interpretting all the data output correctly
+Emms, David M., and Steven Kelly. “OrthoFinder: Phylogenetic Orthology Inference for Comparative Genomics.” Genome Biology, vol. 20, no. 1, Genome Biology, 2019, pp. 1–14, doi:10.1186/s13059-019-1832-y.
+    * The publication doesn't go alot into what to do if you get low numbers of genes in orthogroups other than just adding in more species to make it more robust.
+    * Orthologs are the set of genes in a species pair descended from a single gene in the last common ancestor of the two species
+    * Just like orthologues are the genes descended from a single gene in the last common ancestor of a pair of species an orthogroup is the set of genes descended from a single gene in a group of species.
+    * Orthogroup gene tree is the one to look at for pairwise comparisons across all species
+
+
+4. Investigating vignette from "crossR" package for cross-species comparison of transcriptomic data to see if this approach is applicable for my species
+        `vignette("quick_overview", "crossr")`
+        * They convert the protein_IDs in the orthogroups to transcript IDs"
+        "Since orthogroups are inferred on protein sequences but short reads are mapped on transcript sequences you might have to convert the protein ID in the orthogroups into transcript ID.
+
+        The function switch_ids() performs this task. It requires an external file that maps the protein ID to transcript ID, which must be loaded in R.
+
+        We have downloaded the feature tables that containsmappings between transcript ID and protein ID from NCBI from the same folder as the proteomes. Also this file is stored in the exdata folder.
+        "
+        * This package only does this by working with the assumption that genes in the same orthogroup have the same function, but this is very likely not valid for our species as there is extensive evolutionary time between them:
+          "As seen in Figure 1 most of the orthogroup contain only two genes, generally one from A. lyrata and one from A. thaliana. Many other orthogroups though contain different (any) number of genes from one species and from the other. A “quick and dirty”" solution to restore a one to one relationship among features is to collapse the orthologues by adding up the expression values of genes within the same orthogroup. The basic assumption of this method is that genes in the same orthogroup have the same function.
+        * This assumption doesn't really hold true here in terms of all genes in an orthogroup. It may be a safe assumption though that XMs for a given XP are performing similar functions?
