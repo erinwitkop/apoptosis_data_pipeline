@@ -1353,10 +1353,8 @@ Number of species in orthogroup	Number of orthogroups
         # Each has the same number of single copy orthologs, but less than were identified before when I was only comparing the two species  
         `
 
-  - Pull out the orthologs for the apoptosis genes I care about and compare the XMs for those genes specifically (since we know that there is largely evolutionary conservation). I could look at the individual gene trees for each to confirm this.
-  -
-
-
+  - Pull out the orthologs for the apoptosis genes I care about and compare the XMs for those genes specifically even if they aren't single copy  (since we know that there is largely evolutionary conservation). I could look at the individual gene trees for each to confirm this.
+    * Loading these two ortholog files and searching them for apoptosis XPs
 
 
 3. Reading OrthoFinder Publication and online tutorial (https://davidemms.github.io/orthofinder_tutorials/exploring-orthofinders-results.html) again for clues as to why there were few single copy orthologs and whether I am interpretting all the data output correctly
@@ -1379,3 +1377,58 @@ Emms, David M., and Steven Kelly. “OrthoFinder: Phylogenetic Orthology Inferen
         * This package only does this by working with the assumption that genes in the same orthogroup have the same function, but this is very likely not valid for our species as there is extensive evolutionary time between them:
           "As seen in Figure 1 most of the orthogroup contain only two genes, generally one from A. lyrata and one from A. thaliana. Many other orthogroups though contain different (any) number of genes from one species and from the other. A “quick and dirty”" solution to restore a one to one relationship among features is to collapse the orthologues by adding up the expression values of genes within the same orthogroup. The basic assumption of this method is that genes in the same orthogroup have the same function.
         * This assumption doesn't really hold true here in terms of all genes in an orthogroup. It may be a safe assumption though that XMs for a given XP are performing similar functions?
+
+4. Deciding exactly which DESeq comparisons and formulas  I will be putting in my models and use going forward:
+
+  * GOAL: to focus on the effect of the treatment, not of time or family.
+  * HOWEVER, for some cases the way they were designed means that "time0" is control and that each time point is a unique measure of the treatment effect. In these cases Time is kept as the main variable being measured.
+
+  1. Zhang: Each of the following groups in each was compared to the controls for the experiment (PBS and no injection). Deseq formula: ~Time + group_by_sim
+    - Names of dataframes:
+    `Zhang_dds_deseq_res_V_alg1_APOP
+    Zhang_dds_deseq_res_V_tub_APOP
+    Zhang_dds_deseq_res_LPS_APOP`
+
+  2. Rubio: Each was the control untreated versus the samples treated for "Vcrass_J2_8"        "Vcrass_J2_9"        "Vtasma_LGP32"       "Vtasma_LMG20012T" . Deseq formula: ~ Condition
+    - Names of dataframes:
+    `Rubio_dds_deseq_J2_8_res_LFC_sig_APOP
+    Rubio_dds_deseq_J2_8_res_LFC_sig_APOP
+    Rubio_dds_deseq_J2_9_res_LFC_sig_APOP
+    Rubio_dds_deseq_J2_9_res_LFC_sig_APOP
+    Rubio_dds_deseq_LGP32_res_LFC_sig_APOP
+    Rubio_dds_deseq_LGP32_res_LFC_sig_APOP
+    Rubio_dds_deseq_LMG20012T_res_LFC_sig_APOP
+    Rubio_dds_deseq_LMG20012T_res_LFC_sig_APOP`
+
+  3. deLorgeril: Each was the particular timepoint versus the time 0 control (with time 9 having no disease). The DESeq 2 formula just had: ~ Time
+  - Names of dataframes
+  `deLorgeril_Resistant_dds_res_6_LFC_sig_APOP
+  deLorgeril_Resistant_dds_res_12_LFC_sig_APOP
+  deLorgeril_Resistant_dds_res_24_LFC_sig_APOP
+  deLorgeril_Resistant_dds_res_48_LFC_sig_APOP
+  deLorgeril_Resistant_dds_res_60_LFC_sig_APOP
+  deLorgeril_Resistant_dds_res_72_LFC_sig_APOP
+  deLorgeril_Susceptible_dds_res_6_LFC_sig_APOP
+  deLorgeril_Susceptible_dds_res_12_LFC_sig_APOP
+  deLorgeril_Susceptible_dds_res_24_LFC_sig_APOP
+  deLorgeril_Susceptible_dds_res_48_LFC_sig_APOP
+  deLorgeril_Susceptible_dds_res_60_LFC_sig_APOP
+  deLorgeril_Susceptible_dds_res_72_LFC_sig_APOP`
+
+  4. He: Also separated the control and treatment for each timepoint separately
+
+
+  5. Dermo: Use the 6 different comparisons where DESeq2 was ran separately for each timepoint and family to ensure that each was only being compared to its own control.
+    - Though I could have done this using contrasts, I didnt because I wanted to use the newest apeglm LFC ranking algorithm that doesn't yet allow for contrasts to be used.
+
+    - Names of APOP dataframes to be analyzed
+    `Dermo_Susceptible_36hr_dds_res_LFC_sig_APOP = control 36hr vs treated at 36hr in susceptible (and so on for each)
+    Dermo_Susceptible_7d_dds_res_LFC_sig_APOP
+    Dermo_Susceptible_28d_dds_res_LFC_sig_APOP
+    Dermo_Tolerant_36hr_dds_res_LFC_sig_APOP
+    Dermo_Tolerant_7d_dds_res_LFC_sig_APO
+    Dermo_Tolerant_28d_dds_res_LFC_sig_APOP `
+
+  6. ROD:
+  7. Probiotic (RI):
+  8. Probiotic (S4, RI) + RE22:

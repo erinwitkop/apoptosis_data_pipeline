@@ -39,12 +39,12 @@ C_gig_orthogroups <- data.frame(Orthogroup = rep(Orthogroups_Cgig$Orthogroup, sa
 C <- strsplit(Orthogroups_Cvir$C_virginica, split = ",")
 C_vir_orthogroups <-data.frame(Orthogroup = rep(Orthogroups_Cvir$Orthogroup, sapply(C, length)), C_virginica = unlist(C))
 
-### ISOLATE SINGLE COPY ORTHOLOGS, XPs FROM ORTHOGROUPS FROM C_VIR AND C_GIG ONLY RUN #### 
+## ISOLATE SINGLE COPY ORTHOLOGS, XPs FROM ORTHOGROUPS FROM C_VIR AND C_GIG ONLY RUN ###
 # NOTE: decided not to try to match the XPs to the XMs. It is too big of a jump to say that because XPs are orthologous that the XMs are orthologous 
 
 ## Isolate single copy orthologs from each table
-C_gig_orthogroups_single_copy <- C_gig_orthogroups[C_gig_orthogroups$Orthogroup %in% Single_copy_orthogroups$Orthogroup,]
-C_vir_orthogroups_single_copy <- C_vir_orthogroups[C_vir_orthogroups$Orthogroup %in% Single_copy_orthogroups$Orthogroup,]
+C_gig_orthogroups_single_copy <- C_gig_orthogroups[C_gig_orthogroups$Orthogroup %in% Single_copy_orthologs$Orthogroup,]
+C_vir_orthogroups_single_copy <- C_vir_orthogroups[C_vir_orthogroups$Orthogroup %in% Single_copy_orthologs$Orthogroup,]
 
 ## Isolate XPs and gene info from C_vir_rtracklayer and C_gig_rtracklayer
 colnames(C_gig_orthogroups_single_copy)[2] <- "protein_id"
@@ -59,10 +59,8 @@ C_vir_orthogroups_single_copy  <- left_join(C_vir_orthogroups_single_copy ,  C_v
 C_vir_orthogroups_single_copy_unique <- unique(C_vir_orthogroups_single_copy$protein_id)
 length(C_vir_orthogroups_single_copy_unique) # 8649
 
-# create output files with the XPs for each 
 
-
-##### LOAD GENE_COUNT_MATRICES ####
+### LOAD GENE_COUNT_MATRICES ###
 
 # Load gene_count_matrix.csv
 Dermo_gene_counts <- read.csv("/Users/erinroberts/Documents/PhD_Research/Chapter_1_Apoptosis Paper/Chapter1_Apoptosis_Transcriptome_Analyses_2019/DATA ANALYSIS/apoptosis_data_pipeline/DESeq2/2020_Transcriptome_ANALYSIS/Dermo_gene_count_matrix.csv", row.names = 1 )
@@ -135,7 +133,7 @@ deLorgeril_gene_counts$gene<- remove_gene_before(deLorgeril_gene_counts$gene)
 He_gene_counts$gene <- remove_gene_before(He_gene_counts$gene)
 Zhang_gene_counts$gene <- remove_gene_before(Zhang_gene_counts$gene)
 
-#### SUBSET GENE COUNT MATRICES FOR ORTHOLOGS AND COMBINE #####
+### SUBSET GENE COUNT MATRICES FOR ORTHOLOGS AND COMBINE ###
 
 C_vir_orthogroups_single_copy_unique <- unique(C_vir_orthogroups_single_copy[,c("gene","Orthogroup")])
 C_gig_orthogroups_single_copy_unique <- unique(C_gig_orthogroups_single_copy[,c("gene","Orthogroup")])
@@ -212,12 +210,7 @@ Full_ortholog_gene_count_only[is.na(Full_ortholog_gene_count_only)] <-0
 head(Full_ortholog_gene_count_only)
 
 
-#### PCA AND HEATMAPS OF ORTHOLOGOUS GENE COUNTS ####
-
-
-
-
-
+#### PCA AND HEATMAPS OF SINGLE COPY ORTHOLOGOUS GENE COUNTS FROM C_VIR AND C_GIG RUN ####
 
 ## Remove Batch effects from experiment for C_vir
 plotPCA(C_vir_full_counts_vst, "Experiment") # grouping by experiment, ROD and probiotic cluster more closely
@@ -1895,4 +1888,25 @@ Ortholog_all_sig_APOP <- rbind(
 Ortholog_all_sig_APOP_plot <- ggplot(Ortholog_all_sig_APOP , aes(x=product,y=log2FoldChange, fill=experiment )) + geom_col(position="dodge") + 
   theme(axis.text.x = element_text(angle = 75, hjust = 1)) + coord_flip()
 
-#### COMPARISON OF TRANSCRIPT EXPRESSION FROM ORTHOLOGOUS PROTEINS ####
+#### IDENTIFY APOPTOSIS ORTHOLOGUES FROM MULTISPECIES ORTHOFINDER RUN  ####
+
+# Data analyzed below was generated in the March04 OrthoFinder run that included Mizuhopecten yessoensis, Crassostrea gigas, Crassostrea
+# virginica, Biomphalaria glabrata, Octopus bimaculoides 
+
+### LOAD ORTHOLOGOUSS XP LIST FROM C_gig_v_C_vir and C_vir_v_C_gig
+
+### LOAD ORTHOFINDER DATA ###
+# OrthoFinder 2.3.3 was used to acquire OrthoFinder information 
+# Load Orthogroups.tsv containing proteins in each orthogroup,Orthogroups_SingleCopyOrthologues.txt which lists the 1:1 orthologs,
+# and Orthogroups.GeneCount.tsv which lists the number of genes in each orthogroup
+
+C_gig_v_C_vir_orthologs <- read_tsv("/Users/erinroberts/Documents/PhD_Research/Chapter_1_Apoptosis Paper/Chapter1_Apoptosis_Transcriptome_Analyses_2019/DATA ANALYSIS/apoptosis_data_pipeline/Transcriptome_Bluewaves_Cluster_Analysis_2020/OrthoFinder/Results_Mar04/Orthologues/Orthologues_GCF_000297895.1_oyster_v9_protein/GCF_000297895.1_oyster_v9_protein__v__GCF_002022765.2_C_virginica-3.0_protein.tsv",
+                                    col_names = c("Orthogroup", "GCF_000297895.1_oyster_v9_protein",	"GCF_002022765.2_C_virginica-3.0_protein"))
+
+C_vir_v_C_gig_orthologs <- read_tsv("/Users/erinroberts/Documents/PhD_Research/Chapter_1_Apoptosis Paper/Chapter1_Apoptosis_Transcriptome_Analyses_2019/DATA ANALYSIS/apoptosis_data_pipeline/Transcriptome_Bluewaves_Cluster_Analysis_2020/OrthoFinder/Results_Mar04/Orthologues/Orthologues_GCF_000297895.1_oyster_v9_protein/GCF_000297895.1_oyster_v9_protein__v__GCF_002022765.2_C_virginica-3.0_protein.tsv",
+                                    col_names = c("Orthogroup",	"GCF_002022765.2_C_virginica-3.0_protein",	"GCF_000297895.1_oyster_v9_protein"))
+
+
+### EXPORT XMS FROM EACH DEG SET FROM EXPERIMENTS ###
+C_vir_apop_LFC 
+C_gig_apop_LFC

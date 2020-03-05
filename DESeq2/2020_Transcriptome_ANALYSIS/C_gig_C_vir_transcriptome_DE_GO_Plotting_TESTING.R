@@ -644,9 +644,7 @@ Zhang_dds_deseq <- DESeq(Zhang_dds)
 resultsNames(Zhang_dds_deseq) # [1] "Intercept"                                   "time_12h_vs_No_injection"                   
 #[3] "group_by_sim_LPS_M_lut_vs_control"           "group_by_sim_V_aes_V_alg1_V_alg2_vs_control"
 #[5] "group_by_sim_V_tub_V_ang_vs_control" 
-resultsNames(Zhang_dds_broken_group_deseq) 
-#[1] "Intercept"                                   "time_No_injection_vs_12h"                    "group_by_sim_LPS_M_lut_vs_control"          
-#[4] "group_by_sim_V_aes_V_alg1_V_alg2_vs_control" "group_by_sim_V_tub_V_ang_vs_control" 
+
 
 #resultsNames(Zhang_dds_path_deseq) 
 # [1] "Intercept"               "path_nonpath_vs_control" "path_path_vs_control"   
@@ -655,22 +653,13 @@ resultsNames(Zhang_dds_broken_group_deseq)
 # Examining the results object, change alpha to p <0.05, looking at object metadata
 # use mcols to look at metadata for each table
 
-mcols(Zhang_dds_broked_group_deseq)
-mcols(Zhang_dds_deseq)
-Zhang_dds_deseq_res <- results(Zhang_dds_deseq, alpha=0.05, name="group_challenge_vs_control")
-Zhang_dds_deseq_res_V_alg1 <- results(Zhang_dds_broken_group_deseq, alpha=0.05, name = "group_by_sim_V_aes_V_alg1_V_alg2_vs_control"  )
-Zhang_dds_deseq_res_V_tub <- results(Zhang_dds_broken_group_deseq, alpha=0.05, name= "group_by_sim_V_tub_V_ang_vs_control" )
-Zhang_dds_deseq_res_LPS <- results(Zhang_dds_broken_group_deseq, alpha=0.05, name= "group_by_sim_LPS_M_lut_vs_control")
+Zhang_dds_deseq_res_V_alg1 <- results(Zhang_dds_deseq, alpha=0.05, name = "group_by_sim_V_aes_V_alg1_V_alg2_vs_control"  )
+Zhang_dds_deseq_res_V_tub <- results(Zhang_dds_deseq, alpha=0.05, name= "group_by_sim_V_tub_V_ang_vs_control" )
+Zhang_dds_deseq_res_LPS <- results(Zhang_dds_deseq, alpha=0.05, name= "group_by_sim_LPS_M_lut_vs_control")
 
-# Zhang_dds_path_deseq_res_path_nonpath <- results(Zhang_dds_path_deseq, alpha=0.05, name=  "path_nonpath_vs_control")
-# Zhang_dds_path_deseq_res_path_path <- results(Zhang_dds_path_deseq, alpha=0.05, name=  "path_path_vs_control")
-
-head(Zhang_dds_deseq_res) # group challenge vs control 
 head(Zhang_dds_deseq_res_V_alg1) #  group by sim Vibrio vs control 
 head(Zhang_dds_deseq_res_V_tub) # group by sim LPS M lut Vtub vs control 
 head(Zhang_dds_deseq_res_LPS) # group by sim V aes v alg2 vs control 
-head(Zhang_dds_path_deseq_res_path_nonpath) # : path nonpath vs control 
-head(Zhang_dds_path_deseq_res_path_path) #  path path vs control 
 
 ### Perform LFC Shrinkage with apeglm
 ## NOTES 
@@ -702,29 +691,15 @@ head(Zhang_dds_path_deseq_res_path_path) #  path path vs control
 
 ## DECISION: USE SAME RES OBJECT TO KEEP ALPHA ADJUSTMENT, and use LFCShrink apeglm
 
-#Zhang_dds_deseq_res_LFC <- lfcShrink(Zhang_dds_deseq, coef="group_challenge_vs_control", type= "apeglm", res=Zhang_dds_deseq_res)
-# Review results object summary
-#summary(Zhang_dds_deseq_res_LFC) # SHOWS NUMBER OF SIGNIFICANT GENES
-# MSTRG removed 
-#out of 32394 with nonzero total read count
-#adjusted p-value < 0.05
-#LFC > 0 (up)       : 649, 2%
-#LFC < 0 (down)     : 146, 0.45%
-#outliers [1]       : 0, 0%
-#low counts [2]     : 4786, 15%
-#(mean count < 3)
-#[1] see 'cooksCutoff' argument of ?results
-#[2] see 'independentFiltering' argument of ?results
-
 Zhang_dds_deseq_res_V_alg1_LFC <- lfcShrink(Zhang_dds_deseq, coef="group_by_sim_V_aes_V_alg1_V_alg2_vs_control" , type= "apeglm", res=Zhang_dds_deseq_res_V_alg1)
 # Review results object summary
 summary(Zhang_dds_deseq_res_V_alg1_LFC)
 #out of 33418 with nonzero total read count
 #adjusted p-value < 0.05
-#LFC > 0 (up)       : 1156, 3.5%
-#LFC < 0 (down)     : 172, 0.51%
+#LFC > 0 (up)       : 1149, 3.4%
+#LFC < 0 (down)     : 173, 0.52%
 #outliers [1]       : 0, 0%
-#low counts [2]     : 6479, 19%
+#low counts [2]     : 5831, 17%
 #(mean count < 5)
 #[1] see 'cooksCutoff' argument of ?results
 #[2] see 'independentFiltering' argument of ?results
@@ -733,11 +708,11 @@ Zhang_dds_deseq_res_V_tub_LFC <- lfcShrink(Zhang_dds_deseq, coef="group_by_sim_V
 summary(Zhang_dds_deseq_res_V_tub_LFC)
 #out of 33418 with nonzero total read count
 #adjusted p-value < 0.05
-#LFC > 0 (up)       : 666, 2%
-#LFC < 0 (down)     : 216, 0.65%
+#LFC > 0 (up)       : 665, 2%
+#LFC < 0 (down)     : 217, 0.65%
 #outliers [1]       : 0, 0%
-#low counts [2]     : 11014, 33%
-#(mean count < 12)
+#low counts [2]     : 9719, 29%
+#(mean count < 10)
 #[1] see 'cooksCutoff' argument of ?results
 #[2] see 'independentFiltering' argument of ?results
 
@@ -745,58 +720,29 @@ Zhang_dds_deseq_res_LFC_LPS <- lfcShrink(Zhang_dds_deseq, coef="group_by_sim_LPS
 summary(Zhang_dds_deseq_res_LFC_LPS)
 #out of 33418 with nonzero total read count
 #adjusted p-value < 0.05
-#LFC > 0 (up)       : 612, 1.8%
-#LFC < 0 (down)     : 210, 0.63%
+#LFC > 0 (up)       : 620, 1.9%
+#LFC < 0 (down)     : 213, 0.64%
 #outliers [1]       : 0, 0%
 #low counts [2]     : 11662, 35%
 #(mean count < 13)
 #[1] see 'cooksCutoff' argument of ?results
 #[2] see 'independentFiltering' argument of ?results
 
-#Zhang_dds_path_deseq_res_path_nonpath_LFC <- lfcShrink(Zhang_dds_path_deseq, coef="path_nonpath_vs_control", type= "apeglm", res=Zhang_dds_path_deseq_res_path_nonpath)
-#summary(Zhang_dds_path_deseq_res_path_nonpath_LFC)
-#out of 33418 with nonzero total read count
-#adjusted p-value < 0.05
-#LFC > 0 (up)       : 446, 1.3%
-#LFC < 0 (down)     : 137, 0.41%
-#outliers [1]       : 1598, 4.8%
-#low counts [2]     : 3888, 12%
-#(mean count < 3)
-#[1] see 'cooksCutoff' argument of ?results
-#[2] see 'independentFiltering' argument of ?results
-
-#Zhang_dds_path_deseq_res_path_path_LFC <- lfcShrink(Zhang_dds_path_deseq, coef="path_path_vs_control", type= "apeglm", res=Zhang_dds_path_deseq_res_path_path)
-#summary(Zhang_dds_path_deseq_res_path_path_LFC)
-#out of 33418 with nonzero total read count
-#adjusted p-value < 0.05
-#LFC > 0 (up)       : 289, 0.86%
-#LFC < 0 (down)     : 228, 0.68%
-#outliers [1]       : 1598, 4.8%
-#low counts [2]     : 3888, 12%
-#(mean count < 3)
-#[1] see 'cooksCutoff' argument of ?results
-#[2] see 'independentFiltering' argument of ?results
-
 ## EXPLORATORY PLOTTING OF RESULTS 
 ## MA Plotting
-plotMA(Zhang_dds_deseq_res_LFC, ylim = c(-5, 5))
+#plotMA(Zhang_dds_deseq_res_LFC, ylim = c(-5, 5))
 ## Histogram of P values 
 # exclude genes with very small counts to avoid spikes and plot using the LFCshrinkage
-hist(Zhang_dds_deseq_res_LFC$padj[Zhang_dds_deseq_res_LFC$baseMean > 1], breaks = 0:20/20,
+#hist(Zhang_dds_deseq_res_LFC$padj[Zhang_dds_deseq_res_LFC$baseMean > 1], breaks = 0:20/20,
      col = "grey50", border = "white")
 
 ### Subsetting Significant Genes by padj < 0.05
 # again, only working with the LFCshrinkage adjusted log fold changes, and with the BH adjusted p-value
 # first make sure to make the rownames with the transcript ID as a new column, then make it a dataframe for filtering
-Zhang_dds_deseq_res_LFC_sig <- subset(Zhang_dds_deseq_res_LFC, padj < 0.05)
-Zhang_dds_deseq_res_LFC_sig$transcript_id <- row.names(Zhang_dds_deseq_res_LFC_sig)
-Zhang_dds_deseq_res_LFC_sig <- as.data.frame(Zhang_dds_deseq_res_LFC_sig)
-nrow(Zhang_dds_deseq_res_LFC_sig)  #795 with MSTRG removed 
-
 Zhang_dds_deseq_res_V_alg1_LFC_sig <- subset(Zhang_dds_deseq_res_V_alg1_LFC, padj < 0.05)
 Zhang_dds_deseq_res_V_alg1_LFC_sig $transcript_id <- row.names(Zhang_dds_deseq_res_V_alg1_LFC_sig )
 Zhang_dds_deseq_res_V_alg1_LFC_sig  <- as.data.frame(Zhang_dds_deseq_res_V_alg1_LFC_sig )
-nrow(Zhang_dds_deseq_res_V_alg1_LFC_sig )  #1328
+nrow(Zhang_dds_deseq_res_V_alg1_LFC_sig )  #1322
 
 Zhang_dds_deseq_res_V_tub_LFC_sig <- subset(Zhang_dds_deseq_res_V_tub_LFC, padj < 0.05)
 Zhang_dds_deseq_res_V_tub_LFC_sig  $transcript_id <- row.names(Zhang_dds_deseq_res_V_tub_LFC_sig  )
@@ -806,17 +752,7 @@ nrow(Zhang_dds_deseq_res_V_tub_LFC_sig  )  #882
 Zhang_dds_deseq_res_LFC_LPS_sig <- subset(Zhang_dds_deseq_res_LFC_LPS, padj < 0.05)
 Zhang_dds_deseq_res_LFC_LPS_sig $transcript_id <- row.names(Zhang_dds_deseq_res_LFC_LPS_sig )
 Zhang_dds_deseq_res_LFC_LPS_sig  <- as.data.frame(Zhang_dds_deseq_res_LFC_LPS_sig)
-nrow(Zhang_dds_deseq_res_LFC_LPS_sig)  #822
-
-# Zhang_dds_path_deseq_res_path_nonpath_LFC_sig <-subset(Zhang_dds_path_deseq_res_path_nonpath_LFC, padj < 0.05)
-# Zhang_dds_path_deseq_res_path_nonpath_LFC_sig$transcript_id <- row.names(Zhang_dds_path_deseq_res_path_nonpath_LFC_sig )
-# Zhang_dds_path_deseq_res_path_nonpath_LFC_sig <- as.data.frame(Zhang_dds_path_deseq_res_path_nonpath_LFC_sig)
-# nrow(Zhang_dds_path_deseq_res_path_nonpath_LFC_sig )  #583
-# 
-# Zhang_dds_path_deseq_res_path_path_LFC_sig  <-subset(Zhang_dds_path_deseq_res_path_path_LFC , padj < 0.05)
-# Zhang_dds_path_deseq_res_path_path_LFC_sig $transcript_id <- row.names(Zhang_dds_path_deseq_res_path_path_LFC_sig  )
-# Zhang_dds_path_deseq_res_path_path_LFC_sig  <- as.data.frame(Zhang_dds_path_deseq_res_path_path_LFC_sig )
-# nrow(Zhang_dds_path_deseq_res_path_path_LFC_sig  )  #517
+nrow(Zhang_dds_deseq_res_LFC_LPS_sig)  #833
 
 ### GENE CLUSTERING ANALYSIS HEATMAPS  
 # Extract genes with the highest variance across samples for each comparison using either vst or rlog transformed data
@@ -831,30 +767,11 @@ nrow(Zhang_dds_deseq_res_LFC_LPS_sig)  #822
 topVarGenes_Zhang_dds_rlog <-  head(order(rowVars(assay(Zhang_dds_rlog )), decreasing = TRUE), 100)
 family_Zhang_mat <- assay(Zhang_dds_rlog)[topVarGenes_Zhang_dds_rlog,]
 family_Zhang_mat <- family_Zhang_mat - rowMeans(family_Zhang_mat)
-family_Zhang_anno <- as.data.frame(colData(Zhang_dds_rlog)[, c("condition","group")])
+family_Zhang_anno <- as.data.frame(colData(Zhang_dds_rlog)[, c("condition","group_by_sim")])
 family_Zhang_heatmap <- pheatmap(family_Zhang_mat , annotation_col = family_Zhang_anno)
 head(family_Zhang_mat)
 # With MSTRG removed, the control PBS and control control cluster together, then the LPS, M lut and V alg1 cluster
   # and the other Vibrio challenges cluster 
-
-topVarGenes_Zhang_dds_broken_rlog <-  head(order(rowVars(assay(Zhang_dds_broked_group_rlog)), decreasing = TRUE), 200)
-family_Zhang_broken_mat <- assay(Zhang_dds_broked_group_rlog)[topVarGenes_Zhang_dds_broken_rlog,]
-family_Zhang_broken_mat <- family_Zhang_broken_mat - rowMeans(family_Zhang_broken_mat)
-family_Zhang_broken_anno <- as.data.frame(colData(Zhang_dds_broked_group_rlog)[, c("condition","group_by_sim")])
-family_Zhang_broken_heatmap <- pheatmap(family_Zhang_broken_mat , annotation_col = family_Zhang_broken_anno)
-head(family_Zhang_broken_mat)
-# the V_aes and V_alg2 cluster is supported, the LPS V alg 1 and M lut cluster, V ang and V tub cluster, though LPS shares the most with control and PBS
-# I'm going to re-do the groups so that V_aes, V_alg2 together, LPS, PBS and control together, and V alg 1 and Mtub together
-# or can do the non pathogenic to oyster V aes, V alg 1 and  V alg 2 together, and the V. ang and V. tub together, and LPS, PBS, and control together
-# with 200 genes: PBS, V alg1, M lut cluster,control and LPS cluster, V aes and V alg 2 cluster, V ang and V tub clustered
-
-topVarGenes_Zhang_dds_path_rlog <-  head(order(rowVars(assay(Zhang_dds_path_rlog )), decreasing = TRUE), 200)
-family_Zhang_path_mat <- assay(Zhang_dds_path_rlog )[topVarGenes_Zhang_dds_path_rlog,]
-family_Zhang_path_mat <- family_Zhang_path_mat - rowMeans(family_Zhang_path_mat)
-family_Zhang_path_anno <- as.data.frame(colData(Zhang_dds_path_rlog )[, c("condition","path")])
-family_Zhang_path_heatmap <- pheatmap(family_Zhang_path_mat , annotation_col = family_Zhang_path_anno)
-head(family_Zhang_path_mat)
-# with 200 genes: V ang and V tub still clustering, V aes V alg2 clutered, M lut and V alg 1 clustered with PBS
 
 # reorder annotation table to match ordering in heatmap 
 family_Zhang_heatmap_reorder <-rownames(family_Zhang_mat[family_Zhang_heatmap$tree_row[["order"]],])
@@ -878,7 +795,7 @@ Zhang_counts_apop_dds <- Zhang_counts_apop_dds[ rowSums(counts(Zhang_counts_apop
 Zhang_counts_apop_rlog <- rlog(Zhang_counts_apop_dds, blind=TRUE)
 
 ## PCA plot of rlog transformed counts for apoptosis
-plotPCA(Zhang_counts_apop_rlog , intgroup=c("group", "condition"))
+plotPCA(Zhang_counts_apop_rlog , intgroup=c("group_by_sim", "condition"))
 
 # heatmap of all apoptosis genes 
 Zhang_counts_apop_assay <-  assay(Zhang_counts_apop_rlog)[,]
@@ -907,30 +824,17 @@ top_Var_Zhang_counts_apop_assay_prot_annot <- left_join(top_Var_Zhang_counts_apo
 #isolate interesting clusters
 
 ### Extract list of significant Apoptosis Genes (not less than or greater than 1 LFC) using merge
-Zhang_dds_deseq_res_LFC_sig_APOP <- merge(Zhang_dds_deseq_res_LFC_sig, C_gig_rtracklayer_apop_product_final, by = "transcript_id")
-Zhang_dds_deseq_res_LFC_sig_APOP_arranged <- arrange(Zhang_dds_deseq_res_LFC_sig_APOP, -log2FoldChange) 
-nrow(Zhang_dds_deseq_res_LFC_sig_APOP ) # 13
-# only 13 apoptotis genes when looking at the results object as a whole with only control vs. challenged
-
 Zhang_dds_deseq_res_V_alg1_LFC_sig_APOP <- merge(Zhang_dds_deseq_res_V_alg1_LFC_sig, C_gig_rtracklayer_apop_product_final, by = "transcript_id")
 Zhang_dds_deseq_res_V_alg1_LFC_sig_APOP_arranged <- arrange(Zhang_dds_deseq_res_V_alg1_LFC_sig_APOP , -log2FoldChange) 
 nrow(Zhang_dds_deseq_res_V_alg1_LFC_sig_APOP) #19
 
 Zhang_dds_deseq_res_V_tub_LFC_sig_APOP <- merge(Zhang_dds_deseq_res_V_tub_LFC_sig , C_gig_rtracklayer_apop_product_final, by = "transcript_id")
 Zhang_dds_deseq_res_V_tub_LFC_sig_APOP_arranged <- arrange(Zhang_dds_deseq_res_V_tub_LFC_sig_APOP  , -log2FoldChange) 
-nrow(Zhang_dds_deseq_res_V_tub_LFC_sig_APOP) # 16
+nrow(Zhang_dds_deseq_res_V_tub_LFC_sig_APOP) # 15
 
 Zhang_dds_deseq_res_LFC_LPS_sig_APOP <- merge(Zhang_dds_deseq_res_LFC_LPS_sig, C_gig_rtracklayer_apop_product_final, by = "transcript_id")
 Zhang_dds_deseq_res_LFC_LPS_sig_APOP_arranged <- arrange(Zhang_dds_deseq_res_LFC_LPS_sig_APOP , -log2FoldChange) 
 nrow(Zhang_dds_deseq_res_LFC_LPS_sig_APOP )  #14
-
-# Zhang_dds_path_deseq_res_path_nonpath_LFC_sig_APOP <- merge(Zhang_dds_path_deseq_res_path_nonpath_LFC_sig, C_gig_rtracklayer_apop_product_final, by = "transcript_id")
-# Zhang_dds_path_deseq_res_path_nonpath_LFC_sig_APOP_arranged <- arrange(Zhang_dds_path_deseq_res_path_nonpath_LFC_sig_APOP , -log2FoldChange) 
-# nrow(Zhang_dds_path_deseq_res_path_nonpath_LFC_sig_APOP ) # 9
-# 
-# Zhang_dds_path_deseq_res_path_path_LFC_sig_APOP <- merge(Zhang_dds_path_deseq_res_path_path_LFC_sig, C_gig_rtracklayer_apop_product_final, by = "transcript_id")
-# Zhang_dds_path_deseq_res_path_path_LFC_sig_APOP_arranged <- arrange(Zhang_dds_path_deseq_res_path_path_LFC_sig_APOP , -log2FoldChange) 
-# nrow(Zhang_dds_path_deseq_res_path_path_LFC_sig_APOP ) # 6
 
 # Compare apoptosis genes between group_by_sim groups
 Zhang_dds_deseq_res_V_alg1_APOP_short <- Zhang_dds_deseq_res_V_alg1_LFC_sig_APOP[,c(1:6,28)]
@@ -967,8 +871,6 @@ Zhang_dds_deseq_res_LPS_APOP_short_plot <- ggplot(Zhang_dds_deseq_res_LPS_APOP_s
 
 ggarrange(Zhang_dds_deseq_res_V_alg1_APOP_short_plot , Zhang_dds_deseq_res_V_tub_APOP_short_plot,Zhang_dds_deseq_res_LPS_APOP_short_plot)
 
-
-## compe back to finishing this analysis after I have done the other dataset analyses
 
 #### RUBIO VIBRIO TRANSCRIPTOME ANALYSIS ####
 
@@ -1098,7 +1000,6 @@ Rubio_dds_deseq <- DESeq(Rubio_dds)
 resultsNames(Rubio_dds_deseq) # [1] "Intercept", "Condition_Control_anesthesis_vs_Control_untreated", "Condition_Vcrass_J2_8_vs_Control_untreated"       
 # [4] "Condition_Vcrass_J2_9_vs_Control_untreated"        "Condition_Vtasma_LGP32_vs_Control_untreated"       "Condition_Vtasma_LMG20012T_vs_Control_untreated"   
 
-
 ## BUILD THE RESULTS OBJECT
 # Examining the results object, change alpha to p <0.05, looking at object metadata
 # use mcols to look at metadata for each table
@@ -1128,19 +1029,19 @@ Rubio_dds_deseq_LMG20012T_res_LFC<- lfcShrink(Rubio_dds_deseq, coef="Condition_V
 
 ## EXPLORATORY PLOTTING OF RESULTS 
 ## MA Plotting
-plotMA(Rubio_dds_deseq_J2_8_res_LFC, ylim = c(-5, 5))
-plotMA(Rubio_dds_deseq_J2_9_res_LFC, ylim = c(-5, 5))
-plotMA(Rubio_dds_deseq_LGP32_res_LFC, ylim = c(-5, 5))
-plotMA(Rubio_dds_deseq_LMG20012T_res_LFC, ylim = c(-5, 5))
-## Histogram of P values 
-# exclude genes with very small counts to avoid spikes and plot using the LFCshrinkage
-hist(Rubio_dds_deseq_J2_8_res_LFC$padj[Rubio_dds_deseq_J2_8_res_LFC$baseMean > 1], breaks = 0:20/20,
-     col = "grey50", border = "white")
-hist(Rubio_dds_deseq_J2_9_res_LFC$padj[Rubio_dds_deseq_J2_9_res_LFC$baseMean > 1], breaks = 0:20/20,
-     col = "grey50", border = "white")
-hist(Rubio_dds_deseq_LGP32_res_LFC$padj[Rubio_dds_deseq_LGP32_res_LFC$baseMean > 1], breaks = 0:20/20,
-     col = "grey50", border = "white")
-hist(Rubio_dds_deseq_LMG20012T_res_LFC$padj[Rubio_dds_deseq_LMG20012T_res_LFC$baseMean > 1], breaks = 0:20/20,
+#plotMA(Rubio_dds_deseq_J2_8_res_LFC, ylim = c(-5, 5))
+#plotMA(Rubio_dds_deseq_J2_9_res_LFC, ylim = c(-5, 5))
+#plotMA(Rubio_dds_deseq_LGP32_res_LFC, ylim = c(-5, 5))
+#plotMA(Rubio_dds_deseq_LMG20012T_res_LFC, ylim = c(-5, 5))
+### Histogram of P values 
+## exclude genes with very small counts to avoid spikes and plot using the LFCshrinkage
+#hist(Rubio_dds_deseq_J2_8_res_LFC$padj[Rubio_dds_deseq_J2_8_res_LFC$baseMean > 1], breaks = 0:20/20,
+#     col = "grey50", border = "white")
+#hist(Rubio_dds_deseq_J2_9_res_LFC$padj[Rubio_dds_deseq_J2_9_res_LFC$baseMean > 1], breaks = 0:20/20,
+#     col = "grey50", border = "white")
+#hist(Rubio_dds_deseq_LGP32_res_LFC$padj[Rubio_dds_deseq_LGP32_res_LFC$baseMean > 1], breaks = 0:20/20,
+#     col = "grey50", border = "white")
+#hist(Rubio_dds_deseq_LMG20012T_res_LFC$padj[Rubio_dds_deseq_LMG20012T_res_LFC$baseMean > 1], breaks = 0:20/20,
      col = "grey50", border = "white")
 
 ### Subsetting Significant Genes by padj < 0.05
@@ -1246,10 +1147,10 @@ nrow(Rubio_dds_deseq_J2_9_res_LFC_sig_APOP_arranged  ) # 66
 nrow(Rubio_dds_deseq_LGP32_res_LFC_sig_APOP_arranged  ) #68
 nrow(Rubio_dds_deseq_LMG20012T_res_LFC_sig_APOP_arranged) # 62
 
-View(Rubio_dds_deseq_J2_8_res_LFC_sig_APOP_arranged)
-View(Rubio_dds_deseq_J2_9_res_LFC_sig_APOP_arranged)
-View(Rubio_dds_deseq_LGP32_res_LFC_sig_APOP_arranged)
-View(Rubio_dds_deseq_LMG20012T_res_LFC_sig_APOP_arranged)
+#View(Rubio_dds_deseq_J2_8_res_LFC_sig_APOP_arranged)
+#View(Rubio_dds_deseq_J2_9_res_LFC_sig_APOP_arranged)
+#View(Rubio_dds_deseq_LGP32_res_LFC_sig_APOP_arranged)
+#View(Rubio_dds_deseq_LMG20012T_res_LFC_sig_APOP_arranged)
 
 # Compare apoptosis genes between group_by_sim groups
 Rubio_dds_deseq_J2_8_res_LFC_sig_APOP_short <- Rubio_dds_deseq_J2_8_res_LFC_sig_APOP[,c(1:6,28)]
@@ -2062,6 +1963,289 @@ He_dds_res_LFC_sig_APOP_plot <- ggplot(He_dds_res_LFC_sig_APOP , aes(x=product, 
   coord_flip() + scale_fill_gradient2(low="purple",mid = "grey", high="darkgreen") + ggtitle("OsHV1 vs Control") +
   ylab("Log2 Fold Change")
 # mostly upregulation
+
+### HE SEPARATED FOR EACH TIMEPOINT ###
+# Taking same approach to splitting up the data as I did with the Dermo samples 
+He_coldata_6h <- He_coldata %>% subset(Time == "6h")
+He_coldata_12h <- He_coldata %>% subset(Time == "12h")
+He_coldata_24h <- He_coldata %>% subset(Time == "24h")
+He_coldata_48h <- He_coldata %>% subset(Time == "48h")
+He_coldata_120h <- He_coldata %>% subset(Time == "120hr")
+
+He_counts_6h <- He_counts[, row.names(He_coldata_6h)]
+He_counts_12h <- He_counts[, row.names(He_coldata_12h)]
+He_counts_24h <- He_counts[, row.names(He_coldata_24h)]
+He_counts_48h <- He_counts[, row.names(He_coldata_48h)]
+He_counts_120h <- He_counts[, row.names(He_coldata_120h)]
+
+levels(He_coldata_6h $Time)
+levels(He_coldata_12h $Time)
+levels(He_coldata_24h $Time)
+levels(He_coldata_48h $Time)
+levels(He_coldata_120h$Time)
+
+He_coldata_6h $Time <- droplevels(He_coldata_6h $Time)
+He_coldata_12h $Time <- droplevels(He_coldata_12h $Time)
+He_coldata_24h $Time <- droplevels(He_coldata_24h $Time)
+He_coldata_48h $Time <- droplevels(He_coldata_48h $Time)
+He_coldata_120h$Time <- droplevels(He_coldata_120h$Time)
+
+levels(He_coldata_6h $Time)
+levels(He_coldata_12h $Time)
+levels(He_coldata_24h $Time)
+levels(He_coldata_48h $Time)
+levels(He_coldata_120h$Time)
+
+## Creating three here so I can compare the results
+He_dds_6h <- DESeqDataSetFromMatrix(countData = He_counts_6h,
+                                 colData = He_coldata_6h,
+                                 design = ~ Condition) 
+He_dds_12h <- DESeqDataSetFromMatrix(countData = He_counts_12h,
+                                 colData = He_coldata_12h,
+                                 design = ~ Condition) 
+He_dds_24h <- DESeqDataSetFromMatrix(countData = He_counts_24h,
+                                 colData = He_coldata_24h,
+                                 design = ~ Condition) 
+He_dds_48h <- DESeqDataSetFromMatrix(countData = He_counts_48h,
+                                 colData = He_coldata_48h,
+                                 design = ~ Condition) 
+He_dds_120h <- DESeqDataSetFromMatrix(countData = He_counts_120h,
+                                 colData = He_coldata_120h,
+                                 design = ~ Condition) 
+
+## Prefiltering the data
+He_dds_6h <- He_dds_6h [ rowSums(counts(He_dds_6h )) > 10, ]
+He_dds_12h <- He_dds_12h [ rowSums(counts(He_dds_12h )) > 10, ]
+He_dds_24h <- He_dds_24h [ rowSums(counts(He_dds_24h )) > 10, ]
+He_dds_48h <- He_dds_48h [ rowSums(counts(He_dds_48h )) > 10, ]
+He_dds_120h <- He_dds_120h [ rowSums(counts(He_dds_120h )) > 10, ]
+
+### DIFFERENTIAL EXPRESSION ANALYSIS
+He_dds_6h_deseq  <- DESeq(He_dds_6h )
+He_dds_12h_deseq <- DESeq(He_dds_12h )
+He_dds_24h_deseq <- DESeq(He_dds_24h )
+He_dds_48h_deseq <- DESeq(He_dds_48h )
+He_dds_120h_deseq <- DESeq(He_dds_120h)
+
+## Check the resultsNames object of each to look at the available coefficients for use in lfcShrink command
+resultsNames(He_dds_6h_deseq  ) # [1] "Intercept"                  "Condition_OsHV1_vs_control"
+resultsNames(He_dds_12h_deseq ) # [1] "Intercept"                  "Condition_OsHV1_vs_control"
+resultsNames(He_dds_24h_deseq ) # [1] "Intercept"                  "Condition_OsHV1_vs_control"
+resultsNames(He_dds_48h_deseq ) # [1] "Intercept"                  "Condition_OsHV1_vs_control"
+resultsNames(He_dds_120h_deseq) # [1] "Intercept"                  "Condition_OsHV1_vs_control"
+
+## BUILD THE RESULTS OBJECT
+
+He_dds_6h_res  <- results(He_dds_6h_deseq, alpha=0.05, name= "Condition_OsHV1_vs_control")
+He_dds_12h_res <- results(He_dds_12h_deseq, alpha=0.05, name= "Condition_OsHV1_vs_control")
+He_dds_24h_res <- results(He_dds_24h_deseq, alpha=0.05, name= "Condition_OsHV1_vs_control")
+He_dds_48h_res <- results(He_dds_48h_deseq, alpha=0.05, name= "Condition_OsHV1_vs_control")
+He_dds_120h_res <- results(He_dds_120h_deseq, alpha=0.05, name= "Condition_OsHV1_vs_control")
+
+summary(He_dds_6h_res  )
+#out of 31228 with nonzero total read count
+#adjusted p-value < 0.05
+#LFC > 0 (up)       : 392, 1.3%
+#LFC < 0 (down)     : 391, 1.3%
+#outliers [1]       : 2333, 7.5%
+#low counts [2]     : 1211, 3.9%
+#(mean count < 2)
+
+summary(He_dds_12h_res )
+#out of 27478 with nonzero total read count
+#adjusted p-value < 0.05
+#LFC > 0 (up)       : 666, 2.4%
+#LFC < 0 (down)     : 270, 0.98%
+#outliers [1]       : 186, 0.68%
+#low counts [2]     : 2130, 7.8%
+#(mean count < 3)
+
+summary(He_dds_24h_res )
+#out of 29221 with nonzero total read count
+#adjusted p-value < 0.05
+#LFC > 0 (up)       : 1392, 4.8%
+#LFC < 0 (down)     : 1503, 5.1%
+#outliers [1]       : 1653, 5.7%
+#low counts [2]     : 1699, 5.8%
+#(mean count < 2)
+
+summary(He_dds_48h_res )
+#out of 26840 with nonzero total read count
+#adjusted p-value < 0.05
+#LFC > 0 (up)       : 432, 1.6%
+#LFC < 0 (down)     : 404, 1.5%
+#outliers [1]       : 1495, 5.6%
+#low counts [2]     : 2082, 7.8%
+#(mean count < 3)
+
+summary(He_dds_120h_res)
+#out of 29656 with nonzero total read count
+#adjusted p-value < 0.05
+#LFC > 0 (up)       : 506, 1.7%
+#LFC < 0 (down)     : 485, 1.6%
+#outliers [1]       : 1899, 6.4%
+#low counts [2]     : 575, 1.9%
+#(mean count < 2)
+
+### Perform LFC Shrinkage with apeglm
+He_dds_6h_res_LFC  <- lfcShrink(He_dds_6h_deseq, type="apeglm", coef = "Condition_OsHV1_vs_control", He_dds_6h_res  )
+He_dds_12h_res_LFC <- lfcShrink(He_dds_12h_deseq, coef="Condition_OsHV1_vs_control", type="apeglm", He_dds_12h_res )
+He_dds_24h_res_LFC <- lfcShrink(He_dds_24h_deseq, coef="Condition_OsHV1_vs_control", type="apeglm", He_dds_24h_res )
+He_dds_48h_res_LFC <- lfcShrink(He_dds_48h_deseq, coef="Condition_OsHV1_vs_control", type="apeglm", He_dds_48h_res )
+He_dds_120h_res_LFC <- lfcShrink(He_dds_120h_deseq, coef="Condition_OsHV1_vs_control", type="apeglm", He_dds_120h_res)
+
+## EXPLORATORY PLOTTING OF RESULTS 
+
+## Histogram of P values 
+hist(He_dds_res_LFC$padj[He_dds_res_LFC$baseMean > 1], breaks = 0:20/20,
+     col = "grey50", border = "white")
+hist(He_dds_6h_res_LFC  $padj[He_dds_6h_res_LFC  $baseMean >1], breaks = 0:20/20, col = "grey50", border = "white")
+hist(He_dds_12h_res_LFC $padj[He_dds_12h_res_LFC $baseMean >1], breaks = 0:20/20, col = "grey50", border = "white")    
+hist(He_dds_24h_res_LFC $padj[He_dds_24h_res_LFC $baseMean >1], breaks = 0:20/20, col = "grey50", border = "white")
+hist(He_dds_48h_res_LFC $padj[He_dds_48h_res_LFC $baseMean >1], breaks = 0:20/20, col = "grey50", border = "white")
+hist(He_dds_120h_res_LFC$padj[He_dds_120h_res_LFC$baseMean >1], breaks = 0:20/20, col = "grey50", border = "white")
+
+### Subsetting Significant Genes by padj < 0.05
+# again, only working with the LFCshrinkage adjusted log fold changes, and with the BH adjusted p-value
+# first make sure to make the rownames with the transcript ID as a new column, then make it a dataframe for filtering
+He_dds_res_LFC_sig <-  subset(He_dds_res_LFC , padj < 0.05)
+He_dds_res_LFC_sig $transcript_id <- row.names(He_dds_res_LFC_sig )
+He_dds_res_LFC_sig  <- as.data.frame(He_dds_res_LFC_sig )
+nrow(He_dds_res_LFC_sig ) # 3322
+summary(He_dds_res_LFC_sig)
+
+He_dds_res_6hr_sig <- subset(He_dds_res_6hr, padj < 0.05)
+He_dds_res_12hr_sig <- subset(He_dds_res_12hr, padj < 0.05)
+He_dds_res_24hr_sig <- subset(He_dds_res_24hr, padj < 0.05)
+He_dds_res_48hr_sig <- subset(He_dds_res_48hr, padj < 0.05)
+He_dds_res_120hr_sig  <- subset(He_dds_res_120hr, padj < 0.05)
+
+He_dds_res_6hr_sig $transcript_id <- row.names(He_dds_res_6hr_sig )
+He_dds_res_12hr_sig $transcript_id <- row.names(He_dds_res_12hr_sig )
+He_dds_res_24hr_sig $transcript_id <- row.names(He_dds_res_24hr_sig )
+He_dds_res_48hr_sig $transcript_id <- row.names(He_dds_res_48hr_sig )
+He_dds_res_120hr_sig$transcript_id <- row.names(He_dds_res_120hr_sig)
+
+He_dds_res_6hr_sig <- as.data.frame(He_dds_res_6hr_sig)
+He_dds_res_12hr_sig <- as.data.frame(He_dds_res_12hr_sig)
+He_dds_res_24hr_sig <- as.data.frame(He_dds_res_24hr_sig)
+He_dds_res_48hr_sig <- as.data.frame(He_dds_res_48hr_sig)
+He_dds_res_120hr_sig <- as.data.frame(He_dds_res_120hr_sig)
+
+nrow(He_dds_res_6hr_sig) #742
+nrow(He_dds_res_12hr_sig) # 525
+nrow(He_dds_res_24hr_sig) # 699
+nrow(He_dds_res_48hr_sig) # 641
+nrow(He_dds_res_120hr_sig) # 520 
+
+### GENE CLUSTERING ANALYSIS HEATMAPS  
+# Extract genes with the highest variance across samples for each comparison using either vst or rlog transformed data
+# This heatmap rather than plotting absolute expression strength plot the amount by which each gene deviates in a specific sample from the gene’s average across all samples. 
+# example codes from RNAseq workflow: https://www.bioconductor.org/packages/devel/workflows/vignettes/rnaseqGene/inst/doc/rnaseqGene.html#other-comparisons
+He_dds_res_LFC_sig_vst <-  head(order(rowVars(assay(He_dds_vst )), decreasing = TRUE), 200)
+He_mat <- assay(He_dds_vst)[He_dds_res_LFC_sig_vst,]
+He_mat <- He_mat - rowMeans(He_mat)
+He_anno <- as.data.frame(colData(He_dds_vst)[, c("Condition","Time")])
+He_heatmap <- pheatmap(He_mat, annotation_col = He_anno)
+head(He_mat) # osHV1 and control cluster pretty strongly 
+
+# reorder annotation table to match ordering in heatmap 
+He_heatmap_reorder <-rownames(He_mat[He_heatmap$tree_row[["order"]],])
+# annotate the row.names
+He_mat_prot <- as.data.frame(He_heatmap_reorder )
+colnames(He_mat_prot)[1] <- "transcript_id"
+He_mat_prot_annot <- left_join(He_mat_prot, select(C_gig_rtracklayer_transcripts, transcript_id, product, gene), by = "transcript_id")
+
+# Gene clustering heatmap with only apoptosis genes #
+# vector C_gig_apop transcript IDs
+C_gig_rtracklayer_apop_product_final_transcript_id 
+# Search original Rubio_counts for apoptosis genes and do rlog on just these
+He_counts_apop <- He_counts[row.names(He_counts) %in% C_gig_rtracklayer_apop_product_final_transcript_id,]
+nrow(He_counts_apop ) #659
+He_counts_apop_dds <- DESeqDataSetFromMatrix(countData = He_counts_apop,
+                                             colData = He_coldata,
+                                             design = ~ Time + Condition) # using same formula as before
+# Prefiltering the data and running vst
+He_counts_apop_dds <- He_counts_apop_dds[ rowSums(counts(He_counts_apop_dds)) > 10, ]
+He_counts_apop_dds_vst <- varianceStabilizingTransformation(He_counts_apop_dds, blind=TRUE)
+
+## PCA plot of rlog transformed counts for apoptosis
+plotPCA(He_counts_apop_dds_vst , intgroup="Condition") # good separation of control and challenge
+
+# heatmap of all apoptosis genes 
+He_counts_apop_assay <-  assay(He_counts_apop_dds_vst)[,]
+He_counts_apop_assay_mat <- He_counts_apop_assay - rowMeans(He_counts_apop_assay)
+He_counts_apop_assay_anno <- as.data.frame(colData(He_counts_apop_dds_vst)[, c("Condition","Time")])
+He_counts_apop_assay_heatmap <- pheatmap(He_counts_apop_assay_mat  , annotation_col = He_counts_apop_assay_anno)
+head(He_counts_apop_assay_mat ) 
+# good clustering still by control and OsHV1 
+
+# heatmap of most variable apoptosis genes (this selects genes with the greatest variance in the sample)
+topVarGenes_He_counts_apop_assay <-  head(order(rowVars(assay(He_counts_apop_dds_vst )), decreasing = TRUE), 100) 
+top_Var_He_counts_apop_assay_mat<- assay(He_counts_apop_dds_vst)[topVarGenes_He_counts_apop_assay,]
+top_Var_He_counts_apop_assay_mat <- top_Var_He_counts_apop_assay_mat - rowMeans(top_Var_He_counts_apop_assay_mat)
+top_Var_He_counts_apop_assay_anno <- as.data.frame(colData(He_counts_apop_dds_vst)[, c("Condition","Time")])
+top_Var_He_counts_apop_assay_heatmap <- pheatmap(top_Var_He_counts_apop_assay_mat  , annotation_col = top_Var_He_counts_apop_assay_anno)
+head(top_Var_He_counts_apop_assay_mat )
+# clustering not as good as looking at heatmap of all genes 
+
+# annotate the top 100 most variable genes  
+# reorder annotation table to match ordering in heatmap 
+top_Var_He_counts_apop_assay_heatmap_reorder <-rownames(top_Var_He_counts_apop_assay_mat[top_Var_He_counts_apop_assay_heatmap$tree_row[["order"]],])
+# annotate the row.names
+top_Var_He_counts_apop_assay_prot <- as.data.frame(top_Var_He_counts_apop_assay_heatmap_reorder)
+colnames(top_Var_He_counts_apop_assay_prot)[1] <- "transcript_id"
+top_Var_He_counts_apop_assay_prot_annot <- left_join(top_Var_He_counts_apop_assay_prot, select(C_gig_rtracklayer_transcripts, transcript_id, product, gene), by = "transcript_id")
+
+### Extract list of significant Apoptosis Genes (not less than or greater than 1 LFC) using merge
+He_dds_res_LFC_sig_APOP <- merge(He_dds_res_LFC_sig , C_gig_rtracklayer_apop_product_final, by = "transcript_id")
+He_dds_res_LFC_sig_arranged <-arrange(He_dds_res_LFC_sig_APOP, -log2FoldChange)
+nrow(He_dds_res_LFC_sig_arranged ) #66
+View(He_dds_res_LFC_sig_arranged)
+
+He_dds_res_6hr_sig_APOP <- merge(He_dds_res_6hr_sig,    C_gig_rtracklayer_apop_product_final, by = "transcript_id")
+He_dds_res_12hr_sig_APOP <- merge(He_dds_res_12hr_sig, C_gig_rtracklayer_apop_product_final, by = "transcript_id")
+He_dds_res_24hr_sig_APOP <- merge(He_dds_res_24hr_sig, C_gig_rtracklayer_apop_product_final, by = "transcript_id")
+He_dds_res_48hr_sig_APOP <- merge(He_dds_res_48hr_sig , C_gig_rtracklayer_apop_product_final, by = "transcript_id")
+He_dds_res_120hr_sig_APOP <- merge(He_dds_res_120hr_sig ,C_gig_rtracklayer_apop_product_final, by = "transcript_id" )
+
+He_dds_res_6hr_sig_arranged <- arrange(He_dds_res_6hr_sig_APOP , -log2FoldChange)
+He_dds_res_12hr_sig_arranged <- arrange(He_dds_res_12hr_sig_APOP , -log2FoldChange)
+He_dds_res_24hr_sig_arranged <- arrange(He_dds_res_24hr_sig_APOP , -log2FoldChange)
+He_dds_res_48hr_sig_arranged <- arrange(He_dds_res_48hr_sig_APOP , -log2FoldChange)
+He_dds_res_120hr_sig_arranged <- arrange(He_dds_res_120hr_sig_APOP, -log2FoldChange)
+
+nrow(He_dds_res_6hr_sig_arranged ) # 20
+nrow(He_dds_res_12hr_sig_arranged) # 14
+nrow(He_dds_res_24hr_sig_arranged) # 19
+nrow(He_dds_res_48hr_sig_arranged) # 15
+nrow(He_dds_res_120hr_sig_arranged) # 9
+
+He_dds_res_6hr_sig_APOP$group_by_sim <-"He_dds_res_6hr_sig_APOP"
+He_dds_res_12hr_sig_APOP$group_by_sim <-"He_dds_res_12hr_sig_APOP"
+He_dds_res_24hr_sig_APOP$group_by_sim <-"He_dds_res_24hr_sig_APOP"
+He_dds_res_48hr_sig_APOP$group_by_sim <-"He_dds_res_48hr_sig_APOP"
+He_dds_res_120hr_sig_APOP$group_by_sim <-"He_dds_res_120hr_sig_APOP"
+
+# combine data frames 
+He_all_sig_APOP <- rbind(He_dds_res_6hr_sig_APOP[,c("product","group_by_sim","log2FoldChange")],
+                         He_dds_res_12hr_sig_APOP[,c("product","group_by_sim","log2FoldChange")],
+                         He_dds_res_24hr_sig_APOP[,c("product","group_by_sim","log2FoldChange")],
+                         He_dds_res_48hr_sig_APOP[,c("product","group_by_sim","log2FoldChange")],
+                         He_dds_res_120hr_sig_APOP[,c("product","group_by_sim","log2FoldChange")])
+
+# Make plot
+He_full_LFC_plot <- ggplot(He_all_sig_APOP , aes(x=product,y=log2FoldChange, fill=group_by_sim )) + geom_col(position="dodge") + 
+  theme(axis.text.x = element_text(angle = 75, hjust = 1)) + coord_flip()
+
+
+# Compare apoptosis genes between group_by_sim groups
+He_dds_res_LFC_sig_APOP_plot <- ggplot(He_dds_res_LFC_sig_APOP , aes(x=product, y = log2FoldChange, fill=log2FoldChange)) + geom_col(position="dodge") +
+  coord_flip() + scale_fill_gradient2(low="purple",mid = "grey", high="darkgreen") + ggtitle("OsHV1 vs Control") +
+  ylab("Log2 Fold Change")
+# mostly upregulation
+
+
 
 #### PROBIOTIC TRANSCRIPTOME ANALYSIS ####
 
@@ -3005,9 +3189,23 @@ Dermo_Tolerant_dds <- DESeqDataSetFromMatrix(countData =Dermo_Tolerant_counts,
 Dermo_Susceptible_dds <- DESeqDataSetFromMatrix(countData = Dermo_Susceptible_counts,
                                               colData = Dermo_Susceptible_coldata,
                                               design = ~Lib_prep_date + Condition + Time) # keep time at end so I can look for condition effect through time
+
+
+## Alternative testing of looking at the condition effect, controlling for time  = this gets the same results as the previous formula
+Dermo_Tolerant_condition_dds <- DESeqDataSetFromMatrix(countData =Dermo_Tolerant_counts,
+                                             colData = Dermo_Tolerant_coldata,
+                                             design = ~Lib_prep_date + Time + Condition) 
+Dermo_Susceptible_condition_dds <- DESeqDataSetFromMatrix(countData = Dermo_Susceptible_counts,
+                                                colData = Dermo_Susceptible_coldata,
+                                                design = ~Lib_prep_date + Time + Condition)
+
 ## Collapse technical replicates
 Dermo_Tolerant_dds <- collapseReplicates(Dermo_Tolerant_dds, Dermo_Tolerant_dds$Sample_ID, Dermo_Tolerant_dds$Tech_rep)
 Dermo_Dermo_Susceptible_dds <- collapseReplicates(Dermo_Susceptible_dds, Dermo_Susceptible_dds$Sample_ID, Dermo_Susceptible_dds$Tech_rep)
+
+Dermo_Tolerant_condition_dds <- collapseReplicates(Dermo_Tolerant_condition_dds, Dermo_Tolerant_condition_dds$Sample_ID, Dermo_Tolerant_condition_dds$Tech_rep)
+Dermo_Dermo_Susceptible_condition_dds <- collapseReplicates(Dermo_Susceptible_condition_dds, Dermo_Susceptible_condition_dds$Sample_ID, Dermo_Susceptible_condition_dds$Tech_rep)
+
 
 ## Prefiltering the data
 # Data prefiltering helps decrease the size of the data set and get rid of
@@ -3015,10 +3213,16 @@ Dermo_Dermo_Susceptible_dds <- collapseReplicates(Dermo_Susceptible_dds, Dermo_S
 Dermo_Tolerant_dds <- Dermo_Tolerant_dds[ rowSums(counts(Dermo_Tolerant_dds )) > 10, ]
 Dermo_Susceptible_dds <- Dermo_Susceptible_dds[rowSums(counts(Dermo_Susceptible_dds )) > 10, ]
 
+Dermo_Tolerant_condition_dds <- Dermo_Tolerant_condition_dds[ rowSums(counts(Dermo_Tolerant_condition_dds )) > 10, ]
+Dermo_Susceptible_condition_dds <- Dermo_Susceptible_condition_dds[rowSums(counts(Dermo_Susceptible_condition_dds )) > 10, ]
+
 ## DATA TRANSFORMATION AND VISUALIZATION
 # Assess sample clustering after setting initial formula for comparison
 Dermo_Tolerant_dds_vst <- vst(Dermo_Tolerant_dds , blind = TRUE) # keep blind = true before deseq function has been run
 Dermo_Susceptible_dds_vst <- vst(Dermo_Susceptible_dds , blind = TRUE) # keep blind = true before deseq function has been run
+
+Dermo_Tolerant_condition_dds_vst <- vst(Dermo_Tolerant_condition_dds , blind = TRUE) # keep blind = true before deseq function has been run
+Dermo_Susceptible_condition_dds_vst <- vst(Dermo_Susceptible_condition_dds , blind = TRUE) # keep blind = true before deseq function has been run
 
 ## PCA plot visualization of individuals in the family 
 plotPCA(Dermo_Tolerant_dds_vst, intgroup= c("Time","Condition")) # no some clustering by treatment
@@ -3029,13 +3233,22 @@ plotPCA(Dermo_Susceptible_dds_vst , intgroup=c("Time","Condition")) # some clust
 # Steps: estimation of size factors (controlling for differences in the sequencing depth of the samples), 
 # the estimation of dispersion values for each gene,and fitting a generalized linear model.
 Dermo_Tolerant_dds_deseq <- DESeq(Dermo_Tolerant_dds) 
-Dermo_Susceptible_dds_deseq <- DESeq(Dermo_Susceptible_dds) 
+Dermo_Susceptible_dds_deseq <- DESeq(Dermo_Susceptible_dds)
+Dermo_Tolerant_condition_dds_deseq <- DESeq(Dermo_Tolerant_condition_dds) 
+Dermo_Susceptible_condition_dds_deseq <- DESeq(Dermo_Susceptible_condition_dds)
 
 ## Check the resultsNames object of each to look at the available coefficients for use in lfcShrink command
 resultsNames(Dermo_Tolerant_dds_deseq) # [1] "Intercept" "Lib_prep_date_12_17_2020_vs_12_15_2020" "Condition_Injected_vs_Control"         
   # [4] "Time_7d_vs_36h"    "Time_28d_vs_36h"        
-resultsNames(Dermo_Susceptible_dds_deseq ) #[1] "Intercept" "Lib_prep_date_12_17_2020_vs_12_15_2020" "Condition_Injected_vs_Control"         
+resultsNames(Dermo_Susceptible_condition_dds_deseq ) #[1] "Intercept" "Lib_prep_date_12_17_2020_vs_12_15_2020" "Condition_Injected_vs_Control"         
   # [4] "Time_7d_vs_36h"   "Time_28d_vs_36h" 
+
+resultsNames(Dermo_Tolerant_condition_dds_deseq)    
+#[1] "Intercept"                              "Lib_prep_date_12_17_2020_vs_12_15_2020" "Time_7d_vs_36h"                        
+#[4] "Time_28d_vs_36h"                        "Condition_Injected_vs_Control" 
+resultsNames(Dermo_Susceptible_condition_dds_deseq ) 
+#[1] "Intercept"                              "Lib_prep_date_12_17_2020_vs_12_15_2020" "Time_7d_vs_36h"                        
+#[4] "Time_28d_vs_36h"                        "Condition_Injected_vs_Control"         
 
 ## BUILD THE RESULTS OBJECT
 # Examining the results object, change alpha to p <0.05, looking at object metadata
@@ -3043,6 +3256,11 @@ resultsNames(Dermo_Susceptible_dds_deseq ) #[1] "Intercept" "Lib_prep_date_12_17
 mcols(Dermo_Tolerant_dds_deseq)
 mcols(Dermo_Susceptible_dds_deseq)
 
+Dermo_Tolerant_condition_dds_res <- results(Dermo_Tolerant_condition_dds_deseq, alpha=0.05, name="Condition_Injected_vs_Control" )
+Dermo_Susceptible_condition_dds_res <- results(Dermo_Susceptible_condition_dds_deseq, alpha=0.05, name="Condition_Injected_vs_Control")
+
+Dermo_Tolerant_dds_res <- results(Dermo_Tolerant_dds_deseq, alpha=0.05, name="Condition_Injected_vs_Control" )
+Dermo_Susceptible_dds_res <- results(Dermo_Susceptible_dds_deseq, alpha=0.05, name="Condition_Injected_vs_Control")
 Dermo_Tolerant_dds_7d_res <- results(Dermo_Tolerant_dds_deseq, alpha=0.05, name="Time_7d_vs_36h" )
 Dermo_Tolerant_dds_28d_res <- results(Dermo_Tolerant_dds_deseq, alpha=0.05, name="Time_28d_vs_36h"  )
 Dermo_Susceptible_dds_7d_res <- results(Dermo_Susceptible_dds_deseq, alpha=0.05, name="Time_7d_vs_36h" )
@@ -3055,41 +3273,66 @@ Dermo_Susceptible_dds_28d_res <- results(Dermo_Susceptible_dds_deseq, alpha=0.05
 # More detailed notes about LFC Shrinkage are in the code for the Zhang Vibrio
 
 ## DECISION: USE SAME RES OBJECT TO KEEP ALPHA ADJUSTMENT, and use LFCShrink apeglm
+Dermo_Tolerant_dds_res_LFC <- lfcShrink(Dermo_Tolerant_dds_deseq, coef="Condition_Injected_vs_Control", type="apeglm", res= Dermo_Tolerant_dds_res)
 Dermo_Tolerant_dds_7d_res_LFC <- lfcShrink(Dermo_Tolerant_dds_deseq, coef="Time_7d_vs_36h", type="apeglm", res= Dermo_Tolerant_dds_7d_res)
 Dermo_Tolerant_dds_28d_res_LFC <- lfcShrink(Dermo_Tolerant_dds_deseq, coef="Time_28d_vs_36h", type="apeglm", res= Dermo_Tolerant_dds_28d_res)
+Dermo_Susceptible_dds_res_LFC <- lfcShrink(Dermo_Susceptible_dds_deseq, coef="Condition_Injected_vs_Control", type="apeglm", res=Dermo_Susceptible_dds_res)
 Dermo_Susceptible_dds_7d_res_LFC <- lfcShrink(Dermo_Susceptible_dds_deseq, coef="Time_7d_vs_36h", type="apeglm", res=Dermo_Susceptible_dds_7d_res)
 Dermo_Susceptible_dds_28d_res_LFC <- lfcShrink(Dermo_Susceptible_dds_deseq, coef="Time_28d_vs_36h", type="apeglm", res=Dermo_Susceptible_dds_28d_res)
 
+Dermo_Tolerant_condition_dds_res_LFC <- lfcShrink(Dermo_Tolerant_condition_dds_deseq, coef="Condition_Injected_vs_Control", type="apeglm", res= Dermo_Tolerant_condition_dds_res)
+Dermo_Susceptible_condition_dds_res_LFC <- lfcShrink(Dermo_Susceptible_condition_dds_deseq, coef="Condition_Injected_vs_Control", type="apeglm", res=Dermo_Susceptible_condition_dds_res)
+
 ## EXPLORATORY PLOTTING OF RESULTS 
 ## MA Plotting
-plotMA(Dermo_Tolerant_dds_7d_res_LFC, ylim = c(-5, 5))
-plotMA(Dermo_Tolerant_dds_28d_res_LFC, ylim = c(-5, 5))
-plotMA(Dermo_Susceptible_dds_7d_res_LFC, ylim = c(-5, 5))
-plotMA(Dermo_Susceptible_dds_28d_res_LFC, ylim = c(-5, 5))
-
-## Histogram of P values 
-# exclude genes with very small counts to avoid spikes and plot using the LFCshrinkage
-hist(Dermo_Tolerant_dds_7d_res_LFC$padj[Dermo_Tolerant_dds_7d_res_LFC$baseMean > 1], breaks = 0:20/20,
-     col = "grey50", border = "white")
-hist(Dermo_Tolerant_dds_28d_res_LFC$padj[Dermo_Tolerant_dds_28d_res_LFC$baseMean > 1], breaks = 0:20/20,
-     col = "grey50", border = "white")
-hist(Dermo_Susceptible_dds_7d_res_LFC$padj[Dermo_Susceptible_dds_7d_res_LFC$baseMean > 1], breaks = 0:20/20,
-     col = "grey50", border = "white")
-hist(Dermo_Susceptible_dds_28d_res_LFC$padj[Dermo_Susceptible_dds_28d_res_LFC$baseMean > 1], breaks = 0:20/20,
-     col = "grey50", border = "white")
+#plotMA(Dermo_Tolerant_dds_7d_res_LFC, ylim = c(-5, 5))
+#plotMA(Dermo_Tolerant_dds_28d_res_LFC, ylim = c(-5, 5))
+#plotMA(Dermo_Susceptible_dds_7d_res_LFC, ylim = c(-5, 5))
+#plotMA(Dermo_Susceptible_dds_28d_res_LFC, ylim = c(-5, 5))
+#
+### Histogram of P values 
+## exclude genes with very small counts to avoid spikes and plot using the LFCshrinkage
+#hist(Dermo_Tolerant_dds_7d_res_LFC$padj[Dermo_Tolerant_dds_7d_res_LFC$baseMean > 1], breaks = 0:20/20,
+#     col = "grey50", border = "white")
+#hist(Dermo_Tolerant_dds_28d_res_LFC$padj[Dermo_Tolerant_dds_28d_res_LFC$baseMean > 1], breaks = 0:20/20,
+#     col = "grey50", border = "white")
+#hist(Dermo_Susceptible_dds_7d_res_LFC$padj[Dermo_Susceptible_dds_7d_res_LFC$baseMean > 1], breaks = 0:20/20,
+#     col = "grey50", border = "white")
+#hist(Dermo_Susceptible_dds_28d_res_LFC$padj[Dermo_Susceptible_dds_28d_res_LFC$baseMean > 1], breaks = 0:20/20,
+ #    col = "grey50", border = "white")
 
 ### Subsetting Significant Genes by padj < 0.05
 # again, only working with the LFCshrinkage adjusted log fold changes, and with the BH adjusted p-value
 # first make sure to make the rownames with the transcript ID as a new column, then make it a dataframe for filtering
+Dermo_Tolerant_condition_dds_res_LFC_sig <-  subset(Dermo_Tolerant_condition_dds_res_LFC , padj < 0.05)
+Dermo_Tolerant_condition_dds_res_LFC_sig$ID<- row.names(Dermo_Tolerant_condition_dds_res_LFC_sig)
+Dermo_Tolerant_condition_dds_res_LFC_sig <- as.data.frame(Dermo_Tolerant_condition_dds_res_LFC_sig)
+nrow(Dermo_Tolerant_condition_dds_res_LFC_sig) # 1200
+
+Dermo_Susceptible_condition_dds_res_LFC_sig <-  subset(Dermo_Susceptible_condition_dds_res_LFC , padj < 0.05)
+Dermo_Susceptible_condition_dds_res_LFC_sig$ID<- row.names(Dermo_Susceptible_condition_dds_res_LFC_sig)
+Dermo_Susceptible_condition_dds_res_LFC_sig <- as.data.frame(Dermo_Susceptible_condition_dds_res_LFC_sig)
+nrow(Dermo_Susceptible_condition_dds_res_LFC_sig)  # 1035
+
+Dermo_Tolerant_dds_res_LFC_sig <-  subset(Dermo_Tolerant_dds_res_LFC , padj < 0.05)
+Dermo_Tolerant_dds_res_LFC_sig$ID<- row.names(Dermo_Tolerant_dds_res_LFC_sig)
+Dermo_Tolerant_dds_res_LFC_sig <- as.data.frame(Dermo_Tolerant_dds_res_LFC_sig)
+nrow(Dermo_Tolerant_dds_res_LFC_sig) #1200
+
 Dermo_Tolerant_dds_7d_res_LFC_sig <-  subset(Dermo_Tolerant_dds_7d_res_LFC , padj < 0.05)
 Dermo_Tolerant_dds_7d_res_LFC_sig$ID<- row.names(Dermo_Tolerant_dds_7d_res_LFC_sig)
 Dermo_Tolerant_dds_7d_res_LFC_sig <- as.data.frame(Dermo_Tolerant_dds_7d_res_LFC_sig)
-nrow(Dermo_Tolerant_dds_7d_res_LFC_sig) #1390
+nrow(Dermo_Tolerant_dds_7d_res_LFC_sig) #966
 
 Dermo_Tolerant_dds_28d_res_LFC_sig <-  subset(Dermo_Tolerant_dds_28d_res_LFC , padj < 0.05)
 Dermo_Tolerant_dds_28d_res_LFC_sig$ID<- row.names(Dermo_Tolerant_dds_28d_res_LFC_sig)
 Dermo_Tolerant_dds_28d_res_LFC_sig <- as.data.frame(Dermo_Tolerant_dds_28d_res_LFC_sig)
-nrow(Dermo_Tolerant_dds_28d_res_LFC_sig) # 1848
+nrow(Dermo_Tolerant_dds_28d_res_LFC_sig) # 1238
+
+Dermo_Susceptible_dds_res_LFC_sig <-  subset(Dermo_Susceptible_dds_res_LFC , padj < 0.05)
+Dermo_Susceptible_dds_res_LFC_sig$ID<- row.names(Dermo_Susceptible_dds_res_LFC_sig)
+Dermo_Susceptible_dds_res_LFC_sig <- as.data.frame(Dermo_Susceptible_dds_res_LFC_sig)
+nrow(Dermo_Susceptible_dds_res_LFC_sig)  #1035
 
 Dermo_Susceptible_dds_7d_res_LFC_sig <-  subset(Dermo_Susceptible_dds_7d_res_LFC , padj < 0.05)
 Dermo_Susceptible_dds_7d_res_LFC_sig$ID<- row.names(Dermo_Susceptible_dds_7d_res_LFC_sig)
@@ -3105,95 +3348,107 @@ nrow(Dermo_Susceptible_dds_28d_res_LFC_sig)  #2477
 # Extract genes with the highest variance across samples for each comparison using either vst or rlog transformed data
 # This heatmap rather than plotting absolute expression strength plot the amount by which each gene deviates in a specific sample from the gene’s average across all samples. 
 # example codes from RNAseq workflow: https://www.bioconductor.org/packages/devel/workflows/vignettes/rnaseqGene/inst/doc/rnaseqGene.html#other-comparisons
-Dermo_Tolerant_dds_vst
-Dermo_Susceptible_dds_vst
-
-Dermo_Tolerant_dds_LFC_assay <-  head(order(rowVars(assay(Dermo_Tolerant_dds_vst  )), decreasing = TRUE), 200)
-Dermo_Tolerant_mat <- assay(Dermo_Tolerant_dds_vst )[Dermo_Tolerant_dds_LFC_assay,]
-Dermo_Tolerant_mat <- Dermo_Tolerant_mat - rowMeans(Dermo_Tolerant_mat)
-Dermo_Tolerant_anno <- as.data.frame(colData(Dermo_Tolerant_dds_vst )[, c("Condition","Time")])
-Dermo_Tolerant_heatmap <- pheatmap(Dermo_Tolerant_mat , annotation_col =Dermo_Tolerant_anno)
-head(Dermo_Tolerant_mat) # clustering mostly by control and injected 
-
-Dermo_Susceptible_dds_LFC_assay <-  head(order(rowVars(assay(Dermo_Susceptible_dds_vst  )), decreasing = TRUE), 200)
-Dermo_Susceptible_mat <- assay(Dermo_Susceptible_dds_vst)[Dermo_Susceptible_dds_LFC_assay,]
-Dermo_Susceptible_mat <- Dermo_Susceptible_mat - rowMeans(Dermo_Susceptible_mat)
-Dermo_Susceptible_anno <- as.data.frame(colData(Dermo_Susceptible_dds_vst)[, c("Condition","Time")])
-Dermo_Susceptible_heatmap <- pheatmap(Dermo_Susceptible_mat , annotation_col =Dermo_Susceptible_anno)
-head(Dermo_Susceptible_mat) # clustering by control and injected
-
-# Gene clustering heatmap with only apoptosis genes #
-# vector C_vir_apop transcript IDs
-# Search original counts for apoptosis genes and do rlog on just these
-Dermo_Tolerant_counts_apop <- Dermo_Tolerant_counts[row.names(Dermo_Tolerant_counts) %in% C_vir_rtracklayer_apop_product_final_ID,]
-Dermo_Susceptible_counts_apop <- Dermo_Susceptible_counts[row.names(Dermo_Susceptible_counts) %in% C_vir_rtracklayer_apop_product_final_ID,]
-nrow(Dermo_Tolerant_counts_apop) #1026
-nrow( Dermo_Susceptible_counts_apop) # 1026
-
-Dermo_Tolerant_counts_apop_dds <- DESeqDataSetFromMatrix(countData = Dermo_Tolerant_counts_apop,
-                                                        colData = Dermo_Tolerant_coldata,
-                                                        design = ~Lib_prep_date + Condition + Time) # same as before
-Dermo_Susceptible_counts_apop_dds <- DESeqDataSetFromMatrix(countData = Dermo_Susceptible_counts_apop,
-                                                          colData =Dermo_Susceptible_coldata,
-                                                          design =  ~Lib_prep_date + Condition + Time) # same as before
-
-# Prefiltering the data and running rlog
-Dermo_Tolerant_counts_apop_dds<- Dermo_Tolerant_counts_apop_dds[ rowSums(counts(Dermo_Tolerant_counts_apop_dds)) > 10, ]
-Dermo_Susceptible_counts_apop_dds<- Dermo_Susceptible_counts_apop_dds[ rowSums(counts(Dermo_Susceptible_counts_apop_dds)) > 10, ]
-
-Dermo_Tolerant_counts_apop_dds_vst <- varianceStabilizingTransformation(Dermo_Tolerant_counts_apop_dds, blind=TRUE)
-Dermo_Susceptible_counts_apop_dds_vst <- varianceStabilizingTransformation(Dermo_Susceptible_counts_apop_dds, blind=TRUE)
-
-## PCA plot of rlog transformed counts for apoptosis
-plotPCA(Dermo_Tolerant_counts_apop_dds_vst,  intgroup="Condition") # mostly clustering by condition
-plotPCA(Dermo_Susceptible_counts_apop_dds_vst  , intgroup="Time") # some clustering by condition
-
-# heatmap of all apoptosis genes 
-Dermo_Tolerant_apop_assay <-  assay(Dermo_Tolerant_counts_apop_dds_vst)[,]
-Dermo_Tolerant_apop_assay_mat <- Dermo_Tolerant_apop_assay - rowMeans(Dermo_Tolerant_apop_assay)
-Dermo_Tolerant_apop_assay_anno <- as.data.frame(colData(Dermo_Tolerant_counts_apop_dds_vst )[, c("Condition","Time")])
-Dermo_Tolerant_apop_assay_heatmap <- pheatmap(Dermo_Tolerant_apop_assay_mat  , annotation_col = Dermo_Tolerant_apop_assay_anno)
-head(Dermo_Tolerant_apop_assay_mat ) # some clustering by treatment and condition
-
-Dermo_Susceptible_apop_assay <-  assay(Dermo_Susceptible_counts_apop_dds_vst)[,]
-Dermo_Susceptible_apop_assay_mat <- Dermo_Susceptible_apop_assay - rowMeans(Dermo_Susceptible_apop_assay)
-Dermo_Susceptible_apop_assay_anno <- as.data.frame(colData(Dermo_Susceptible_counts_apop_dds_vst )[, c("Condition","Time")])
-Dermo_Susceptible_apop_assay_heatmap <- pheatmap(Dermo_Susceptible_apop_assay_mat  , annotation_col = Dermo_Susceptible_apop_assay_anno)
-head(Dermo_Susceptible_apop_assay_mat ) #some clustering by treatment and condition
-
-# heatmap of most variable apoptosis genes for Resistant family (this selects genes with the greatest variance in the sample)
-topVarGenes_Dermo_Tolerant_apop_assay <-  head(order(rowVars(assay(Dermo_Tolerant_counts_apop_dds_vst)), decreasing = TRUE), 100) 
-top_Var_Dermo_Tolerant_apop_assay_mat<- assay(Dermo_Tolerant_counts_apop_dds_vst)[topVarGenes_Dermo_Tolerant_apop_assay,]
-top_Var_Dermo_Tolerant_apop_assay_mat <- top_Var_Dermo_Tolerant_apop_assay_mat - rowMeans(top_Var_Dermo_Tolerant_apop_assay_mat)
-top_Var_Dermo_Tolerant_apop_assay_anno <- as.data.frame(colData(Dermo_Tolerant_counts_apop_dds_vst)[, c("Condition","Time")])
-top_Var_Dermo_Tolerant_apop_assay_heatmap <- pheatmap(top_Var_Dermo_Tolerant_apop_assay_mat  , annotation_col = top_Var_Dermo_Tolerant_apop_assay_anno)
-head(top_Var_Dermo_Tolerant_apop_assay_mat ) # some clustering by condition, but not great
-
-# annotate the top 100 most variable genes  
-# reorder annotation table to match ordering in heatmap 
-top_Var_Dermo_Tolerant_apop_assay_heatmap_reorder <-rownames(top_Var_Dermo_Tolerant_apop_assay_mat[top_Var_Dermo_Tolerant_apop_assay_heatmap$tree_row[["order"]],])
-# annotate the row.names
-top_Var_Dermo_Tolerant_apop_assay_prot <- as.data.frame(top_Var_Dermo_Tolerant_apop_assay_heatmap_reorder)
-colnames(top_Var_Dermo_Tolerant_apop_assay_prot)[1] <- "ID"
-top_Var_Dermo_Tolerant_apop_assay_prot_annot <- left_join(top_Var_Dermo_Tolerant_apop_assay_prot, select(C_vir_rtracklayer_apop_product_final, ID, product, gene), by = "ID")
-
-# heatmap of most variable apoptosis genes for Susceptible family (this selects genes with the greatest variance in the sample)
-topVarGenes_Dermo_Susceptible_apop_assay <-  head(order(rowVars(assay(Dermo_Susceptible_counts_apop_dds_vst)), decreasing = TRUE), 100) 
-top_Var_Dermo_Susceptible_apop_assay_mat<- assay(Dermo_Susceptible_counts_apop_dds_vst)[topVarGenes_Dermo_Susceptible_apop_assay,]
-top_Var_Dermo_Susceptible_apop_assay_mat <- top_Var_Dermo_Susceptible_apop_assay_mat - rowMeans(top_Var_Dermo_Susceptible_apop_assay_mat)
-top_Var_Dermo_Susceptible_apop_assay_anno <- as.data.frame(colData(Dermo_Susceptible_counts_apop_dds_vst)[, c("Condition","Time")])
-top_Var_Dermo_Susceptible_apop_assay_heatmap <- pheatmap(top_Var_Dermo_Susceptible_apop_assay_mat  , annotation_col = top_Var_Dermo_Susceptible_apop_assay_anno)
-head(top_Var_Dermo_Susceptible_apop_assay_mat )
-
-# annotate the top 100 most variable genes  
-# reorder annotation table to match ordering in heatmap 
-top_Var_Dermo_Susceptible_apop_assay_heatmap_reorder <-rownames(top_Var_Dermo_Susceptible_apop_assay_mat[top_Var_Dermo_Susceptible_apop_assay_heatmap$tree_row[["order"]],])
-# annotate the row.names
-top_Var_Dermo_Susceptible_apop_assay_prot <- as.data.frame(top_Var_Dermo_Susceptible_apop_assay_heatmap_reorder)
-colnames(top_Var_Dermo_Susceptible_apop_assay_prot)[1] <- "ID"
-top_Var_Dermo_Susceptible_apop_assay_prot_annot <- left_join(top_Var_Dermo_Susceptible_apop_assay_prot, select(C_vir_rtracklayer_apop_product_final, ID, product, gene), by = "ID")
+#Dermo_Tolerant_dds_vst
+#Dermo_Susceptible_dds_vst
+#
+#Dermo_Tolerant_dds_LFC_assay <-  head(order(rowVars(assay(Dermo_Tolerant_dds_vst  )), decreasing = TRUE), 200)
+#Dermo_Tolerant_mat <- assay(Dermo_Tolerant_dds_vst )[Dermo_Tolerant_dds_LFC_assay,]
+#Dermo_Tolerant_mat <- Dermo_Tolerant_mat - rowMeans(Dermo_Tolerant_mat)
+#Dermo_Tolerant_anno <- as.data.frame(colData(Dermo_Tolerant_dds_vst )[, c("Condition","Time")])
+#Dermo_Tolerant_heatmap <- pheatmap(Dermo_Tolerant_mat , annotation_col =Dermo_Tolerant_anno)
+#head(Dermo_Tolerant_mat) # clustering mostly by control and injected 
+#
+#Dermo_Susceptible_dds_LFC_assay <-  head(order(rowVars(assay(Dermo_Susceptible_dds_vst  )), decreasing = TRUE), 200)
+#Dermo_Susceptible_mat <- assay(Dermo_Susceptible_dds_vst)[Dermo_Susceptible_dds_LFC_assay,]
+#Dermo_Susceptible_mat <- Dermo_Susceptible_mat - rowMeans(Dermo_Susceptible_mat)
+#Dermo_Susceptible_anno <- as.data.frame(colData(Dermo_Susceptible_dds_vst)[, c("Condition","Time")])
+#Dermo_Susceptible_heatmap <- pheatmap(Dermo_Susceptible_mat , annotation_col =Dermo_Susceptible_anno)
+#head(Dermo_Susceptible_mat) # clustering by control and injected
+#
+## Gene clustering heatmap with only apoptosis genes #
+## vector C_vir_apop transcript IDs
+## Search original counts for apoptosis genes and do rlog on just these
+#Dermo_Tolerant_counts_apop <- Dermo_Tolerant_counts[row.names(Dermo_Tolerant_counts) %in% C_vir_rtracklayer_apop_product_final_ID,]
+#Dermo_Susceptible_counts_apop <- Dermo_Susceptible_counts[row.names(Dermo_Susceptible_counts) %in% C_vir_rtracklayer_apop_product_final_ID,]
+#nrow(Dermo_Tolerant_counts_apop) #1026
+#nrow( Dermo_Susceptible_counts_apop) # 1026
+#
+#Dermo_Tolerant_counts_apop_dds <- DESeqDataSetFromMatrix(countData = Dermo_Tolerant_counts_apop,
+#                                                        colData = Dermo_Tolerant_coldata,
+#                                                        design = ~Lib_prep_date + Condition + Time) # same as before
+#Dermo_Susceptible_counts_apop_dds <- DESeqDataSetFromMatrix(countData = Dermo_Susceptible_counts_apop,
+#                                                          colData =Dermo_Susceptible_coldata,
+#                                                          design =  ~Lib_prep_date + Condition + Time) # same as before
+#
+## Prefiltering the data and running rlog
+#Dermo_Tolerant_counts_apop_dds<- Dermo_Tolerant_counts_apop_dds[ rowSums(counts(Dermo_Tolerant_counts_apop_dds)) > 10, ]
+#Dermo_Susceptible_counts_apop_dds<- Dermo_Susceptible_counts_apop_dds[ rowSums(counts(Dermo_Susceptible_counts_apop_dds)) > 10, ]
+#
+#Dermo_Tolerant_counts_apop_dds_vst <- varianceStabilizingTransformation(Dermo_Tolerant_counts_apop_dds, blind=TRUE)
+#Dermo_Susceptible_counts_apop_dds_vst <- varianceStabilizingTransformation(Dermo_Susceptible_counts_apop_dds, blind=TRUE)
+#
+### PCA plot of rlog transformed counts for apoptosis
+#plotPCA(Dermo_Tolerant_counts_apop_dds_vst,  intgroup="Condition") # mostly clustering by condition
+#plotPCA(Dermo_Susceptible_counts_apop_dds_vst  , intgroup="Time") # some clustering by condition
+#
+## heatmap of all apoptosis genes 
+#Dermo_Tolerant_apop_assay <-  assay(Dermo_Tolerant_counts_apop_dds_vst)[,]
+#Dermo_Tolerant_apop_assay_mat <- Dermo_Tolerant_apop_assay - rowMeans(Dermo_Tolerant_apop_assay)
+#Dermo_Tolerant_apop_assay_anno <- as.data.frame(colData(Dermo_Tolerant_counts_apop_dds_vst )[, c("Condition","Time")])
+#Dermo_Tolerant_apop_assay_heatmap <- pheatmap(Dermo_Tolerant_apop_assay_mat  , annotation_col = Dermo_Tolerant_apop_assay_anno)
+#head(Dermo_Tolerant_apop_assay_mat ) # some clustering by treatment and condition
+#
+#Dermo_Susceptible_apop_assay <-  assay(Dermo_Susceptible_counts_apop_dds_vst)[,]
+#Dermo_Susceptible_apop_assay_mat <- Dermo_Susceptible_apop_assay - rowMeans(Dermo_Susceptible_apop_assay)
+#Dermo_Susceptible_apop_assay_anno <- as.data.frame(colData(Dermo_Susceptible_counts_apop_dds_vst )[, c("Condition","Time")])
+#Dermo_Susceptible_apop_assay_heatmap <- pheatmap(Dermo_Susceptible_apop_assay_mat  , annotation_col = Dermo_Susceptible_apop_assay_anno)
+#head(Dermo_Susceptible_apop_assay_mat ) #some clustering by treatment and condition
+#
+## heatmap of most variable apoptosis genes for Resistant family (this selects genes with the greatest variance in the sample)
+#topVarGenes_Dermo_Tolerant_apop_assay <-  head(order(rowVars(assay(Dermo_Tolerant_counts_apop_dds_vst)), decreasing = TRUE), 100) 
+#top_Var_Dermo_Tolerant_apop_assay_mat<- assay(Dermo_Tolerant_counts_apop_dds_vst)[topVarGenes_Dermo_Tolerant_apop_assay,]
+#top_Var_Dermo_Tolerant_apop_assay_mat <- top_Var_Dermo_Tolerant_apop_assay_mat - rowMeans(top_Var_Dermo_Tolerant_apop_assay_mat)
+#top_Var_Dermo_Tolerant_apop_assay_anno <- as.data.frame(colData(Dermo_Tolerant_counts_apop_dds_vst)[, c("Condition","Time")])
+#top_Var_Dermo_Tolerant_apop_assay_heatmap <- pheatmap(top_Var_Dermo_Tolerant_apop_assay_mat  , annotation_col = top_Var_Dermo_Tolerant_apop_assay_anno)
+#head(top_Var_Dermo_Tolerant_apop_assay_mat ) # some clustering by condition, but not great
+#
+## annotate the top 100 most variable genes  
+## reorder annotation table to match ordering in heatmap 
+#top_Var_Dermo_Tolerant_apop_assay_heatmap_reorder <-rownames(top_Var_Dermo_Tolerant_apop_assay_mat[top_Var_Dermo_Tolerant_apop_assay_heatmap$tree_row[["order"]],])
+## annotate the row.names
+#top_Var_Dermo_Tolerant_apop_assay_prot <- as.data.frame(top_Var_Dermo_Tolerant_apop_assay_heatmap_reorder)
+#colnames(top_Var_Dermo_Tolerant_apop_assay_prot)[1] <- "ID"
+#top_Var_Dermo_Tolerant_apop_assay_prot_annot <- left_join(top_Var_Dermo_Tolerant_apop_assay_prot, select(C_vir_rtracklayer_apop_product_final, ID, product, gene), by = "ID")
+#
+## heatmap of most variable apoptosis genes for Susceptible family (this selects genes with the greatest variance in the sample)
+#topVarGenes_Dermo_Susceptible_apop_assay <-  head(order(rowVars(assay(Dermo_Susceptible_counts_apop_dds_vst)), decreasing = TRUE), 100) 
+#top_Var_Dermo_Susceptible_apop_assay_mat<- assay(Dermo_Susceptible_counts_apop_dds_vst)[topVarGenes_Dermo_Susceptible_apop_assay,]
+#top_Var_Dermo_Susceptible_apop_assay_mat <- top_Var_Dermo_Susceptible_apop_assay_mat - rowMeans(top_Var_Dermo_Susceptible_apop_assay_mat)
+#top_Var_Dermo_Susceptible_apop_assay_anno <- as.data.frame(colData(Dermo_Susceptible_counts_apop_dds_vst)[, c("Condition","Time")])
+#top_Var_Dermo_Susceptible_apop_assay_heatmap <- pheatmap(top_Var_Dermo_Susceptible_apop_assay_mat  , annotation_col = top_Var_Dermo_Susceptible_apop_assay_anno)
+#head(top_Var_Dermo_Susceptible_apop_assay_mat )
+#
+## annotate the top 100 most variable genes  
+## reorder annotation table to match ordering in heatmap 
+#top_Var_Dermo_Susceptible_apop_assay_heatmap_reorder <-rownames(top_Var_Dermo_Susceptible_apop_assay_mat[top_Var_Dermo_Susceptible_apop_assay_heatmap$tree_row[["order"]],])
+## annotate the row.names
+#top_Var_Dermo_Susceptible_apop_assay_prot <- as.data.frame(top_Var_Dermo_Susceptible_apop_assay_heatmap_reorder)
+#colnames(top_Var_Dermo_Susceptible_apop_assay_prot)[1] <- "ID"
+#top_Var_Dermo_Susceptible_apop_assay_prot_annot <- left_join(top_Var_Dermo_Susceptible_apop_assay_prot, select(C_vir_rtracklayer_apop_product_final, ID, product, gene), by = "ID")
 
 ### Extract list of significant Apoptosis Genes (not less than or greater than 1 LFC) using merge
+Dermo_Tolerant_condition_dds_res_LFC_sig_APOP <- merge(Dermo_Tolerant_condition_dds_res_LFC_sig, C_vir_rtracklayer_apop_product_final, by = "ID")
+Dermo_Tolerant_condition_dds_res_LFC_sig_APOP_arranged <- arrange(Dermo_Tolerant_condition_dds_res_LFC_sig_APOP, -log2FoldChange) 
+nrow(Dermo_Tolerant_condition_dds_res_LFC_sig_APOP) # 22
+
+Dermo_Susceptible_condition_dds_res_LFC_sig_APOP <- merge(Dermo_Susceptible_condition_dds_res_LFC_sig, C_vir_rtracklayer_apop_product_final, by = "ID")
+Dermo_Susceptible_condition_dds_res_LFC_sig_APOP_arranged <- arrange(Dermo_Susceptible_condition_dds_res_LFC_sig_APOP, -log2FoldChange) 
+nrow(Dermo_Susceptible_condition_dds_res_LFC_sig_APOP) # 12 
+
+Dermo_Susceptible_dds_res_LFC_sig_APOP <- merge(Dermo_Susceptible_dds_res_LFC_sig, C_vir_rtracklayer_apop_product_final, by = "ID")
+Dermo_Susceptible_dds_res_LFC_sig_APOP_arranged <- arrange(Dermo_Susceptible_dds_res_LFC_sig_APOP, -log2FoldChange) 
+nrow(Dermo_Susceptible_dds_res_LFC_sig_APOP) # 12
+
 Dermo_Susceptible_dds_7d_res_LFC_sig_APOP <- merge(Dermo_Susceptible_dds_7d_res_LFC_sig, C_vir_rtracklayer_apop_product_final, by = "ID")
 Dermo_Susceptible_dds_7d_res_LFC_sig_APOP_arranged <- arrange(Dermo_Susceptible_dds_7d_res_LFC_sig_APOP, -log2FoldChange) 
 nrow(Dermo_Susceptible_dds_7d_res_LFC_sig_APOP) # 40
@@ -3202,21 +3457,35 @@ Dermo_Susceptible_dds_28d_res_LFC_sig_APOP <- merge(Dermo_Susceptible_dds_28d_re
 Dermo_Susceptible_dds_28d_res_LFC_sig_APOP_arranged <- arrange(Dermo_Susceptible_dds_28d_res_LFC_sig_APOP, -log2FoldChange) 
 nrow(Dermo_Susceptible_dds_28d_res_LFC_sig_APOP) # 40
 
+Dermo_Tolerant_dds_res_LFC_sig_APOP <- merge(Dermo_Tolerant_dds_res_LFC_sig, C_vir_rtracklayer_apop_product_final, by = "ID")
+Dermo_Tolerant_dds_res_LFC_sig_APOP_arranged <- arrange(Dermo_Tolerant_dds_res_LFC_sig_APOP, -log2FoldChange) 
+nrow(Dermo_Tolerant_dds_res_LFC_sig_APOP) # 22
+
 Dermo_Tolerant_dds_7d_res_LFC_sig_APOP <- merge(Dermo_Tolerant_dds_7d_res_LFC_sig, C_vir_rtracklayer_apop_product_final, by = "ID")
 Dermo_Tolerant_dds_7d_res_LFC_sig_APOP_arranged <- arrange(Dermo_Tolerant_dds_7d_res_LFC_sig_APOP, -log2FoldChange) 
-nrow(Dermo_Tolerant_dds_7d_res_LFC_sig_APOP) # 17
+nrow(Dermo_Tolerant_dds_7d_res_LFC_sig_APOP) # 10
 
 Dermo_Tolerant_dds_28d_res_LFC_sig_APOP <- merge(Dermo_Tolerant_dds_28d_res_LFC_sig, C_vir_rtracklayer_apop_product_final, by = "ID")
 Dermo_Tolerant_dds_28d_res_LFC_sig_APOP_arranged <- arrange(Dermo_Tolerant_dds_28d_res_LFC_sig_APOP, -log2FoldChange) 
-nrow(Dermo_Tolerant_dds_28d_res_LFC_sig_APOP) # 31
+nrow(Dermo_Tolerant_dds_28d_res_LFC_sig_APOP) # 13
 
 # Combined LFC plot
+Dermo_Susceptible_condition_dds_res_LFC_sig_APOP
+Dermo_Tolerant_condition_dds_dres_LFC_sig_APOP 
+
+Dermo_Susceptible_dds_res_LFC_sig_APOP
+Dermo_Tolerant_dds_res_LFC_sig_APOP 
+
 Dermo_Susceptible_dds_7d_res_LFC_sig_APOP
 Dermo_Susceptible_dds_28d_res_LFC_sig_APOP
 Dermo_Tolerant_dds_7d_res_LFC_sig_APOP
 Dermo_Tolerant_dds_28d_res_LFC_sig_APOP
 
 # Compare apoptosis genes between group_by_sim groups
+Dermo_Susceptible_condition_dds_res_LFC_sig_APOP$group_by_sim <- "Susceptible_Control_vs_injected"
+Dermo_Tolerant_condition_dds_res_LFC_sig_APOP $group_by_sim <-  "Tolerant_Control_vs_injected"
+Dermo_Susceptible_dds_res_LFC_sig_APOP$group_by_sim <- "Susceptible_Control_vs_injected"
+Dermo_Tolerant_dds_res_LFC_sig_APOP $group_by_sim <- "Tolerant_Control_vs_injected"
 Dermo_Susceptible_dds_7d_res_LFC_sig_APOP$group_by_sim <- "Susceptible_dds_7d"
 Dermo_Susceptible_dds_28d_res_LFC_sig_APOP$group_by_sim <- "Susceptible_dds_28d"
 Dermo_Tolerant_dds_7d_res_LFC_sig_APOP$group_by_sim <- "Tolerant_dds_7d"
@@ -3224,6 +3493,10 @@ Dermo_Tolerant_dds_28d_res_LFC_sig_APOP$group_by_sim <- "Tolerant_dds_28d"
 
 # combine data frames 
 Dermo_all_sig_APOP <- rbind( 
+  Dermo_Susceptible_condition_dds_res_LFC_sig_APOP[,c("product","group_by_sim","log2FoldChange")],
+  Dermo_Tolerant_condition_dds_res_LFC_sig_APOP[,c("product","group_by_sim","log2FoldChange")],
+  Dermo_Susceptible_dds_res_LFC_sig_APOP[,c("product","group_by_sim","log2FoldChange")],
+  Dermo_Tolerant_dds_res_LFC_sig_APOP [,c("product","group_by_sim","log2FoldChange")],
   Dermo_Susceptible_dds_7d_res_LFC_sig_APOP[,c("product","group_by_sim","log2FoldChange")],
   Dermo_Susceptible_dds_28d_res_LFC_sig_APOP[,c("product","group_by_sim","log2FoldChange")],
   Dermo_Tolerant_dds_7d_res_LFC_sig_APOP[,c("product","group_by_sim","log2FoldChange")],
@@ -3238,6 +3511,9 @@ Dermo_all_sig_APOP_downregulated_plot <- ggplot(Dermo_all_sig_APOP_downregulated
 Dermo_all_sig_APOP_upregulated_plot <- ggplot(Dermo_all_sig_APOP_upregulated, aes(x=product,y=log2FoldChange, fill=group_by_sim )) + geom_col(position="dodge") + 
   theme(axis.text.x = element_text(angle = 75, hjust = 1)) + coord_flip()
 
+Dermo_Susceptible_condition_dds_res_LFC_sig_APOP_plot <- ggplot(Dermo_Susceptible_condition_dds_res_LFC_sig_APOP , aes(x=product, y = log2FoldChange, fill=log2FoldChange)) + geom_col(position="dodge") +
+  coord_flip() + scale_fill_gradient2(low="purple",mid = "grey", high="darkgreen") + ggtitle("Dermo Susceptible Control vs. Injected") +
+  ylab("Log2 Fold Change")
 
 Dermo_Susceptible_dds_7d_res_LFC_sig_APOP_plot <- ggplot(Dermo_Susceptible_dds_7d_res_LFC_sig_APOP , aes(x=product, y = log2FoldChange, fill=log2FoldChange)) + geom_col(position="dodge") +
   coord_flip() + scale_fill_gradient2(low="purple",mid = "grey", high="darkgreen") + ggtitle("Dermo Susceptible 7d vs 36hr") +
@@ -3253,6 +3529,181 @@ Dermo_Tolerant_dds_28d_res_LFC_sig_APOP_plot <- ggplot(Dermo_Tolerant_dds_28d_re
   ylab("Log2 Fold Change")
 
 
+### DERMO ANALYSIS AFTER SUBSETTING CONTROL AND TREATED FOR EACH TIMEPOINT ###
+# going to split the analysis into DA and LB and split into each timepoint
+Dermo_Susceptible_36hr_coldata <- Dermo_coldata %>%  subset(Family == "DA" & Time == "36h") 
+Dermo_Susceptible_7d_coldata <- Dermo_coldata %>%  subset(Family == "DA" & Time == "7d") 
+Dermo_Susceptible_28d_coldata <- Dermo_coldata %>%  subset(Family == "DA" & Time == "28d") 
+
+Dermo_Susceptible_36hr_counts <- Dermo_counts[,row.names(Dermo_Susceptible_36hr_coldata )]
+Dermo_Susceptible_7d_counts <- Dermo_counts[,row.names(Dermo_Susceptible_7d_coldata )]
+Dermo_Susceptible_28d_counts <- Dermo_counts[,row.names(Dermo_Susceptible_28d_coldata )]
+
+Dermo_Tolerant_36hr_coldata <- Dermo_coldata %>%  subset(Family == "LB" & Time == "36h") # subset() keeps rownames
+Dermo_Tolerant_7d_coldata <- Dermo_coldata %>%  subset(Family == "LB" & Time == "7d") # subset() keeps rownames
+Dermo_Tolerant_28d_coldata <- Dermo_coldata %>%  subset(Family == "LB" & Time == "28d") # subset() keeps rownames
+
+Dermo_Tolerant_36hr_counts <- Dermo_counts[,row.names(Dermo_Tolerant_36hr_coldata)]
+Dermo_Tolerant_7d_counts <- Dermo_counts[,row.names(Dermo_Tolerant_7d_coldata)]
+Dermo_Tolerant_28d_counts <- Dermo_counts[,row.names(Dermo_Tolerant_28d_coldata)]
+
+colnames(Dermo_Tolerant_36hr_counts)
+colnames(Dermo_Tolerant_7d_counts )
+colnames(Dermo_Tolerant_28d_counts )
+
+## Check levels 
+levels(Dermo_Tolerant_36hr_coldata$Condition)
+levels(Dermo_Tolerant_36hr_coldata$Time)
+
+## Creating two data set from matrix, one for each family  
+Dermo_Tolerant_36hr_dds <- DESeqDataSetFromMatrix(countData =Dermo_Tolerant_36hr_counts,
+                                             colData = Dermo_Tolerant_36hr_coldata,
+                                             design = ~Lib_prep_date + Condition) 
+Dermo_Tolerant_7d_dds <- DESeqDataSetFromMatrix(countData =Dermo_Tolerant_7d_counts,
+                                                  colData = Dermo_Tolerant_7d_coldata,
+                                                  design = ~Lib_prep_date + Condition) 
+Dermo_Tolerant_28d_dds <- DESeqDataSetFromMatrix(countData =Dermo_Tolerant_28d_counts,
+                                                colData = Dermo_Tolerant_28d_coldata,
+                                                design = ~Lib_prep_date + Condition) 
+
+Dermo_Susceptible_36hr_dds <- DESeqDataSetFromMatrix(countData =Dermo_Susceptible_36hr_counts,
+                                                  colData = Dermo_Susceptible_36hr_coldata,
+                                                  design = ~Lib_prep_date + Condition) 
+Dermo_Susceptible_7d_dds <- DESeqDataSetFromMatrix(countData =Dermo_Susceptible_7d_counts,
+                                                colData = Dermo_Susceptible_7d_coldata,
+                                                design = ~Lib_prep_date + Condition) 
+Dermo_Susceptible_28d_dds <- DESeqDataSetFromMatrix(countData =Dermo_Susceptible_28d_counts,
+                                                 colData = Dermo_Susceptible_28d_coldata,
+                                                 design = ~Lib_prep_date + Condition) 
+
+## Collapse technical replicates
+Dermo_Tolerant_36hr_dds <- collapseReplicates(Dermo_Tolerant_36hr_dds, Dermo_Tolerant_36hr_dds$Sample_ID, Dermo_Tolerant_36hr_dds$Tech_rep)
+Dermo_Tolerant_7d_dds <- collapseReplicates(Dermo_Tolerant_7d_dds, Dermo_Tolerant_7d_dds$Sample_ID, Dermo_Tolerant_7d_dds$Tech_rep)
+Dermo_Tolerant_28d_dds <- collapseReplicates(Dermo_Tolerant_28d_dds, Dermo_Tolerant_28d_dds$Sample_ID, Dermo_Tolerant_28d_dds$Tech_rep)
+
+Dermo_Susceptible_36hr_dds <- collapseReplicates(Dermo_Susceptible_36hr_dds, Dermo_Susceptible_36hr_dds$Sample_ID, Dermo_Susceptible_36hr_dds$Tech_rep)
+Dermo_Susceptible_7d_dds <- collapseReplicates(Dermo_Susceptible_7d_dds, Dermo_Susceptible_7d_dds$Sample_ID, Dermo_Susceptible_7d_dds$Tech_rep)
+Dermo_Susceptible_28d_dds <- collapseReplicates(Dermo_Susceptible_28d_dds, Dermo_Susceptible_28d_dds$Sample_ID, Dermo_Susceptible_28d_dds$Tech_rep)
+
+## Prefiltering the data
+Dermo_Tolerant_36hr_dds <- Dermo_Tolerant_36hr_dds [rowSums(counts(Dermo_Tolerant_36hr_dds ))>10,]
+Dermo_Tolerant_7d_dds<- Dermo_Tolerant_7d_dds[rowSums(counts(Dermo_Tolerant_7d_dds))>10,]
+Dermo_Tolerant_28d_dds <- Dermo_Tolerant_28d_dds [rowSums(counts(Dermo_Tolerant_28d_dds ))>10,]
+Dermo_Susceptible_36hr_dds<- Dermo_Susceptible_36hr_dds[rowSums(counts(Dermo_Susceptible_36hr_dds))>10,]
+Dermo_Susceptible_7d_dds <- Dermo_Susceptible_7d_dds [rowSums(counts(Dermo_Susceptible_7d_dds ))>10,]
+Dermo_Susceptible_28d_dds <- Dermo_Susceptible_28d_dds [rowSums(counts(Dermo_Susceptible_28d_dds ))>10,]
+
+### DIFFERENTIAL EXPRESSION ANALYSIS
+Dermo_Tolerant_36hr_dds_deseq <- DESeq(Dermo_Tolerant_36hr_dds )
+Dermo_Tolerant_7d_dds_deseq <- DESeq(Dermo_Tolerant_7d_dds)
+Dermo_Tolerant_28d_dds_deseq <- DESeq(Dermo_Tolerant_28d_dds )
+Dermo_Susceptible_36hr_dds_deseq <- DESeq(Dermo_Susceptible_36hr_dds)
+Dermo_Susceptible_7d_dds_deseq <- DESeq(Dermo_Susceptible_7d_dds )
+Dermo_Susceptible_28d_dds_deseq <- DESeq(Dermo_Susceptible_28d_dds )
+
+## Check the resultsNames object of each to look at the available coefficients for use in lfcShrink command
+resultsNames(Dermo_Tolerant_36hr_dds_deseq)
+resultsNames(Dermo_Tolerant_7d_dds_deseq)
+resultsNames(Dermo_Tolerant_28d_dds_deseq)
+resultsNames(Dermo_Susceptible_36hr_dds_deseq)
+resultsNames(Dermo_Susceptible_7d_dds_deseq)
+resultsNames(Dermo_Susceptible_28d_dds_deseq)      
+
+## BUILD THE RESULTS OBJECT
+Dermo_Tolerant_36hr_dds_res    <- results(Dermo_Tolerant_36hr_dds_deseq, alpha=0.05, name = "Condition_Injected_vs_Control")
+Dermo_Tolerant_7d_dds_res      <- results(Dermo_Tolerant_7d_dds_deseq, alpha=0.05, name = "Condition_Injected_vs_Control")
+Dermo_Tolerant_28d_dds_res     <- results(Dermo_Tolerant_28d_dds_deseq, alpha=0.05, name = "Condition_Injected_vs_Control")
+Dermo_Susceptible_36hr_dds_res <- results(Dermo_Susceptible_36hr_dds_deseq, alpha=0.05, name = "Condition_Injected_vs_Control")
+Dermo_Susceptible_7d_dds_res   <- results(Dermo_Susceptible_7d_dds_deseq, alpha=0.05, name = "Condition_Injected_vs_Control")
+Dermo_Susceptible_28d_dds_res  <- results(Dermo_Susceptible_28d_dds_deseq, alpha=0.05, name = "Condition_Injected_vs_Control")
+
+##  LFCShrink apeglm
+Dermo_Tolerant_36hr_dds_res_LFC <- lfcShrink(Dermo_Tolerant_36hr_dds_deseq      , coef="Condition_Injected_vs_Control", type="apeglm", res=Dermo_Tolerant_36hr_dds_res    )
+Dermo_Tolerant_7d_dds_res_LFC <- lfcShrink(Dermo_Tolerant_7d_dds_deseq          , coef="Condition_Injected_vs_Control", type="apeglm", res=Dermo_Tolerant_7d_dds_res      )
+Dermo_Tolerant_28d_dds_res_LFC <- lfcShrink(Dermo_Tolerant_28d_dds_deseq        , coef="Condition_Injected_vs_Control", type="apeglm", res=Dermo_Tolerant_28d_dds_res     )
+Dermo_Susceptible_36hr_dds_res_LFC <-lfcShrink(Dermo_Susceptible_36hr_dds_deseq , coef="Condition_Injected_vs_Control", type="apeglm", res=Dermo_Susceptible_36hr_dds_res )
+Dermo_Susceptible_7d_dds_res_LFC <- lfcShrink(Dermo_Susceptible_7d_dds_deseq    , coef="Condition_Injected_vs_Control", type="apeglm", res=Dermo_Susceptible_7d_dds_res   )
+Dermo_Susceptible_28d_dds_res_LFC <- lfcShrink(Dermo_Susceptible_28d_dds_deseq  , coef="Condition_Injected_vs_Control", type="apeglm", res=Dermo_Susceptible_28d_dds_res  )
+
+### Subsetting Significant Genes by padj < 0.05
+# again, only working with the LFCshrinkage adjusted log fold changes, and with the BH adjusted p-value
+# first make sure to make the rownames with the transcript ID as a new column, then make it a dataframe for filtering
+Dermo_Tolerant_36hr_dds_res_LFC_sig <-  subset(Dermo_Tolerant_36hr_dds_res_LFC , padj < 0.05)
+Dermo_Tolerant_36hr_dds_res_LFC_sig$ID<- row.names(Dermo_Tolerant_36hr_dds_res_LFC_sig)
+Dermo_Tolerant_36hr_dds_res_LFC_sig <- as.data.frame(Dermo_Tolerant_36hr_dds_res_LFC_sig)
+nrow(Dermo_Tolerant_36hr_dds_res_LFC_sig) # 747
+
+Dermo_Tolerant_7d_dds_res_LFC_sig <-  subset(Dermo_Tolerant_7d_dds_res_LFC , padj < 0.05)
+Dermo_Tolerant_7d_dds_res_LFC_sig$ID<- row.names(Dermo_Tolerant_7d_dds_res_LFC_sig)
+Dermo_Tolerant_7d_dds_res_LFC_sig <- as.data.frame(Dermo_Tolerant_7d_dds_res_LFC_sig)
+nrow(Dermo_Tolerant_7d_dds_res_LFC_sig) # 996
+
+Dermo_Tolerant_28d_dds_res_LFC_sig <-  subset(Dermo_Tolerant_28d_dds_res_LFC , padj < 0.05)
+Dermo_Tolerant_28d_dds_res_LFC_sig$ID<- row.names(Dermo_Tolerant_28d_dds_res_LFC_sig)
+Dermo_Tolerant_28d_dds_res_LFC_sig <- as.data.frame(Dermo_Tolerant_28d_dds_res_LFC_sig)
+nrow(Dermo_Tolerant_28d_dds_res_LFC_sig) # 437
+
+Dermo_Susceptible_36hr_dds_res_LFC_sig <-  subset(Dermo_Susceptible_36hr_dds_res_LFC , padj < 0.05)
+Dermo_Susceptible_36hr_dds_res_LFC_sig$ID<- row.names(Dermo_Susceptible_36hr_dds_res_LFC_sig)
+Dermo_Susceptible_36hr_dds_res_LFC_sig <- as.data.frame(Dermo_Susceptible_36hr_dds_res_LFC_sig)
+nrow(Dermo_Susceptible_36hr_dds_res_LFC_sig) # 617
+
+Dermo_Susceptible_7d_dds_res_LFC_sig <-  subset(Dermo_Susceptible_7d_dds_res_LFC , padj < 0.05)
+Dermo_Susceptible_7d_dds_res_LFC_sig$ID<- row.names(Dermo_Susceptible_7d_dds_res_LFC_sig)
+Dermo_Susceptible_7d_dds_res_LFC_sig <- as.data.frame(Dermo_Susceptible_7d_dds_res_LFC_sig)
+nrow(Dermo_Susceptible_7d_dds_res_LFC_sig) # 378
+
+Dermo_Susceptible_28d_dds_res_LFC_sig <-  subset(Dermo_Susceptible_28d_dds_res_LFC , padj < 0.05)
+Dermo_Susceptible_28d_dds_res_LFC_sig$ID<- row.names(Dermo_Susceptible_28d_dds_res_LFC_sig)
+Dermo_Susceptible_28d_dds_res_LFC_sig <- as.data.frame(Dermo_Susceptible_28d_dds_res_LFC_sig)
+nrow(Dermo_Susceptible_28d_dds_res_LFC_sig) # 2462
+
+### Extract list of significant Apoptosis Genes (not less than or greater than 1 LFC) using merge
+Dermo_Susceptible_36hr_dds_res_LFC_sig_APOP <- merge(Dermo_Susceptible_36hr_dds_res_LFC_sig, C_vir_rtracklayer_apop_product_final, by = "ID")
+Dermo_Susceptible_36hr_dds_res_LFC_sig_APOP_arranged <- arrange(Dermo_Susceptible_36hr_dds_res_LFC_sig_APOP, -log2FoldChange) 
+nrow(Dermo_Susceptible_36hr_dds_res_LFC_sig_APOP) # 10
+
+Dermo_Susceptible_7d_dds_res_LFC_sig_APOP <- merge(Dermo_Susceptible_7d_dds_res_LFC_sig, C_vir_rtracklayer_apop_product_final, by = "ID")
+Dermo_Susceptible_7d_dds_res_LFC_sig_APOP_arranged <- arrange(Dermo_Susceptible_7d_dds_res_LFC_sig_APOP, -log2FoldChange) 
+nrow(Dermo_Susceptible_7d_dds_res_LFC_sig_APOP) # 2
+
+Dermo_Susceptible_28d_dds_res_LFC_sig_APOP <- merge(Dermo_Susceptible_28d_dds_res_LFC_sig, C_vir_rtracklayer_apop_product_final, by = "ID")
+Dermo_Susceptible_28d_dds_res_LFC_sig_APOP_arranged <- arrange(Dermo_Susceptible_28d_dds_res_LFC_sig_APOP, -log2FoldChange) 
+nrow(Dermo_Susceptible_28d_dds_res_LFC_sig_APOP) # 26
+
+Dermo_Tolerant_36hr_dds_res_LFC_sig_APOP <- merge(Dermo_Tolerant_36hr_dds_res_LFC_sig, C_vir_rtracklayer_apop_product_final, by = "ID")
+Dermo_Tolerant_36hr_dds_res_LFC_sig_APOP_arranged <- arrange(Dermo_Tolerant_36hr_dds_res_LFC_sig_APOP, -log2FoldChange) 
+nrow(Dermo_Tolerant_36hr_dds_res_LFC_sig_APOP)  # 11
+
+Dermo_Tolerant_7d_dds_res_LFC_sig_APOP <- merge(Dermo_Tolerant_7d_dds_res_LFC_sig, C_vir_rtracklayer_apop_product_final, by = "ID")
+Dermo_Tolerant_7d_dds_res_LFC_sig_APOP_arranged <- arrange(Dermo_Tolerant_7d_dds_res_LFC_sig_APOP, -log2FoldChange) 
+nrow(Dermo_Tolerant_7d_dds_res_LFC_sig_APOP) # 13
+
+Dermo_Tolerant_28d_dds_res_LFC_sig_APOP <- merge(Dermo_Tolerant_28d_dds_res_LFC_sig, C_vir_rtracklayer_apop_product_final, by = "ID")
+Dermo_Tolerant_28d_dds_res_LFC_sig_APOP_arranged <- arrange(Dermo_Tolerant_28d_dds_res_LFC_sig_APOP, -log2FoldChange) 
+nrow(Dermo_Tolerant_28d_dds_res_LFC_sig_APOP) # 9
+ 
+# Compare apoptosis genes between group_by_sim groups
+Dermo_Susceptible_36hr_dds_res_LFC_sig_APOP$group_by_sim <- "Susceptible_36hr"
+Dermo_Susceptible_7d_dds_res_LFC_sig_APOP$group_by_sim <- "Susceptible_7d"
+Dermo_Susceptible_28d_dds_res_LFC_sig_APOP$group_by_sim <- "Susceptible_28d"
+Dermo_Tolerant_36hr_dds_res_LFC_sig_APOP$group_by_sim <- "Tolerant_36hr"
+Dermo_Tolerant_7d_dds_res_LFC_sig_APOP $group_by_sim <- "Tolerant_7d"
+Dermo_Tolerant_28d_dds_res_LFC_sig_APOP $group_by_sim <- "Tolerant_28d"
+
+# combine data frames 
+Dermo_separated_all_sig_APOP <- rbind( 
+  Dermo_Susceptible_36hr_dds_res_LFC_sig_APOP[,c("product","group_by_sim","log2FoldChange")],
+  Dermo_Susceptible_7d_dds_res_LFC_sig_APOP[,c("product","group_by_sim","log2FoldChange")],
+  Dermo_Susceptible_28d_dds_res_LFC_sig_APOP[,c("product","group_by_sim","log2FoldChange")],
+    Dermo_Tolerant_36hr_dds_res_LFC_sig_APOP[,c("product","group_by_sim","log2FoldChange")],
+    Dermo_Tolerant_7d_dds_res_LFC_sig_APOP[,c("product","group_by_sim","log2FoldChange")],
+  Dermo_Tolerant_28d_dds_res_LFC_sig_APOP [,c("product","group_by_sim","log2FoldChange")])
+
+# Make plot
+Dermo_separated_all_sig_APOP_plot <- ggplot(Dermo_separated_all_sig_APOP, aes(x=product,y=log2FoldChange, fill=group_by_sim )) + geom_col(position="dodge") + 
+  theme(axis.text.x = element_text(angle = 75, hjust = 1)) + coord_flip()
+
 #### LFC PLOTS BY SPECIES ####
 
 ROD_Susceptible_dds_res_LFC_sig_APOP$group_by_sim <- "ROD_susceptible"
@@ -3261,10 +3712,14 @@ ROD_Resistant_dds_res_LFC_sig_APOP$group_by_sim <- "ROD_resistant"
 ROD_Resistant_dds_res_LFC_sig_APOP$experiment <- "ROD"
 Probiotic_dds_deseq_Challenge_res_LFC_sig_APOP$group_by_sim <- "Probiotic"
 Probiotic_dds_deseq_Challenge_res_LFC_sig_APOP$experiment <- "Probiotic"
-Dermo_Susceptible_dds_7d_res_LFC_sig_APOP$experiment <- "Dermo"
-Dermo_Susceptible_dds_28d_res_LFC_sig_APOP$experiment <- "Dermo"
-Dermo_Tolerant_dds_7d_res_LFC_sig_APOP$experiment <- "Dermo"
-Dermo_Tolerant_dds_28d_res_LFC_sig_APOP$experiment <- "Dermo"
+
+Dermo_Susceptible_36hr_dds_res_LFC_sig_APOP$experiment <- "Dermo"
+Dermo_Susceptible_7d_dds_res_LFC_sig_APOP$experiment <- "Dermo"
+Dermo_Susceptible_28d_dds_res_LFC_sig_APOP$experiment <- "Dermo"
+Dermo_Tolerant_36hr_dds_res_LFC_sig_APOP$experiment <- "Dermo"
+Dermo_Tolerant_7d_dds_res_LFC_sig_APOP$experiment <- "Dermo"
+Dermo_Tolerant_28d_dds_res_LFC_sig_APOP$experiment <- "Dermo"
+
 Pro_RE22_dds_deseq_res_RI_6h_LFC_sig_APOP$experiment <- "Pro_RE22"
 Pro_RE22_dds_deseq_res_RI_24h_LFC_sig_APOP$experiment <- "Pro_RE22"
 Pro_RE22_dds_deseq_res_S4_6h_LFC_sig_APOP$experiment <- "Pro_RE22"
@@ -3272,12 +3727,15 @@ Pro_RE22_dds_deseq_res_S4_24h_LFC_sig_APOP$experiment <- "Pro_RE22"
 Pro_RE22_dds_deseq_res_RE22_LFC_sig_APOP$experiment <- "RE22"
 
 # combine all data 
-C_vir_apop_LFC <- rbind(Dermo_Susceptible_dds_7d_res_LFC_sig_APOP[,c("product","group_by_sim","log2FoldChange", "experiment")],
-Dermo_Susceptible_dds_28d_res_LFC_sig_APOP[,c("product","group_by_sim","log2FoldChange","experiment")],
-Dermo_Tolerant_dds_7d_res_LFC_sig_APOP[,c("product","group_by_sim","log2FoldChange","experiment")],
-Dermo_Tolerant_dds_28d_res_LFC_sig_APOP[,c("product","group_by_sim","log2FoldChange","experiment")],
-ROD_Susceptible_dds_res_LFC_sig_APOP[,c("product","group_by_sim","log2FoldChange","experiment")], 
-Probiotic_dds_deseq_Challenge_res_LFC_sig_APOP[,c("product","group_by_sim","log2FoldChange","experiment")],
+C_vir_apop_LFC <- rbind(
+  Dermo_Susceptible_36hr_dds_res_LFC_sig_APOP[,c("product","group_by_sim","log2FoldChange","experiment")],
+  Dermo_Susceptible_7d_dds_res_LFC_sig_APOP[,c("product","group_by_sim","log2FoldChange","experiment")],
+  Dermo_Susceptible_28d_dds_res_LFC_sig_APOP[,c("product","group_by_sim","log2FoldChange","experiment")],
+  Dermo_Tolerant_36hr_dds_res_LFC_sig_APOP[,c("product","group_by_sim","log2FoldChange","experiment")],
+  Dermo_Tolerant_7d_dds_res_LFC_sig_APOP[,c("product","group_by_sim","log2FoldChange","experiment")],
+  Dermo_Tolerant_28d_dds_res_LFC_sig_APOP[,c("product","group_by_sim","log2FoldChange","experiment")],    
+  ROD_Susceptible_dds_res_LFC_sig_APOP[,c("product","group_by_sim","log2FoldChange","experiment")], 
+Probiotic_dds_deseq_Challenge_res_LFC_sig_APOP [,c("product","group_by_sim","log2FoldChange","experiment")],
 Pro_RE22_dds_deseq_res_RI_6h_LFC_sig_APOP[,c("product","group_by_sim","log2FoldChange","experiment")],
 Pro_RE22_dds_deseq_res_RI_24h_LFC_sig_APOP[,c("product","group_by_sim","log2FoldChange","experiment")],
 Pro_RE22_dds_deseq_res_S4_6h_LFC_sig_APOP[,c("product","group_by_sim","log2FoldChange","experiment")],
