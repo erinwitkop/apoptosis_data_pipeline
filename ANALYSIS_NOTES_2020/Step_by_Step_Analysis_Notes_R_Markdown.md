@@ -1385,41 +1385,43 @@ Emms, David M., and Steven Kelly. “OrthoFinder: Phylogenetic Orthology Inferen
 
   1. Zhang: Each of the following groups in each was compared to the controls for the experiment (PBS and no injection). Deseq formula: ~Time + group_by_sim
     - Names of dataframes:
-    `Zhang_dds_deseq_res_V_alg1_APOP
-    Zhang_dds_deseq_res_V_tub_APOP
-    Zhang_dds_deseq_res_LPS_APOP`
+    `Zhang_dds_deseq_res_V_alg1_LFC_sig_APOP
+     Zhang_dds_deseq_res_V_tub_LFC_sig_APOP
+     Zhang_dds_deseq_res_LFC_LPS_sig_APOP`
 
   2. Rubio: Each was the control untreated versus the samples treated for "Vcrass_J2_8"        "Vcrass_J2_9"        "Vtasma_LGP32"       "Vtasma_LMG20012T" . Deseq formula: ~ Condition
     - Names of dataframes:
-    `Rubio_dds_deseq_J2_8_res_LFC_sig_APOP
-    Rubio_dds_deseq_J2_8_res_LFC_sig_APOP
-    Rubio_dds_deseq_J2_9_res_LFC_sig_APOP
-    Rubio_dds_deseq_J2_9_res_LFC_sig_APOP
-    Rubio_dds_deseq_LGP32_res_LFC_sig_APOP
-    Rubio_dds_deseq_LGP32_res_LFC_sig_APOP
-    Rubio_dds_deseq_LMG20012T_res_LFC_sig_APOP
-    Rubio_dds_deseq_LMG20012T_res_LFC_sig_APOP`
+    ` Rubio_dds_deseq_J2_8_res_LFC_sig_APOP  
+      Rubio_dds_deseq_J2_9_res_LFC_sig_APOP
+      Rubio_dds_deseq_LGP32_res_LFC_sig_APOP
+      Rubio_dds_deseq_LMG20012T_res_LFC_sig_APOP`
 
-  3. deLorgeril: Each was the particular timepoint versus the time 0 control (with time 9 having no disease). The DESeq 2 formula just had: ~ Time
+  3. deLorgeril: Each was the particular timepoint versus the time 0 control (with time 9 having no disease). The DESeq 2 formula just had: `~ Time` because time was in essence the effect of the treatment
   - Names of dataframes
-  `deLorgeril_Resistant_dds_res_6_LFC_sig_APOP
-  deLorgeril_Resistant_dds_res_12_LFC_sig_APOP
-  deLorgeril_Resistant_dds_res_24_LFC_sig_APOP
-  deLorgeril_Resistant_dds_res_48_LFC_sig_APOP
-  deLorgeril_Resistant_dds_res_60_LFC_sig_APOP
-  deLorgeril_Resistant_dds_res_72_LFC_sig_APOP
-  deLorgeril_Susceptible_dds_res_6_LFC_sig_APOP
-  deLorgeril_Susceptible_dds_res_12_LFC_sig_APOP
-  deLorgeril_Susceptible_dds_res_24_LFC_sig_APOP
-  deLorgeril_Susceptible_dds_res_48_LFC_sig_APOP
-  deLorgeril_Susceptible_dds_res_60_LFC_sig_APOP
-  deLorgeril_Susceptible_dds_res_72_LFC_sig_APOP`
+  `deLorgeril_Resistant_dds_res_6_LFC_sig_APOP  
+deLorgeril_Resistant_dds_res_12_LFC_sig_APOP  
+deLorgeril_Resistant_dds_res_24_LFC_sig_APOP  
+deLorgeril_Resistant_dds_res_48_LFC_sig_APOP  
+deLorgeril_Resistant_dds_res_60_LFC_sig_APOP  
+deLorgeril_Resistant_dds_res_72_LFC_sig_APOP  
+deLorgeril_Susceptible_dds_res_6_LFC_sig_APOP
+deLorgeril_Susceptible_dds_res_12_LFC_sig_APOP
+deLorgeril_Susceptible_dds_res_24_LFC_sig_APOP
+deLorgeril_Susceptible_dds_res_48_LFC_sig_APOP
+deLorgeril_Susceptible_dds_res_60_LFC_sig_APOP
+deLorgeril_Susceptible_dds_res_72_LFC_sig_APOP`
 
-  4. He: Also separated the control and treatment for each timepoint separately
-
+  4. He: Also separated the control and treatment for each timepoint separately. The formula then used for each dataset was just `~Condition`.
+    - Names of dataframes
+    `He_dds_res_6hr_sig_APOP
+    He_dds_res_12hr_sig_APOP
+    He_dds_res_24hr_sig_APOP
+    He_dds_res_48hr_sig_APOP
+    He_dds_res_120hr_sig_APOP`
 
   5. Dermo: Use the 6 different comparisons where DESeq2 was ran separately for each timepoint and family to ensure that each was only being compared to its own control.
     - Though I could have done this using contrasts, I didnt because I wanted to use the newest apeglm LFC ranking algorithm that doesn't yet allow for contrasts to be used.
+    - The formula for each group was `~Lib_prep_date + Condition` to control for batch effects by library prep date
 
     - Names of APOP dataframes to be analyzed
     `Dermo_Susceptible_36hr_dds_res_LFC_sig_APOP = control 36hr vs treated at 36hr in susceptible (and so on for each)
@@ -1429,6 +1431,22 @@ Emms, David M., and Steven Kelly. “OrthoFinder: Phylogenetic Orthology Inferen
     Dermo_Tolerant_7d_dds_res_LFC_sig_APO
     Dermo_Tolerant_28d_dds_res_LFC_sig_APOP `
 
-  6. ROD:
-  7. Probiotic (RI):
-  8. Probiotic (S4, RI) + RE22:
+  6. ROD: ROD Susceptible F3L lacked controls, so the same as what was done in the original Mcdowell et al. paper, I compared the early and the late response, so the formula used to compare these was `~Condition` with the early and late as the two groups of condition. For the resistant GX family however, they did have control unchallenged oysters with samples taken at different days. To control for the effect of day, the formula used was `~Time+Condition`.
+    - Names of dataframes used
+    `ROD_Susceptible_dds_res_LFC_sig_APOP
+     ROD_Resistant_dds_res_LFC_sig_APOP
+    `
+
+  7. Probiotic (RI): Due to lack of replicates for different time points, only control vs treated was tested in the model for comparison and time was controlled for using : `~Time + Condition`. I would have separated out each time point if there had been paired controls for each. All had the same larval source hoewever.
+  - Name of APOP dataframe to analyze:
+    `Probiotic_dds_deseq_Challenge_res_LFC_sig_APOP`
+
+
+  8. Probiotic (S4, RI) + RE22: Also due to lack of replicates for each time point and each larval source, I had to control for these in my formula. However, the different larval sources were on the different days, so including I am unable to separate those effects and can only control using on variable.
+    - Formula used : `~ Time + Condition`
+    - Names of APOP dataframes
+    `Pro_RE22_dds_deseq_res_RI_6h_LFC_sig_APOP
+    Pro_RE22_dds_deseq_res_RI_24h_LFC_sig_APOP
+    Pro_RE22_dds_deseq_res_S4_6h_LFC_sig_APOP
+    Pro_RE22_dds_deseq_res_S4_24h_LFC_sig_APOP
+    Pro_RE22_dds_deseq_res_RE22_LFC_sig_APOP  `
