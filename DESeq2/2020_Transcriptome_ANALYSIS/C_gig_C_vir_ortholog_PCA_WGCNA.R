@@ -1549,15 +1549,20 @@ C_gig_apop_LFC
 C_vir_apop_LFC_XMs <- C_vir_apop_LFC$transcript_id
 length(C_vir_apop_LFC_XMs) # 292 differentially expressed XMs
 # Export table to file
-write.table(C_vir_apop_LFC_XMs, file ="C_vir_apop_LFC_XMs.txt", quote = FALSE, row.names = FALSE, col.names = FALSE )
+write.table(C_vir_apop_LFC_XMs, file ="C_vir_apop_LFC_XMs.txt")
+# 187 unique identifiers 
+# deleted the first row in excel (some strange glitch where Batch Entrez wasn't liking the format output from write.table)
 
 # Use the Name for C_gig
 C_gig_apop_LFC_Name <- C_gig_apop_LFC$Name
 length(C_gig_apop_LFC_Name) # 1239 differentially expressed XMs
 # Export table to file
-write.table(C_gig_apop_LFC_Name, file ="C_gig_apop_LFC_Name.txt", quote = FALSE, row.names = FALSE, col.names = FALSE )
+write.table(C_gig_apop_LFC_Name, file ="C_gig_apop_LFC_Name.txt" )
+# 357 unique identifiers 
+# deleted the first row in excel (some strange glitch where Batch Entrez wasn't liking the format output from write.table)
 
-# In Batch Entrez look up the XPs corresponding to the XMs
+# In Batch Entrez look up the XPs corresponding to the XMs, downloaded the "complete record" in "gff3" format 
+# Set the database to Nucleotide for both
 
 #### PCA AND HEATMAPS OF SINGLE COPY ORTHOLOGOUS GENE COUNTS FROM C_VIR AND C_GIG RUN ####
 

@@ -1459,4 +1459,30 @@ deLorgeril_Susceptible_dds_res_72_LFC_sig_APOP`
     * Das, Malay, et al. “Expression Pattern Similarities Support the Prediction of Orthologs Retaining Common Functions after Gene Duplication Events.” Plant Physiology, vol. 171, no. 4, 2016, pp. 2343–57, doi:10.1104/pp.15.01207.
       - for plants there are usually multiple orthologs for every query gene  due to extensive histories of gene/genome duplication
     * Other papers in molluscs don't specify whether they subset for one-to-one or one-to-many orthologs. Perhaps they were using one-to-many
-      -
+      - Capt, Charlotte, et al. “Deciphering the Link between Doubly Uniparental Inheritance of MtDNA and Sex Determination in Bivalves: Clues from Comparative Transcriptomics.” Genome Biology and Evolution, vol. 10, no. 2, 2018, pp. 577–90, doi:10.1093/gbe/evy019.
+
+2. Match Differentially expressed XMs to their XPs
+  * First subset out the XMs for each and then used batch entrez to make a gff3 file for the full list. The gff3 file lists the XPs that match to each XM.
+  * Extracting the XPs for each individual XM
+          `$ pwd
+          /Users/erinroberts/Documents/PhD_Research/Chapter_1_Apoptosis Paper/Chapter1_Apoptosis_Transcriptome_Analyses_2019/DATA ANALYSIS/apoptosis_data_pipeline/DESeq2/2020_Transcriptome_ANALYSIS
+
+          # Files exported from R with the differentially expressed XMs
+          C_gig_apop_LFC_Name.txt
+          C_vir_apop_LFC_XMs.txt
+
+          # Batch Entrez output files
+          C_vir_apop_XM_to_XP.gff3
+          C_gig_apop_Name.gff3
+
+          $ less C_vir_apop_XM_to_XP.gff3
+          ##sequence-region XM_022467913.1 1 2352
+          ##species https://www.ncbi.nlm.nih.gov/Taxonomy/Browser/wwwtax.cgi?id=6565
+          XM_022467913.1  RefSeq  region  1       2352    .       +       .       ID=XM_022467913.1:1..2352;Dbxref=taxon:6565;Name=1;chromosome=1;collection-date=22-Mar-2015;country=USA;gbkey=Src;genome=chromosome;isolate=RU13XGHG1-28;isolation-source=Rutgers Haskin Shellfish Research Laboratory inbred lines (NJ);mol_type=mRNA;tissue-type=whole sample
+          XM_022467913.1  Gnomon  gene    1       2352    .       +       .       ID=gene-LOC111124729;Dbxref=GeneID:111124729;Name=LOC111124729;gbkey=Gene;gene=LOC111124729;model_evidence=Supporting evidence includes similarity to: 7 Proteins%2C and 100%25 coverage of the annotated genomic feature by RNAseq alignments%2C including 8 samples with support for all annotated introns
+          XM_022467913.1  Gnomon  CDS     413     2230    .       +       0       ID=cds-XP_022323621.1;Parent=gene-LOC111124729;Dbxref=GeneID:111124729,Genbank:XP_022323621.1;Name=XP_022323621.1;gbkey=CDS;gene=LOC111124729;product=TNF receptor-associated factor 6-like isoform X2;protein_id=XP_022323621.1
+
+          # Each record for a single XM lists the RefSeq and Gnomon information for each. The full record is all on one line
+
+          # Loaded into R, rest of analysis code is in R 
+  `
