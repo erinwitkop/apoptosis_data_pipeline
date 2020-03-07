@@ -1450,3 +1450,13 @@ deLorgeril_Susceptible_dds_res_72_LFC_sig_APOP`
     Pro_RE22_dds_deseq_res_S4_6h_LFC_sig_APOP
     Pro_RE22_dds_deseq_res_S4_24h_LFC_sig_APOP
     Pro_RE22_dds_deseq_res_RE22_LFC_sig_APOP  `
+
+* Went through and doublechecked all DESeq code before proceeding with matching to orthologs. Making sure there are mistakes, no changes need to be made to my code and that these are my final dataframes for the apoptosis data.
+
+## 3/7/2020 Analyzing expression of orthologous genes
+
+1. Research regarding the validity of looking at one-to-many orthologs because of the history of duplication in my apoptosis gene families of interest
+    * Das, Malay, et al. “Expression Pattern Similarities Support the Prediction of Orthologs Retaining Common Functions after Gene Duplication Events.” Plant Physiology, vol. 171, no. 4, 2016, pp. 2343–57, doi:10.1104/pp.15.01207.
+      - for plants there are usually multiple orthologs for every query gene  due to extensive histories of gene/genome duplication
+    * Other papers in molluscs don't specify whether they subset for one-to-one or one-to-many orthologs. Perhaps they were using one-to-many
+      -
