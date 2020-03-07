@@ -571,7 +571,7 @@ autoplot(pcZhang,
   # with MSTRG removed, V tub and V aes are closest cluster, they also cluster with LPS
 autoplot(pcZhang,
          data = Zhang_coldata, 
-         colour = "group", 
+         colour = "group_by_sim", 
          size = 5,
          x = 2,
          y = 3)
@@ -593,21 +593,11 @@ autoplot(pcZhang,
 Zhang_dds <- DESeqDataSetFromMatrix(countData = Zhang_counts,
                                     colData = Zhang_coldata,
                                     design = ~time + group_by_sim) # add time to control for injection and time effect
-#Zhang_dds_path <- DESeqDataSetFromMatrix(countData = Zhang_counts,
-#                                                 colData = Zhang_coldata,
-#                                                 design = ~  path) # add time to control for injection and time effect
-
-# USE THIS ONE IN FUTURE OTHERS WERE FOR TESTING
-#Zhang_dds_broken_group <- DESeqDataSetFromMatrix(countData = Zhang_counts,
-#                                                 colData = Zhang_coldata,
-#                                                 design = ~time+ group_by_sim) # add time to control for injection and time effect
 
 ## Prefiltering the data
 # Data prefiltering helps decrease the size of the data set and get rid of
 # rows with no data or very minimal data (<10). Apply a minimal filtering here as more stringent filtering will be applied later
 Zhang_dds <- Zhang_dds[ rowSums(counts(Zhang_dds)) > 10, ]
-#Zhang_dds_broken_group <- Zhang_dds_broken_group[ rowSums(counts(Zhang_dds_broken_group)) > 10, ]
-#Zhang_dds_path <- Zhang_dds_path[ rowSums(counts(Zhang_dds_path)) > 10, ]
 
 ## Check levels 
 # It is prefered in R that the first level of a factor be the reference level for comparison
@@ -621,8 +611,6 @@ Zhang_dds$time <- factor(Zhang_dds$time , levels = c("No_injection","12h"))
 ## DATA TRANSFORMATION AND VISUALIZATION
 # Assess sample clustering after setting initial formula for comparison
 Zhang_dds_rlog <- rlog(Zhang_dds, blind = TRUE) # keep blind = true before deseq function has been run
-#Zhang_dds_broken_group_rlog <- rlog(Zhang_dds_broken_group, blind = TRUE)
-#Zhang_dds_path_rlog <- rlog(Zhang_dds_path, blind = TRUE)
 
 ## PCA plot visualization of individuals in the family 
 plotPCA(Zhang_dds_rlog, intgroup=c("group_by_sim", "condition"))
@@ -637,22 +625,14 @@ plotPCA(Zhang_dds_rlog, intgroup=c("group_by_sim", "condition"))
 
 Zhang_dds_deseq <- DESeq(Zhang_dds) 
 
-#Zhang_dds_broken_group_deseq <- DESeq(Zhang_dds_broken_group) # USE THIS ONE IN FUTURE OTHERS WERE FOR TESTING
-#Zhang_dds_path_deseq <- DESeq(Zhang_dds_path)
-
 ## Check the resultsNames object of each to look at the available coefficients for use in lfcShrink command
 resultsNames(Zhang_dds_deseq) # [1] "Intercept"                                   "time_12h_vs_No_injection"                   
 #[3] "group_by_sim_LPS_M_lut_vs_control"           "group_by_sim_V_aes_V_alg1_V_alg2_vs_control"
 #[5] "group_by_sim_V_tub_V_ang_vs_control" 
 
-
-#resultsNames(Zhang_dds_path_deseq) 
-# [1] "Intercept"               "path_nonpath_vs_control" "path_path_vs_control"   
-
 ## BUILD THE RESULTS OBJECT
 # Examining the results object, change alpha to p <0.05, looking at object metadata
 # use mcols to look at metadata for each table
-
 Zhang_dds_deseq_res_V_alg1 <- results(Zhang_dds_deseq, alpha=0.05, name = "group_by_sim_V_aes_V_alg1_V_alg2_vs_control"  )
 Zhang_dds_deseq_res_V_tub <- results(Zhang_dds_deseq, alpha=0.05, name= "group_by_sim_V_tub_V_ang_vs_control" )
 Zhang_dds_deseq_res_LPS <- results(Zhang_dds_deseq, alpha=0.05, name= "group_by_sim_LPS_M_lut_vs_control")
@@ -842,9 +822,9 @@ Zhang_dds_deseq_res_V_tub_LFC_sig_APOP$group_by_sim <- "V_tub_V_ang"
 Zhang_dds_deseq_res_LFC_LPS_sig_APOP$group_by_sim <- "LPS_M_lut"
 
 # combine data frames 
-Zhang_upset_all_sig_APOP <- rbind(Zhang_dds_deseq_res_V_tub_LFC_sig_APOP[,c("product","group_by_sim","log2FoldChange")],
+Zhang_upset_all_sig_APOP <- rbind(Zhang_dds_deseq_res_V_alg1_LFC_sig_APOP[,c("product","group_by_sim","log2FoldChange")],
                                   Zhang_dds_deseq_res_V_tub_LFC_sig_APOP[,c("product","group_by_sim","log2FoldChange")],
-                                  Zhang_dds_deseq_res_V_tub_LFC_sig_APOP[,c("product","group_by_sim","log2FoldChange")])
+                                  Zhang_dds_deseq_res_LFC_LPS_sig_APOP[,c("product","group_by_sim","log2FoldChange")])
 
 # Convert into wide format using reshape
 Zhang_upset_all_sig_APOP_tally <- Zhang_upset_all_sig_APOP %>% group_by(product) %>% tally() 
@@ -855,17 +835,17 @@ Zhang_upset_all_sig_APOP_upset <- as.matrix(Zhang_upset_all_sig_APOP_upset)
 Zhang_full_LFC_plot <- ggplot(Zhang_upset_all_sig_APOP, aes(x=product,y=log2FoldChange, fill=group_by_sim )) + geom_col(position="dodge") + 
   theme(axis.text.x = element_text(angle = 75, hjust = 1)) + coord_flip()
 
-Zhang_dds_deseq_res_V_alg1_APOP_short_plot <- ggplot(Zhang_dds_deseq_res_V_alg1_APOP_short, aes(x=product, y = log2FoldChange, fill=log2FoldChange)) + geom_col(position="dodge") +
+Zhang_dds_deseq_res_V_alg1_APOP_plot <- ggplot(Zhang_dds_deseq_res_V_alg1_LFC_sig_APOP, aes(x=product, y = log2FoldChange, fill=log2FoldChange)) + geom_col(position="dodge") +
   coord_flip() + scale_fill_gradient2(low="purple",mid = "grey", high="darkgreen") + ggtitle("Zhang V. alg, V. aes vs Control") +
   ylab("Log2 Fold Change")
-Zhang_dds_deseq_res_V_tub_APOP_short_plot <- ggplot(Zhang_dds_deseq_res_V_tub_APOP_short, aes(x=product, y = log2FoldChange, fill=log2FoldChange)) + geom_col(position="dodge") +
+Zhang_dds_deseq_res_V_tub_APOP_plot <- ggplot(Zhang_dds_deseq_res_V_tub_LFC_sig_APOP, aes(x=product, y = log2FoldChange, fill=log2FoldChange)) + geom_col(position="dodge") +
   coord_flip() + scale_fill_gradient2(low="purple",mid = "grey", high="darkgreen") + ggtitle("V. tub V. ang vs Control") +
   ylab("Log2 Fold Change")
-Zhang_dds_deseq_res_LPS_APOP_short_plot <- ggplot(Zhang_dds_deseq_res_LPS_APOP_short, aes(x=product, y = log2FoldChange, fill=log2FoldChange)) + geom_col(position="dodge") +
+Zhang_dds_deseq_res_LPS_APOP_plot <- ggplot(Zhang_dds_deseq_res_LFC_LPS_sig_APOP, aes(x=product, y = log2FoldChange, fill=log2FoldChange)) + geom_col(position="dodge") +
   coord_flip() + scale_fill_gradient2(low="purple",mid = "grey", high="darkgreen") + ggtitle("Zhang LPS and M Lut LFC vs Control") +
   ylab("Log2 Fold Change")
 
-ggarrange(Zhang_dds_deseq_res_V_alg1_APOP_short_plot , Zhang_dds_deseq_res_V_tub_APOP_short_plot,Zhang_dds_deseq_res_LPS_APOP_short_plot)
+ggarrange(Zhang_dds_deseq_res_V_alg1_APOP_plot , Zhang_dds_deseq_res_V_tub_APOP_plot,Zhang_dds_deseq_res_LPS_APOP_plot)
 
 
 #### RUBIO VIBRIO TRANSCRIPTOME ANALYSIS ####
@@ -3611,11 +3591,11 @@ C_gig_transcript_list <-
        deLorgeril_Susceptible_dds_res_72_LFC_sig_APOP_vector = deLorgeril_Susceptible_dds_res_72_LFC_sig_APOP_vector)
 
 # Make combination matrix in intersect mode with the list 
-C_gig_transcript_list_matrix_comb <- make_comb_mat(C_gig_transcript_list, mode = "intersect")
+#C_gig_transcript_list_matrix_comb <- make_comb_mat(C_gig_transcript_list, mode = "intersect")
 
 
 # plot in intersect mode 
-C_gig_transcript_upset_plot <- UpSet(C_gig_transcript_list_matrix_comb)
+#C_gig_transcript_upset_plot <- UpSet(C_gig_transcript_list_matrix_comb)
 
 
 #### COMPARING APOPTOSIS TRANSCRIPT EXPRESSION BETWEEN EXPERIMENTS PCA HEATMAPS VST ON APOP SUBSET ALONE ####

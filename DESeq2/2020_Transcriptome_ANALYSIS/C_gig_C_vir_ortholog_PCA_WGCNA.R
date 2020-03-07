@@ -10,6 +10,7 @@
 
 # Load packages 
 library(tidyverse)
+library(DESeq2)
 
 #### ISOLATE SINGLE COPY ORTHOLOG GENES FROM (C_VIR C_GIG ORTHOFINDER) FROM GENE_COUNT_MATRIX FOR EACH EXPERIMENT ####
 
@@ -18,13 +19,13 @@ library(tidyverse)
 # Load Orthogroups.tsv containing proteins in each orthogroup,Orthogroups_SingleCopyOrthologues.txt which lists the 1:1 orthologs,
   # and Orthogroups.GeneCount.tsv which lists the number of genes in each orthogroup
 
-Single_copy_orthologs <- read_table("/Users/erinroberts/Documents/PhD_Research/Chapter_1_Apoptosis Paper/Chapter_1_Apoptosis_Annotation_Data_Analyses_2019/DATA/OrthoFinder/Results_Feb25/Orthogroups/Orthogroups_SingleCopyOrthologues.txt",
+Single_copy_orthologs <- read_table("/Users/erinroberts/Documents/PhD_Research/Chapter_1_Apoptosis Paper/Chapter1_Apoptosis_Transcriptome_Analyses_2019/DATA ANALYSIS/apoptosis_data_pipeline/Transcriptome_Bluewaves_Cluster_Analysis_2020/OrthoFinder/Results_Feb25/Orthogroups/Orthogroups_SingleCopyOrthologues.txt",
                                       col_names = "Orthogroup")
 Single_copy_orthologs <- as.data.frame(Single_copy_orthologs)
 class(Single_copy_orthologs)
 
 # Load and Parse orthogroup tsv
-Orthogroups <- read_tsv("/Users/erinroberts/Documents/PhD_Research/Chapter_1_Apoptosis Paper/Chapter_1_Apoptosis_Annotation_Data_Analyses_2019/DATA/OrthoFinder/Results_Feb25/Orthogroups/Orthogroups.tsv", 
+Orthogroups <- read_tsv("/Users/erinroberts/Documents/PhD_Research/Chapter_1_Apoptosis Paper/Chapter1_Apoptosis_Transcriptome_Analyses_2019/DATA ANALYSIS/apoptosis_data_pipeline/Transcriptome_Bluewaves_Cluster_Analysis_2020/OrthoFinder/Results_Feb25/Orthogroups/Orthogroups.tsv", 
               col_names = c("Orthogroup", "C_gigas","C_virginica" ))
 # Drop groups that have only one-species.
 Orthogroups <- Orthogroups %>% drop_na()
@@ -209,372 +210,6 @@ ncol(Full_ortholog_gene_count_only) #234
 Full_ortholog_gene_count_only[is.na(Full_ortholog_gene_count_only)] <-0
 head(Full_ortholog_gene_count_only)
 
-
-#### PCA AND HEATMAPS OF SINGLE COPY ORTHOLOGOUS GENE COUNTS FROM C_VIR AND C_GIG RUN ####
-
-## Remove Batch effects from experiment for C_vir
-plotPCA(C_vir_full_counts_vst, "Experiment") # grouping by experiment, ROD and probiotic cluster more closely
-mat_C_vir <- assay(C_vir_full_counts_vst)
-mat_C_vir <- limma::removeBatchEffect(mat_C_vir, C_vir_full_counts_vst$Experiment)
-#Coefficients not estimable: batch1 batch3 batch5 batch6 
-#Warning message:
-#  Partial NA coefficients for 67876 probe(s) 
-assay(C_vir_full_counts_vst) <- mat_C_vir
-plotPCA(C_vir_full_counts_vst, "Experiment") # Probiotic and ROD now cluster together
-plotPCA(C_vir_full_counts_vst, "Sample")
-plotPCA(C_vir_full_counts_vst, "Time") # no clustering by time
-plotPCA(C_vir_full_counts_vst, "Family")
-
-plotPCA(C_gig_full_counts_vst, "Experiment") # grouping by experiment, Rubio delorgeril cluster, HE and Zhang far apart
-mat_C_gig <- assay(C_gig_full_counts_vst)
-mat_C_gig <- limma::removeBatchEffect(mat_C_gig, C_gig_full_counts_vst$Experiment)
-#Coefficients not estimable: batch4 batch5 batch6 
-#Warning message:
-#  Partial NA coefficients for 86859 probe(s) 
-assay(C_gig_full_counts_vst) <- mat_C_gig
-plotPCA(C_gig_full_counts_vst, "Experiment") # He, Rubio and Zhang cluster closely 
-plotPCA(C_gig_full_counts_vst, "Sample")
-plotPCA(C_gig_full_counts_vst, "Time") # no clustering by time
-plotPCA(C_gig_full_counts_vst, "Family")
-
-# subset PCA for apoptosis genes
-C_vir_full_counts_apop <- C_vir_full_counts[row.names(C_vir_full_counts) %in% C_vir_rtracklayer_apop_product_final_ID,]
-nrow(C_vir_full_counts_apop) # 1026
-all(row.names(C_vir_full_counts_apop) %in% C_vir_rtracklayer_apop_product_final_ID) # TRUE
-all(C_vir_rtracklayer_apop_product_final_ID %in% row.names(C_vir_full_counts_apop)) # TRUE
-
-C_vir_full_counts_apop_list <- row.names(C_vir_full_counts_apop)
-plotPCA(C_vir_full_counts_vst[C_vir_full_counts_apop_list,], "Experiment") # similar clustering where ROD and Probiotic cluster
-
-C_gig_full_counts_apop <- C_gig_full_counts[row.names(C_gig_full_counts) %in% C_gig_rtracklayer_apop_product_final_transcript_id,]
-C_gig_full_counts_apop_list <- row.names(C_gig_full_counts_apop)
-plotPCA(C_gig_full_counts_vst[C_gig_full_counts_apop_list,], "Experiment") # some more overlap between He and deLorgeril
-
-### Heatmaps of apoptosis gene vsts ###
-## C_virginica
-# heatmap of all apoptosis genes 
-C_vir_full_counts_apop_assay <-  assay(C_vir_full_counts_vst)[C_vir_full_counts_apop_list,]
-C_vir_full_counts_apop_assay_mat <- C_vir_full_counts_apop_assay - rowMeans(C_vir_full_counts_apop_assay)
-C_vir_full_counts_apop_assay_anno <- as.data.frame(colData(C_vir_full_counts_vst)[, c("Condition","Experiment")])
-C_vir_full_counts_apop_assay_heatmap <- pheatmap(C_vir_full_counts_apop_assay_mat  , annotation_col = C_vir_full_counts_apop_assay_anno)
-# Probiotic and ROD cluster closely, CGX and GX cluster more with Dermo DA (susceptible), while F3L and LB cluster more closely
-# the sucsceptible to Dermo are more tolerant to ROD (GX), and vice versa..interesting
-# The ROD Tolerant (GX and CGX), Dermo Susceptible DA and Probiotic are all in the same larger cluster
-# the ROD susceptible (F3L) and the Dermo tolerant LB are in the same larger cluster
-
-# heatmap of most variable apoptosis genes for both C_vir and C_gug (this selects genes with the greatest variance in the sample)
-topVarGenes_C_vir_full_counts_apop_assay <-  head(order(rowVars(C_vir_full_counts_apop_assay), decreasing = TRUE), 100) 
-top_Var_C_vir_full_counts_apop_assay_mat <- C_vir_full_counts_apop_assay[topVarGenes_C_vir_full_counts_apop_assay,]
-top_Var_C_vir_full_counts_apop_assay_mat <- top_Var_C_vir_full_counts_apop_assay_mat - rowMeans(top_Var_C_vir_full_counts_apop_assay_mat)
-top_Var_C_vir_full_counts_apop_assay_anno <- as.data.frame(colData(C_vir_full_counts_vst)[, c("Experiment","Condition")])
-top_Var_C_vir_full_counts_apop_assay_heatmap <- pheatmap(top_Var_C_vir_full_counts_apop_assay_mat  , annotation_col = top_Var_C_vir_full_counts_apop_assay_anno)
-head(top_Var_C_vir_full_counts_apop_assay_mat ) 
-# Same relationship as above, but tighter clustering
-
-# reorder annotation table to match ordering in heatmap 
-top_Var_C_vir_full_counts_apop_assay_heatmap_reorder <- rownames(top_Var_C_vir_full_counts_apop_assay_mat[top_Var_C_vir_full_counts_apop_assay_heatmap$tree_row[["order"]],])
-class(top_Var_C_vir_full_counts_apop_assay_heatmap_reorder)
-# annotate the row.names
-top_Var_C_virginica_apop_assay_mat_prot <- as.data.frame(top_Var_C_vir_full_counts_apop_assay_heatmap_reorder )
-class(top_Var_C_virginica_apop_assay_mat_prot)
-colnames(top_Var_C_virginica_apop_assay_mat_prot)[1] <- "ID"
-class(top_Var_C_virginica_apop_assay_mat_prot$ID)
-top_Var_C_virginica_apop_assay_mat_prot$ID <- as.character(top_Var_C_virginica_apop_assay_mat_prot$ID)
-top_Var_C_virginica_apop_assay_mat_prot_annot <- left_join(top_Var_C_virginica_apop_assay_mat_prot, select(C_vir_rtracklayer, ID, product), by = "ID")
-
-## C_gigas genes 
-C_gig_full_counts_apop_assay <-  assay(C_gig_full_counts_vst)[C_gig_full_counts_apop_list,]
-C_gig_full_counts_apop_assay_mat <- C_gig_full_counts_apop_assay - rowMeans(C_gig_full_counts_apop_assay)
-C_gig_full_counts_apop_assay_anno <- as.data.frame(colData(C_gig_full_counts_vst)[, c("Experiment","Condition")])
-C_gig_full_counts_apop_assay_heatmap <- pheatmap(C_gig_full_counts_apop_assay_mat  , annotation_col = C_gig_full_counts_apop_assay_anno)
-# clustering of delorgeril and HE: deLorgeril AF11 susceptible, HE OsHV1 challenge, 
-# delorgeril OsHV1 resistant are in their own separate cluster
-# Zhang and Rubio cluster very closely together
-# some delorgeril and rubio clustering
-
-# heatmap of most variable apoptosis genes for both C_vir and C_gug (this selects genes with the greatest variance in the sample)
-topVarGenes_C_gig_full_counts_apop_assay <-  head(order(rowVars(C_gig_full_counts_apop_assay), decreasing = TRUE), 100) 
-top_Var_C_gig_full_counts_apop_assay_mat <- C_gig_full_counts_apop_assay[topVarGenes_C_gig_full_counts_apop_assay,]
-top_Var_C_gig_full_counts_apop_assay_mat <- top_Var_C_gig_full_counts_apop_assay_mat - rowMeans(top_Var_C_gig_full_counts_apop_assay_mat)
-top_Var_C_gig_full_counts_apop_assay_anno <- as.data.frame(colData(C_gig_full_counts_vst)[, c("Experiment","Condition")])
-top_Var_C_gig_full_counts_apop_assay_heatmap <- pheatmap(top_Var_C_gig_full_counts_apop_assay_mat  , annotation_col = top_Var_C_gig_full_counts_apop_assay_anno)
-head(top_Var_C_gig_full_counts_apop_assay_mat ) 
-# Same relationship as above, but tighter clustering
-
-# reorder annotation table to match ordering in heatmap 
-top_Var_C_gig_full_counts_apop_assay_heatmap_reorder <- rownames(top_Var_C_gig_full_counts_apop_assay_mat[top_Var_C_gig_full_counts_apop_assay_heatmap$tree_row[["order"]],])
-class(top_Var_C_gig_full_counts_apop_assay_heatmap_reorder)
-# annotate the row.names
-top_Var_C_gig_apop_assay_mat_prot <- as.data.frame(top_Var_C_gig_full_counts_apop_assay_heatmap_reorder )
-class(top_Var_C_gig_apop_assay_mat_prot)
-colnames(top_Var_C_gig_apop_assay_mat_prot)[1] <- "transcript_id"
-class(top_Var_C_gig_apop_assay_mat_prot$transcript_id)
-top_Var_C_gig_apop_assay_mat_prot$transcript_id <- as.character(top_Var_C_gig_apop_assay_mat_prot$transcript_id)
-top_Var_C_gig_assay_mat_prot_annot <- left_join(top_Var_C_gig_apop_assay_mat_prot, select(C_gig_rtracklayer_apop_product_final, transcript_id, product), by = "transcript_id")
-
-#isolate interesting clusters
-#six_hr_comparison_cluster <- c("XM_022455505.1", "XM_022484575.1", "XM_022461506.1", "XM_022430618.1", "XM_022490512.1",
-#                               "XM_022461508.1", "XM_022464459.1", "XM_022483469.1", "XM_022483473.1", "XM_022442223.1", "XM_022457463.1", "XM_022442224.1")
-#six_hr_comparison_cluster <- as.data.frame(six_hr_comparison_cluster)
-#colnames(six_hr_comparison_cluster)[1] <- "transcript_id"
-#six_hr_comparison_cluster_subset <- subset(Res_mat_6hr_prot_annot, transcript_id %in% six_hr_comparison_cluster$transcript_id)
-
-
-## Extract apop genes from each and match to names ###
-# For C_vir the gene# is the "Parent" column  vector C_vir_apop transcript Parent
-C_vir_rtracklayer_apop_product_final_parent <- unique(C_vir_rtracklayer_apop_product_final$Parent)
-View(C_vir_rtracklayer_apop_product_final_parent)
-
-# C_vir: Search counts tables for apoptosis genes using the Parent column from genome
-Dermo_gene_counts_apop <- Dermo_gene_counts[row.names(Dermo_gene_counts) %in% C_vir_rtracklayer_apop_product_final_parent,]
-nrow(Dermo_gene_counts_apop) # 45
-View(Dermo_gene_counts_apop)
-Probiotic_gene_counts_apop <- Probiotic_gene_counts[row.names(Probiotic_gene_counts) %in% C_vir_rtracklayer_apop_product_final_parent,]
-nrow(Probiotic_gene_counts_apop) # 198
-head(Probiotic_gene_counts_apop)
-ROD_gene_counts_apop <- ROD_gene_counts[row.names(ROD_gene_counts) %in% C_vir_rtracklayer_apop_product_final_parent,]
-nrow(ROD_gene_counts_apop) # 98
-head(ROD_gene_counts_apop)
-# Make the rownames a column for each so I can merge on it 
-Dermo_gene_counts_apop$Parent <- row.names(Dermo_gene_counts_apop)
-Probiotic_gene_counts_apop$Parent <- row.names(Probiotic_gene_counts_apop)
-ROD_gene_counts_apop$Parent <- row.names(ROD_gene_counts_apop)
-
-# Combine dataframes starting with largest first (probiotic)
-C_vir_apop_gene_counts <- left_join(Probiotic_gene_counts_apop, ROD_gene_counts_apop, by = "Parent")
-C_vir_apop_gene_counts <- left_join(C_vir_apop_gene_counts,Dermo_gene_counts_apop, by = "Parent")
-class(C_vir_apop_gene_counts$Parent) # character
-class(C_vir_rtracklayer_apop_product_final$Parent) # AsIs
-C_vir_rtracklayer_apop_product_final$Parent <- as.character(C_vir_rtracklayer_apop_product_final$Parent) # change the class to character
-View(C_vir_apop_gene_counts)
-nrow(C_vir_apop_gene_counts) # 198
-
-# Combine product name 
-C_vir_apop_gene_counts <- left_join(C_vir_apop_gene_counts,C_vir_rtracklayer_apop_product_final[,c("Parent","product")], by = "Parent")
-View(C_vir_apop_gene_counts)
-# extra rows added because of the ", transcript id" 
-nrow(C_vir_apop_gene_counts) #283
-# Annotate C_vir rownames
-
-
-
-# For C_gig: the LOC is the gene column C_gig: Search counts tables for apoptosis genes using the Parent column from genome
-# vector C_gig_apop transcript IDs
-C_gig_rtracklayer_apop_product_final_gene <- unique(C_gig_rtracklayer_apop_product_final$gene)
-
-nrow(Rubio_gene_counts) #6888
-nrow(deLorgeril_gene_counts) # 5023
-nrow(He_gene_counts) # 7888
-nrow(Zhang_gene_counts)
-
-
-deLorgeril_Resistant_counts_apop <- deLorgeril_Resistant_counts[row.names(deLorgeril_Resistant_counts) %in% C_gig_rtracklayer_apop_product_final_transcript_id,]
-deLorgeril_Susceptible_counts_apop <- deLorgeril_Susceptible_counts[row.names(deLorgeril_Susceptible_counts) %in% C_gig_rtracklayer_apop_product_final_transcript_id,]
-nrow(deLorgeril_Resistant_counts_apop ) #659
-nrow(deLorgeril_Susceptible_counts_apop ) #659
-
-
-
-# Merge tables 
-
-# Search original counts for apoptosis genes and do rlog on just these
-Dermo_Tolerant_counts_apop <- Dermo_Tolerant_counts[row.names(Dermo_Tolerant_counts) %in% C_vir_rtracklayer_apop_product_final_ID,]
-Dermo_Susceptible_counts_apop <- Dermo_Susceptible_counts[row.names(Dermo_Susceptible_counts) %in% C_vir_rtracklayer_apop_product_final_ID,]
-nrow(Dermo_Tolerant_counts_apop) #1026
-nrow( Dermo_Susceptible_counts_apop) # 1026
-
-top_Var_Dermo_Tolerant_apop_assay_prot <- as.data.frame(top_Var_Dermo_Tolerant_apop_assay_heatmap_reorder)
-colnames(top_Var_Dermo_Tolerant_apop_assay_prot)[1] <- "ID"
-top_Var_Dermo_Tolerant_apop_assay_prot_annot <- left_join(top_Var_Dermo_Tolerant_apop_assay_prot, select(C_vir_rtracklayer_apop_product_final, ID, product, gene), by = "ID")
-
-
-
-top_Var_Dermo_Susceptible_apop_assay_prot_annot <- left_join(top_Var_Dermo_Susceptible_apop_assay_prot, select(C_vir_rtracklayer_apop_product_final, ID, product, gene), by = "ID")
-
-# unique gene name lists for both species
-C_vir_rtracklayer_apop_product_final_product_joined_split_product_unique_gene_name <- C_vir_rtracklayer_apop_product_final_product_joined_split_product_unique[!duplicated(C_vir_rtracklayer_apop_product_final_product_joined_split_product_unique$gene_name),]
-C_gig_rtracklayer_apop_product_final_product_joined_split_product_unique_gene_name <- C_gig_rtracklayer_apop_product_final_product_joined_split_product_unique[!duplicated(C_gig_rtracklayer_apop_product_final_product_joined_split_product_unique$gene_name),]
-
-# rename gene column for joining
-colnames(C_vir_rtracklayer_apop_product_final_product_joined_split_product_unique_gene_name)[1] <- "C_vir_gene_LOC"
-colnames(C_gig_rtracklayer_apop_product_final_product_joined_split_product_unique_gene_name)[1] <- "C_gig_gene_LOC"
-
-#remove "-like" from  gene name for correct name joining using regex
-# this isn't exactly working
-# https://datascience.stackexchange.com/questions/8922/removing-strings-after-a-certain-character-in-a-given-text 
-C_vir_rtracklayer_apop_product_final_product_joined_split_product_unique_gene_name$gene_name <-  stringr::str_remove(C_vir_rtracklayer_apop_product_final_product_joined_split_product_unique_gene_name$gene_name, "\\like$")
-C_gig_rtracklayer_apop_product_final_product_joined_split_product_unique_gene_name$gene_name <-  stringr::str_remove(C_gig_rtracklayer_apop_product_final_product_joined_split_product_unique_gene_name$gene_name, "\\like$")
-C_vir_rtracklayer_apop_product_final_product_joined_split_product_unique_gene_name$gene_name <-  stringr::str_remove(C_vir_rtracklayer_apop_product_final_product_joined_split_product_unique_gene_name$gene_name, "\\-$")
-C_gig_rtracklayer_apop_product_final_product_joined_split_product_unique_gene_name$gene_name <-  stringr::str_remove(C_gig_rtracklayer_apop_product_final_product_joined_split_product_unique_gene_name$gene_name, "\\-$")
-
-# https://stackoverflow.com/questions/50861626/removing-dot-from-the-end-of-string
-# full join and places where names don't match will get an NA
-combined_gene_name_yes_no_table <- full_join(C_vir_rtracklayer_apop_product_final_product_joined_split_product_unique_gene_name, C_gig_rtracklayer_apop_product_final_product_joined_split_product_unique_gene_name,
-                                             by = "gene_name")
-#remove duplicate gene names
-combined_gene_name_yes_no_table_unique <- combined_gene_name_yes_no_table[!duplicated(combined_gene_name_yes_no_table$gene_name),]
-
-#join on the pathway descriptions for the molecules 
-# load in table with pathway descriptions for each 
-
-# Still a few discrepancies in the gene names, namely when they are named in C. virginica "* homolog"
-# Need to mention in methods that I rmemoved "like" from the end of names
-# C_ virginica: lipopolysaccharide-induced tumor necrosis factor-alpha factor homolog, C_gig: lipopolysaccharide-induced tumor necrosis factor-alpha
-# C_vir: putative transcription factor p65 homolog, C_gig: transcription factor p65 homolog
-# C_vir: macrophage migration inhibitory factor homolog, C_gig: macrophage migration inhibitory factor
-
-# Genes in C vir and not in C gig (all the C_gig_gene_LOC NA's)
-c_vir_not_c_gig <- combined_gene_name_yes_no_table_unique %>% filter(is.na(C_gig_gene_LOC))
-# Genes in C gig and not in C vir (all the C_vir_gene_LOC NA's)
-c_gig_not_c_vir <- combined_gene_name_yes_no_table_unique %>% filter(is.na(C_vir_gene_LOC))
-# shared in both 
-shared_apoptosis_gene_names <- na.omit(combined_gene_name_yes_no_table_unique)
-
-# Load gene pathway key with protein aliases curated in excel
-gene_name_pathway_key_merged <- read.csv("Gene_name_pathway_key.csv", head=TRUE)
-
-
-
-## Combine raw counts data frames from C. virginica
-# All the rows should be in the same order because I used the same apoptosis data frame to join them
-all(rownames(Dermo_Susceptible_counts_apop) == rownames(Dermo_Tolerant_counts_apop)) # TRUE
-all(rownames(Dermo_Susceptible_counts_apop) %in% rownames(Dermo_Tolerant_counts_apop)) # TRUE
-
-# Check probiotic table order
-all(rownames(Probiotic_counts_apop) == rownames(Dermo_Tolerant_counts_apop)) # FALSE
-all(rownames(Probiotic_counts_apop) %in% rownames(Dermo_Tolerant_counts_apop)) # TRUE
-Probiotic_counts_apop <- Probiotic_counts_apop[row.names(Dermo_Tolerant_counts_apop),]
-all(rownames(Probiotic_counts_apop) == rownames(Dermo_Tolerant_counts_apop)) # TRUE
-
-# Check ROD order and change if necessary 
-all(rownames(ROD_Resistant_counts_apop) == rownames(Dermo_Tolerant_counts_apop)) # FALSE
-all(rownames(ROD_Resistant_counts_apop) %in% rownames(Dermo_Tolerant_counts_apop)) # TRUE
-ROD_Resistant_counts_apop <- ROD_Resistant_counts_apop[row.names(Dermo_Tolerant_counts_apop),]
-ROD_Susceptible_counts_apop <-  ROD_Susceptible_counts_apop[row.names(Dermo_Tolerant_counts_apop),]
-all(rownames(ROD_Resistant_counts_apop) == rownames(Dermo_Tolerant_counts_apop)) # TRUE
-all(rownames(ROD_Susceptible_counts_apop) == rownames(Dermo_Tolerant_counts_apop)) # TRUE
-all(rownames(ROD_Susceptible_counts_apop) == rownames(ROD_Resistant_counts_apop)) # TRUE
-
-# Colbind all C. virginica tables
-C_virginica_apop_counts <- cbind(Dermo_Susceptible_counts_apop,Dermo_Tolerant_counts_apop,
-                                 Probiotic_counts_apop,ROD_Resistant_counts_apop,
-                                 ROD_Susceptible_counts_apop)
-
-# Set equal the rownames and colnames of the coldata and count data
-all(rownames(C_vir_coldata ) %in% colnames(C_virginica_apop_counts))  #Should return TRUE
-# returns TRUE
-all(colnames(C_virginica_apop_counts) %in% rownames(C_vir_coldata  ))  
-# returns TRUE
-all(rownames(C_vir_coldata ) == colnames(C_virginica_apop_counts)) # FALSE
-
-# Fix the order
-C_virginica_apop_counts <- C_virginica_apop_counts[,row.names(C_vir_coldata)]
-
-all(rownames(C_vir_coldata ) %in% colnames(C_virginica_apop_counts))  #Should return TRUE
-# returns TRUE
-all(colnames(C_virginica_apop_counts) %in% rownames(C_vir_coldata  ))  
-# returns TRUE
-all(rownames(C_vir_coldata ) == colnames(C_virginica_apop_counts))  # TRUE
-
-# Make DEseq data set from matrix so that the coldata gets attached
-C_virginica_apop_counts_dds <- DESeqDataSetFromMatrix(countData = C_virginica_apop_counts,
-                                                      colData= C_vir_coldata,
-                                                      design = ~Condition)
-# Collapse technical replicates 
-C_virginica_apop_counts_dds <- collapseReplicates(C_virginica_apop_counts_dds, C_virginica_apop_counts_dds$Sample, C_virginica_apop_counts_dds$TechRep)
-
-# Calculate the vst
-C_virginica_apop_counts_vst <- varianceStabilizingTransformation(C_virginica_apop_counts_dds)
-
-## Combine C_gig data frame
-# Check row order before combining
-all(rownames(Zhang_counts_apop) == rownames(Rubio_counts_apop)) # FALSE
-all(rownames(Zhang_counts_apop) %in% rownames(Rubio_counts_apop)) # TRUE
-Zhang_counts_apop <- Zhang_counts_apop[row.names(Rubio_counts_apop),]
-all(rownames(Zhang_counts_apop) == rownames(Rubio_counts_apop)) # TRUE
-
-deLorgeril_Susceptible_counts_apop <- deLorgeril_Susceptible_counts_apop[row.names(Rubio_counts_apop),]
-deLorgeril_Resistant_counts_apop <- deLorgeril_Resistant_counts_apop[row.names(Rubio_counts_apop),]
-He_counts_apop <- He_counts_apop[row.names(Rubio_counts_apop),]
-all(rownames(deLorgeril_Susceptible_counts_apop) == rownames(Zhang_counts_apop)) # TRUE
-all(rownames(deLorgeril_Resistant_counts_apop) == rownames(Zhang_counts_apop)) # TRUE
-all(rownames(He_counts_apop) == rownames(Zhang_counts_apop)) # TRUE
-
-C_gigas_apop_counts <- cbind(Zhang_counts_apop,Rubio_counts_apop,deLorgeril_Susceptible_counts_apop,
-                             deLorgeril_Resistant_counts_apop,He_counts_apop)
-# Set equal the rownames and colnames of the coldata and count data
-all(rownames(C_gig_coldata ) %in% colnames(C_gigas_apop_counts))  #Should return TRUE
-# returns TRUE
-all(colnames(C_gigas_apop_counts) %in% rownames(C_gig_coldata  ))  
-# returns TRUE
-all(rownames(C_gig_coldata ) == colnames(C_gigas_apop_counts)) # FALSE
-
-# Fix the order
-C_gigas_apop_counts <- C_gigas_apop_counts[,row.names(C_gig_coldata)]
-
-all(rownames(C_gig_coldata ) %in% colnames(C_gigas_apop_counts))  #Should return TRUE
-# returns TRUE
-all(colnames(C_gigas_apop_counts) %in% rownames(C_gig_coldata  ))  
-# returns TRUE
-all(rownames(C_gig_coldata ) == colnames(C_gigas_apop_counts))  # TRUE
-
-# Make DEseq data set from matrix so that the coldata gets attached
-C_gigas_apop_dds <- DESeqDataSetFromMatrix(countData = C_gigas_apop_counts ,
-                                           colData = C_gig_coldata,
-                                           design = ~Condition)
-# Calculate the vst
-C_gigas_apop_counts_vst <- varianceStabilizingTransformation(C_gigas_apop_dds)
-
-## Remove Batch effects from experiment for C_vir
-plotPCA(C_virginica_apop_counts_vst, "Experiment") # grouping by experiment
-mat_C_vir <- assay(C_virginica_apop_counts_vst)
-mat_C_vir <- limma::removeBatchEffect(mat_C_vir, C_virginica_apop_counts_vst$Experiment)
-assay(C_virginica_apop_counts_vst) <- mat_C_vir
-plotPCA(C_virginica_apop_counts_vst, "Experiment") # Probiotic and ROD now cluster together
-plotPCA(C_virginica_apop_counts_vst, "Sample")
-plotPCA(C_virginica_apop_counts_vst, "Time") # no clustering by time
-plotPCA(C_virginica_apop_counts_vst, "Family")
-
-## Remove Batch effects from experiment for C_vir
-plotPCA(C_gigas_apop_counts_vst, "Experiment") # grouping by experiment, but He and Zhang also cluster
-mat_C_gig <- assay(C_gigas_apop_counts_vst)
-mat_C_gig <- limma::removeBatchEffect(mat_C_gig, C_gigas_apop_counts_vst$Experiment)
-assay(C_gigas_apop_counts_vst) <- mat_C_gig
-plotPCA(C_gigas_apop_counts_vst, "Experiment") # He and deLorgeril cluster some, Rubio and Zhang definitely cluster
-plotPCA(C_gigas_apop_counts_vst, "Sample")
-plotPCA(C_gigas_apop_counts_vst, "Time") # no clustering by time
-plotPCA(C_gigas_apop_counts_vst, "Family")
-
-### Heatmaps of apoptosis gene vsts ###
-
-# heatmap of all apoptosis genes 
-C_virginica_apop_counts_assay <-  assay(C_virginica_apop_counts_vst)[,]
-C_virginica_apop_counts_assay_mat <- C_virginica_apop_counts_assay - rowMeans(C_virginica_apop_counts_assay)
-C_virginica_apop_counts_assay_anno <- as.data.frame(colData(C_virginica_apop_counts_vst)[, c("Condition","Time","Experiment")])
-C_virginica_apop_counts_assay_heatmap <- pheatmap(C_virginica_apop_counts_assay_mat  , annotation_col = C_virginica_apop_counts_assay_anno)
-
-C_gigas_apop_counts_assay <-  assay(C_gigas_apop_counts_vst)[,]
-C_gigas_apop_counts_assay_mat <- C_gigas_apop_counts_assay - rowMeans(C_gigas_apop_counts_assay)
-C_gigas_apop_counts_assay_anno <- as.data.frame(colData(C_gigas_apop_counts_vst)[, c("Condition","Experiment")])
-C_gigas_apop_counts_assay_heatmap <- pheatmap(C_gigas_apop_counts_assay_mat  , annotation_col = C_gigas_apop_counts_assay_anno)
-# clustering of delorgeril and HE
-
-# heatmap of most variable apoptosis genes for C_vir (this selects genes with the greatest variance in the sample)
-topVarGenes_C_virginica_apop_assay <-  head(order(rowVars(assay(C_virginica_apop_counts_vst)), decreasing = TRUE), 100) 
-top_Var_C_virginica_apop_assay_mat<- assay(C_virginica_apop_counts_vst)[topVarGenes_C_virginica_apop_assay,]
-top_Var_C_virginica_apop_assay_mat <- top_Var_C_virginica_apop_assay_mat - rowMeans(top_Var_C_virginica_apop_assay_mat)
-top_Var_C_virginica_apop_assay_anno <- as.data.frame(colData(C_virginica_apop_counts_vst)[, c("Experiment","Condition")])
-top_Var_C_virginica_apop_assay_heatmap <- pheatmap(top_Var_C_virginica_apop_assay_mat  , annotation_col = top_Var_C_virginica_apop_assay_anno)
-head(top_Var_C_virginica_apop_assay_mat ) # some ROD and probiotic clustering..dermo samples mostly cluster together
-
-topVarGenes_C_gigas_apop_assay <-  head(order(rowVars(assay(C_gigas_apop_counts_vst)), decreasing = TRUE), 100) 
-top_Var_C_gigas_apop_assay_mat<- assay(C_gigas_apop_counts_vst)[topVarGenes_C_gigas_apop_assay,]
-top_Var_C_gigas_apop_assay_mat <- top_Var_C_gigas_apop_assay_mat - rowMeans(top_Var_C_gigas_apop_assay_mat)
-top_Var_C_gigas_apop_assay_anno <- as.data.frame(colData(C_gigas_apop_counts_vst)[, c("Family", "Experiment")])
-top_Var_C_gigas_apop_assay_heatmap <- pheatmap(top_Var_C_gigas_apop_assay_mat  , annotation_col = top_Var_C_gigas_apop_assay_anno)
-head(top_Var_C_gigas_apop_assay_mat ) # OsHV1 susceptible clusters well with HE susceptible
-
-
 ##### DIFFERENTIAL EXPRESSION OF GENE COUNT MATRICES FOR EACH EXPERIMENT ######
 
 #### Zhang ####
@@ -649,7 +284,6 @@ Zhang_gene_dds_deseq_res_LPS <- results(Zhang_gene_dds_deseq, alpha=0.1, name= "
 ### Perform LFC Shrinkage with apeglm
 Zhang_gene_dds_deseq_res_V_alg1_LFC <- lfcShrink(Zhang_gene_dds_deseq, coef="group_by_sim_V_aes_V_alg1_V_alg2_vs_control" , type= "apeglm", res=Zhang_gene_dds_deseq_res_V_alg1)
 summary(Zhang_gene_dds_deseq_res_V_alg1_LFC) # 1 significant gene
-merge(Zhang_gene_dds_deseq_res_V_alg1_LFC, C_gig_rtracklayer_apop_product_final, by = "transcript_id")
 
 Zhang_gene_dds_deseq_res_V_alg1_LFC$transcript_id <- row.names(Zhang_gene_dds_deseq_res_V_alg1_LFC)
 Zhang_gene_dds_deseq_res_V_alg1_LFC <- as.data.frame(Zhang_gene_dds_deseq_res_V_alg1_LFC)
@@ -1910,3 +1544,382 @@ C_vir_v_C_gig_orthologs <- read_tsv("/Users/erinroberts/Documents/PhD_Research/C
 ### EXPORT XMS FROM EACH DEG SET FROM EXPERIMENTS ###
 C_vir_apop_LFC 
 C_gig_apop_LFC
+
+# use the XM for C_vir
+C_vir_apop_LFC_XMs <- C_vir_apop_LFC$transcript_id
+length(C_vir_apop_LFC_XMs) # 292 differentially expressed XMs
+# Export table to file
+write.table(C_vir_apop_LFC_XMs, file ="C_vir_apop_LFC_XMs.txt", quote = FALSE, row.names = FALSE, col.names = FALSE )
+
+# Use the Name for C_gig
+C_gig_apop_LFC_Name <- C_gig_apop_LFC$Name
+length(C_gig_apop_LFC_Name) # 1239 differentially expressed XMs
+# Export table to file
+write.table(C_gig_apop_LFC_Name, file ="C_gig_apop_LFC_Name.txt", quote = FALSE, row.names = FALSE, col.names = FALSE )
+
+# In Batch Entrez look up the XPs corresponding to the XMs
+
+#### PCA AND HEATMAPS OF SINGLE COPY ORTHOLOGOUS GENE COUNTS FROM C_VIR AND C_GIG RUN ####
+
+### Remove Batch effects from experiment for C_vir
+#plotPCA(C_vir_full_counts_vst, "Experiment") # grouping by experiment, ROD and probiotic cluster more closely
+#mat_C_vir <- assay(C_vir_full_counts_vst)
+#mat_C_vir <- limma::removeBatchEffect(mat_C_vir, C_vir_full_counts_vst$Experiment)
+##Coefficients not estimable: batch1 batch3 batch5 batch6 
+##Warning message:
+##  Partial NA coefficients for 67876 probe(s) 
+#assay(C_vir_full_counts_vst) <- mat_C_vir
+#plotPCA(C_vir_full_counts_vst, "Experiment") # Probiotic and ROD now cluster together
+#plotPCA(C_vir_full_counts_vst, "Sample")
+#plotPCA(C_vir_full_counts_vst, "Time") # no clustering by time
+#plotPCA(C_vir_full_counts_vst, "Family")
+#
+#plotPCA(C_gig_full_counts_vst, "Experiment") # grouping by experiment, Rubio delorgeril cluster, HE and Zhang far apart
+#mat_C_gig <- assay(C_gig_full_counts_vst)
+#mat_C_gig <- limma::removeBatchEffect(mat_C_gig, C_gig_full_counts_vst$Experiment)
+##Coefficients not estimable: batch4 batch5 batch6 
+##Warning message:
+##  Partial NA coefficients for 86859 probe(s) 
+#assay(C_gig_full_counts_vst) <- mat_C_gig
+#plotPCA(C_gig_full_counts_vst, "Experiment") # He, Rubio and Zhang cluster closely 
+#plotPCA(C_gig_full_counts_vst, "Sample")
+#plotPCA(C_gig_full_counts_vst, "Time") # no clustering by time
+#plotPCA(C_gig_full_counts_vst, "Family")
+#
+## subset PCA for apoptosis genes
+#C_vir_full_counts_apop <- C_vir_full_counts[row.names(C_vir_full_counts) %in% C_vir_rtracklayer_apop_product_final_ID,]
+#nrow(C_vir_full_counts_apop) # 1026
+#all(row.names(C_vir_full_counts_apop) %in% C_vir_rtracklayer_apop_product_final_ID) # TRUE
+#all(C_vir_rtracklayer_apop_product_final_ID %in% row.names(C_vir_full_counts_apop)) # TRUE
+#
+#C_vir_full_counts_apop_list <- row.names(C_vir_full_counts_apop)
+#plotPCA(C_vir_full_counts_vst[C_vir_full_counts_apop_list,], "Experiment") # similar clustering where ROD and Probiotic cluster
+#
+#C_gig_full_counts_apop <- C_gig_full_counts[row.names(C_gig_full_counts) %in% C_gig_rtracklayer_apop_product_final_transcript_id,]
+#C_gig_full_counts_apop_list <- row.names(C_gig_full_counts_apop)
+#plotPCA(C_gig_full_counts_vst[C_gig_full_counts_apop_list,], "Experiment") # some more overlap between He and deLorgeril
+#
+#### Heatmaps of apoptosis gene vsts ###
+### C_virginica
+## heatmap of all apoptosis genes 
+#C_vir_full_counts_apop_assay <-  assay(C_vir_full_counts_vst)[C_vir_full_counts_apop_list,]
+#C_vir_full_counts_apop_assay_mat <- C_vir_full_counts_apop_assay - rowMeans(C_vir_full_counts_apop_assay)
+#C_vir_full_counts_apop_assay_anno <- as.data.frame(colData(C_vir_full_counts_vst)[, c("Condition","Experiment")])
+#C_vir_full_counts_apop_assay_heatmap <- pheatmap(C_vir_full_counts_apop_assay_mat  , annotation_col = C_vir_full_counts_apop_assay_anno)
+## Probiotic and ROD cluster closely, CGX and GX cluster more with Dermo DA (susceptible), while F3L and LB cluster more closely
+## the sucsceptible to Dermo are more tolerant to ROD (GX), and vice versa..interesting
+## The ROD Tolerant (GX and CGX), Dermo Susceptible DA and Probiotic are all in the same larger cluster
+## the ROD susceptible (F3L) and the Dermo tolerant LB are in the same larger cluster
+#
+## heatmap of most variable apoptosis genes for both C_vir and C_gug (this selects genes with the greatest variance in the sample)
+#topVarGenes_C_vir_full_counts_apop_assay <-  head(order(rowVars(C_vir_full_counts_apop_assay), decreasing = TRUE), 100) 
+#top_Var_C_vir_full_counts_apop_assay_mat <- C_vir_full_counts_apop_assay[topVarGenes_C_vir_full_counts_apop_assay,]
+#top_Var_C_vir_full_counts_apop_assay_mat <- top_Var_C_vir_full_counts_apop_assay_mat - rowMeans(top_Var_C_vir_full_counts_apop_assay_mat)
+#top_Var_C_vir_full_counts_apop_assay_anno <- as.data.frame(colData(C_vir_full_counts_vst)[, c("Experiment","Condition")])
+#top_Var_C_vir_full_counts_apop_assay_heatmap <- pheatmap(top_Var_C_vir_full_counts_apop_assay_mat  , annotation_col = top_Var_C_vir_full_counts_apop_assay_anno)
+#head(top_Var_C_vir_full_counts_apop_assay_mat ) 
+## Same relationship as above, but tighter clustering
+#
+## reorder annotation table to match ordering in heatmap 
+#top_Var_C_vir_full_counts_apop_assay_heatmap_reorder <- rownames(top_Var_C_vir_full_counts_apop_assay_mat[top_Var_C_vir_full_counts_apop_assay_heatmap$tree_row[["order"]],])
+#class(top_Var_C_vir_full_counts_apop_assay_heatmap_reorder)
+## annotate the row.names
+#top_Var_C_virginica_apop_assay_mat_prot <- as.data.frame(top_Var_C_vir_full_counts_apop_assay_heatmap_reorder )
+#class(top_Var_C_virginica_apop_assay_mat_prot)
+#colnames(top_Var_C_virginica_apop_assay_mat_prot)[1] <- "ID"
+#class(top_Var_C_virginica_apop_assay_mat_prot$ID)
+#top_Var_C_virginica_apop_assay_mat_prot$ID <- as.character(top_Var_C_virginica_apop_assay_mat_prot$ID)
+#top_Var_C_virginica_apop_assay_mat_prot_annot <- left_join(top_Var_C_virginica_apop_assay_mat_prot, select(C_vir_rtracklayer, ID, product), by = "ID")
+#
+### C_gigas genes 
+#C_gig_full_counts_apop_assay <-  assay(C_gig_full_counts_vst)[C_gig_full_counts_apop_list,]
+#C_gig_full_counts_apop_assay_mat <- C_gig_full_counts_apop_assay - rowMeans(C_gig_full_counts_apop_assay)
+#C_gig_full_counts_apop_assay_anno <- as.data.frame(colData(C_gig_full_counts_vst)[, c("Experiment","Condition")])
+#C_gig_full_counts_apop_assay_heatmap <- pheatmap(C_gig_full_counts_apop_assay_mat  , annotation_col = C_gig_full_counts_apop_assay_anno)
+## clustering of delorgeril and HE: deLorgeril AF11 susceptible, HE OsHV1 challenge, 
+## delorgeril OsHV1 resistant are in their own separate cluster
+## Zhang and Rubio cluster very closely together
+## some delorgeril and rubio clustering
+#
+## heatmap of most variable apoptosis genes for both C_vir and C_gug (this selects genes with the greatest variance in the sample)
+#topVarGenes_C_gig_full_counts_apop_assay <-  head(order(rowVars(C_gig_full_counts_apop_assay), decreasing = TRUE), 100) 
+#top_Var_C_gig_full_counts_apop_assay_mat <- C_gig_full_counts_apop_assay[topVarGenes_C_gig_full_counts_apop_assay,]
+#top_Var_C_gig_full_counts_apop_assay_mat <- top_Var_C_gig_full_counts_apop_assay_mat - rowMeans(top_Var_C_gig_full_counts_apop_assay_mat)
+#top_Var_C_gig_full_counts_apop_assay_anno <- as.data.frame(colData(C_gig_full_counts_vst)[, c("Experiment","Condition")])
+#top_Var_C_gig_full_counts_apop_assay_heatmap <- pheatmap(top_Var_C_gig_full_counts_apop_assay_mat  , annotation_col = top_Var_C_gig_full_counts_apop_assay_anno)
+#head(top_Var_C_gig_full_counts_apop_assay_mat ) 
+## Same relationship as above, but tighter clustering
+#
+## reorder annotation table to match ordering in heatmap 
+#top_Var_C_gig_full_counts_apop_assay_heatmap_reorder <- rownames(top_Var_C_gig_full_counts_apop_assay_mat[top_Var_C_gig_full_counts_apop_assay_heatmap$tree_row[["order"]],])
+#class(top_Var_C_gig_full_counts_apop_assay_heatmap_reorder)
+## annotate the row.names
+#top_Var_C_gig_apop_assay_mat_prot <- as.data.frame(top_Var_C_gig_full_counts_apop_assay_heatmap_reorder )
+#class(top_Var_C_gig_apop_assay_mat_prot)
+#colnames(top_Var_C_gig_apop_assay_mat_prot)[1] <- "transcript_id"
+#class(top_Var_C_gig_apop_assay_mat_prot$transcript_id)
+#top_Var_C_gig_apop_assay_mat_prot$transcript_id <- as.character(top_Var_C_gig_apop_assay_mat_prot$transcript_id)
+#top_Var_C_gig_assay_mat_prot_annot <- left_join(top_Var_C_gig_apop_assay_mat_prot, select(C_gig_rtracklayer_apop_product_final, transcript_id, product), by = "transcript_id")
+#
+##isolate interesting clusters
+##six_hr_comparison_cluster <- c("XM_022455505.1", "XM_022484575.1", "XM_022461506.1", "XM_022430618.1", "XM_022490512.1",
+##                               "XM_022461508.1", "XM_022464459.1", "XM_022483469.1", "XM_022483473.1", "XM_022442223.1", "XM_022457463.1", "XM_022442224.1")
+##six_hr_comparison_cluster <- as.data.frame(six_hr_comparison_cluster)
+##colnames(six_hr_comparison_cluster)[1] <- "transcript_id"
+##six_hr_comparison_cluster_subset <- subset(Res_mat_6hr_prot_annot, transcript_id %in% six_hr_comparison_cluster$transcript_id)
+#
+#
+### Extract apop genes from each and match to names ###
+## For C_vir the gene# is the "Parent" column  vector C_vir_apop transcript Parent
+#C_vir_rtracklayer_apop_product_final_parent <- unique(C_vir_rtracklayer_apop_product_final$Parent)
+#View(C_vir_rtracklayer_apop_product_final_parent)
+#
+## C_vir: Search counts tables for apoptosis genes using the Parent column from genome
+#Dermo_gene_counts_apop <- Dermo_gene_counts[row.names(Dermo_gene_counts) %in% C_vir_rtracklayer_apop_product_final_parent,]
+#nrow(Dermo_gene_counts_apop) # 45
+#View(Dermo_gene_counts_apop)
+#Probiotic_gene_counts_apop <- Probiotic_gene_counts[row.names(Probiotic_gene_counts) %in% C_vir_rtracklayer_apop_product_final_parent,]
+#nrow(Probiotic_gene_counts_apop) # 198
+#head(Probiotic_gene_counts_apop)
+#ROD_gene_counts_apop <- ROD_gene_counts[row.names(ROD_gene_counts) %in% C_vir_rtracklayer_apop_product_final_parent,]
+#nrow(ROD_gene_counts_apop) # 98
+#head(ROD_gene_counts_apop)
+## Make the rownames a column for each so I can merge on it 
+#Dermo_gene_counts_apop$Parent <- row.names(Dermo_gene_counts_apop)
+#Probiotic_gene_counts_apop$Parent <- row.names(Probiotic_gene_counts_apop)
+#ROD_gene_counts_apop$Parent <- row.names(ROD_gene_counts_apop)
+#
+## Combine dataframes starting with largest first (probiotic)
+#C_vir_apop_gene_counts <- left_join(Probiotic_gene_counts_apop, ROD_gene_counts_apop, by = "Parent")
+#C_vir_apop_gene_counts <- left_join(C_vir_apop_gene_counts,Dermo_gene_counts_apop, by = "Parent")
+#class(C_vir_apop_gene_counts$Parent) # character
+#class(C_vir_rtracklayer_apop_product_final$Parent) # AsIs
+#C_vir_rtracklayer_apop_product_final$Parent <- as.character(C_vir_rtracklayer_apop_product_final$Parent) # change the class to character
+#View(C_vir_apop_gene_counts)
+#nrow(C_vir_apop_gene_counts) # 198
+#
+## Combine product name 
+#C_vir_apop_gene_counts <- left_join(C_vir_apop_gene_counts,C_vir_rtracklayer_apop_product_final[,c("Parent","product")], by = "Parent")
+#View(C_vir_apop_gene_counts)
+## extra rows added because of the ", transcript id" 
+#nrow(C_vir_apop_gene_counts) #283
+## Annotate C_vir rownames
+#
+#
+#
+## For C_gig: the LOC is the gene column C_gig: Search counts tables for apoptosis genes using the Parent column from genome
+## vector C_gig_apop transcript IDs
+#C_gig_rtracklayer_apop_product_final_gene <- unique(C_gig_rtracklayer_apop_product_final$gene)
+#
+#nrow(Rubio_gene_counts) #6888
+#nrow(deLorgeril_gene_counts) # 5023
+#nrow(He_gene_counts) # 7888
+#nrow(Zhang_gene_counts)
+#
+#
+#deLorgeril_Resistant_counts_apop <- deLorgeril_Resistant_counts[row.names(deLorgeril_Resistant_counts) %in% C_gig_rtracklayer_apop_product_final_transcript_id,]
+#deLorgeril_Susceptible_counts_apop <- deLorgeril_Susceptible_counts[row.names(deLorgeril_Susceptible_counts) %in% C_gig_rtracklayer_apop_product_final_transcript_id,]
+#nrow(deLorgeril_Resistant_counts_apop ) #659
+#nrow(deLorgeril_Susceptible_counts_apop ) #659
+#
+#
+#
+## Merge tables 
+#
+## Search original counts for apoptosis genes and do rlog on just these
+#Dermo_Tolerant_counts_apop <- Dermo_Tolerant_counts[row.names(Dermo_Tolerant_counts) %in% C_vir_rtracklayer_apop_product_final_ID,]
+#Dermo_Susceptible_counts_apop <- Dermo_Susceptible_counts[row.names(Dermo_Susceptible_counts) %in% C_vir_rtracklayer_apop_product_final_ID,]
+#nrow(Dermo_Tolerant_counts_apop) #1026
+#nrow( Dermo_Susceptible_counts_apop) # 1026
+#
+#top_Var_Dermo_Tolerant_apop_assay_prot <- as.data.frame(top_Var_Dermo_Tolerant_apop_assay_heatmap_reorder)
+#colnames(top_Var_Dermo_Tolerant_apop_assay_prot)[1] <- "ID"
+#top_Var_Dermo_Tolerant_apop_assay_prot_annot <- left_join(top_Var_Dermo_Tolerant_apop_assay_prot, select(C_vir_rtracklayer_apop_product_final, ID, product, gene), by = "ID")
+#
+#
+#
+#top_Var_Dermo_Susceptible_apop_assay_prot_annot <- left_join(top_Var_Dermo_Susceptible_apop_assay_prot, select(C_vir_rtracklayer_apop_product_final, ID, product, gene), by = "ID")
+#
+## unique gene name lists for both species
+#C_vir_rtracklayer_apop_product_final_product_joined_split_product_unique_gene_name <- C_vir_rtracklayer_apop_product_final_product_joined_split_product_unique[!duplicated(C_vir_rtracklayer_apop_product_final_product_joined_split_product_unique$gene_name),]
+#C_gig_rtracklayer_apop_product_final_product_joined_split_product_unique_gene_name <- C_gig_rtracklayer_apop_product_final_product_joined_split_product_unique[!duplicated(C_gig_rtracklayer_apop_product_final_product_joined_split_product_unique$gene_name),]
+#
+## rename gene column for joining
+#colnames(C_vir_rtracklayer_apop_product_final_product_joined_split_product_unique_gene_name)[1] <- "C_vir_gene_LOC"
+#colnames(C_gig_rtracklayer_apop_product_final_product_joined_split_product_unique_gene_name)[1] <- "C_gig_gene_LOC"
+#
+##remove "-like" from  gene name for correct name joining using regex
+## this isn't exactly working
+## https://datascience.stackexchange.com/questions/8922/removing-strings-after-a-certain-character-in-a-given-text 
+#C_vir_rtracklayer_apop_product_final_product_joined_split_product_unique_gene_name$gene_name <-  stringr::str_remove(C_vir_rtracklayer_apop_product_final_product_joined_split_product_unique_gene_name$gene_name, "\\like$")
+#C_gig_rtracklayer_apop_product_final_product_joined_split_product_unique_gene_name$gene_name <-  stringr::str_remove(C_gig_rtracklayer_apop_product_final_product_joined_split_product_unique_gene_name$gene_name, "\\like$")
+#C_vir_rtracklayer_apop_product_final_product_joined_split_product_unique_gene_name$gene_name <-  stringr::str_remove(C_vir_rtracklayer_apop_product_final_product_joined_split_product_unique_gene_name$gene_name, "\\-$")
+#C_gig_rtracklayer_apop_product_final_product_joined_split_product_unique_gene_name$gene_name <-  stringr::str_remove(C_gig_rtracklayer_apop_product_final_product_joined_split_product_unique_gene_name$gene_name, "\\-$")
+#
+## https://stackoverflow.com/questions/50861626/removing-dot-from-the-end-of-string
+## full join and places where names don't match will get an NA
+#combined_gene_name_yes_no_table <- full_join(C_vir_rtracklayer_apop_product_final_product_joined_split_product_unique_gene_name, C_gig_rtracklayer_apop_product_final_product_joined_split_product_unique_gene_name,
+#                                             by = "gene_name")
+##remove duplicate gene names
+#combined_gene_name_yes_no_table_unique <- combined_gene_name_yes_no_table[!duplicated(combined_gene_name_yes_no_table$gene_name),]
+#
+##join on the pathway descriptions for the molecules 
+## load in table with pathway descriptions for each 
+#
+## Still a few discrepancies in the gene names, namely when they are named in C. virginica "* homolog"
+## Need to mention in methods that I rmemoved "like" from the end of names
+## C_ virginica: lipopolysaccharide-induced tumor necrosis factor-alpha factor homolog, C_gig: lipopolysaccharide-induced tumor necrosis factor-alpha
+## C_vir: putative transcription factor p65 homolog, C_gig: transcription factor p65 homolog
+## C_vir: macrophage migration inhibitory factor homolog, C_gig: macrophage migration inhibitory factor
+#
+## Genes in C vir and not in C gig (all the C_gig_gene_LOC NA's)
+#c_vir_not_c_gig <- combined_gene_name_yes_no_table_unique %>% filter(is.na(C_gig_gene_LOC))
+## Genes in C gig and not in C vir (all the C_vir_gene_LOC NA's)
+#c_gig_not_c_vir <- combined_gene_name_yes_no_table_unique %>% filter(is.na(C_vir_gene_LOC))
+## shared in both 
+#shared_apoptosis_gene_names <- na.omit(combined_gene_name_yes_no_table_unique)
+#
+## Load gene pathway key with protein aliases curated in excel
+#gene_name_pathway_key_merged <- read.csv("Gene_name_pathway_key.csv", head=TRUE)
+#
+#
+#
+### Combine raw counts data frames from C. virginica
+## All the rows should be in the same order because I used the same apoptosis data frame to join them
+#all(rownames(Dermo_Susceptible_counts_apop) == rownames(Dermo_Tolerant_counts_apop)) # TRUE
+#all(rownames(Dermo_Susceptible_counts_apop) %in% rownames(Dermo_Tolerant_counts_apop)) # TRUE
+#
+## Check probiotic table order
+#all(rownames(Probiotic_counts_apop) == rownames(Dermo_Tolerant_counts_apop)) # FALSE
+#all(rownames(Probiotic_counts_apop) %in% rownames(Dermo_Tolerant_counts_apop)) # TRUE
+#Probiotic_counts_apop <- Probiotic_counts_apop[row.names(Dermo_Tolerant_counts_apop),]
+#all(rownames(Probiotic_counts_apop) == rownames(Dermo_Tolerant_counts_apop)) # TRUE
+#
+## Check ROD order and change if necessary 
+#all(rownames(ROD_Resistant_counts_apop) == rownames(Dermo_Tolerant_counts_apop)) # FALSE
+#all(rownames(ROD_Resistant_counts_apop) %in% rownames(Dermo_Tolerant_counts_apop)) # TRUE
+#ROD_Resistant_counts_apop <- ROD_Resistant_counts_apop[row.names(Dermo_Tolerant_counts_apop),]
+#ROD_Susceptible_counts_apop <-  ROD_Susceptible_counts_apop[row.names(Dermo_Tolerant_counts_apop),]
+#all(rownames(ROD_Resistant_counts_apop) == rownames(Dermo_Tolerant_counts_apop)) # TRUE
+#all(rownames(ROD_Susceptible_counts_apop) == rownames(Dermo_Tolerant_counts_apop)) # TRUE
+#all(rownames(ROD_Susceptible_counts_apop) == rownames(ROD_Resistant_counts_apop)) # TRUE
+#
+## Colbind all C. virginica tables
+#C_virginica_apop_counts <- cbind(Dermo_Susceptible_counts_apop,Dermo_Tolerant_counts_apop,
+#                                 Probiotic_counts_apop,ROD_Resistant_counts_apop,
+#                                 ROD_Susceptible_counts_apop)
+#
+## Set equal the rownames and colnames of the coldata and count data
+#all(rownames(C_vir_coldata ) %in% colnames(C_virginica_apop_counts))  #Should return TRUE
+## returns TRUE
+#all(colnames(C_virginica_apop_counts) %in% rownames(C_vir_coldata  ))  
+## returns TRUE
+#all(rownames(C_vir_coldata ) == colnames(C_virginica_apop_counts)) # FALSE
+#
+## Fix the order
+#C_virginica_apop_counts <- C_virginica_apop_counts[,row.names(C_vir_coldata)]
+#
+#all(rownames(C_vir_coldata ) %in% colnames(C_virginica_apop_counts))  #Should return TRUE
+## returns TRUE
+#all(colnames(C_virginica_apop_counts) %in% rownames(C_vir_coldata  ))  
+## returns TRUE
+#all(rownames(C_vir_coldata ) == colnames(C_virginica_apop_counts))  # TRUE
+#
+## Make DEseq data set from matrix so that the coldata gets attached
+#C_virginica_apop_counts_dds <- DESeqDataSetFromMatrix(countData = C_virginica_apop_counts,
+#                                                      colData= C_vir_coldata,
+#                                                      design = ~Condition)
+## Collapse technical replicates 
+#C_virginica_apop_counts_dds <- collapseReplicates(C_virginica_apop_counts_dds, C_virginica_apop_counts_dds$Sample, C_virginica_apop_counts_dds$TechRep)
+#
+## Calculate the vst
+#C_virginica_apop_counts_vst <- varianceStabilizingTransformation(C_virginica_apop_counts_dds)
+#
+### Combine C_gig data frame
+## Check row order before combining
+#all(rownames(Zhang_counts_apop) == rownames(Rubio_counts_apop)) # FALSE
+#all(rownames(Zhang_counts_apop) %in% rownames(Rubio_counts_apop)) # TRUE
+#Zhang_counts_apop <- Zhang_counts_apop[row.names(Rubio_counts_apop),]
+#all(rownames(Zhang_counts_apop) == rownames(Rubio_counts_apop)) # TRUE
+#
+#deLorgeril_Susceptible_counts_apop <- deLorgeril_Susceptible_counts_apop[row.names(Rubio_counts_apop),]
+#deLorgeril_Resistant_counts_apop <- deLorgeril_Resistant_counts_apop[row.names(Rubio_counts_apop),]
+#He_counts_apop <- He_counts_apop[row.names(Rubio_counts_apop),]
+#all(rownames(deLorgeril_Susceptible_counts_apop) == rownames(Zhang_counts_apop)) # TRUE
+#all(rownames(deLorgeril_Resistant_counts_apop) == rownames(Zhang_counts_apop)) # TRUE
+#all(rownames(He_counts_apop) == rownames(Zhang_counts_apop)) # TRUE
+#
+#C_gigas_apop_counts <- cbind(Zhang_counts_apop,Rubio_counts_apop,deLorgeril_Susceptible_counts_apop,
+#                             deLorgeril_Resistant_counts_apop,He_counts_apop)
+## Set equal the rownames and colnames of the coldata and count data
+#all(rownames(C_gig_coldata ) %in% colnames(C_gigas_apop_counts))  #Should return TRUE
+## returns TRUE
+#all(colnames(C_gigas_apop_counts) %in% rownames(C_gig_coldata  ))  
+## returns TRUE
+#all(rownames(C_gig_coldata ) == colnames(C_gigas_apop_counts)) # FALSE
+#
+## Fix the order
+#C_gigas_apop_counts <- C_gigas_apop_counts[,row.names(C_gig_coldata)]
+#
+#all(rownames(C_gig_coldata ) %in% colnames(C_gigas_apop_counts))  #Should return TRUE
+## returns TRUE
+#all(colnames(C_gigas_apop_counts) %in% rownames(C_gig_coldata  ))  
+## returns TRUE
+#all(rownames(C_gig_coldata ) == colnames(C_gigas_apop_counts))  # TRUE
+#
+## Make DEseq data set from matrix so that the coldata gets attached
+#C_gigas_apop_dds <- DESeqDataSetFromMatrix(countData = C_gigas_apop_counts ,
+#                                           colData = C_gig_coldata,
+#                                           design = ~Condition)
+## Calculate the vst
+#C_gigas_apop_counts_vst <- varianceStabilizingTransformation(C_gigas_apop_dds)
+#
+### Remove Batch effects from experiment for C_vir
+#plotPCA(C_virginica_apop_counts_vst, "Experiment") # grouping by experiment
+#mat_C_vir <- assay(C_virginica_apop_counts_vst)
+#mat_C_vir <- limma::removeBatchEffect(mat_C_vir, C_virginica_apop_counts_vst$Experiment)
+#assay(C_virginica_apop_counts_vst) <- mat_C_vir
+#plotPCA(C_virginica_apop_counts_vst, "Experiment") # Probiotic and ROD now cluster together
+#plotPCA(C_virginica_apop_counts_vst, "Sample")
+#plotPCA(C_virginica_apop_counts_vst, "Time") # no clustering by time
+#plotPCA(C_virginica_apop_counts_vst, "Family")
+#
+### Remove Batch effects from experiment for C_vir
+#plotPCA(C_gigas_apop_counts_vst, "Experiment") # grouping by experiment, but He and Zhang also cluster
+#mat_C_gig <- assay(C_gigas_apop_counts_vst)
+#mat_C_gig <- limma::removeBatchEffect(mat_C_gig, C_gigas_apop_counts_vst$Experiment)
+#assay(C_gigas_apop_counts_vst) <- mat_C_gig
+#plotPCA(C_gigas_apop_counts_vst, "Experiment") # He and deLorgeril cluster some, Rubio and Zhang definitely cluster
+#plotPCA(C_gigas_apop_counts_vst, "Sample")
+#plotPCA(C_gigas_apop_counts_vst, "Time") # no clustering by time
+#plotPCA(C_gigas_apop_counts_vst, "Family")
+#
+#### Heatmaps of apoptosis gene vsts ###
+#
+## heatmap of all apoptosis genes 
+#C_virginica_apop_counts_assay <-  assay(C_virginica_apop_counts_vst)[,]
+#C_virginica_apop_counts_assay_mat <- C_virginica_apop_counts_assay - rowMeans(C_virginica_apop_counts_assay)
+#C_virginica_apop_counts_assay_anno <- as.data.frame(colData(C_virginica_apop_counts_vst)[, c("Condition","Time","Experiment")])
+#C_virginica_apop_counts_assay_heatmap <- pheatmap(C_virginica_apop_counts_assay_mat  , annotation_col = C_virginica_apop_counts_assay_anno)
+#
+#C_gigas_apop_counts_assay <-  assay(C_gigas_apop_counts_vst)[,]
+#C_gigas_apop_counts_assay_mat <- C_gigas_apop_counts_assay - rowMeans(C_gigas_apop_counts_assay)
+#C_gigas_apop_counts_assay_anno <- as.data.frame(colData(C_gigas_apop_counts_vst)[, c("Condition","Experiment")])
+#C_gigas_apop_counts_assay_heatmap <- pheatmap(C_gigas_apop_counts_assay_mat  , annotation_col = C_gigas_apop_counts_assay_anno)
+## clustering of delorgeril and HE
+#
+## heatmap of most variable apoptosis genes for C_vir (this selects genes with the greatest variance in the sample)
+#topVarGenes_C_virginica_apop_assay <-  head(order(rowVars(assay(C_virginica_apop_counts_vst)), decreasing = TRUE), 100) 
+#top_Var_C_virginica_apop_assay_mat<- assay(C_virginica_apop_counts_vst)[topVarGenes_C_virginica_apop_assay,]
+#top_Var_C_virginica_apop_assay_mat <- top_Var_C_virginica_apop_assay_mat - rowMeans(top_Var_C_virginica_apop_assay_mat)
+#top_Var_C_virginica_apop_assay_anno <- as.data.frame(colData(C_virginica_apop_counts_vst)[, c("Experiment","Condition")])
+#top_Var_C_virginica_apop_assay_heatmap <- pheatmap(top_Var_C_virginica_apop_assay_mat  , annotation_col = top_Var_C_virginica_apop_assay_anno)
+#head(top_Var_C_virginica_apop_assay_mat ) # some ROD and probiotic clustering..dermo samples mostly cluster together
+#
+#topVarGenes_C_gigas_apop_assay <-  head(order(rowVars(assay(C_gigas_apop_counts_vst)), decreasing = TRUE), 100) 
+#top_Var_C_gigas_apop_assay_mat<- assay(C_gigas_apop_counts_vst)[topVarGenes_C_gigas_apop_assay,]
+#top_Var_C_gigas_apop_assay_mat <- top_Var_C_gigas_apop_assay_mat - rowMeans(top_Var_C_gigas_apop_assay_mat)
+#top_Var_C_gigas_apop_assay_anno <- as.data.frame(colData(C_gigas_apop_counts_vst)[, c("Family", "Experiment")])
+#top_Var_C_gigas_apop_assay_heatmap <- pheatmap(top_Var_C_gigas_apop_assay_mat  , annotation_col = top_Var_C_gigas_apop_assay_anno)
+#head(top_Var_C_gigas_apop_assay_mat ) # OsHV1 susceptible clusters well with HE susceptible
+
