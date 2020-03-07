@@ -1484,5 +1484,10 @@ deLorgeril_Susceptible_dds_res_72_LFC_sig_APOP`
 
           # Each record for a single XM lists the RefSeq and Gnomon information for each. The full record is all on one line
 
-          # Loaded into R, rest of analysis code is in R 
+          # Loaded into R, rest of analysis code is in R
+          # Stats:
+            # C_vir had 187 unique XPs that were matched to XMs, of those, only 109 actually matched to Orthologues. Meaning that 78 were not mapped to orthogroups
+              # When matching this new subset dataframe, subset for the rows that also had matches to the C_gig list in the C_gig column. This brought it down to 84 rows.  
+            # C_gig had 357 unique XPs that were matched to XMs, of those 200 matched to orthologs, meaning that 157 were not mapped to orthogroups
+
   `

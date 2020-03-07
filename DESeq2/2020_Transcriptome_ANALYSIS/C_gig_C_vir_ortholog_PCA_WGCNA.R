@@ -1535,12 +1535,11 @@ Ortholog_all_sig_APOP_plot <- ggplot(Ortholog_all_sig_APOP , aes(x=product,y=log
 # and Orthogroups.GeneCount.tsv which lists the number of genes in each orthogroup
 
 C_gig_v_C_vir_orthologs <- read_tsv("/Users/erinroberts/Documents/PhD_Research/Chapter_1_Apoptosis Paper/Chapter1_Apoptosis_Transcriptome_Analyses_2019/DATA ANALYSIS/apoptosis_data_pipeline/Transcriptome_Bluewaves_Cluster_Analysis_2020/OrthoFinder/Results_Mar04/Orthologues/Orthologues_GCF_000297895.1_oyster_v9_protein/GCF_000297895.1_oyster_v9_protein__v__GCF_002022765.2_C_virginica-3.0_protein.tsv",
-                                    col_names = c("Orthogroup", "GCF_000297895.1_oyster_v9_protein",	"GCF_002022765.2_C_virginica-3.0_protein"))
-
-C_vir_v_C_gig_orthologs <- read_tsv("/Users/erinroberts/Documents/PhD_Research/Chapter_1_Apoptosis Paper/Chapter1_Apoptosis_Transcriptome_Analyses_2019/DATA ANALYSIS/apoptosis_data_pipeline/Transcriptome_Bluewaves_Cluster_Analysis_2020/OrthoFinder/Results_Mar04/Orthologues/Orthologues_GCF_000297895.1_oyster_v9_protein/GCF_000297895.1_oyster_v9_protein__v__GCF_002022765.2_C_virginica-3.0_protein.tsv",
-                                    col_names = c("Orthogroup",	"GCF_002022765.2_C_virginica-3.0_protein",	"GCF_000297895.1_oyster_v9_protein"))
-
-
+                    col_names = c("Orthogroup","C_gig", "C_vir"))
+                              
+C_vir_v_C_gig_orthologs <- read_tsv("/Users/erinroberts/Documents/PhD_Research/Chapter_1_Apoptosis Paper/Chapter1_Apoptosis_Transcriptome_Analyses_2019/DATA ANALYSIS/apoptosis_data_pipeline/Transcriptome_Bluewaves_Cluster_Analysis_2020/OrthoFinder/Results_Mar04/Orthologues/Orthologues_GCF_002022765.2_C_virginica-3.0_protein/GCF_002022765.2_C_virginica-3.0_protein__v__GCF_000297895.1_oyster_v9_protein.tsv",
+                    col_names =  c("Orthogroup","C_vir","C_gig"))
+                   
 ### EXPORT XMS FROM EACH DEG SET FROM EXPERIMENTS ###
 C_vir_apop_LFC 
 C_gig_apop_LFC
@@ -1549,22 +1548,111 @@ C_gig_apop_LFC
 C_vir_apop_LFC_XMs <- C_vir_apop_LFC$transcript_id
 length(C_vir_apop_LFC_XMs) # 292 differentially expressed XMs
 # Export table to file
-write.table(C_vir_apop_LFC_XMs, file ="C_vir_apop_LFC_XMs.txt")
+#write.table(C_vir_apop_LFC_XMs, file ="C_vir_apop_LFC_XMs.txt")
 # 187 unique identifiers 
 # deleted the first row in excel (some strange glitch where Batch Entrez wasn't liking the format output from write.table)
+# File name = C_vir_apop_XM_to_XP.gff3
 
 # Use the Name for C_gig
 C_gig_apop_LFC_Name <- C_gig_apop_LFC$Name
 length(C_gig_apop_LFC_Name) # 1239 differentially expressed XMs
 # Export table to file
-write.table(C_gig_apop_LFC_Name, file ="C_gig_apop_LFC_Name.txt" )
+#write.table(C_gig_apop_LFC_Name, file ="C_gig_apop_LFC_Name.txt" )
 # 357 unique identifiers 
 # deleted the first row in excel (some strange glitch where Batch Entrez wasn't liking the format output from write.table)
+# File name = C_gig_Apop_Name.gff3
 
 # In Batch Entrez look up the XPs corresponding to the XMs, downloaded the "complete record" in "gff3" format 
 # Set the database to Nucleotide for both
 
+# Load the lookup tables
+C_vir_apop_XP_lookup <- import("/Users/erinroberts/Documents/PhD_Research/Chapter_1_Apoptosis Paper/Chapter1_Apoptosis_Transcriptome_Analyses_2019/DATA ANALYSIS/apoptosis_data_pipeline/DESeq2/2020_Transcriptome_ANALYSIS/C_vir_apop_XM_XP.gff3")
+C_vir_apop_XP_lookup <- as.data.frame(C_vir_apop_XP_lookup)
+C_gig_apop_XP_lookup <- import("/Users/erinroberts/Documents/PhD_Research/Chapter_1_Apoptosis Paper/Chapter1_Apoptosis_Transcriptome_Analyses_2019/DATA ANALYSIS/apoptosis_data_pipeline/DESeq2/2020_Transcriptome_ANALYSIS/C_gig_apop_XM_XP.gff3")
+C_gig_apop_XP_lookup <- as.data.frame(C_gig_apop_XP_lookup)
+
+# Isolate CDS lines using the type column 
+C_vir_apop_XP_lookup_CDS <- C_vir_apop_XP_lookup %>% subset(type == "CDS")
+C_gig_apop_XP_lookup_CDS <- C_gig_apop_XP_lookup %>% subset(type == "CDS")
+
+# Make XP list to match with the transcripts 
+C_vir_apop_XP_lookup_CDS_XP_list <- C_vir_apop_XP_lookup_CDS$protein_id
+class(C_vir_apop_XP_lookup_CDS_XP_list )
+head(C_vir_apop_XP_lookup_CDS_XP_list)
+length(C_vir_apop_XP_lookup_CDS_XP_list) # 187 XPs
+duplicated(C_vir_apop_XP_lookup_CDS_XP_list) # no duplicates in the list 
+
+C_gig_apop_XP_lookup_CDS_XP_list <- C_gig_apop_XP_lookup_CDS$protein_id
+class(C_gig_apop_XP_lookup_CDS_XP_list )
+head(C_gig_apop_XP_lookup_CDS_XP_list)
+length(C_gig_apop_XP_lookup_CDS_XP_list) # 357
+
+## Susbet the Orthologous genes tables for lines that match these XP hits for their species using the list I just made.
+C_vir_v_C_gig_orthologs_APOP <- C_vir_v_C_gig_orthologs[grepl(paste(C_vir_apop_XP_lookup_CDS_XP_list,collapse="|"),
+                                      C_vir_v_C_gig_orthologs$C_vir, ignore.case= TRUE),]
+nrow(C_vir_v_C_gig_orthologs_APOP) # 109, meaning 78 proteins were not matched to orthologs 
+
+C_gig_v_C_vir_orthologs_APOP <- C_gig_v_C_vir_orthologs[grepl(paste(C_gig_apop_XP_lookup_CDS_XP_list,collapse="|"),
+                                                              C_gig_v_C_vir_orthologs$C_gig, ignore.case= TRUE),]
+nrow(C_gig_v_C_vir_orthologs_APOP) # 200 mapped, meaning 157 were unique and not matched to orthologs 
+
+## Search in these tables for lines that also have a match to the other species list in the other column 
+C_vir_v_C_gig_orthologs_APOP_match <- C_vir_v_C_gig_orthologs_APOP[grepl(paste(C_gig_apop_XP_lookup_CDS_XP_list,collapse="|"),
+                                                                         C_vir_v_C_gig_orthologs_APOP$C_gig, ignore.case=TRUE),]
+nrow(C_vir_v_C_gig_orthologs_APOP_match) #84 
+
+C_gig_v_C_vir_orthologs_APOP_match <- C_gig_v_C_vir_orthologs_APOP[grepl(paste(C_vir_apop_XP_lookup_CDS_XP_list,collapse="|"),
+                                                                         C_gig_v_C_vir_orthologs_APOP$C_vir, ignore.case=TRUE),]
+nrow(C_gig_v_C_vir_orthologs_APOP_match) #84 
+
+# Are these data frames the same, just in the opposite order?
+setdiff(C_vir_v_C_gig_orthologs_APOP_match$C_vir, C_gig_v_C_vir_orthologs_APOP_match$C_vir) # YES these are the same
+setdiff(C_gig_v_C_vir_orthologs_APOP_match$C_vir, C_vir_v_C_gig_orthologs_APOP_match$C_vir) # same
+setdiff(C_vir_v_C_gig_orthologs_APOP_match$C_gig, C_gig_v_C_vir_orthologs_APOP_match$C_gig) # same
+setdiff(C_gig_v_C_vir_orthologs_APOP_match$C_gig, C_vir_v_C_gig_orthologs_APOP_match$C_gig) # same
+
+## Set a unique identifier to each of these groups, either dataframe  
+# check for duplicated orthogroup identifiers 
+C_vir_v_C_gig_orthologs_APOP_match[duplicated(C_vir_v_C_gig_orthologs_APOP_match$Orthogroup),]
+#OG0000067 
+#OG0000067 
+#OG0000268 
+#OG0001083 
+#OG0001086 
+#OG0001689 
+
+# Make the duplicated entires unique using make.unique()
+C_vir_v_C_gig_orthologs_APOP_match$Orthogroup <- make.unique(C_vir_v_C_gig_orthologs_APOP_match$Orthogroup, sep=".")
+
+# Parse out the XPs for each species to unique rows so I can match XMs to them
+C_vir_v_C_gig_orthologs_APOP_match_CV <- C_vir_v_C_gig_orthologs_APOP_match[,c(1:2)]
+C_vir_v_C_gig_orthologs_APOP_match_CG <- C_vir_v_C_gig_orthologs_APOP_match[,c(1,3)]
+
+CV <- strsplit(C_vir_v_C_gig_orthologs_APOP_match_CV$C_vir, split = ",")
+CV_Apop_parse_XP <- data.frame(Orthogroup = rep(C_vir_v_C_gig_orthologs_APOP_match_CV$Orthogroup, sapply(CV, length)), C_vir = unlist(CV))
+colnames(CV_Apop_parse_XP)[2] <- "protein_id" # change column name to transcript id to allow for matching with counts information
+
+CG <- strsplit(C_vir_v_C_gig_orthologs_APOP_match_CG$C_gig, split = ",")
+CG_Apop_parse_XP <- data.frame(Orthogroup = rep(C_vir_v_C_gig_orthologs_APOP_match_CG$Orthogroup, sapply(CG, length)), C_gig = unlist(CG))
+colnames(CG_Apop_parse_XP)[2] <- "Name"
+
+# Match XPs back to XMs
+
+
+# Match to XM transcript counts, LFC, padj info
+CV_Apop_parse_XP_XM <- left_join(CV_Apop_parse_XP, C_vir_apop_LFC, by ="protein_id") 
+CG_Apop_parse_XP_XM <- left_join(CG_Apop_parse_XP, C_gig_apop_LFC, by ="Name")                           
+
+C_gig_apop_LFC
+
+
+
+
+
+
 #### PCA AND HEATMAPS OF SINGLE COPY ORTHOLOGOUS GENE COUNTS FROM C_VIR AND C_GIG RUN ####
+
+### THIS BELOW IS SCRAP CODE I NEED TO GO THROUGH 
 
 ### Remove Batch effects from experiment for C_vir
 #plotPCA(C_vir_full_counts_vst, "Experiment") # grouping by experiment, ROD and probiotic cluster more closely
