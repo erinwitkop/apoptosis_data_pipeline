@@ -52,11 +52,11 @@ library(limma)
 #### C. virginica 
 
 # Import gff file with rtracklayer
-C_vir_rtracklayer <- import("/Users/erinroberts/Documents/PhD_Research/Chapter_1_Apoptosis Paper/Chapter1_Apoptosis_Transcriptome_Analyses_2019/DATA ANALYSIS/apoptosis_data_pipeline/DESeq2/2020_Transcriptome_ANALYSIS/ref_C_virginica-3.0_top_level.gff3")
+C_vir_rtracklayer <- rtracklayer::import("/Users/erinroberts/Documents/PhD_Research/Chapter_1_Apoptosis Paper/Chapter1_Apoptosis_Transcriptome_Analyses_2019/DATA ANALYSIS/apoptosis_data_pipeline/DESeq2/2020_Transcriptome_ANALYSIS/ref_C_virginica-3.0_top_level.gff3")
 C_vir_rtracklayer <- as.data.frame(C_vir_rtracklayer)
 
 # Load finished C_vir_rtracklayer_transcripts_GO.csv with GO terms mapped using code and processed below. Do not repeat every time.
-C_vir_rtracklayer_transcripts_GO <- read.csv("/Users/erinroberts/Documents/PhD_Research/Chapter_1_Apoptosis Paper/Chapter1_Apoptosis_Transcriptome_Analyses_2019/DATA ANALYSIS/apoptosis_data_pipeline/DESeq2/2020_Transcriptome_ANALYSIS/C_vir_rtracklayer_transcripts_GO.csv", header=TRUE)
+#C_vir_rtracklayer_transcripts_GO <- read.csv("/Users/erinroberts/Documents/PhD_Research/Chapter_1_Apoptosis Paper/Chapter1_Apoptosis_Transcriptome_Analyses_2019/DATA ANALYSIS/apoptosis_data_pipeline/DESeq2/2020_Transcriptome_ANALYSIS/C_vir_rtracklayer_transcripts_GO.csv", header=TRUE)
 
 # Isolate transcript lines in GFF annotation so that I can use Batch Entrez lookup for their parent proteins
 #C_vir_rtracklayer_transcripts <- filter(C_vir_rtracklayer, grepl("XM", transcript_id))
@@ -141,7 +141,7 @@ C_vir_rtracklayer_transcripts_GO <- read.csv("/Users/erinroberts/Documents/PhD_R
 # C. gigas genome already has GO terms mapped to it. 
 
 # Import gff file, using new version of genome annotation
-C_gig_rtracklayer <- import("/Users/erinroberts/Documents/PhD_Research/Chapter_1_Apoptosis Paper/Chapter1_Apoptosis_Transcriptome_Analyses_2019/DATA ANALYSIS/apoptosis_data_pipeline/DESeq2/2020_Transcriptome_ANALYSIS/GCF_000297895.1_oyster_v9_genomic.gff")
+C_gig_rtracklayer <- rtracklayer::import("/Users/erinroberts/Documents/PhD_Research/Chapter_1_Apoptosis Paper/Chapter1_Apoptosis_Transcriptome_Analyses_2019/DATA ANALYSIS/apoptosis_data_pipeline/DESeq2/2020_Transcriptome_ANALYSIS/GCF_000297895.1_oyster_v9_genomic.gff")
 C_gig_rtracklayer <- as.data.frame(C_gig_rtracklayer)
 C_gig_rtracklayer_transcripts <-  C_gig_rtracklayer %>% filter(type =="mRNA")
 
@@ -3444,20 +3444,20 @@ Pro_RE22_dds_deseq_res_RE22_LFC_sig_APOP$experiment <- "RE22"
 
 # combine all data , add in the gene and XM info. The XM lines don't also contain the XP
 C_vir_apop_LFC <- rbind(
-  ROD_Susceptible_dds_res_LFC_sig_APOP[,c("product","group_by_sim","log2FoldChange","experiment", "gene","transcript_id")],
-  ROD_Resistant_dds_res_LFC_sig_APOP[,c("product","group_by_sim","log2FoldChange","experiment", "gene","transcript_id")],
-  Probiotic_dds_deseq_Challenge_res_LFC_sig_APOP[,c("product","group_by_sim","log2FoldChange","experiment", "gene","transcript_id")],
-  Dermo_Susceptible_36hr_dds_res_LFC_sig_APOP[,c("product","group_by_sim","log2FoldChange","experiment", "gene","transcript_id")],
-  Dermo_Susceptible_7d_dds_res_LFC_sig_APOP[,c("product","group_by_sim","log2FoldChange","experiment", "gene","transcript_id")],
-  Dermo_Susceptible_28d_dds_res_LFC_sig_APOP[,c("product","group_by_sim","log2FoldChange","experiment", "gene","transcript_id")],
-  Dermo_Tolerant_36hr_dds_res_LFC_sig_APOP[,c("product","group_by_sim","log2FoldChange","experiment", "gene","transcript_id")],
-  Dermo_Tolerant_7d_dds_res_LFC_sig_APOP[,c("product","group_by_sim","log2FoldChange","experiment", "gene","transcript_id")],
-  Dermo_Tolerant_28d_dds_res_LFC_sig_APOP [,c("product","group_by_sim","log2FoldChange","experiment", "gene","transcript_id")],
-  Pro_RE22_dds_deseq_res_RI_6h_LFC_sig_APOP[,c("product","group_by_sim","log2FoldChange","experiment", "gene","transcript_id")],
-  Pro_RE22_dds_deseq_res_RI_24h_LFC_sig_APOP[,c("product","group_by_sim","log2FoldChange","experiment", "gene","transcript_id")],
-  Pro_RE22_dds_deseq_res_S4_6h_LFC_sig_APOP[,c("product","group_by_sim","log2FoldChange","experiment", "gene","transcript_id")],
-  Pro_RE22_dds_deseq_res_S4_24h_LFC_sig_APOP[,c("product","group_by_sim","log2FoldChange","experiment", "gene","transcript_id")],
-  Pro_RE22_dds_deseq_res_RE22_LFC_sig_APOP[,c("product","group_by_sim","log2FoldChange","experiment", "gene","transcript_id")])
+  ROD_Susceptible_dds_res_LFC_sig_APOP[,c("product","group_by_sim","log2FoldChange","experiment", "gene","transcript_id","padj")],
+  ROD_Resistant_dds_res_LFC_sig_APOP[,c("product","group_by_sim","log2FoldChange","experiment", "gene","transcript_id","padj")],
+  Probiotic_dds_deseq_Challenge_res_LFC_sig_APOP[,c("product","group_by_sim","log2FoldChange","experiment", "gene","transcript_id","padj")],
+  Dermo_Susceptible_36hr_dds_res_LFC_sig_APOP[,c("product","group_by_sim","log2FoldChange","experiment", "gene","transcript_id","padj")],
+  Dermo_Susceptible_7d_dds_res_LFC_sig_APOP[,c("product","group_by_sim","log2FoldChange","experiment", "gene","transcript_id","padj")],
+  Dermo_Susceptible_28d_dds_res_LFC_sig_APOP[,c("product","group_by_sim","log2FoldChange","experiment", "gene","transcript_id","padj")],
+  Dermo_Tolerant_36hr_dds_res_LFC_sig_APOP[,c("product","group_by_sim","log2FoldChange","experiment", "gene","transcript_id","padj")],
+  Dermo_Tolerant_7d_dds_res_LFC_sig_APOP[,c("product","group_by_sim","log2FoldChange","experiment", "gene","transcript_id","padj")],
+  Dermo_Tolerant_28d_dds_res_LFC_sig_APOP [,c("product","group_by_sim","log2FoldChange","experiment", "gene","transcript_id","padj")],
+  Pro_RE22_dds_deseq_res_RI_6h_LFC_sig_APOP[,c("product","group_by_sim","log2FoldChange","experiment", "gene","transcript_id","padj")],
+  Pro_RE22_dds_deseq_res_RI_24h_LFC_sig_APOP[,c("product","group_by_sim","log2FoldChange","experiment", "gene","transcript_id","padj")],
+  Pro_RE22_dds_deseq_res_S4_6h_LFC_sig_APOP[,c("product","group_by_sim","log2FoldChange","experiment", "gene","transcript_id","padj")],
+  Pro_RE22_dds_deseq_res_S4_24h_LFC_sig_APOP[,c("product","group_by_sim","log2FoldChange","experiment", "gene","transcript_id","padj")],
+  Pro_RE22_dds_deseq_res_RE22_LFC_sig_APOP[,c("product","group_by_sim","log2FoldChange","experiment", "gene","transcript_id","padj")])
   
 # Make plot for up and downregulated
 C_vir_apop_APOP_downregulated <- C_vir_apop_LFC %>% filter(log2FoldChange <= 0)
@@ -3499,30 +3499,30 @@ deLorgeril_Susceptible_dds_res_60_LFC_sig_APOP$experiment <- "deLorgeril"
 deLorgeril_Susceptible_dds_res_72_LFC_sig_APOP$experiment <- "deLorgeril"
 
 # add in protein, gene and XM info for merging with ortholog information 
-C_gig_apop_LFC <- rbind(Zhang_dds_deseq_res_V_alg1_LFC_sig_APOP[,c("product","group_by_sim","log2FoldChange","experiment", "seqnames","Name","gene")],
-                        Zhang_dds_deseq_res_V_tub_LFC_sig_APOP[,c("product","group_by_sim","log2FoldChange","experiment", "seqnames","Name","gene")],
-                        Zhang_dds_deseq_res_LFC_LPS_sig_APOP[,c("product","group_by_sim","log2FoldChange","experiment", "seqnames","Name","gene")],
-                        Rubio_dds_deseq_J2_8_res_LFC_sig_APOP[,c("product","group_by_sim","log2FoldChange","experiment", "seqnames","Name","gene")],
-                        Rubio_dds_deseq_J2_9_res_LFC_sig_APOP[,c("product","group_by_sim","log2FoldChange","experiment", "seqnames","Name","gene")],
-                        Rubio_dds_deseq_LGP32_res_LFC_sig_APOP[,c("product","group_by_sim","log2FoldChange","experiment", "seqnames","Name","gene")],
-                        Rubio_dds_deseq_LMG20012T_res_LFC_sig_APOP[,c("product","group_by_sim","log2FoldChange","experiment", "seqnames","Name","gene")],
-                        He_dds_res_6hr_sig_APOP[,c("product","group_by_sim","log2FoldChange","experiment", "seqnames","Name","gene")],
-                        He_dds_res_12hr_sig_APOP[,c("product","group_by_sim","log2FoldChange","experiment", "seqnames","Name","gene")],
-                        He_dds_res_24hr_sig_APOP[,c("product","group_by_sim","log2FoldChange","experiment", "seqnames","Name","gene")],
-                        He_dds_res_48hr_sig_APOP[,c("product","group_by_sim","log2FoldChange","experiment", "seqnames","Name","gene")],
-                        He_dds_res_120hr_sig_APOP[,c("product","group_by_sim","log2FoldChange","experiment", "seqnames","Name","gene")],
-                        deLorgeril_Resistant_dds_res_6_LFC_sig_APOP[,c("product","group_by_sim","log2FoldChange","experiment", "seqnames","Name","gene")],
-                        deLorgeril_Resistant_dds_res_12_LFC_sig_APOP[,c("product","group_by_sim","log2FoldChange","experiment", "seqnames","Name","gene")],
-                        deLorgeril_Resistant_dds_res_24_LFC_sig_APOP[,c("product","group_by_sim","log2FoldChange","experiment", "seqnames","Name","gene")],
-                        deLorgeril_Resistant_dds_res_48_LFC_sig_APOP[,c("product","group_by_sim","log2FoldChange","experiment", "seqnames","Name","gene")],
-                        deLorgeril_Resistant_dds_res_60_LFC_sig_APOP[,c("product","group_by_sim","log2FoldChange","experiment", "seqnames","Name","gene")],
-                        deLorgeril_Resistant_dds_res_72_LFC_sig_APOP[,c("product","group_by_sim","log2FoldChange","experiment", "seqnames","Name","gene")],
-                        deLorgeril_Susceptible_dds_res_6_LFC_sig_APOP[,c("product","group_by_sim","log2FoldChange","experiment", "seqnames","Name","gene")],
-                        deLorgeril_Susceptible_dds_res_12_LFC_sig_APOP[,c("product","group_by_sim","log2FoldChange","experiment", "seqnames","Name","gene")],
-                        deLorgeril_Susceptible_dds_res_24_LFC_sig_APOP[,c("product","group_by_sim","log2FoldChange","experiment", "seqnames","Name","gene")],
-                        deLorgeril_Susceptible_dds_res_48_LFC_sig_APOP[,c("product","group_by_sim","log2FoldChange","experiment", "seqnames","Name","gene")],
-                        deLorgeril_Susceptible_dds_res_60_LFC_sig_APOP[,c("product","group_by_sim","log2FoldChange","experiment", "seqnames","Name","gene")],
-                        deLorgeril_Susceptible_dds_res_72_LFC_sig_APOP[,c("product","group_by_sim","log2FoldChange","experiment", "seqnames","Name","gene")])
+C_gig_apop_LFC <- rbind(Zhang_dds_deseq_res_V_alg1_LFC_sig_APOP[,c("product","group_by_sim","log2FoldChange","experiment", "seqnames","Name","gene","padj")],
+                        Zhang_dds_deseq_res_V_tub_LFC_sig_APOP[,c("product","group_by_sim","log2FoldChange","experiment", "seqnames","Name","gene","padj")],
+                        Zhang_dds_deseq_res_LFC_LPS_sig_APOP[,c("product","group_by_sim","log2FoldChange","experiment", "seqnames","Name","gene","padj")],
+                        Rubio_dds_deseq_J2_8_res_LFC_sig_APOP[,c("product","group_by_sim","log2FoldChange","experiment", "seqnames","Name","gene","padj")],
+                        Rubio_dds_deseq_J2_9_res_LFC_sig_APOP[,c("product","group_by_sim","log2FoldChange","experiment", "seqnames","Name","gene","padj")],
+                        Rubio_dds_deseq_LGP32_res_LFC_sig_APOP[,c("product","group_by_sim","log2FoldChange","experiment", "seqnames","Name","gene","padj")],
+                        Rubio_dds_deseq_LMG20012T_res_LFC_sig_APOP[,c("product","group_by_sim","log2FoldChange","experiment", "seqnames","Name","gene","padj")],
+                        He_dds_res_6hr_sig_APOP[,c("product","group_by_sim","log2FoldChange","experiment", "seqnames","Name","gene","padj")],
+                        He_dds_res_12hr_sig_APOP[,c("product","group_by_sim","log2FoldChange","experiment", "seqnames","Name","gene","padj")],
+                        He_dds_res_24hr_sig_APOP[,c("product","group_by_sim","log2FoldChange","experiment", "seqnames","Name","gene","padj")],
+                        He_dds_res_48hr_sig_APOP[,c("product","group_by_sim","log2FoldChange","experiment", "seqnames","Name","gene","padj")],
+                        He_dds_res_120hr_sig_APOP[,c("product","group_by_sim","log2FoldChange","experiment", "seqnames","Name","gene","padj")],
+                        deLorgeril_Resistant_dds_res_6_LFC_sig_APOP[,c("product","group_by_sim","log2FoldChange","experiment", "seqnames","Name","gene","padj")],
+                        deLorgeril_Resistant_dds_res_12_LFC_sig_APOP[,c("product","group_by_sim","log2FoldChange","experiment", "seqnames","Name","gene","padj")],
+                        deLorgeril_Resistant_dds_res_24_LFC_sig_APOP[,c("product","group_by_sim","log2FoldChange","experiment", "seqnames","Name","gene","padj")],
+                        deLorgeril_Resistant_dds_res_48_LFC_sig_APOP[,c("product","group_by_sim","log2FoldChange","experiment", "seqnames","Name","gene","padj")],
+                        deLorgeril_Resistant_dds_res_60_LFC_sig_APOP[,c("product","group_by_sim","log2FoldChange","experiment", "seqnames","Name","gene","padj")],
+                        deLorgeril_Resistant_dds_res_72_LFC_sig_APOP[,c("product","group_by_sim","log2FoldChange","experiment", "seqnames","Name","gene","padj")],
+                        deLorgeril_Susceptible_dds_res_6_LFC_sig_APOP[,c("product","group_by_sim","log2FoldChange","experiment", "seqnames","Name","gene","padj")],
+                        deLorgeril_Susceptible_dds_res_12_LFC_sig_APOP[,c("product","group_by_sim","log2FoldChange","experiment", "seqnames","Name","gene","padj")],
+                        deLorgeril_Susceptible_dds_res_24_LFC_sig_APOP[,c("product","group_by_sim","log2FoldChange","experiment", "seqnames","Name","gene","padj")],
+                        deLorgeril_Susceptible_dds_res_48_LFC_sig_APOP[,c("product","group_by_sim","log2FoldChange","experiment", "seqnames","Name","gene","padj")],
+                        deLorgeril_Susceptible_dds_res_60_LFC_sig_APOP[,c("product","group_by_sim","log2FoldChange","experiment", "seqnames","Name","gene","padj")],
+                        deLorgeril_Susceptible_dds_res_72_LFC_sig_APOP[,c("product","group_by_sim","log2FoldChange","experiment", "seqnames","Name","gene","padj")])
 
 # Make plot for up and downregulated
 C_gig_apop_APOP_downregulated <- C_gig_apop_LFC %>% filter(log2FoldChange <= 0)

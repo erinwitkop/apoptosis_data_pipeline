@@ -11,6 +11,8 @@
 # Load packages 
 library(tidyverse)
 library(DESeq2)
+library(rtracklayer)
+library(factoextra)
 
 #### ISOLATE SINGLE COPY ORTHOLOG GENES FROM (C_VIR C_GIG ORTHOFINDER) FROM GENE_COUNT_MATRIX FOR EACH EXPERIMENT ####
 
@@ -1560,29 +1562,44 @@ length(C_gig_apop_LFC_Name) # 1239 differentially expressed XMs
 #write.table(C_gig_apop_LFC_Name, file ="C_gig_apop_LFC_Name.txt" )
 # 357 unique identifiers 
 # deleted the first row in excel (some strange glitch where Batch Entrez wasn't liking the format output from write.table)
-# File name = C_gig_Apop_Name.gff3
+# File name = C_gig_apop_XM_xp.gff3
 
 # In Batch Entrez look up the XPs corresponding to the XMs, downloaded the "complete record" in "gff3" format 
 # Set the database to Nucleotide for both
 
 # Load the lookup tables
-C_vir_apop_XP_lookup <- import("/Users/erinroberts/Documents/PhD_Research/Chapter_1_Apoptosis Paper/Chapter1_Apoptosis_Transcriptome_Analyses_2019/DATA ANALYSIS/apoptosis_data_pipeline/DESeq2/2020_Transcriptome_ANALYSIS/C_vir_apop_XM_XP.gff3")
+C_vir_apop_XP_lookup <- rtracklayer::import("/Users/erinroberts/Documents/PhD_Research/Chapter_1_Apoptosis Paper/Chapter1_Apoptosis_Transcriptome_Analyses_2019/DATA ANALYSIS/apoptosis_data_pipeline/DESeq2/2020_Transcriptome_ANALYSIS/C_vir_apop_XM_XP.gff3")
 C_vir_apop_XP_lookup <- as.data.frame(C_vir_apop_XP_lookup)
-C_gig_apop_XP_lookup <- import("/Users/erinroberts/Documents/PhD_Research/Chapter_1_Apoptosis Paper/Chapter1_Apoptosis_Transcriptome_Analyses_2019/DATA ANALYSIS/apoptosis_data_pipeline/DESeq2/2020_Transcriptome_ANALYSIS/C_gig_apop_XM_XP.gff3")
+nrow(C_vir_apop_XP_lookup) # 561 rows
+C_gig_apop_XP_lookup <- rtracklayer::import("/Users/erinroberts/Documents/PhD_Research/Chapter_1_Apoptosis Paper/Chapter1_Apoptosis_Transcriptome_Analyses_2019/DATA ANALYSIS/apoptosis_data_pipeline/DESeq2/2020_Transcriptome_ANALYSIS/C_gig_apop_XM_xp.gff3")
 C_gig_apop_XP_lookup <- as.data.frame(C_gig_apop_XP_lookup)
+nrow(C_gig_apop_XP_lookup) # 1131
 
 # Isolate CDS lines using the type column 
 C_vir_apop_XP_lookup_CDS <- C_vir_apop_XP_lookup %>% subset(type == "CDS")
-C_gig_apop_XP_lookup_CDS <- C_gig_apop_XP_lookup %>% subset(type == "CDS")
+nrow(C_vir_apop_XP_lookup_CDS) # 187, correct because 187 unique identifiers
+colnames(C_vir_apop_XP_lookup_CDS)[1] <- "transcript_id" # change seqnames column name to be transcript_id
 
-# Make XP list to match with the transcripts 
-C_vir_apop_XP_lookup_CDS_XP_list <- C_vir_apop_XP_lookup_CDS$protein_id
+C_gig_apop_XP_lookup_CDS <- C_gig_apop_XP_lookup %>% subset(type == "CDS")
+nrow(C_gig_apop_XP_lookup_CDS) # 357, correct 
+colnames(C_gig_apop_XP_lookup_CDS)[1] <- "Name"
+
+# Join XP information back to LFC output
+C_vir_apop_LFC_XP <- left_join(C_vir_apop_LFC, C_vir_apop_XP_lookup_CDS[,c("transcript_id", "gene", "product", "protein_id")], by = c("transcript_id", "gene")) 
+  # The product names don't exactly match because they don't say the transcript variant information
+nrow(C_vir_apop_LFC_XP) # 292, same as above 
+
+C_gig_apop_LFC_XP <- left_join(C_gig_apop_LFC, C_gig_apop_XP_lookup_CDS[,c("Name","gene","product","protein_id")], by = c("Name","gene")) 
+  # The product names don't exactly match because they don't say the transcript variant information
+
+# Make XP list to match with the Orthologous XP list
+C_vir_apop_XP_lookup_CDS_XP_list <- unique(C_vir_apop_LFC_XP $protein_id)
 class(C_vir_apop_XP_lookup_CDS_XP_list )
 head(C_vir_apop_XP_lookup_CDS_XP_list)
 length(C_vir_apop_XP_lookup_CDS_XP_list) # 187 XPs
 duplicated(C_vir_apop_XP_lookup_CDS_XP_list) # no duplicates in the list 
 
-C_gig_apop_XP_lookup_CDS_XP_list <- C_gig_apop_XP_lookup_CDS$protein_id
+C_gig_apop_XP_lookup_CDS_XP_list <- unique(C_gig_apop_LFC_XP$protein_id)
 class(C_gig_apop_XP_lookup_CDS_XP_list )
 head(C_gig_apop_XP_lookup_CDS_XP_list)
 length(C_gig_apop_XP_lookup_CDS_XP_list) # 357
@@ -1591,12 +1608,14 @@ length(C_gig_apop_XP_lookup_CDS_XP_list) # 357
 C_vir_v_C_gig_orthologs_APOP <- C_vir_v_C_gig_orthologs[grepl(paste(C_vir_apop_XP_lookup_CDS_XP_list,collapse="|"),
                                       C_vir_v_C_gig_orthologs$C_vir, ignore.case= TRUE),]
 nrow(C_vir_v_C_gig_orthologs_APOP) # 109, meaning 78 proteins were not matched to orthologs 
+  # this means that 109 C vir apoptosis proteins are matched to orthogroups with C. gig
 
 C_gig_v_C_vir_orthologs_APOP <- C_gig_v_C_vir_orthologs[grepl(paste(C_gig_apop_XP_lookup_CDS_XP_list,collapse="|"),
                                                               C_gig_v_C_vir_orthologs$C_gig, ignore.case= TRUE),]
 nrow(C_gig_v_C_vir_orthologs_APOP) # 200 mapped, meaning 157 were unique and not matched to orthologs 
 
 ## Search in these tables for lines that also have a match to the other species list in the other column 
+# Why is this necessary? to be able to compare transcript expression I need to look at where the two lists have matches
 C_vir_v_C_gig_orthologs_APOP_match <- C_vir_v_C_gig_orthologs_APOP[grepl(paste(C_gig_apop_XP_lookup_CDS_XP_list,collapse="|"),
                                                                          C_vir_v_C_gig_orthologs_APOP$C_gig, ignore.case=TRUE),]
 nrow(C_vir_v_C_gig_orthologs_APOP_match) #84 
@@ -1610,6 +1629,7 @@ setdiff(C_vir_v_C_gig_orthologs_APOP_match$C_vir, C_gig_v_C_vir_orthologs_APOP_m
 setdiff(C_gig_v_C_vir_orthologs_APOP_match$C_vir, C_vir_v_C_gig_orthologs_APOP_match$C_vir) # same
 setdiff(C_vir_v_C_gig_orthologs_APOP_match$C_gig, C_gig_v_C_vir_orthologs_APOP_match$C_gig) # same
 setdiff(C_gig_v_C_vir_orthologs_APOP_match$C_gig, C_vir_v_C_gig_orthologs_APOP_match$C_gig) # same
+# This means that I can use either one going forward 
 
 ## Set a unique identifier to each of these groups, either dataframe  
 # check for duplicated orthogroup identifiers 
@@ -1621,7 +1641,7 @@ C_vir_v_C_gig_orthologs_APOP_match[duplicated(C_vir_v_C_gig_orthologs_APOP_match
 #OG0001086 
 #OG0001689 
 
-# Make the duplicated entires unique using make.unique()
+# Make the duplicated entries unique using make.unique()
 C_vir_v_C_gig_orthologs_APOP_match$Orthogroup <- make.unique(C_vir_v_C_gig_orthologs_APOP_match$Orthogroup, sep=".")
 
 # Parse out the XPs for each species to unique rows so I can match XMs to them
@@ -1631,26 +1651,109 @@ C_vir_v_C_gig_orthologs_APOP_match_CG <- C_vir_v_C_gig_orthologs_APOP_match[,c(1
 CV <- strsplit(C_vir_v_C_gig_orthologs_APOP_match_CV$C_vir, split = ",")
 CV_Apop_parse_XP <- data.frame(Orthogroup = rep(C_vir_v_C_gig_orthologs_APOP_match_CV$Orthogroup, sapply(CV, length)), C_vir = unlist(CV))
 colnames(CV_Apop_parse_XP)[2] <- "protein_id" # change column name to transcript id to allow for matching with counts information
+nrow(CV_Apop_parse_XP) # 413
 
 CG <- strsplit(C_vir_v_C_gig_orthologs_APOP_match_CG$C_gig, split = ",")
 CG_Apop_parse_XP <- data.frame(Orthogroup = rep(C_vir_v_C_gig_orthologs_APOP_match_CG$Orthogroup, sapply(CG, length)), C_gig = unlist(CG))
-colnames(CG_Apop_parse_XP)[2] <- "Name"
+colnames(CG_Apop_parse_XP)[2] <- "protein_id"
+nrow(CG_Apop_parse_XP) # 208
 
-# Match XPs back to XMs
+# Match LFC table XMs and XP to their orthogroups
+C_vir_apop_LFC_XP_ortho <- left_join(C_vir_apop_LFC_XP, CV_Apop_parse_XP, by="protein_id")
+C_gig_apop_LFC_XP_ortho <- left_join(C_gig_apop_LFC_XP, CG_Apop_parse_XP, by="protein_id") 
+
+# subset for those not matched to an orthogroup
+C_vir_apop_LFC_XP_ortho <- C_vir_apop_LFC_XP_ortho %>% filter(!is.na(Orthogroup))
+C_gig_apop_LFC_XP_ortho <- C_gig_apop_LFC_XP_ortho %>% filter(!is.na(Orthogroup))
+nrow(C_vir_apop_LFC_XP_ortho) # 68
+nrow(C_gig_apop_LFC_XP_ortho)  # 260
+
+# retain product y column in each (doesn't have the transcript variant information)
+C_vir_apop_LFC_XP_ortho <- C_vir_apop_LFC_XP_ortho[,-1]
+colnames(C_vir_apop_LFC_XP_ortho) <- c("group_by_sim", "log2FoldChange", "experiment", "gene", "transcript_id",
+                                       "padj", "product_C_vir", "protein_id","Orthogroup")
+C_gig_apop_LFC_XP_ortho <- C_gig_apop_LFC_XP_ortho[,-1]
+colnames(C_gig_apop_LFC_XP_ortho)[8] <- "product_C_gig"
+
+# merge by orthogroup and created combined product names column
+Compare_names <- full_join(C_vir_apop_LFC_XP_ortho,C_gig_apop_LFC_XP_ortho, by = "Orthogroup")
+Compare_names$product_combined <- paste(Compare_names$product_C_vir, Compare_names$product_C_gig, sep="/")
+head(Compare_names)
+
+# Joined product names combined back with the subset dataframes 
+C_vir_apop_LFC_XP_ortho_product_combined <- left_join(C_vir_apop_LFC_XP_ortho, Compare_names[,c("product_combined","transcript_id")], by = "transcript_id")
+C_gig_apop_LFC_XP_ortho_product_combined <- left_join(C_gig_apop_LFC_XP_ortho, Compare_names[,c("product_combined","Name")], by = "Name")
+C_vir_apop_LFC_XP_ortho_product_combined <- unique(C_vir_apop_LFC_XP_ortho_product_combined)
+C_gig_apop_LFC_XP_ortho_product_combined <- unique(C_gig_apop_LFC_XP_ortho_product_combined)
+
+nrow(C_vir_apop_LFC_XP_ortho_product_combined) # 68
+nrow(C_gig_apop_LFC_XP_ortho_product_combined) # 260
+
+# Add species column for plotting
+C_vir_apop_LFC_XP_ortho_product_combined$species <- "C_vir"
+C_gig_apop_LFC_XP_ortho_product_combined$species <- "C_gig"
+
+colnames(C_vir_apop_LFC_XP_ortho_product_combined)
+colnames(C_gig_apop_LFC_XP_ortho_product_combined)
+
+C_vir_apop_LFC_XP_ortho_product_combined <- C_vir_apop_LFC_XP_ortho_product_combined[,-7]
+C_gig_apop_LFC_XP_ortho_product_combined <- C_gig_apop_LFC_XP_ortho_product_combined[,-4] # remove seqnames column
+colnames(C_gig_apop_LFC_XP_ortho_product_combined )[4] <- "transcript_id"
+C_gig_apop_LFC_XP_ortho_product_combined <- C_gig_apop_LFC_XP_ortho_product_combined[,-7]
+
+# rbind the two dataframes
+C_vir_C_gig_apop_LFC_XP_ortho_product_combined <- rbind(C_vir_apop_LFC_XP_ortho_product_combined,C_gig_apop_LFC_XP_ortho_product_combined )
+
+# Plot LFC by product combined
+C_vir_C_gig_apop_LFC_XP_ortho_product_combined_plot <- ggplot(C_vir_C_gig_apop_LFC_XP_ortho_product_combined, aes(x=product_combined,y=log2FoldChange, fill=experiment )) + geom_col(position="dodge") + 
+  theme(axis.text.x = element_text(angle = 75, hjust = 1)) + coord_flip()
+
+C_vir_C_gig_apop_LFC_XP_ortho_orthgroup_plot <- ggplot(C_vir_C_gig_apop_LFC_XP_ortho_product_combined, aes(x=Orthogroup,y=log2FoldChange, fill=experiment )) + geom_col(position="dodge") + 
+  theme(axis.text.x = element_text(angle = 75, hjust = 1)) + coord_flip()
 
 
-# Match to XM transcript counts, LFC, padj info
-CV_Apop_parse_XP_XM <- left_join(CV_Apop_parse_XP, C_vir_apop_LFC, by ="protein_id") 
-CG_Apop_parse_XP_XM <- left_join(CG_Apop_parse_XP, C_gig_apop_LFC, by ="Name")                           
+# Full join dataframes by shared orthogroup and product combined to find equivalent XMs
+C_vir_C_gig_apop_LFC_XP_ortho_product_combined_intersect <- full_join(C_vir_apop_LFC_XP_ortho[,c("Orthogroup","transcript_id")], C_gig_apop_LFC_XP_ortho[,c("Orthogroup","Name")], by = "Orthogroup")
+C_vir_C_gig_apop_LFC_XP_ortho_product_combined_intersect <- na.omit(C_vir_C_gig_apop_LFC_XP_ortho_product_combined_intersect) # NAs are where there isn't a match between XMs
+C_vir_C_gig_apop_LFC_XP_ortho_product_combined_intersect <- unique(C_vir_C_gig_apop_LFC_XP_ortho_product_combined_intersect)
+nrow(C_vir_C_gig_apop_LFC_XP_ortho_product_combined_intersect) #40 rows with unique matches 
 
-C_gig_apop_LFC
+# Split into list for XMs to subset from PCAs 
+C_vir_C_gig_apop_LFC_XP_ortho_product_combined_intersect_C_vir_list <- C_vir_C_gig_apop_LFC_XP_ortho_product_combined_intersect[,c(1,2)]
+nrow(C_vir_C_gig_apop_LFC_XP_ortho_product_combined_intersect_C_vir_list) # 40
+C_vir_C_gig_apop_LFC_XP_ortho_product_combined_intersect_C_gig_list <- C_vir_C_gig_apop_LFC_XP_ortho_product_combined_intersect[,3]
+
+# Match Cvir XM list to the rnaID
+C_vir_C_gig_apop_LFC_XP_ortho_product_combined_intersect_C_vir_list <- left_join(C_vir_C_gig_apop_LFC_XP_ortho_product_combined_intersect_C_vir_list, C_vir_rtracklayer[,c("transcript_id","ID")], by = "transcript_id")
+C_vir_C_gig_apop_LFC_XP_ortho_product_combined_intersect_C_vir_list <- C_vir_C_gig_apop_LFC_XP_ortho_product_combined_intersect_C_vir_list[grepl("rna",C_vir_C_gig_apop_LFC_XP_ortho_product_combined_intersect_C_vir_list$ID),]
+nrow(C_vir_C_gig_apop_LFC_XP_ortho_product_combined_intersect_C_vir_list ) # 40
+C_vir_C_gig_apop_LFC_XP_ortho_product_combined_intersect_C_vir_list <- C_vir_C_gig_apop_LFC_XP_ortho_product_combined_intersect_C_vir_list[,3]
+
+#### PCA AND HEATMAPS OF TRANSCRIPT COUNTS FROM C_VIR AND C_GIG RUN ####
+
+# Make PCA plot of the vst values for each experiment 
+# helpful resources: http://www.sthda.com/english/articles/31-principal-component-methods-in-r-practical-guide/112-pca-principal-component-analysis-essentials/#pca-data-format,
+# http://www.sthda.com/english/articles/31-principal-component-methods-in-r-practical-guide/118-principal-component-analysis-in-r-prcomp-vs-princomp/
+
+C_vir_full_counts_vst_apop_orthologs <- C_vir_full_counts_vst[C_vir_C_gig_apop_LFC_XP_ortho_product_combined_intersect_C_vir_list,]
+
+plotPCA(C_vir_full_counts_vst[C_vir_full_counts_apop_list,], "Experiment") # similar clustering where ROD and Probiotic cluster
+
+C_gig_full_counts_apop <- C_gig_full_counts[row.names(C_gig_full_counts) %in% C_gig_rtracklayer_apop_product_final_transcript_id,]
+C_gig_full_counts_apop_list <- row.names(C_gig_full_counts_apop)
+
+plotPCA(C_gig_full_counts_vst[C_gig_full_counts_apop_list,], "Experiment") # some more overlap between He and deLorgeril
 
 
 
+C_gig_full_counts_vst
+C_vir_full_counts_vst
+
+plotPCA(C_vir_full_counts_vst[C_vir_full_counts_apop_list,], "Experiment") # similar clustering where ROD and Probiotic cluster
+plotPCA(C_gig_full_counts_vst[C_gig_full_counts_apop_list,], "Experiment") # some more overlap between He and deLorgeril
 
 
 
-#### PCA AND HEATMAPS OF SINGLE COPY ORTHOLOGOUS GENE COUNTS FROM C_VIR AND C_GIG RUN ####
 
 ### THIS BELOW IS SCRAP CODE I NEED TO GO THROUGH 
 
