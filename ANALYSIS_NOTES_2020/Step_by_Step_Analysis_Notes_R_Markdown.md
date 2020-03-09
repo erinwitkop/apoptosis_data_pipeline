@@ -1490,5 +1490,8 @@ deLorgeril_Susceptible_dds_res_72_LFC_sig_APOP`
               # When matching this new subset dataframe, subset for the rows that also had matches to the C_gig list in the C_gig column. This brought it down to 84 rows.  
             # C_gig had 357 unique XPs that were matched to XMs, of those 200 matched to orthologs, meaning that 157 were not mapped to orthogroups
 
-          
-  `
+            # March 09, 2020 - I have lost alot of my XMs in the process of matching to orthologs. Going back to the beginning of my code to check my procedure.
+              # Did my XM to XP look up tables from Batch Entrez load into R correctly?
+            # fixed code `
+
+## March 09, 2020 Meeting with Rachel and plans for future analysis

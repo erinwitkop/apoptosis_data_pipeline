@@ -13,6 +13,7 @@ library(tidyverse)
 library(DESeq2)
 library(rtracklayer)
 library(factoextra)
+library(ggfortify)
 
 #### ISOLATE SINGLE COPY ORTHOLOG GENES FROM (C_VIR C_GIG ORTHOFINDER) FROM GENE_COUNT_MATRIX FOR EACH EXPERIMENT ####
 
@@ -1727,31 +1728,65 @@ C_vir_C_gig_apop_LFC_XP_ortho_product_combined_intersect_C_gig_list <- C_vir_C_g
 C_vir_C_gig_apop_LFC_XP_ortho_product_combined_intersect_C_vir_list <- left_join(C_vir_C_gig_apop_LFC_XP_ortho_product_combined_intersect_C_vir_list, C_vir_rtracklayer[,c("transcript_id","ID")], by = "transcript_id")
 C_vir_C_gig_apop_LFC_XP_ortho_product_combined_intersect_C_vir_list <- C_vir_C_gig_apop_LFC_XP_ortho_product_combined_intersect_C_vir_list[grepl("rna",C_vir_C_gig_apop_LFC_XP_ortho_product_combined_intersect_C_vir_list$ID),]
 nrow(C_vir_C_gig_apop_LFC_XP_ortho_product_combined_intersect_C_vir_list ) # 40
-C_vir_C_gig_apop_LFC_XP_ortho_product_combined_intersect_C_vir_list <- C_vir_C_gig_apop_LFC_XP_ortho_product_combined_intersect_C_vir_list[,3]
+C_vir_C_gig_apop_LFC_XP_ortho_product_combined_intersect_C_vir_list_only <- C_vir_C_gig_apop_LFC_XP_ortho_product_combined_intersect_C_vir_list[,3]
 
-#### PCA AND HEATMAPS OF TRANSCRIPT COUNTS FROM C_VIR AND C_GIG RUN ####
+# Match rnaID back to intersect list for vst merging below 
+C_vir_C_gig_apop_LFC_XP_ortho_product_combined_intersect_C_vir_list_C_gig_joined <- left_join(C_vir_C_gig_apop_LFC_XP_ortho_product_combined_intersect_C_vir_list, C_vir_C_gig_apop_LFC_XP_ortho_product_combined_intersect, by = c("Orthogroup","transcript_id"))
+
+#### PCA AND HEATMAPS OF TRANSCRIPT COUNTS FROM C_VIR AND C_GIG RUN EXTRACTED FROM SEPARATE VST ####
 
 # Make PCA plot of the vst values for each experiment 
 # helpful resources: http://www.sthda.com/english/articles/31-principal-component-methods-in-r-practical-guide/112-pca-principal-component-analysis-essentials/#pca-data-format,
 # http://www.sthda.com/english/articles/31-principal-component-methods-in-r-practical-guide/118-principal-component-analysis-in-r-prcomp-vs-princomp/
 
-C_vir_full_counts_vst_apop_orthologs <- C_vir_full_counts_vst[C_vir_C_gig_apop_LFC_XP_ortho_product_combined_intersect_C_vir_list,]
+C_vir_full_counts_vst_apop_orthologs <- assay(C_vir_full_counts_vst)[C_vir_C_gig_apop_LFC_XP_ortho_product_combined_intersect_C_vir_list_only,]
+C_gig_full_counts_vst_apop_orthologs <- assay(C_gig_full_counts_vst)[C_vir_C_gig_apop_LFC_XP_ortho_product_combined_intersect_C_gig_list,]
 
-plotPCA(C_vir_full_counts_vst[C_vir_full_counts_apop_list,], "Experiment") # similar clustering where ROD and Probiotic cluster
+# join the intersect list, change the C_gig ids to be the C vir IDs to allow for joining of the vst plots for the different samples 
+C_gig_full_counts_vst_apop_orthologs <- as.data.frame(C_gig_full_counts_vst_apop_orthologs)
+C_gig_full_counts_vst_apop_orthologs$Name <- row.names(C_gig_full_counts_vst_apop_orthologs)
+C_gig_full_counts_vst_apop_orthologs_joined <- left_join(C_gig_full_counts_vst_apop_orthologs, C_vir_C_gig_apop_LFC_XP_ortho_product_combined_intersect_C_vir_list_C_gig_joined, by ="Name")
 
-C_gig_full_counts_apop <- C_gig_full_counts[row.names(C_gig_full_counts) %in% C_gig_rtracklayer_apop_product_final_transcript_id,]
-C_gig_full_counts_apop_list <- row.names(C_gig_full_counts_apop)
+# make cvir list a dataframe
+C_vir_full_counts_vst_apop_orthologs <- as.data.frame(C_vir_full_counts_vst_apop_orthologs)
+C_vir_full_counts_vst_apop_orthologs$ID <- row.names(C_vir_full_counts_vst_apop_orthologs)
+C_vir_colnames_list <- colnames(C_vir_full_counts_vst_apop_orthologs) # 98 sample names for all_coldata, these were changed during the collapseReplicates step in DESeq2
 
-plotPCA(C_gig_full_counts_vst[C_gig_full_counts_apop_list,], "Experiment") # some more overlap between He and deLorgeril
+# Join the two dataframes
+C_vir_C_gig_full_counts_vst_apop_orthologs_joined <- left_join(C_vir_full_counts_vst_apop_orthologs,C_gig_full_counts_vst_apop_orthologs_joined, by = "ID" )
+row.names(C_vir_C_gig_full_counts_vst_apop_orthologs_joined) <- C_vir_C_gig_full_counts_vst_apop_orthologs_joined$transcript_id 
+C_vir_C_gig_full_counts_vst_apop_orthologs_joined <- C_vir_C_gig_full_counts_vst_apop_orthologs_joined[,-c(99,201,202,203)]
+nrow(C_vir_C_gig_full_counts_vst_apop_orthologs_joined) # 40
 
+# adjust coldata so that C_vir samples are subset for the remaining sample names and these get changed to  rownames
+All_coldata_no_techrep <- All_coldata %>% filter(TechRep != "Rep2")
+All_coldata_no_techrep_C_gig <- All_coldata %>% filter(Species == "C_gig")
+nrow(All_coldata_no_techrep_C_gig )
+All_coldata_no_techrep_sample <- All_coldata_no_techrep %>% filter(Species == "C_vir")
+nrow(All_coldata_no_techrep_sample) #80
+setdiff(All_coldata_no_techrep_sample$Sample,C_vir_colnames_list)
+setdiff(C_vir_colnames_list, All_coldata_no_techrep_sample$Sample) # "ID"   
 
+row.names(All_coldata_no_techrep_sample) <- All_coldata_no_techrep_sample$Sample
+All_coldata_no_techrep_done <- rbind(All_coldata_no_techrep_sample, All_coldata_no_techrep_C_gig)
+nrow(All_coldata_no_techrep_done) # 199
 
-C_gig_full_counts_vst
-C_vir_full_counts_vst
+ncol(C_vir_C_gig_full_counts_vst_apop_orthologs_joined) # 199 rows 
+# run PCA
+pcVST_combined_orthologs <- prcomp(t(C_vir_C_gig_full_counts_vst_apop_orthologs_joined))
 
-plotPCA(C_vir_full_counts_vst[C_vir_full_counts_apop_list,], "Experiment") # similar clustering where ROD and Probiotic cluster
-plotPCA(C_gig_full_counts_vst[C_gig_full_counts_apop_list,], "Experiment") # some more overlap between He and deLorgeril
+# plot PCA
+autoplot(pcVST_combined_orthologs,
+         data=All_coldata_no_techrep_done,
+         colour="Condition", 
+         size=5)
+autoplot(pcVST_combined_orthologs,
+         data=All_coldata_no_techrep_done,
+         colour="Species", 
+         size=5)
+# complete separation by species  (using this method!)
 
+# However, if I ran the same analysis by doing the vst on all the orthologs and corrected for species and experiment it may look different 
 
 
 

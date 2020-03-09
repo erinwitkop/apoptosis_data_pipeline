@@ -533,6 +533,7 @@ all(rownames(Zhang_coldata) == colnames(Zhang_counts))    # should return TRUE
 # PCA plots of data (https://bioinformatics-core-shared-training.github.io/cruk-summer-school-2018/RNASeq2018/html/02_Preprocessing_Data.nb.html#count-distribution-boxplots)
 Zhang_counts_matrix <- as.matrix(Zhang_counts)
 Zhangrlogcounts <- rlog(Zhang_counts_matrix, blind =TRUE)
+
 # run PCA
 pcZhang <- prcomp(t(Zhangrlogcounts))
 # plot PCA
@@ -826,7 +827,12 @@ Zhang_upset_all_sig_APOP <- rbind(Zhang_dds_deseq_res_V_alg1_LFC_sig_APOP[,c("pr
                                   Zhang_dds_deseq_res_V_tub_LFC_sig_APOP[,c("product","group_by_sim","log2FoldChange")],
                                   Zhang_dds_deseq_res_LFC_LPS_sig_APOP[,c("product","group_by_sim","log2FoldChange")])
 
-# Convert into wide format using reshape
+Zhang_upset_all_sig_APOP_joined <- full_join( Zhang_dds_deseq_res_V_alg1_LFC_sig_APOP[,c("product","group_by_sim")], Zhang_dds_deseq_res_V_tub_LFC_sig_APOP[,c("product","group_by_sim")], by ="product")
+Zhang_upset_all_sig_APOP_joined <- full_join(Zhang_upset_all_sig_APOP_joined , Zhang_dds_deseq_res_LFC_LPS_sig_APOP[,c("product","group_by_sim")], by ="product")
+Zhang_upset_all_sig_APOP_joined <- na.omit(Zhang_upset_all_sig_APOP_joined)
+nrow(Zhang_upset_all_sig_APOP_joined) # 10 shared between all
+
+  # Convert into wide format using reshape
 Zhang_upset_all_sig_APOP_tally <- Zhang_upset_all_sig_APOP %>% group_by(product) %>% tally() 
 Zhang_upset_all_sig_APOP_upset <- Zhang_upset_all_sig_APOP %>% group_by(product) %>% mutate(value=1) %>% spread(group_by_sim, value, fill =0 )
 Zhang_upset_all_sig_APOP_upset <- as.matrix(Zhang_upset_all_sig_APOP_upset)
@@ -3615,13 +3621,13 @@ all(rownames(Dermo_Susceptible_counts_apop) == rownames(Dermo_Tolerant_counts_ap
 all(rownames(Dermo_Susceptible_counts_apop) %in% rownames(Dermo_Tolerant_counts_apop)) # TRUE
 
 # Check probiotic table order
-all(rownames(Probiotic_counts_apop) == rownames(Dermo_Tolerant_counts_apop)) # FALSE
+all(rownames(Probiotic_counts_apop) == rownames(Dermo_Tolerant_counts_apop)) # TRUE
 all(rownames(Probiotic_counts_apop) %in% rownames(Dermo_Tolerant_counts_apop)) # TRUE
 Probiotic_counts_apop <- Probiotic_counts_apop[row.names(Dermo_Tolerant_counts_apop),]
 all(rownames(Probiotic_counts_apop) == rownames(Dermo_Tolerant_counts_apop)) # TRUE
 
 # Check ROD order and change if necessary 
-all(rownames(ROD_Resistant_counts_apop) == rownames(Dermo_Tolerant_counts_apop)) # FALSE
+all(rownames(ROD_Resistant_counts_apop) == rownames(Dermo_Tolerant_counts_apop)) # TRUE
 all(rownames(ROD_Resistant_counts_apop) %in% rownames(Dermo_Tolerant_counts_apop)) # TRUE
 ROD_Resistant_counts_apop <- ROD_Resistant_counts_apop[row.names(Dermo_Tolerant_counts_apop),]
 ROD_Susceptible_counts_apop <-  ROD_Susceptible_counts_apop[row.names(Dermo_Tolerant_counts_apop),]
@@ -3631,7 +3637,7 @@ all(rownames(ROD_Susceptible_counts_apop) == rownames(ROD_Resistant_counts_apop)
 
 # Colbind all C. virginica tables
 C_virginica_apop_counts <- cbind(Dermo_Susceptible_counts_apop,Dermo_Tolerant_counts_apop,
-                                 Probiotic_counts_apop,ROD_Resistant_counts_apop,
+                                 Probiotic_counts_apop,Pro_RE22_counts_apop, ROD_Resistant_counts_apop,
                                  ROD_Susceptible_counts_apop)
 
 # Set equal the rownames and colnames of the coldata and count data
@@ -3662,7 +3668,7 @@ C_virginica_apop_counts_vst <- varianceStabilizingTransformation(C_virginica_apo
 
 ## Combine C_gig data frame
 # Check row order before combining
-all(rownames(Zhang_counts_apop) == rownames(Rubio_counts_apop)) # FALSE
+all(rownames(Zhang_counts_apop) == rownames(Rubio_counts_apop)) # TRUE
 all(rownames(Zhang_counts_apop) %in% rownames(Rubio_counts_apop)) # TRUE
 Zhang_counts_apop <- Zhang_counts_apop[row.names(Rubio_counts_apop),]
 all(rownames(Zhang_counts_apop) == rownames(Rubio_counts_apop)) # TRUE
@@ -3749,7 +3755,6 @@ top_Var_C_gigas_apop_assay_heatmap <- pheatmap(top_Var_C_gigas_apop_assay_mat  ,
 head(top_Var_C_gigas_apop_assay_mat ) # OsHV1 susceptible clusters well with HE susceptible
 
 
-
 #### COMPARING APOPTOSIS TRANSCRIPT EXPRESSION BETWEEN EXPERIMENTS PCA HEATMAPS VST ON FULL THEN SUBSET ####
 # some helpful forum posts on the topic: https://www.biostars.org/p/364768/
 # Suggest combining, using limma to remove batch effects for each experiment, and then calculate the rlog all together
@@ -3765,21 +3770,25 @@ C_gig_coldata <-  subset(All_coldata, Species =="C_gig")
 nrow(Dermo_counts) # 67868
 nrow(Probiotic_counts) # 67876
 nrow(ROD_counts) # 67870
+nrow(Pro_RE22_counts) # 67873
 Dermo_counts$rownames<- row.names(Dermo_counts)
 Probiotic_counts$rownames<- row.names(Probiotic_counts)
 ROD_counts$rownames<- row.names(ROD_counts)
+Pro_RE22_counts$rownames <- row.names(Pro_RE22_counts)
  
 nrow(deLorgeril_counts) # 53701
 nrow(He_counts) # 86859
 nrow(Zhang_counts ) # 53705
 nrow(Rubio_counts) # 53705
+
 deLorgeril_counts$rownames <- row.names(deLorgeril_counts)
 He_counts$rownames <- row.names(He_counts)
 Zhang_counts $rownames <- row.names(Zhang_counts )
 Rubio_counts$rownames <- row.names(Rubio_counts)
 
 # merge based on rownames (then delete rownames), starting with largest first
-C_vir_full_counts <- left_join(Probiotic_counts,ROD_counts, by ="rownames")
+C_vir_full_counts <- left_join(Probiotic_counts, Pro_RE22_counts,by ="rownames")
+C_vir_full_counts <- left_join(C_vir_full_counts,ROD_counts, by = "rownames")
 C_vir_full_counts <- left_join(C_vir_full_counts,Dermo_counts, by = "rownames")
 colnames(C_vir_full_counts)
 row.names(C_vir_full_counts) <- C_vir_full_counts$rownames
@@ -3801,7 +3810,7 @@ all(colnames(C_vir_full_counts) %in% rownames(C_vir_coldata  ))
 all(rownames(C_vir_coldata ) == colnames(C_vir_full_counts)) # TRUE
 
 # Fix the order (already in correct order)
-# C_vir_full_counts <- C_vir_full_counts[,row.names(C_vir_coldata)]
+ C_vir_full_counts <- C_vir_full_counts[,row.names(C_vir_coldata)]
 
 # C_gig
 all(rownames(C_gig_coldata ) %in% colnames(C_gig_full_counts ))  #Should return TRUE
@@ -3825,17 +3834,17 @@ C_gig_full_counts[is.na(C_gig_full_counts)] <- 0
 # Make DEseq data set from matrix so that the coldata gets attached
 C_vir_full_counts_dds <- DESeqDataSetFromMatrix(countData = C_vir_full_counts,
                                                       colData= C_vir_coldata,
-                                                      design = ~Condition)
+                                                      design = ~Experiment)
 # Collapse technical replicates 
 C_vir_full_counts_dds <- collapseReplicates(C_vir_full_counts_dds, C_vir_full_counts_dds$Sample, C_vir_full_counts_dds$TechRep)
-
+colnames(C_vir_full_counts_dds)
 # Calculate the vst
 C_vir_full_counts_vst <- varianceStabilizingTransformation(C_vir_full_counts_dds)
 
 # Make DEseq data set from matrix so that the coldata gets attached
 C_gig_full_counts_dds <- DESeqDataSetFromMatrix(countData = C_gig_full_counts ,
                                            colData = C_gig_coldata,
-                                           design = ~Condition)
+                                           design = ~Experiment)
 # Calculate the vst
 C_gig_full_counts_vst <- varianceStabilizingTransformation(C_gig_full_counts_dds)
 
@@ -3843,11 +3852,14 @@ C_gig_full_counts_vst <- varianceStabilizingTransformation(C_gig_full_counts_dds
 plotPCA(C_vir_full_counts_vst, "Experiment") # grouping by experiment, ROD and probiotic cluster more closely
 mat_C_vir <- assay(C_vir_full_counts_vst)
 mat_C_vir <- limma::removeBatchEffect(mat_C_vir, C_vir_full_counts_vst$Experiment)
+mat_C_vir <- limma::removeBatchEffect(mat_C_vir, C_vir_full_counts_vst$Species)
 #Coefficients not estimable: batch1 batch3 batch5 batch6 
 #Warning message:
 #  Partial NA coefficients for 67876 probe(s) 
+colnames(C_vir_full_counts_vst) # colnames got changed from SRA ID to the sample name
 assay(C_vir_full_counts_vst) <- mat_C_vir
 plotPCA(C_vir_full_counts_vst, "Experiment") # Probiotic and ROD now cluster together
+plotPCA(C_vir_full_counts_vst, "Condition")
 plotPCA(C_vir_full_counts_vst, "Sample")
 plotPCA(C_vir_full_counts_vst, "Time") # no clustering by time
 plotPCA(C_vir_full_counts_vst, "Family")
@@ -3855,11 +3867,13 @@ plotPCA(C_vir_full_counts_vst, "Family")
 plotPCA(C_gig_full_counts_vst, "Experiment") # grouping by experiment, Rubio delorgeril cluster, HE and Zhang far apart
 mat_C_gig <- assay(C_gig_full_counts_vst)
 mat_C_gig <- limma::removeBatchEffect(mat_C_gig, C_gig_full_counts_vst$Experiment)
+mat_C_gig <- limma::removeBatchEffect(mat_C_gig, C_gig_full_counts_vst$Species)
 #Coefficients not estimable: batch4 batch5 batch6 
 #Warning message:
 #  Partial NA coefficients for 86859 probe(s) 
 assay(C_gig_full_counts_vst) <- mat_C_gig
 plotPCA(C_gig_full_counts_vst, "Experiment") # He, Rubio and Zhang cluster closely 
+plotPCA(C_gig_full_counts_vst, "Condition")
 plotPCA(C_gig_full_counts_vst, "Sample")
 plotPCA(C_gig_full_counts_vst, "Time") # no clustering by time
 plotPCA(C_gig_full_counts_vst, "Family")
@@ -3945,6 +3959,46 @@ top_Var_C_gig_assay_mat_prot_annot <- left_join(top_Var_C_gig_apop_assay_mat_pro
 #six_hr_comparison_cluster <- as.data.frame(six_hr_comparison_cluster)
 #colnames(six_hr_comparison_cluster)[1] <- "transcript_id"
 #six_hr_comparison_cluster_subset <- subset(Res_mat_6hr_prot_annot, transcript_id %in% six_hr_comparison_cluster$transcript_id)
+
+#### DESCRIPTIVE TABLES ####
+# Comparative tables of apoptosis expression
+
+C_vir_apop_LFC_summmary_apop_transcripts_table <- C_vir_apop_LFC %>% group_by(experiment, group_by_sim) %>% summarize(number_apop_transcripts=n())
+C_gig_apop_LFC_summmary_apop_transcripts_table <- C_gig_apop_LFC %>% group_by(experiment, group_by_sim) %>% summarize(number_apop_transcripts=n())
+
+Combined_summmary_apop_transcripts_table <- rbind(C_vir_apop_LFC_summmary_apop_transcripts_table,C_gig_apop_LFC_summmary_apop_transcripts_table)
+
+# Number unique GIMAP per challenge
+C_vir_apop_LFC_GIMAP <- C_vir_apop_LFC[grepl("IMAP", C_vir_apop_LFC$product),]
+C_gig_apop_LFC_GIMAP <- C_gig_apop_LFC[grepl("IMAP", C_gig_apop_LFC$product),]
+
+# Number unique IAP per challenge
+C_vir_apop_LFC_IAP <- C_vir_apop_LFC[grepl("IAP", C_vir_apop_LFC$product),]
+C_gig_apop_LFC_IAP <- C_gig_apop_LFC[grepl("IAP", C_gig_apop_LFC$product),]
+
+# Number unique caspase per challenge
+C_vir_apop_LFC_caspase <- C_vir_apop_LFC[grepl("caspase", C_vir_apop_LFC$product),]
+C_gig_apop_LFC_caspase <- C_gig_apop_LFC[grepl("caspase", C_gig_apop_LFC$product),]
+
+# Number unique TNF family per challenge
+C_vir_apop_LFC_TNF <- C_vir_apop_LFC[grepl("TNF", C_vir_apop_LFC$product) | grepl("tumor", C_vir_apop_LFC$product),]
+C_gig_apop_LFC_TNF <- C_gig_apop_LFC[grepl("TNF", C_gig_apop_LFC$product) | grepl("tumor", C_gig_apop_LFC$product),]
+
+# Number unique TNF family per challenge
+C_vir_apop_LFC_Toll <- C_vir_apop_LFC[grepl("toll", C_vir_apop_LFC$product),]
+C_gig_apop_LFC_Toll <- C_gig_apop_LFC[grepl("toll", C_gig_apop_LFC$product),]
+
+# Number unique TNF family per challenge
+C_vir_apop_LFC_Toll <- C_vir_apop_LFC[grepl("toll", C_vir_apop_LFC$product),]
+C_gig_apop_LFC_Toll <- C_gig_apop_LFC[grepl("toll", C_gig_apop_LFC$product),]
+
+# Number unique interferon per challenge
+C_vir_apop_LFC_interferon <- C_vir_apop_LFC[grepl("interferon", C_vir_apop_LFC$product),]
+C_gig_apop_LFC_interferon <- C_gig_apop_LFC[grepl("interferon", C_gig_apop_LFC$product),]
+
+# Number unique heatshock per challenge
+C_vir_apop_LFC_hsp <- C_vir_apop_LFC[grepl("heat", C_vir_apop_LFC$product),]
+C_gig_apop_LFC_hsp <- C_gig_apop_LFC[grepl("heat", C_gig_apop_LFC$product),]
 
 
 #### SESSION INFO FOR RUNNING SCRIPTS FEB 2020 ####
