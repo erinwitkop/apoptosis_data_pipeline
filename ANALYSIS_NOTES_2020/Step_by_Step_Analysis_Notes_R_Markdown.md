@@ -1494,4 +1494,23 @@ deLorgeril_Susceptible_dds_res_72_LFC_sig_APOP`
               # Did my XM to XP look up tables from Batch Entrez load into R correctly?
             # fixed code `
 
-## March 09, 2020 Meeting with Rachel and plans for future analysis
+## March 09, 2020 - March 19th
+
+* Finished Figure 1 for paper
+* Finished curating list of full regulated cell death genes
+* Started creating supplementary tables and real tables for the paper
+* Added in a few new molecules to list to search for (IRF, STING, IL17, IL17 receptor). Updated these on all my molecule lists
+* Adding these in to my DESeq script and rerunning to update
+
+## March 19th, 2020
+
+* Meeting with Marta this morning:
+  - Discussed my Figure 1 apoptosis pathway diagram
+      - Best next step is determining level of expansion of genes in eastern oyster as compared to other species genomes
+      - Which species: those across the tree of life with genomes annotated completely and with the NCBI pipeline
+        - Searching the NCBI genome page for eukaryotic genomes that were assembled to the chromosome level (meaning they are relatively complete genomes) and that were annotated with the NCBI RefSeq pipeline
+      - In the full genomes database selected the following to create list to search downloaded the following results as a TSV
+        - GROUP = Animals
+        - SUBGROUP = Other animals
+        - ASSEMBLY LEVEL = Chromosome, Scaffold
+      - Filtered out genomes genomes that have less than 10,000 CDS, brought list down to 57

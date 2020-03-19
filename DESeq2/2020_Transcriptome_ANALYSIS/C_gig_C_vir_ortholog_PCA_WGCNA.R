@@ -1784,11 +1784,17 @@ autoplot(pcVST_combined_orthologs,
          data=All_coldata_no_techrep_done,
          colour="Species", 
          size=5)
+autoplot(pcVST_combined_orthologs,
+         data=All_coldata_no_techrep_done,
+         colour="Condition", 
+         size=5,
+         x = 2,
+         y = 3)
 # complete separation by species  (using this method!)
 
 # However, if I ran the same analysis by doing the vst on all the orthologs and corrected for species and experiment it may look different 
 
-
+### Heatmap of the vst counts table from this 
 
 ### THIS BELOW IS SCRAP CODE I NEED TO GO THROUGH 
 

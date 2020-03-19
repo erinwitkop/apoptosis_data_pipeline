@@ -50,96 +50,11 @@ library(limma)
 ##### LOADING GENOME DATA AND GO TERMS ##### 
 
 #### C. virginica 
-
 # Import gff file with rtracklayer
 C_vir_rtracklayer <- rtracklayer::import("/Users/erinroberts/Documents/PhD_Research/Chapter_1_Apoptosis Paper/Chapter1_Apoptosis_Transcriptome_Analyses_2019/DATA ANALYSIS/apoptosis_data_pipeline/DESeq2/2020_Transcriptome_ANALYSIS/ref_C_virginica-3.0_top_level.gff3")
 C_vir_rtracklayer <- as.data.frame(C_vir_rtracklayer)
 
-# Load finished C_vir_rtracklayer_transcripts_GO.csv with GO terms mapped using code and processed below. Do not repeat every time.
-#C_vir_rtracklayer_transcripts_GO <- read.csv("/Users/erinroberts/Documents/PhD_Research/Chapter_1_Apoptosis Paper/Chapter1_Apoptosis_Transcriptome_Analyses_2019/DATA ANALYSIS/apoptosis_data_pipeline/DESeq2/2020_Transcriptome_ANALYSIS/C_vir_rtracklayer_transcripts_GO.csv", header=TRUE)
-
-# Isolate transcript lines in GFF annotation so that I can use Batch Entrez lookup for their parent proteins
-#C_vir_rtracklayer_transcripts <- filter(C_vir_rtracklayer, grepl("XM", transcript_id))
-#C_vir_rtracklayer_transcripts_unique <- subset(C_vir_rtracklayer_transcripts, !duplicated(transcript_id))
-#write.table(file="./Dermo_2015_Analysis/OUTPUT/C_vir_unique_transcripts.txt", C_vir_rtracklayer_transcripts_unique$transcript_id) 
-# remove first column and row with the rownames: cut -d' ' -f2 C_vir_unique_transcripts.txt | tail -n +2 > C_vir_unique_transcripts_cut.txt
-# remove quotes: sed 's/\"//g' C_vir_unique_transcripts_cut.txt > C_vir_unique_transcripts_cut_no_quotes.txt
-# Split in terminal to multiple files: split -l 10000 C_vir_unique_transcripts_cut_no_quotes.txt
-# mv output to C_vir_unique_transcripts*.txt
-# In batch entrez select the nucleotide format ,and then don't highlight anything and click on "send to" and select, "complete record" then "file" then "GFF3"
-# extract XM and XP information
-# Combined all files using 'for i in x*_batch.txt ; do cat $i >> combined_batch_lookup.txt; done'
-# Extracting Gnomon CDS entry for each transcript by grepping for "cds-" which comes before the XP name for every line: grep "cds-" combined_batch_lookup.txt > combined_batch_lookup_cds.txt
-# changing file suffix to gff3 so it can be imported 
-
-#upload Batch entrez NCBI gff2 format 
-#C_vir_XM_with_XP <- import("/Users/erinroberts/Documents/PhD_Research/Chapter_1_Apoptosis Paper/Chapter1_Apoptosis_Transcriptome_Analyses_2019/DATA ANALYSIS/apoptosis_data_pipeline/DESeq2/C_VIRGINICA_PIPELINE/Dermo_2015_Analysis/OUTPUT/combined_batch_lookup_cds.gff")
-#C_vir_XM_with_XP <- as.data.frame(C_vir_XM_with_XP)
-#C_vir_XM_with_XP_index <- C_vir_XM_with_XP[,c("seqnames","protein_id")]
-#colnames(C_vir_XM_with_XP_index)[1] <- "transcript_id"
-
-# Load in Interproscan GO annotation from LSU Kevin using Rtracklayer
-# cat all the edited header removed files from Interproscan Kevin LSU files Import gff file with rtracklayer
-# for i in edited*.gff3; do cat $i >> combined_CV_prot_id_interproscan.gff3 ; done
-
-# In terminal, combine all the gff files and remove the comment lines from the script 
-#Cvir_Interproscan1 <- import("/Users/erinroberts/Documents/PhD_Research/GOMEZCHIARRI2_FILES_DAILYNOTES/GENOME_TRANSCRIPTOME_SEQUENCES/IP5_out/protein_id/combined_CV_prot_id_interproscan.gff3")
-#class(Cvir_Interproscan1)
-# convert to dataframe object using annoGR2DF (repitools)
-#Cvir_Interproscan_DF <- annoGR2DF(Cvir_Interproscan1)
-#class(Cvir_Interproscan_DF) #data.frame
-
-# Interproscan file has multiple lines per entry, need to subset for the lines that do have a GO entry because not all of them do, then subset for unique protein lines
-#class(Cvir_Interproscan_DF$Ontology_term)
-#Cvir_Interproscan_DF$Ontology_term <- as.character(Cvir_Interproscan_DF$Ontology_term)
-#C_vir_Interproscan_GO <- Cvir_Interproscan_DF %>% filter(Ontology_term !="character(0)")
-#head(C_vir_Interproscan_GO)
-
-# keep lines with unique protein and GO terms 
-#C_vir_Interproscan_GO_unique <- C_vir_Interproscan_GO[!duplicated(C_vir_Interproscan_GO[,c("chr","Ontology_term")]),]
-
-# Format GO term column correctly 
-#C_vir_Interproscan_GO_unique$Ontology_term <- gsub("[^[:alnum:][:blank:]+:/\\-]", "", C_vir_Interproscan_GO_unique$Ontology_term )
-#C_vir_Interproscan_GO_unique$Ontology_term <- gsub(C_vir_Interproscan_GO_unique$Ontology_term, pattern="c\\", replacement="", fixed=TRUE)
-#C_vir_Interproscan_GO_unique$Ontology_term <- gsub(C_vir_Interproscan_GO_unique$Ontology_term, pattern="\\", replacement="", fixed=TRUE)
-#C_vir_Interproscan_GO_unique$Ontology_term <- gsub(C_vir_Interproscan_GO_unique$Ontology_term, pattern=" ",replacement =",", fixed=TRUE)
-#class(C_vir_Interproscan_GO_unique)
-
-# merge GO terms with the same protein name so there aren't multiple lines for a transcript
-#C_vir_Interproscan_GO_unique <- ddply(C_vir_Interproscan_GO_unique, "chr", summarize, Combined_ontology = toString(Ontology_term))
-
-# Remove duplicate GO strings in the same column and create new column
-#C_vir_Interproscan_GO_unique$Combined_ontology <- gsub(" ", "", C_vir_Interproscan_GO_unique$Combined_ontology)
-#C_vir_Interproscan_GO_unique <- mutate(C_vir_Interproscan_GO_unique, unique_go = map(str_split(Combined_ontology, ","), unique))
-
-# make new column that removes the "_ORF" from the end of the seqnames columns
-#C_vir_Interproscan_GO_unique$protein_id <- str_remove(C_vir_Interproscan_GO_unique$chr, "_ORF")
-
-# merge XM and XP list with Interproscan list
-#C_vir_Interproscan_GO_unique_XM_merged <- C_vir_Interproscan_GO_unique %>% left_join(select(C_vir_XM_with_XP_index, "transcript_id","protein_id"), by = "protein_id")
-
-# Merge Interproscan list onto transcript annotation using left_join of the TRANSCRIPT ID so that it joins correctly at the level of transcripts
-# non unique file
-#C_vir_rtracklayer_GO <-  C_vir_rtracklayer %>% left_join(select(C_vir_Interproscan_GO_unique_XM_merged,"unique_go","transcript_id"), by = "transcript_id")
-
-#unique file with one line per transcript
-#C_vir_rtracklayer_transcripts_GO <- C_vir_rtracklayer_transcripts_unique %>% left_join(select(C_vir_Interproscan_GO_unique_XM_merged,"unique_go","transcript_id"), by = "transcript_id")
-
-# are they all NULL?
-#C_vir_rtracklayer_GO %>% filter(unique_go !="NULL") # nope they are not!!
-
-# Export for use in cluster later
-#class(C_vir_rtracklayer_transcripts_GO)
-# coerce data frame to be all character
-# First coerce the data.frame to all-character
-#C_vir_rtracklayer_transcripts_GO_2 = data.frame(lapply(C_vir_rtracklayer_transcripts_GO, as.character), stringsAsFactors=FALSE)
-#head(C_vir_rtracklayer_transcripts_GO_2)
-# now write to csv
-#write.csv(C_vir_rtracklayer_transcripts_GO_2, file="C_vir_rtracklayer_transcripts_GO.csv")
-
-### C. gigas
-# C. gigas genome already has GO terms mapped to it. 
-
+#### C. gigas
 # Import gff file, using new version of genome annotation
 C_gig_rtracklayer <- rtracklayer::import("/Users/erinroberts/Documents/PhD_Research/Chapter_1_Apoptosis Paper/Chapter1_Apoptosis_Transcriptome_Analyses_2019/DATA ANALYSIS/apoptosis_data_pipeline/DESeq2/2020_Transcriptome_ANALYSIS/GCF_000297895.1_oyster_v9_genomic.gff")
 C_gig_rtracklayer <- as.data.frame(C_gig_rtracklayer)
@@ -288,7 +203,11 @@ Apoptosis_names_list <- c('bcl-2-related protein A1',
                           'p53-induced death domain-containing protein 1',
                           'death domain-containing protein CRADD',
                           'p63',
-                          'p73')
+                          'p73',
+                          'interferon regulatory factor',
+                          'stimulator of interferon genes',
+                          'interleukin 17-like protein',
+                          'interleukin-17')
 
 #### Grep Apoptosis protein names in genome files ####
 
@@ -296,7 +215,7 @@ Apoptosis_names_list <- c('bcl-2-related protein A1',
 C_vir_rtracklayer_mRNA <- C_vir_rtracklayer %>% filter(type == "mRNA")
 C_vir_rtracklayer_apop_product <- C_vir_rtracklayer_mRNA[grepl(paste(Apoptosis_names_list,collapse="|"), 
                                                                C_vir_rtracklayer_mRNA$product, ignore.case = TRUE),]
-nrow(C_vir_rtracklayer_apop_product) #1106
+nrow(C_vir_rtracklayer_apop_product) #1134
 
 # Terms to remove
 # remove complement C1q proteins, dual specificity protein phosphatase 1B-like, remove kunitz-type, and NOT other kDA protein names so I can keep all heat shock proteins
@@ -315,7 +234,7 @@ C_vir_rtracklayer_apop_product_final <-C_vir_rtracklayer_apop_product[!grepl("co
                                                                          !grepl("caspase-14", C_vir_rtracklayer_apop_product$product, ignore.case = TRUE) &
                                                                          !grepl("WD repeat-containing protein WRAP73", C_vir_rtracklayer_apop_product$product, ignore.case = TRUE) &
                                                                          !grepl("tumor protein p63-regulated gene 1-like protein", C_vir_rtracklayer_apop_product$product, ignore.case = TRUE),]
-nrow(C_vir_rtracklayer_apop_product_final) #1026
+nrow(C_vir_rtracklayer_apop_product_final) #1054
 
 ## Identify CG apoptosis genes 
 Apoptosis_names_list_CG <- c('bcl-2-related protein A1',
@@ -459,7 +378,11 @@ Apoptosis_names_list_CG <- c('bcl-2-related protein A1',
                              'p53-induced death domain-containing protein 1',
                              'death domain-containing protein CRADD',
                              'p63',
-                             'p73')
+                             'p73',
+                             'interferon regulatory factor',
+                             'stimulator of interferon genes',
+                             'interleukin 17-like protein',
+                             'interleukin-17')
 
 #### Grep Apoptosis protein names in genome files CG ####
 ## Note unlike C. vir file, C. gigas file has gene names in the "product" column, and still includes comma with transcript info for some
@@ -472,7 +395,7 @@ C_gig_rtracklayer_filtered <- C_gig_rtracklayer %>% filter(type =="mRNA")
 # only genes have the description, the mRNA id's will match with the ID
 C_gig_rtracklayer_apop_product <- C_gig_rtracklayer_filtered[grepl(paste(Apoptosis_names_list_CG,collapse="|"), 
                                                                    C_gig_rtracklayer_filtered$product, ignore.case = TRUE),]
-nrow(C_gig_rtracklayer_apop_product) #797
+nrow(C_gig_rtracklayer_apop_product) #788
 
 # Terms to remove
 # remove complement C1q proteins, dual specificity protein phosphatase 1B-like, remove kunitz-type, and other NOT kDA protein names so I can keep heat shock proteins in both
@@ -494,7 +417,7 @@ C_gig_rtracklayer_apop_product_final <- C_gig_rtracklayer_apop_product[!grepl("c
                                                                          !grepl("caspase-14",C_gig_rtracklayer_apop_product$product, ignore.case = TRUE) &
                                                                          !grepl("WD repeat-containing protein WRAP73", C_gig_rtracklayer_apop_product$product, ignore.case = TRUE) &
                                                                          !grepl("tumor protein p63-regulated gene 1-like protein", C_gig_rtracklayer_apop_product$product, ignore.case = TRUE),]
-nrow(C_gig_rtracklayer_apop_product_final) #660
+nrow(C_gig_rtracklayer_apop_product_final) #684
 
 #### ZHANG VIBRIO TRANSCRIPTOME ANALYSIS ####
 
@@ -766,8 +689,9 @@ family_Zhang_mat_prot_annot <- left_join(family_Zhang_mat_prot, select(C_gig_rtr
 C_gig_rtracklayer_apop_product_final_transcript_id <- as.vector(C_gig_rtracklayer_apop_product_final$transcript_id)
 # Search original Zhang_counts for apoptosis genes and do rlog on just these
 Zhang_counts_apop <- Zhang_counts[row.names(Zhang_counts) %in% C_gig_rtracklayer_apop_product_final_transcript_id,]
-nrow(Zhang_counts_apop) #659
+nrow(Zhang_counts_apop) #683
 head(Zhang_counts_apop)
+
 Zhang_counts_apop_dds <- DESeqDataSetFromMatrix(countData = Zhang_counts_apop,
                                          colData = Zhang_coldata,
                                          design = ~time + group_by_sim) # add time to control for injection and time effect
@@ -807,15 +731,15 @@ top_Var_Zhang_counts_apop_assay_prot_annot <- left_join(top_Var_Zhang_counts_apo
 ### Extract list of significant Apoptosis Genes (not less than or greater than 1 LFC) using merge
 Zhang_dds_deseq_res_V_alg1_LFC_sig_APOP <- merge(Zhang_dds_deseq_res_V_alg1_LFC_sig, C_gig_rtracklayer_apop_product_final, by = "transcript_id")
 Zhang_dds_deseq_res_V_alg1_LFC_sig_APOP_arranged <- arrange(Zhang_dds_deseq_res_V_alg1_LFC_sig_APOP , -log2FoldChange) 
-nrow(Zhang_dds_deseq_res_V_alg1_LFC_sig_APOP) #19
+nrow(Zhang_dds_deseq_res_V_alg1_LFC_sig_APOP) #20
 
 Zhang_dds_deseq_res_V_tub_LFC_sig_APOP <- merge(Zhang_dds_deseq_res_V_tub_LFC_sig , C_gig_rtracklayer_apop_product_final, by = "transcript_id")
 Zhang_dds_deseq_res_V_tub_LFC_sig_APOP_arranged <- arrange(Zhang_dds_deseq_res_V_tub_LFC_sig_APOP  , -log2FoldChange) 
-nrow(Zhang_dds_deseq_res_V_tub_LFC_sig_APOP) # 15
+nrow(Zhang_dds_deseq_res_V_tub_LFC_sig_APOP) # 16
 
 Zhang_dds_deseq_res_LFC_LPS_sig_APOP <- merge(Zhang_dds_deseq_res_LFC_LPS_sig, C_gig_rtracklayer_apop_product_final, by = "transcript_id")
 Zhang_dds_deseq_res_LFC_LPS_sig_APOP_arranged <- arrange(Zhang_dds_deseq_res_LFC_LPS_sig_APOP , -log2FoldChange) 
-nrow(Zhang_dds_deseq_res_LFC_LPS_sig_APOP )  #14
+nrow(Zhang_dds_deseq_res_LFC_LPS_sig_APOP )  #15
 
 # Compare apoptosis genes between group_by_sim groups
 Zhang_dds_deseq_res_V_alg1_LFC_sig_APOP$group_by_sim <- "V_aes_V_alg1_V_alg2"
@@ -830,7 +754,7 @@ Zhang_upset_all_sig_APOP <- rbind(Zhang_dds_deseq_res_V_alg1_LFC_sig_APOP[,c("pr
 Zhang_upset_all_sig_APOP_joined <- full_join( Zhang_dds_deseq_res_V_alg1_LFC_sig_APOP[,c("product","group_by_sim")], Zhang_dds_deseq_res_V_tub_LFC_sig_APOP[,c("product","group_by_sim")], by ="product")
 Zhang_upset_all_sig_APOP_joined <- full_join(Zhang_upset_all_sig_APOP_joined , Zhang_dds_deseq_res_LFC_LPS_sig_APOP[,c("product","group_by_sim")], by ="product")
 Zhang_upset_all_sig_APOP_joined <- na.omit(Zhang_upset_all_sig_APOP_joined)
-nrow(Zhang_upset_all_sig_APOP_joined) # 10 shared between all
+nrow(Zhang_upset_all_sig_APOP_joined) # 11 shared between all
 
   # Convert into wide format using reshape
 Zhang_upset_all_sig_APOP_tally <- Zhang_upset_all_sig_APOP %>% group_by(product) %>% tally() 
@@ -1076,7 +1000,7 @@ family_Rubio_broken_mat_prot_annot <- left_join(family_Rubio_broken_mat_prot, se
 C_gig_rtracklayer_apop_product_final_transcript_id 
 # Search original Rubio_counts for apoptosis genes and do rlog on just these
 Rubio_counts_apop <- Rubio_counts[row.names(Rubio_counts) %in% C_gig_rtracklayer_apop_product_final_transcript_id,]
-nrow(Rubio_counts_apop) #659
+nrow(Rubio_counts_apop) #683
 head(Rubio_counts_apop)
 Rubio_counts_apop_dds <- DESeqDataSetFromMatrix(countData = Rubio_counts_apop,
                                                 colData = Rubio_coldata,
@@ -1124,10 +1048,10 @@ Rubio_dds_deseq_J2_9_res_LFC_sig_APOP_arranged <-    arrange(Rubio_dds_deseq_J2_
 Rubio_dds_deseq_LGP32_res_LFC_sig_APOP_arranged <-   arrange(Rubio_dds_deseq_LGP32_res_LFC_sig_APOP, -log2FoldChange)
 Rubio_dds_deseq_LMG20012T_res_LFC_sig_APOP_arranged<-arrange(Rubio_dds_deseq_LMG20012T_res_LFC_sig_APOP, -log2FoldChange)
 
-nrow(Rubio_dds_deseq_J2_8_res_LFC_sig_APOP_arranged ) # 63
-nrow(Rubio_dds_deseq_J2_9_res_LFC_sig_APOP_arranged  ) # 66
-nrow(Rubio_dds_deseq_LGP32_res_LFC_sig_APOP_arranged  ) #68
-nrow(Rubio_dds_deseq_LMG20012T_res_LFC_sig_APOP_arranged) # 62
+nrow(Rubio_dds_deseq_J2_8_res_LFC_sig_APOP_arranged ) # 67
+nrow(Rubio_dds_deseq_J2_9_res_LFC_sig_APOP_arranged  ) # 71
+nrow(Rubio_dds_deseq_LGP32_res_LFC_sig_APOP_arranged  ) #72
+nrow(Rubio_dds_deseq_LMG20012T_res_LFC_sig_APOP_arranged) # 66
 
 #View(Rubio_dds_deseq_J2_8_res_LFC_sig_APOP_arranged)
 #View(Rubio_dds_deseq_J2_9_res_LFC_sig_APOP_arranged)
@@ -1568,19 +1492,19 @@ deLorgeril_Susceptible_dds_res_48_LFC_sig_APOP <- arrange(deLorgeril_Susceptible
 deLorgeril_Susceptible_dds_res_60_LFC_sig_APOP <- arrange(deLorgeril_Susceptible_dds_res_60_LFC_sig_APOP, -log2FoldChange)
 deLorgeril_Susceptible_dds_res_72_LFC_sig_APOP <- arrange(deLorgeril_Susceptible_dds_res_72_LFC_sig_APOP, -log2FoldChange)
 
-nrow(deLorgeril_Resistant_dds_res_6_LFC_sig_APOP) #21
-nrow(deLorgeril_Resistant_dds_res_12_LFC_sig_APOP) #50
-nrow(deLorgeril_Resistant_dds_res_24_LFC_sig_APOP) #73
-nrow(deLorgeril_Resistant_dds_res_48_LFC_sig_APOP) #25
-nrow(deLorgeril_Resistant_dds_res_60_LFC_sig_APOP) # 54
-nrow(deLorgeril_Resistant_dds_res_72_LFC_sig_APOP) # 33
+nrow(deLorgeril_Resistant_dds_res_6_LFC_sig_APOP) #22
+nrow(deLorgeril_Resistant_dds_res_12_LFC_sig_APOP) #54
+nrow(deLorgeril_Resistant_dds_res_24_LFC_sig_APOP) #79
+nrow(deLorgeril_Resistant_dds_res_48_LFC_sig_APOP) #27
+nrow(deLorgeril_Resistant_dds_res_60_LFC_sig_APOP) # 59
+nrow(deLorgeril_Resistant_dds_res_72_LFC_sig_APOP) # 35
 
 nrow(deLorgeril_Susceptible_dds_res_6_LFC_sig_APOP) #28
-nrow(deLorgeril_Susceptible_dds_res_12_LFC_sig_APOP) #85
-nrow(deLorgeril_Susceptible_dds_res_24_LFC_sig_APOP) #154
+nrow(deLorgeril_Susceptible_dds_res_12_LFC_sig_APOP) #92
+nrow(deLorgeril_Susceptible_dds_res_24_LFC_sig_APOP) #164
 nrow(deLorgeril_Susceptible_dds_res_48_LFC_sig_APOP) #34
-nrow(deLorgeril_Susceptible_dds_res_60_LFC_sig_APOP) # 186
-nrow(deLorgeril_Susceptible_dds_res_72_LFC_sig_APOP) # 47
+nrow(deLorgeril_Susceptible_dds_res_60_LFC_sig_APOP) # 196
+nrow(deLorgeril_Susceptible_dds_res_72_LFC_sig_APOP) # 50
 
 #View(deLorgeril_Resistant_dds_res_48_LFC_sig_APOP  $product)
 #View(deLorgeril_Resistant_dds_res_60_LFC_sig_APOP  $product)
@@ -2027,11 +1951,11 @@ He_dds_res_24hr_sig_arranged <- arrange(He_dds_res_24hr_sig_APOP , -log2FoldChan
 He_dds_res_48hr_sig_arranged <- arrange(He_dds_res_48hr_sig_APOP , -log2FoldChange)
 He_dds_res_120hr_sig_arranged <- arrange(He_dds_res_120hr_sig_APOP, -log2FoldChange)
 
-nrow(He_dds_res_6hr_sig_arranged ) # 17
-nrow(He_dds_res_12hr_sig_arranged) # 26
-nrow(He_dds_res_24hr_sig_arranged) # 60
-nrow(He_dds_res_48hr_sig_arranged) # 20
-nrow(He_dds_res_120hr_sig_arranged) # 19
+nrow(He_dds_res_6hr_sig_arranged ) # 22
+nrow(He_dds_res_12hr_sig_arranged) # 27
+nrow(He_dds_res_24hr_sig_arranged) # 61
+nrow(He_dds_res_48hr_sig_arranged) # 21
+nrow(He_dds_res_120hr_sig_arranged) # 20
 
 He_dds_res_6hr_sig_APOP$group_by_sim <-"He_dds_res_6hr_sig_APOP"
 He_dds_res_12hr_sig_APOP$group_by_sim <-"He_dds_res_12hr_sig_APOP"
@@ -2529,10 +2453,10 @@ Pro_RE22_dds_deseq_res_S4_24h_LFC_sig_APOP <- merge(Pro_RE22_dds_deseq_res_S4_24
 Pro_RE22_dds_deseq_res_RE22_LFC_sig_APOP <- merge(Pro_RE22_dds_deseq_res_RE22_LFC_sig, C_vir_rtracklayer_apop_product_final, by = "ID")
 
 nrow(Pro_RE22_dds_deseq_res_RI_6h_LFC_sig_APOP ) # 17
-nrow(Pro_RE22_dds_deseq_res_RI_24h_LFC_sig_APOP) # 32
+nrow(Pro_RE22_dds_deseq_res_RI_24h_LFC_sig_APOP) # 33
 nrow(Pro_RE22_dds_deseq_res_S4_6h_LFC_sig_APOP ) # 40
 nrow(Pro_RE22_dds_deseq_res_S4_24h_LFC_sig_APOP) # 41
-nrow(Pro_RE22_dds_deseq_res_RE22_LFC_sig_APOP ) # 27 
+nrow(Pro_RE22_dds_deseq_res_RE22_LFC_sig_APOP ) # 28 
 
 # Compare apoptosis genes between group_by_sim groups
 Pro_RE22_dds_deseq_res_RI_6h_LFC_sig_APOP $group_by_sim <- "RI_6h"
@@ -2857,7 +2781,7 @@ top_Var_ROD_Susceptible_apop_assay_prot_annot <- left_join(top_Var_ROD_Susceptib
 ### Extract list of significant Apoptosis Genes (not less than or greater than 1 LFC) using merge
 ROD_Susceptible_dds_res_LFC_sig_APOP <- merge(ROD_Susceptible_dds_res_LFC_sig, C_vir_rtracklayer_apop_product_final, by = "ID")
 ROD_Susceptible_dds_res_LFC_sig_APOP_arranged <- arrange(ROD_Susceptible_dds_res_LFC_sig_APOP, -log2FoldChange) 
-nrow(ROD_Susceptible_dds_res_LFC_sig_APOP) # 39
+nrow(ROD_Susceptible_dds_res_LFC_sig_APOP) # 41
 
 ROD_Resistant_dds_res_LFC_sig_APOP <- merge(ROD_Resistant_dds_res_LFC_sig, C_vir_rtracklayer_apop_product_final, by = "ID")
 ROD_Resistant_dds_res_LFC_sig_APOP_arranged <- arrange(ROD_Resistant_dds_res_LFC_sig_APOP, -log2FoldChange) 
@@ -3388,15 +3312,15 @@ nrow(Dermo_Susceptible_28d_dds_res_LFC_sig_APOP) # 26
 
 Dermo_Tolerant_36hr_dds_res_LFC_sig_APOP <- merge(Dermo_Tolerant_36hr_dds_res_LFC_sig, C_vir_rtracklayer_apop_product_final, by = "ID")
 Dermo_Tolerant_36hr_dds_res_LFC_sig_APOP_arranged <- arrange(Dermo_Tolerant_36hr_dds_res_LFC_sig_APOP, -log2FoldChange) 
-nrow(Dermo_Tolerant_36hr_dds_res_LFC_sig_APOP)  # 11
+nrow(Dermo_Tolerant_36hr_dds_res_LFC_sig_APOP)  # 12
 
 Dermo_Tolerant_7d_dds_res_LFC_sig_APOP <- merge(Dermo_Tolerant_7d_dds_res_LFC_sig, C_vir_rtracklayer_apop_product_final, by = "ID")
 Dermo_Tolerant_7d_dds_res_LFC_sig_APOP_arranged <- arrange(Dermo_Tolerant_7d_dds_res_LFC_sig_APOP, -log2FoldChange) 
-nrow(Dermo_Tolerant_7d_dds_res_LFC_sig_APOP) # 13
+nrow(Dermo_Tolerant_7d_dds_res_LFC_sig_APOP) # 14
 
 Dermo_Tolerant_28d_dds_res_LFC_sig_APOP <- merge(Dermo_Tolerant_28d_dds_res_LFC_sig, C_vir_rtracklayer_apop_product_final, by = "ID")
 Dermo_Tolerant_28d_dds_res_LFC_sig_APOP_arranged <- arrange(Dermo_Tolerant_28d_dds_res_LFC_sig_APOP, -log2FoldChange) 
-nrow(Dermo_Tolerant_28d_dds_res_LFC_sig_APOP) # 9
+nrow(Dermo_Tolerant_28d_dds_res_LFC_sig_APOP) # 11
  
 # Compare apoptosis genes between group_by_sim groups
 Dermo_Susceptible_36hr_dds_res_LFC_sig_APOP$group_by_sim <- "Susceptible_36hr"
@@ -3446,7 +3370,7 @@ Pro_RE22_dds_deseq_res_RI_6h_LFC_sig_APOP$experiment <- "Pro_RE22"
 Pro_RE22_dds_deseq_res_RI_24h_LFC_sig_APOP$experiment <- "Pro_RE22"
 Pro_RE22_dds_deseq_res_S4_6h_LFC_sig_APOP$experiment <- "Pro_RE22"
 Pro_RE22_dds_deseq_res_S4_24h_LFC_sig_APOP$experiment <- "Pro_RE22"
-Pro_RE22_dds_deseq_res_RE22_LFC_sig_APOP$experiment <- "RE22"
+Pro_RE22_dds_deseq_res_RE22_LFC_sig_APOP$experiment <- "Pro_RE22"
 
 # combine all data , add in the gene and XM info. The XM lines don't also contain the XP
 C_vir_apop_LFC <- rbind(
@@ -3539,70 +3463,6 @@ C_gig_apop_APOP_downregulated_plot <- ggplot(C_gig_apop_APOP_downregulated , aes
   theme(axis.text.x = element_text(angle = 75, hjust = 1)) + coord_flip()
 C_gig_apop_APOP_upregulated_plot <- ggplot(C_gig_apop_APOP_upregulated , aes(x=product,y=log2FoldChange, fill=experiment )) + geom_col(position="dodge") + 
   theme(axis.text.x = element_text(angle = 75, hjust = 1)) + coord_flip()
-
-#### TRANSCRIPT UPSET PLOT ####
-# helpful link: https://jokergoo.github.io/ComplexHeatmap-reference/book/upset-plot.html
-# Using UpsetR NEED TO FIX THIS BELOW
-# Input data can be a list of sets where each set is a vector: https://jokergoo.github.io/ComplexHeatmap-reference/book/upset-plot.html#input-data
-Zhang_dds_deseq_res_V_alg1_LFC_sig_APOP_vector <- as.vector(Zhang_dds_deseq_res_V_alg1_LFC_sig_APOP$transcript_id)
-Zhang_dds_deseq_res_V_tub_LFC_sig_APOP_vector <- as.vector(Zhang_dds_deseq_res_V_tub_LFC_sig_APOP$transcript_id)
-Zhang_dds_deseq_res_LFC_LPS_sig_APOP_vector <- as.vector(Zhang_dds_deseq_res_LFC_LPS_sig_APOP$transcript_id)
-Rubio_dds_deseq_J2_8_res_LFC_sig_APOP_vector <- as.vector(Rubio_dds_deseq_J2_8_res_LFC_sig_APOP$transcript_id)
-Rubio_dds_deseq_J2_9_res_LFC_sig_APOP_vector <- as.vector(Rubio_dds_deseq_J2_9_res_LFC_sig_APOP$transcript_id)
-Rubio_dds_deseq_LGP32_res_LFC_sig_APOP_vector <- as.vector(Rubio_dds_deseq_LGP32_res_LFC_sig_APOP$transcript_id)
-Rubio_dds_deseq_LMG20012T_res_LFC_sig_APOP_vector <- as.vector(Rubio_dds_deseq_LMG20012T_res_LFC_sig_APOP$transcript_id)
-He_dds_res_6hr_sig_APOP_vector <- as.vector(He_dds_res_6hr_sig_APOP$transcript_id)
-He_dds_res_12hr_sig_APOP_vector <- as.vector(He_dds_res_12hr_sig_APOP$transcript_id)
-He_dds_res_24hr_sig_APOP_vector <- as.vector(He_dds_res_24hr_sig_APOP$transcript_id)
-He_dds_res_48hr_sig_APOP_vector <- as.vector(He_dds_res_48hr_sig_APOP$transcript_id)
-He_dds_res_120hr_sig_APOP_vector <- as.vector(He_dds_res_120hr_sig_APOP$transcript_id)
-deLorgeril_Resistant_dds_res_6_LFC_sig_APOP_vector <- as.vector(deLorgeril_Resistant_dds_res_6_LFC_sig_APOP$transcript_id)
-deLorgeril_Resistant_dds_res_12_LFC_sig_APOP_vector <- as.vector(deLorgeril_Resistant_dds_res_12_LFC_sig_APOP$transcript_id)
-deLorgeril_Resistant_dds_res_24_LFC_sig_APOP_vector <- as.vector(deLorgeril_Resistant_dds_res_24_LFC_sig_APOP$transcript_id)
-deLorgeril_Resistant_dds_res_48_LFC_sig_APOP_vector <- as.vector(deLorgeril_Resistant_dds_res_48_LFC_sig_APOP$transcript_id)
-deLorgeril_Resistant_dds_res_60_LFC_sig_APOP_vector <- as.vector(deLorgeril_Resistant_dds_res_60_LFC_sig_APOP$transcript_id)
-deLorgeril_Resistant_dds_res_72_LFC_sig_APOP_vector <- as.vector(deLorgeril_Resistant_dds_res_72_LFC_sig_APOP$transcript_id)
-deLorgeril_Susceptible_dds_res_6_LFC_sig_APOP_vector <- as.vector(deLorgeril_Susceptible_dds_res_6_LFC_sig_APOP$transcript_id)
-deLorgeril_Susceptible_dds_res_12_LFC_sig_APOP_vector <- as.vector(deLorgeril_Susceptible_dds_res_12_LFC_sig_APOP$transcript_id)
-deLorgeril_Susceptible_dds_res_24_LFC_sig_APOP_vector <- as.vector(deLorgeril_Susceptible_dds_res_24_LFC_sig_APOP$transcript_id)
-deLorgeril_Susceptible_dds_res_48_LFC_sig_APOP_vector <- as.vector(deLorgeril_Susceptible_dds_res_48_LFC_sig_APOP$transcript_id)
-deLorgeril_Susceptible_dds_res_60_LFC_sig_APOP_vector <- as.vector(deLorgeril_Susceptible_dds_res_60_LFC_sig_APOP$transcript_id)
-deLorgeril_Susceptible_dds_res_72_LFC_sig_APOP_vector <- as.vector(deLorgeril_Susceptible_dds_res_72_LFC_sig_APOP$transcript_id)
-
-# make list of vectors
-C_gig_transcript_list <- 
-  list(Zhang_dds_deseq_res_V_alg1_LFC_sig_APOP_vector = Zhang_dds_deseq_res_V_alg1_LFC_sig_APOP_vector,
-       Zhang_dds_deseq_res_V_tub_LFC_sig_APOP_vector = Zhang_dds_deseq_res_V_tub_LFC_sig_APOP_vector,
-       Zhang_dds_deseq_res_LFC_LPS_sig_APOP_vector = Zhang_dds_deseq_res_LFC_LPS_sig_APOP_vector,
-       Rubio_dds_deseq_J2_8_res_LFC_sig_APOP_vector = Rubio_dds_deseq_J2_8_res_LFC_sig_APOP_vector,
-       Rubio_dds_deseq_J2_9_res_LFC_sig_APOP_vector = Rubio_dds_deseq_J2_9_res_LFC_sig_APOP_vector,
-       Rubio_dds_deseq_LGP32_res_LFC_sig_APOP_vector = Rubio_dds_deseq_LGP32_res_LFC_sig_APOP_vector,
-       Rubio_dds_deseq_LMG20012T_res_LFC_sig_APOP_vector = Rubio_dds_deseq_LMG20012T_res_LFC_sig_APOP_vector,
-       He_dds_res_6hr_sig_APOP_vector = He_dds_res_6hr_sig_APOP_vector,
-       He_dds_res_12hr_sig_APOP_vector = He_dds_res_12hr_sig_APOP_vector,
-       He_dds_res_24hr_sig_APOP_vector = He_dds_res_24hr_sig_APOP_vector,
-       He_dds_res_48hr_sig_APOP_vector = He_dds_res_48hr_sig_APOP_vector,
-       He_dds_res_120hr_sig_APOP_vector = He_dds_res_120hr_sig_APOP_vector,
-       deLorgeril_Resistant_dds_res_6_LFC_sig_APOP_vector = deLorgeril_Resistant_dds_res_6_LFC_sig_APOP_vector,
-       deLorgeril_Resistant_dds_res_12_LFC_sig_APOP_vector = deLorgeril_Resistant_dds_res_12_LFC_sig_APOP_vector,
-       deLorgeril_Resistant_dds_res_24_LFC_sig_APOP_vector = deLorgeril_Resistant_dds_res_24_LFC_sig_APOP_vector,
-       deLorgeril_Resistant_dds_res_48_LFC_sig_APOP_vector = deLorgeril_Resistant_dds_res_48_LFC_sig_APOP_vector,
-       deLorgeril_Resistant_dds_res_60_LFC_sig_APOP_vector = deLorgeril_Resistant_dds_res_60_LFC_sig_APOP_vector,
-       deLorgeril_Resistant_dds_res_72_LFC_sig_APOP_vector = deLorgeril_Resistant_dds_res_72_LFC_sig_APOP_vector,
-       deLorgeril_Susceptible_dds_res_6_LFC_sig_APOP_vector = deLorgeril_Susceptible_dds_res_6_LFC_sig_APOP_vector,
-       deLorgeril_Susceptible_dds_res_12_LFC_sig_APOP_vector = deLorgeril_Susceptible_dds_res_12_LFC_sig_APOP_vector,
-       deLorgeril_Susceptible_dds_res_24_LFC_sig_APOP_vector = deLorgeril_Susceptible_dds_res_24_LFC_sig_APOP_vector,
-       deLorgeril_Susceptible_dds_res_48_LFC_sig_APOP_vector = deLorgeril_Susceptible_dds_res_48_LFC_sig_APOP_vector,
-       deLorgeril_Susceptible_dds_res_60_LFC_sig_APOP_vector = deLorgeril_Susceptible_dds_res_60_LFC_sig_APOP_vector,
-       deLorgeril_Susceptible_dds_res_72_LFC_sig_APOP_vector = deLorgeril_Susceptible_dds_res_72_LFC_sig_APOP_vector)
-
-# Make combination matrix in intersect mode with the list 
-#C_gig_transcript_list_matrix_comb <- make_comb_mat(C_gig_transcript_list, mode = "intersect")
-
-
-# plot in intersect mode 
-#C_gig_transcript_upset_plot <- UpSet(C_gig_transcript_list_matrix_comb)
-
 
 #### COMPARING APOPTOSIS TRANSCRIPT EXPRESSION BETWEEN EXPERIMENTS PCA HEATMAPS VST ON APOP SUBSET ALONE ####
 # some helpful forum posts on the topic: https://www.biostars.org/p/364768/
@@ -3766,7 +3626,7 @@ View(All_coldata)
 C_vir_coldata <- subset(All_coldata, Species =="C_vir")
 C_gig_coldata <-  subset(All_coldata, Species =="C_gig")
 
-# Combine transcript count matrices by rownames
+# Combine transcript count matrices by rownames (change this so rowname not added down here to same dataframe so data doesnt need to be reloaded
 nrow(Dermo_counts) # 67868
 nrow(Probiotic_counts) # 67876
 nrow(ROD_counts) # 67870
@@ -3961,47 +3821,402 @@ top_Var_C_gig_assay_mat_prot_annot <- left_join(top_Var_C_gig_apop_assay_mat_pro
 #six_hr_comparison_cluster_subset <- subset(Res_mat_6hr_prot_annot, transcript_id %in% six_hr_comparison_cluster$transcript_id)
 
 #### DESCRIPTIVE TABLES ####
-# Comparative tables of apoptosis expression
+
+### Core set of transcripts and products across each challenge in each species
+C_vir_apop_LFC_core <- Reduce(intersect, split(C_vir_apop_LFC$transcript_id, C_vir_apop_LFC$experiment))
+  # 0 (though )
+C_vir_apop_LFC_core_product <- Reduce(intersect, split(C_vir_apop_LFC$product, C_vir_apop_LFC$experiment))
+  # "baculoviral IAP repeat-containing protein 3-like, transcript variant X2"
+C_gig_apop_LFC_core <- Reduce(intersect, split(C_gig_apop_LFC$Name, C_gig_apop_LFC$experiment))
+  # "XM_020072623.1" # shared by all experiments, transcription factor AP-1, transcript variant X2 
+C_gig_apop_LFC_product <- Reduce(intersect, split(C_gig_apop_LFC$product, C_gig_apop_LFC$experiment))
+  # "cdc42 homolog" "transcription factor AP-1, transcript variant X2"
+
+# Investigate C_vir bacterial response
+C_vir_apop_LFC_bac <- C_vir_apop_LFC %>% filter(experiment == "Probiotic" | experiment == "Pro_RE22" | experiment == "ROD" )
+C_vir_apop_LFC_bac_core <- Reduce(intersect, split(C_vir_apop_LFC_bac$transcript_id, C_vir_apop_LFC_bac$experiment))
+  # 0 
+C_vir_apop_LFC_bac_core_product <- Reduce(intersect, split(C_vir_apop_LFC_bac$product, C_vir_apop_LFC_bac$experiment))
+  # "E3 ubiquitin-protein ligase XIAP-like, transcript variant X2"            "baculoviral IAP repeat-containing protein 3-like, transcript variant X2"
+
+C_vir_apop_LFC_BAC_path <- C_vir_apop_LFC_bac %>% filter(group_by_sim == "RE22" | group_by_sim == "ROD_susceptible")
+C_vir_apop_LFC_BAC_path_core <- Reduce(intersect, split(C_vir_apop_LFC_BAC_path$transcript_id, C_vir_apop_LFC_BAC_path$group_by_sim))
+  # "XM_022460059.1" "XM_022471539.1" "XM_022463142.1" = mitochondrial Rho GTPase 1-like, transcript variant X3, caspase-8-like, transcript variant X3, 
+  # stress-activated protein kinase JNK-like, transcript variant X4
+C_vir_apop_LFC_BAC_path_core_product <- Reduce(intersect, split(C_vir_apop_LFC_BAC_path$product, C_vir_apop_LFC_BAC_path$group_by_sim))
+  #[1] "mitochondrial Rho GTPase 1-like, transcript variant X3"                  "caspase-8-like, transcript variant X3"                                  
+  #[3] "baculoviral IAP repeat-containing protein 2-like, transcript variant X2" "E3 ubiquitin-protein ligase XIAP-like, transcript variant X2"           
+  #[5] "baculoviral IAP repeat-containing protein 3-like, transcript variant X2" "stress-activated protein kinase JNK-like, transcript variant X4"  
+
+C_vir_apop_LFC_BAC_pro <- C_vir_apop_LFC_bac %>% filter(group_by_sim == "Probiotic" | group_by_sim == "RI_6h" | group_by_sim == "RI_24h" | group_by_sim == "S4_6h"| group_by_sim == "S4_24h")
+C_vir_apop_LFC_BAC_pro_core <- Reduce(intersect, split(C_vir_apop_LFC_BAC_pro $transcript_id, C_vir_apop_LFC_BAC_pro$group_by_sim))
+  # 0 
+C_vir_apop_LFC_BAC_pro_core_product <- Reduce(intersect, split(C_vir_apop_LFC_BAC_pro $product, C_vir_apop_LFC_BAC_pro$group_by_sim))
+  # "baculoviral IAP repeat-containing protein 3-like, transcript variant X2"
+
+C_vir_apop_LFC_BAC_pro_RI <- C_vir_apop_LFC_bac %>% filter(group_by_sim == "Probiotic" | group_by_sim == "RI_6h" | group_by_sim == "RI_24h")
+C_vir_apop_LFC_BAC_pro_RI_core <- Reduce(intersect, split(C_vir_apop_LFC_BAC_pro_RI$transcript_id, C_vir_apop_LFC_BAC_pro_RI$group_by_sim))
+  # "XM_022437239.1" = mitogen-activated protein kinase kinase kinase 7-like, transcript variant X2
+C_vir_apop_LFC_BAC_pro_RI_core_product <- Reduce(intersect, split(C_vir_apop_LFC_BAC_pro_RI$product, C_vir_apop_LFC_BAC_pro_RI$group_by_sim))
+  # [1] "E3 ubiquitin-protein ligase XIAP-like, transcript variant X2"                 "baculoviral IAP repeat-containing protein 3-like, transcript variant X2"     
+  # [3] "mitogen-activated protein kinase kinase kinase 7-like, transcript variant X2
+
+C_vir_apop_LFC_BAC_pro_S4 <- C_vir_apop_LFC_bac %>% filter(group_by_sim == "S4_6h" | group_by_sim == "S4_24h")
+C_vir_apop_LFC_BAC_pro_S4_core <- Reduce(intersect, split(C_vir_apop_LFC_BAC_pro_S4$transcript_id,C_vir_apop_LFC_BAC_pro_S4$group_by_sim))
+C_vir_apop_LFC_BAC_pro_S4_core <- as.data.frame(C_vir_apop_LFC_BAC_pro_S4_core )
+colnames(C_vir_apop_LFC_BAC_pro_S4_core )[1] <- "transcript_id"  
+C_vir_apop_LFC_BAC_pro_S4_core_name <- left_join(C_vir_apop_LFC_BAC_pro_S4_core, C_vir_apop_LFC_bac, by = "transcript_id")
+# [1] "XM_022457673.1" "XM_022471539.1" "XM_022466306.1" "XM_022475708.1" "XM_022477208.1" "XM_022473245.1" "XM_022487455.1" "XM_022483396.1" "XM_022439232.1"
+  # [10] "XM_022437363.1" "XM_022439820.1" "XM_022444226.1" "XM_022448436.1" "XM_022450497.1" "XM_022436761.1" "XM_022462524.1" "XM_022489210.1"
+unique(C_vir_apop_LFC_BAC_pro_S4_core_name$product)
+  # [1] "caspase-3-like, transcript variant X1"                                                    
+  # [2] "caspase-8-like, transcript variant X3"                                                    
+  # [3] "adenylate cyclase type 9-like"                                                            
+  # [4] "baculoviral IAP repeat-containing protein 6-like, transcript variant X5"                  
+  # [5] "baculoviral IAP repeat-containing protein 6-like, transcript variant X3"                  
+  # [6] "TNF receptor-associated factor 3-like, transcript variant X2"                             
+  # [7] "caspase-2-like"                                                                           
+  # [8] "tumor necrosis factor alpha-induced protein 3-like, transcript variant X3"                
+  # [9] "toll-like receptor 13"                                                                    
+  # [10] "mitogen-activated protein kinase kinase kinase 7-like, transcript variant X3"             
+  # [11] "baculoviral IAP repeat-containing protein 7-like, transcript variant X4"                  
+  # [12] "caspase-7-like"                                                                           
+  # [13] "ceramide synthase 5-like, transcript variant X3"                                          
+  # [14] "interferon alpha-inducible protein 27-like protein 2B, transcript variant X1"             
+  # [15] "rho-related protein racA-like"                                                            
+  # [16] "lipopolysaccharide-induced tumor necrosis factor-alpha factor-like, transcript variant X1"
+  # [17] "myeloid differentiation primary response protein MyD88-like, transcript variant X1"       
+
+C_vir_apop_LFC_BAC_pro_S4_core_product <- Reduce(intersect, split(C_vir_apop_LFC_BAC_pro_S4$product,C_vir_apop_LFC_BAC_pro_S4$group_by_sim))
+  # [1] "caspase-3-like, transcript variant X1"                                                    
+  # [2] "caspase-8-like, transcript variant X3"                                                    
+  # [3] "adenylate cyclase type 9-like"                                                            
+  # [4] "baculoviral IAP repeat-containing protein 6-like, transcript variant X5"                  
+  # [5] "baculoviral IAP repeat-containing protein 6-like, transcript variant X3"                  
+  # [6] "TNF receptor-associated factor 3-like, transcript variant X2"                             
+  # [7] "caspase-2-like"                                                                           
+  # [8] "tumor necrosis factor alpha-induced protein 3-like, transcript variant X3"                
+  # [9] "baculoviral IAP repeat-containing protein 3-like, transcript variant X2"                  
+  # [10] "toll-like receptor 13"                                                                    
+  # [11] "mitogen-activated protein kinase kinase kinase 7-like, transcript variant X3"             
+  # [12] "baculoviral IAP repeat-containing protein 7-like, transcript variant X4"                  
+  # [13] "caspase-7-like"                                                                           
+  # [14] "ceramide synthase 5-like, transcript variant X3"                                          
+  # [15] "interferon alpha-inducible protein 27-like protein 2B, transcript variant X1"             
+  # [16] "rho-related protein racA-like"                                                            
+  # [17] "lipopolysaccharide-induced tumor necrosis factor-alpha factor-like, transcript variant X1"
+  # [18] "myeloid differentiation primary response protein MyD88-like, transcript variant X1"  
+
+# Investigate C_gig bacterial response
+C_gig_apop_LFC_bac <- C_gig_apop_LFC %>% filter(experiment == "Zhang" | experiment == "Rubio" )
+C_gig_apop_LFC_bac_core <- Reduce(intersect, split(C_gig_apop_LFC_bac$Name, C_gig_apop_LFC_bac$experiment))
+  # "XM_011414513.2" "XM_011425781.1" "XM_011456317.2" "XM_011456757.2" "XM_020072623.1" "XM_011447078.2" "XM_020070534.1" "XM_011426791.2" #8 
+C_gig_apop_LFC_bac_core_product <- Reduce(intersect, split(C_gig_apop_LFC_bac$product, C_gig_apop_LFC_bac$experiment))
+  # [1] "hexokinase-1"                                                                           
+  # [2] "cdc42 homolog"                                                                          
+  # [3] "baculoviral IAP repeat-containing protein 7-B"                                          
+  # [4] "myeloid differentiation primary response protein MyD88-like, transcript variant X2"     
+  # [5] "GTPase IMAP family member 4, transcript variant X3"                                     
+  # [6] "transcription factor AP-1, transcript variant X2"                                       
+  # [7] "caspase-7-like"                                                                         
+  # [8] "baculoviral IAP repeat-containing protein 3-like, transcript variant X1"                
+  # [9] "adenylate cyclase type 2, transcript variant X2"                                        
+  # [10] "cyclic AMP-responsive element-binding protein 3-like protein 3-B, transcript variant X2"
+C_gig_apop_LFC_BAC_path <- C_gig_apop_LFC_bac %>% filter(group_by_sim == "V_tub_V_ang" | group_by_sim == "V_aes_V_alg1_V_alg2" | group_by_sim == "J2-9 vir" | group_by_sim == "LGP32 vir")
+C_gig_apop_LFC_BAC_path_core <- Reduce(intersect, split(C_gig_apop_LFC_BAC_path $Name, C_gig_apop_LFC_BAC_path $group_by_sim))
+  # "XM_011425781.1" "XM_020070534.1" "XM_020072623.1"
+C_gig_apop_LFC_BAC_path_core_product <- Reduce(intersect, split(C_gig_apop_LFC_BAC_path $product, C_gig_apop_LFC_BAC_path $group_by_sim))
+  # [1] "cdc42 homolog" "caspase-7-like" "adenylate cyclase type 2, transcript variant X2" "transcription factor AP-1, transcript variant X2"
+
+C_gig_apop_LFC_BAC_nonpath <- C_gig_apop_LFC_bac %>% filter(group_by_sim == "LPS_M_lut" | group_by_sim == "J2-8 non-vir" | group_by_sim == "LMG20012T non-vir")
+C_gig_apop_LFC_BAC_nonpath_core <- Reduce(intersect, split(C_gig_apop_LFC_BAC_nonpath$Name, C_gig_apop_LFC_BAC_nonpath$group_by_sim))
+  # "XM_011425781.1" "XM_020072623.1"
+C_gig_apop_LFC_BAC_nonpath_core_product <- Reduce(intersect, split(C_gig_apop_LFC_BAC_nonpath$product, C_gig_apop_LFC_BAC_nonpath$group_by_sim))
+  # [1] "cdc42 homolog"    "baculoviral IAP repeat-containing protein 7-B"    "transcription factor AP-1, transcript variant X2"
+
+# The lists of shared transcript IDs and shared product names is more similar in C. gigas than in C. virginica...maybe there is just higher transcript diversity in C. virginica?
+
+# Shared significant products between C_gigas and C_virginica PATH bacterial lists? NO
+   # C_vir
+    #[1] "mitochondrial Rho GTPase 1-like, transcript variant X3"                  "caspase-8-like, transcript variant X3"                                  
+    #[3] "baculoviral IAP repeat-containing protein 2-like, transcript variant X2" "E3 ubiquitin-protein ligase XIAP-like, transcript variant X2"           
+    #[5] "baculoviral IAP repeat-containing protein 3-like, transcript variant X2" "stress-activated protein kinase JNK-like, transcript variant X4"  
+   # C_gig
+    # [1] "cdc42 homolog"                                    "caspase-7-like"                                   "adenylate cyclase type 2, transcript variant X2" 
+    # [4] "transcription factor AP-1, transcript variant X2"
+# Shared significant products between C_gigas and C_virginica NONPATH bacterial lists? NO
+  # C_vir
+    # "baculoviral IAP repeat-containing protein 3-like, transcript variant X2"
+  # C_gig
+    # [1] "cdc42 homolog"    "baculoviral IAP repeat-containing protein 7-B"    "transcription factor AP-1, transcript variant X2"
+# Shared core lists across all challenges? Share BIR 3 protein
+  # C_vir
+    # "E3 ubiquitin-protein ligase XIAP-like, transcript variant X2"            "baculoviral IAP repeat-containing protein 3-like, transcript variant X2"
+  # C_gig
+    # [1] "hexokinase-1"                                                                           
+    # [2] "cdc42 homolog"                                                                          
+    # [3] "baculoviral IAP repeat-containing protein 7-B"                                          
+    # [4] "myeloid differentiation primary response protein MyD88-like, transcript variant X2"     
+    # [5] "GTPase IMAP family member 4, transcript variant X3"                                     
+    # [6] "transcription factor AP-1, transcript variant X2"                                       
+    # [7] "caspase-7-like"                                                                         
+    # [8] "baculoviral IAP repeat-containing protein 3-like, transcript variant X1"                
+    # [9] "adenylate cyclase type 2, transcript variant X2"                                        
+    # [10] "cyclic AMP-responsive element-binding protein 3-like protein 3-B, transcript variant X2"
+
+# Bacterial list upset plot 
+# helpful tutorial for doing this: http://genomespot.blogspot.com/2017/09/upset-plots-as-replacement-to-venn.html
+# http://crazyhottommy.blogspot.com/2016/01/upset-plot-for-overlapping-chip-seq.html
+# https://www.littlemissdata.com/blog/set-analysis
+# UpsetR vignette: https://cran.r-project.org/web/packages/UpSetR/vignettes/basic.usage.html
+C_vir_apop_LFC_upset <- C_vir_apop_LFC[,c("transcript_id","group_by_sim")]
+C_gig_apop_LFC_upset <- C_gig_apop_LFC[,c("Name","group_by_sim")]
+C_vir_apop_LFC_bac_upset <- C_vir_apop_LFC_bac[,c("transcript_id","group_by_sim")]
+C_gig_apop_LFC_bac_upset <- C_gig_apop_LFC_bac[,c("Name","group_by_sim")]
+
+# Convert into wide format using reshape
+C_vir_apop_LFC_upset_wide <- C_vir_apop_LFC_upset %>% mutate(value=1) %>% spread(group_by_sim, value, fill =0 )
+head(C_vir_apop_LFC_upset_wide)
+C_vir_apop_LFC_bac_upset_wide <- C_vir_apop_LFC_bac_upset %>% mutate(value=1) %>% spread(group_by_sim, value, fill =0 )
+head(C_vir_apop_LFC_bac_upset_wide)
+
+C_gig_apop_LFC_upset_wide <- C_gig_apop_LFC_upset %>% mutate(value=1) %>% spread(group_by_sim, value, fill =0 )
+head(C_gig_apop_LFC_upset_wide)
+C_gig_apop_LFC_bac_upset_wide <- C_gig_apop_LFC_bac_upset %>% mutate(value=1) %>% spread(group_by_sim, value, fill =0 )
+head(C_gig_apop_LFC_bac_upset_wide)
+
+# Make upset plots
+C_vir_apop_LFC_upset_wide_GROUP <- upset(C_vir_apop_LFC_upset_wide,  mainbar.y.label = "Transcript id Intersections", 
+      sets.x.label = "# Significantly Differentially Expressed Apoptosis Transcripts", text.scale = c(1.3, 1.3, 1.3, 1.3, 2, 1.0),
+      sets= c("Probiotic","RE22","RI_24h","RI_6h","ROD_resistant","ROD_susceptible","S4_24h", "S4_6h","Susceptible_28d",
+              "Susceptible_36hr","Susceptible_7d","Tolerant_28d","Tolerant_36hr","Tolerant_7d"),
+       order.by="freq")
+C_vir_apop_LFC_bac_upset_wide_GROUP <- upset(C_vir_apop_LFC_bac_upset_wide,  mainbar.y.label = "Transcript id Intersections", 
+                                         sets.x.label = "# Significantly Differentially Expressed Apoptosis Transcripts", text.scale = c(1.3, 1.3, 1.3, 1.3, 2, 1.0),
+                                         sets= c("Probiotic","RE22","RI_24h","RI_6h","ROD_resistant","ROD_susceptible",
+                                                 "S4_24h","S4_6h"),order.by="freq")
+C_gig_apop_LFC_upset_wide_GROUP <- upset(C_gig_apop_LFC_upset_wide,  mainbar.y.label = "Transcript id Intersections", 
+                                         sets.x.label = "# Significantly Differentially Expressed Apoptosis Transcripts", text.scale = c(1.3, 1.3, 1.3, 1.3, 2, 1.0),
+                                         sets= c("He_dds_res_120hr_sig_APOP" ,"He_dds_res_12hr_sig_APOP",  "He_dds_res_24hr_sig_APOP",  "He_dds_res_48hr_sig_APOP",
+                                                 "He_dds_res_6hr_sig_APOP"   ,"J2-8 non-vir"            ,  "J2-9 vir"                ,  "LGP32 vir"               , "LMG20012T non-vir"       , 
+                                                     "Resistant_dds_res_12"   ,   "Resistant_dds_res_24"   ,   "Resistant_dds_res_48"   ,  "Resistant_dds_res_6"    ,  
+                                                  "Resistant_dds_res_60"     , "Resistant_dds_res_72"   ,   "Susceptible_dds_res_12" ,   "Susceptible_dds_res_24" ,  "Susceptible_dds_res_48" ,  
+                                                  "Susceptible_dds_res_6"    , "Susceptible_dds_res_60" ,   "Susceptible_dds_res_72" ,   "V_aes_V_alg1_V_alg2"    ,  "V_tub_V_ang", "LPS_M_lut"   ),
+                                         order.by="freq")
+                # Most unique sets belong to the early delorgeril response
+                # greatest between experiment interaction is between the Susceptible delorgeril 24 and 60 hr, and all the Rubio samples, 5 intersections 
+C_gig_apop_LFC_bac_upset_wide_GROUP <- upset(C_gig_apop_LFC_bac_upset_wide,  mainbar.y.label = "Transcript id Intersections", 
+                                             sets.x.label = "# Significantly Differentially Expressed Apoptosis Transcripts", text.scale = c(1.3, 1.3, 1.3, 1.3, 2, 1.0),
+                                             sets= c("J2-8 non-vir","J2-9 vir" ,"LGP32 vir","LMG20012T non-vir","LPS_M_lut","V_aes_V_alg1_V_alg2",
+                                                     "V_tub_V_ang" ),order.by="freq")
+                # greatest sharing of all transcripts is within experiments, most unique sets in the J2-8, J2-9 and LGP32 
+
+## Extract products that appear only once 
+C_vir_apop_LFC_notshared  <- C_vir_apop_LFC[!(duplicated(C_vir_apop_LFC$transcript_id) | duplicated(C_vir_apop_LFC$transcript_id, fromLast = TRUE)), ]
+C_gig_apop_LFC_notshared <- C_gig_apop_LFC[!(duplicated(C_gig_apop_LFC$Name) | duplicated(C_gig_apop_LFC$Name, fromLast = TRUE)), ]
+
+C_vir_apop_LFC_notshared_IAP <- C_vir_apop_LFC_notshared  %>% group_by(group_by_sim) %>%
+C_gig_apop_LFC_notshared_IAP <- 
+
+### Comparative tables of apoptosis gene family expression ###
 
 C_vir_apop_LFC_summmary_apop_transcripts_table <- C_vir_apop_LFC %>% group_by(experiment, group_by_sim) %>% summarize(number_apop_transcripts=n())
 C_gig_apop_LFC_summmary_apop_transcripts_table <- C_gig_apop_LFC %>% group_by(experiment, group_by_sim) %>% summarize(number_apop_transcripts=n())
 
 Combined_summmary_apop_transcripts_table <- rbind(C_vir_apop_LFC_summmary_apop_transcripts_table,C_gig_apop_LFC_summmary_apop_transcripts_table)
 
-# Number unique GIMAP per challenge
-C_vir_apop_LFC_GIMAP <- C_vir_apop_LFC[grepl("IMAP", C_vir_apop_LFC$product),]
-C_gig_apop_LFC_GIMAP <- C_gig_apop_LFC[grepl("IMAP", C_gig_apop_LFC$product),]
+C_vir_apop_LFC_per_group <- C_vir_apop_LFC %>% group_by(experiment, group_by_sim) %>% summarize(transcripts_per_group = n())
+C_gig_apop_LFC_per_group <- C_gig_apop_LFC %>% group_by(experiment, group_by_sim) %>% summarize(transcripts_per_group = n())
 
-# Number unique IAP per challenge
-C_vir_apop_LFC_IAP <- C_vir_apop_LFC[grepl("IAP", C_vir_apop_LFC$product),]
-C_gig_apop_LFC_IAP <- C_gig_apop_LFC[grepl("IAP", C_gig_apop_LFC$product),]
+# Number GIMAP per challenge
+C_vir_apop_LFC_GIMAP <- C_vir_apop_LFC[grepl("IMAP", C_vir_apop_LFC$product, ignore.case = TRUE),]
+C_gig_apop_LFC_GIMAP <- C_gig_apop_LFC[grepl("IMAP", C_gig_apop_LFC$product, ignore.case = TRUE),]
+# per condition frequency
+C_vir_apop_LFC_GIMAP_freq <- C_vir_apop_LFC_GIMAP %>% group_by(experiment, group_by_sim) %>% filter(grepl("IMAP", product,ignore.case = TRUE)) %>% summarize(GIMAP_number = n())
+C_gig_apop_LFC_GIMAP_freq <- C_gig_apop_LFC_GIMAP %>% group_by(experiment, group_by_sim) %>% filter(grepl("IMAP", product,ignore.case = TRUE)) %>% summarize(GIMAP_number = n())
+C_vir_apop_LFC_GIMAP_freq <- left_join(C_vir_apop_LFC_GIMAP_freq,C_vir_apop_LFC_per_group, by = c("experiment","group_by_sim")) %>% mutate(GIMAP_freq = (GIMAP_number/transcripts_per_group))
+C_gig_apop_LFC_GIMAP_freq <- left_join(C_gig_apop_LFC_GIMAP_freq,C_gig_apop_LFC_per_group, by = c("experiment","group_by_sim")) %>% mutate(GIMAP_freq = (GIMAP_number/transcripts_per_group))
+# compare frequency
+GIMAP_freq_combined <- rbind(C_vir_apop_LFC_GIMAP_freq ,C_gig_apop_LFC_GIMAP_freq )
 
-# Number unique caspase per challenge
-C_vir_apop_LFC_caspase <- C_vir_apop_LFC[grepl("caspase", C_vir_apop_LFC$product),]
-C_gig_apop_LFC_caspase <- C_gig_apop_LFC[grepl("caspase", C_gig_apop_LFC$product),]
+# Number IAP per challenge
+C_vir_apop_LFC_IAP <- C_vir_apop_LFC[grepl("IAP", C_vir_apop_LFC$product, ignore.case = TRUE),]
+C_gig_apop_LFC_IAP <- C_gig_apop_LFC[grepl("IAP", C_gig_apop_LFC$product, ignore.case = TRUE),]
+# per condition frequency
+C_vir_apop_LFC_IAP_freq <- C_vir_apop_LFC_IAP %>% group_by(experiment, group_by_sim) %>% filter(grepl("IAP", product,ignore.case = TRUE)) %>% summarize(IAP_number = n())
+C_gig_apop_LFC_IAP_freq <- C_gig_apop_LFC_IAP %>% group_by(experiment, group_by_sim) %>% filter(grepl("IAP", product,ignore.case = TRUE)) %>% summarize(IAP_number = n())
+C_vir_apop_LFC_IAP_freq <- left_join(C_vir_apop_LFC_IAP_freq,C_vir_apop_LFC_per_group, by = c("experiment","group_by_sim")) %>% mutate(IAP_freq = (IAP_number/transcripts_per_group))
+C_gig_apop_LFC_IAP_freq <- left_join(C_gig_apop_LFC_IAP_freq,C_gig_apop_LFC_per_group, by = c("experiment","group_by_sim")) %>% mutate(IAP_freq = (IAP_number/transcripts_per_group))
+# compare frequency
+IAP_freq_combined <- rbind(C_vir_apop_LFC_IAP_freq ,C_gig_apop_LFC_IAP_freq )
 
-# Number unique TNF family per challenge
-C_vir_apop_LFC_TNF <- C_vir_apop_LFC[grepl("TNF", C_vir_apop_LFC$product) | grepl("tumor", C_vir_apop_LFC$product),]
-C_gig_apop_LFC_TNF <- C_gig_apop_LFC[grepl("TNF", C_gig_apop_LFC$product) | grepl("tumor", C_gig_apop_LFC$product),]
+# Number caspase per challenge
+C_vir_apop_LFC_caspase <- C_vir_apop_LFC[grepl("caspase", C_vir_apop_LFC$product, ignore.case = TRUE),]
+C_gig_apop_LFC_caspase <- C_gig_apop_LFC[grepl("caspase", C_gig_apop_LFC$product, ignore.case = TRUE),]
+# per condition frequency
+C_vir_apop_LFC_caspase_freq <- C_vir_apop_LFC_caspase %>% group_by(experiment, group_by_sim) %>% filter(grepl("caspase", product,ignore.case = TRUE)) %>% summarize(caspase_number = n())
+C_gig_apop_LFC_caspase_freq <- C_gig_apop_LFC_caspase %>% group_by(experiment, group_by_sim) %>% filter(grepl("caspase", product,ignore.case = TRUE)) %>% summarize(caspase_number = n())
+C_vir_apop_LFC_caspase_freq <- left_join(C_vir_apop_LFC_caspase_freq,C_vir_apop_LFC_per_group, by = c("experiment","group_by_sim")) %>% mutate(caspase_freq = (caspase_number/transcripts_per_group))
+C_gig_apop_LFC_caspase_freq <- left_join(C_gig_apop_LFC_caspase_freq,C_gig_apop_LFC_per_group, by = c("experiment","group_by_sim")) %>% mutate(caspase_freq = (caspase_number/transcripts_per_group))
+# compare frequency
+caspase_freq_combined <- rbind(C_vir_apop_LFC_caspase_freq ,C_gig_apop_LFC_caspase_freq )
 
-# Number unique TNF family per challenge
-C_vir_apop_LFC_Toll <- C_vir_apop_LFC[grepl("toll", C_vir_apop_LFC$product),]
-C_gig_apop_LFC_Toll <- C_gig_apop_LFC[grepl("toll", C_gig_apop_LFC$product),]
+# Number TNF family per challenge
+C_vir_apop_LFC_TNF <- C_vir_apop_LFC[grepl("TNF", C_vir_apop_LFC$product, ignore.case = TRUE) | grepl("tumor", C_vir_apop_LFC$product, ignore.case = TRUE),]
+C_gig_apop_LFC_TNF <- C_gig_apop_LFC[grepl("TNF", C_gig_apop_LFC$product, ignore.case = TRUE) | grepl("tumor", C_gig_apop_LFC$product, ignore.case = TRUE),]
+#per condition frequency
+C_vir_apop_LFC_TNF_freq <- C_vir_apop_LFC_TNF %>% group_by(experiment, group_by_sim) %>% filter(grepl("TNF", product,ignore.case = TRUE) |grepl("tumor", product,ignore.case = TRUE) ) %>% summarize(TNF_number = n())
+C_gig_apop_LFC_TNF_freq <- C_gig_apop_LFC_TNF %>% group_by(experiment, group_by_sim) %>% filter(grepl("TNF", product,ignore.case = TRUE) |grepl("tumor", product,ignore.case = TRUE) ) %>% summarize(TNF_number = n())
+C_vir_apop_LFC_TNF_freq <- left_join(C_vir_apop_LFC_TNF_freq,C_vir_apop_LFC_per_group, by = c("experiment","group_by_sim")) %>% mutate(tnf_freq = (TNF_number/transcripts_per_group))
+C_gig_apop_LFC_TNF_freq <- left_join(C_gig_apop_LFC_TNF_freq,C_gig_apop_LFC_per_group, by = c("experiment","group_by_sim")) %>% mutate(tnf_freq = (TNF_number/transcripts_per_group))
+# compare frequency
+TNF_freq_combined <- rbind(C_vir_apop_LFC_TNF_freq ,C_gig_apop_LFC_TNF_freq )
 
-# Number unique TNF family per challenge
-C_vir_apop_LFC_Toll <- C_vir_apop_LFC[grepl("toll", C_vir_apop_LFC$product),]
-C_gig_apop_LFC_Toll <- C_gig_apop_LFC[grepl("toll", C_gig_apop_LFC$product),]
+# Number Toll family per challenge
+C_vir_apop_LFC_Toll <- C_vir_apop_LFC[grepl("toll", C_vir_apop_LFC$product, ignore.case = TRUE),]
+C_gig_apop_LFC_Toll <- C_gig_apop_LFC[grepl("toll", C_gig_apop_LFC$product, ignore.case = TRUE),]
+#per condition frequency
+C_vir_apop_LFC_toll_freq <- C_vir_apop_LFC_Toll %>% group_by(experiment, group_by_sim) %>% filter(grepl("toll", product,ignore.case = TRUE)) %>% summarize(toll_number = n())
+C_gig_apop_LFC_toll_freq <- C_gig_apop_LFC_Toll %>% group_by(experiment, group_by_sim) %>% filter(grepl("toll", product,ignore.case = TRUE)) %>% summarize(toll_number = n())
+C_vir_apop_LFC_toll_freq <- left_join(C_vir_apop_LFC_toll_freq,C_vir_apop_LFC_per_group, by = c("experiment","group_by_sim")) %>% mutate(toll_freq = (toll_number/transcripts_per_group))
+C_gig_apop_LFC_toll_freq <- left_join(C_gig_apop_LFC_toll_freq,C_gig_apop_LFC_per_group, by = c("experiment","group_by_sim")) %>% mutate(toll_freq = (toll_number/transcripts_per_group))
+# compare frequency
+Toll_freq_combined <- rbind(C_vir_apop_LFC_toll_freq ,C_gig_apop_LFC_toll_freq )
 
-# Number unique interferon per challenge
-C_vir_apop_LFC_interferon <- C_vir_apop_LFC[grepl("interferon", C_vir_apop_LFC$product),]
-C_gig_apop_LFC_interferon <- C_gig_apop_LFC[grepl("interferon", C_gig_apop_LFC$product),]
+# Number interferon per challenge
+C_vir_apop_LFC_interferon <- C_vir_apop_LFC[grepl("interferon", C_vir_apop_LFC$product, ignore.case = TRUE),]
+C_gig_apop_LFC_interferon <- C_gig_apop_LFC[grepl("interferon", C_gig_apop_LFC$product, ignore.case = TRUE),]
+#per condition frequency
+C_vir_apop_LFC_interferon_freq <- C_vir_apop_LFC_interferon %>% group_by(experiment, group_by_sim) %>% filter(grepl("interferon", product,ignore.case = TRUE)) %>% summarize(interferon_number = n())
+C_gig_apop_LFC_interferon_freq <- C_gig_apop_LFC_interferon %>% group_by(experiment, group_by_sim) %>% filter(grepl("interferon", product,ignore.case = TRUE)) %>% summarize(interferon_number = n())
+C_vir_apop_LFC_interferon_freq <- left_join(C_vir_apop_LFC_interferon_freq,C_vir_apop_LFC_per_group, by = c("experiment","group_by_sim")) %>% mutate(interferon_freq = (interferon_number/transcripts_per_group))
+C_gig_apop_LFC_interferon_freq <- left_join(C_gig_apop_LFC_interferon_freq,C_gig_apop_LFC_per_group, by = c("experiment","group_by_sim")) %>% mutate(interferon_freq = (interferon_number/transcripts_per_group))
+# compare frequency
+interferon_freq_combined <- rbind(C_vir_apop_LFC_interferon_freq ,C_gig_apop_LFC_interferon_freq )
 
-# Number unique heatshock per challenge
-C_vir_apop_LFC_hsp <- C_vir_apop_LFC[grepl("heat", C_vir_apop_LFC$product),]
-C_gig_apop_LFC_hsp <- C_gig_apop_LFC[grepl("heat", C_gig_apop_LFC$product),]
+# Number heatshock per challenge
+C_vir_apop_LFC_hsp <- C_vir_apop_LFC[grepl("heat", C_vir_apop_LFC$product, ignore.case = TRUE),]
+C_gig_apop_LFC_hsp <- C_gig_apop_LFC[grepl("heat", C_gig_apop_LFC$product, ignore.case = TRUE),]
+#per condition frequency
+C_vir_apop_LFC_hsp_freq <- C_vir_apop_LFC_hsp %>% group_by(experiment, group_by_sim) %>% filter(grepl("heat", product,ignore.case = TRUE)) %>% summarize(hsp_number = n())
+C_gig_apop_LFC_hsp_freq <- C_gig_apop_LFC_hsp %>% group_by(experiment, group_by_sim) %>% filter(grepl("heat", product,ignore.case = TRUE)) %>% summarize(hsp_number = n())
+C_vir_apop_LFC_hsp_freq <- left_join(C_vir_apop_LFC_hsp_freq,C_vir_apop_LFC_per_group, by = c("experiment","group_by_sim")) %>% mutate(hsp_freq = (hsp_number/transcripts_per_group))
+C_gig_apop_LFC_hsp_freq <- left_join(C_gig_apop_LFC_hsp_freq,C_gig_apop_LFC_per_group, by = c("experiment","group_by_sim")) %>% mutate(hsp_freq = (hsp_number/transcripts_per_group))
+# compare frequency
+Hsp_freq_combined <- rbind(C_vir_apop_LFC_hsp_freq ,C_gig_apop_LFC_hsp_freq )
 
+# Number cathepsin per challenge
+C_vir_apop_LFC_cathepsin <- C_vir_apop_LFC[grepl("cathepsin", C_vir_apop_LFC$product, ignore.case = TRUE),]
+C_gig_apop_LFC_cathepsin <- C_gig_apop_LFC[grepl("cathepsin", C_gig_apop_LFC$product, ignore.case = TRUE),]
+#per condition frequency
+C_vir_apop_LFC_cathepsin_freq <- C_vir_apop_LFC_cathepsin %>% group_by(experiment, group_by_sim) %>% filter(grepl("cathepsin", product,ignore.case = TRUE)) %>% summarize(cathepsin_number = n())
+C_gig_apop_LFC_cathepsin_freq <- C_gig_apop_LFC_cathepsin %>% group_by(experiment, group_by_sim) %>% filter(grepl("cathepsin", product,ignore.case = TRUE)) %>% summarize(cathepsin_number = n())
+C_vir_apop_LFC_cathepsin_freq <- left_join(C_vir_apop_LFC_cathepsin_freq,C_vir_apop_LFC_per_group, by = c("experiment","group_by_sim")) %>% mutate(cathepsin_freq = (cathepsin_number/transcripts_per_group))
+C_gig_apop_LFC_cathepsin_freq <- left_join(C_gig_apop_LFC_cathepsin_freq,C_gig_apop_LFC_per_group, by = c("experiment","group_by_sim")) %>% mutate(cathepsin_freq = (cathepsin_number/transcripts_per_group))
+# compare frequency
+Cathepsin_freq_combined <- rbind(C_vir_apop_LFC_cathepsin_freq ,C_gig_apop_LFC_cathepsin_freq )
 
-#### SESSION INFO FOR RUNNING SCRIPTS FEB 2020 ####
+# Number programmed cell death protein per challenge
+C_vir_apop_LFC_PCDP <- C_vir_apop_LFC[grepl("programmed", C_vir_apop_LFC$product, ignore.case = TRUE),]
+C_gig_apop_LFC_PCDP <- C_gig_apop_LFC[grepl("programmed", C_gig_apop_LFC$product, ignore.case = TRUE),]
+#per condition frequency
+C_vir_apop_LFC_PCDP_freq <- C_vir_apop_LFC_PCDP %>% group_by(experiment, group_by_sim) %>% filter(grepl("programmed", product,ignore.case = TRUE)) %>% summarize(PCDP_number = n())
+C_gig_apop_LFC_PCDP_freq <- C_gig_apop_LFC_PCDP %>% group_by(experiment, group_by_sim) %>% filter(grepl("programmed", product,ignore.case = TRUE)) %>% summarize(PCDP_number = n())
+C_vir_apop_LFC_PCDP_freq <- left_join(C_vir_apop_LFC_PCDP_freq,C_vir_apop_LFC_per_group, by = c("experiment","group_by_sim")) %>% mutate(PCDP_freq = (PCDP_number/transcripts_per_group))
+C_gig_apop_LFC_PCDP_freq <- left_join(C_gig_apop_LFC_PCDP_freq,C_gig_apop_LFC_per_group, by = c("experiment","group_by_sim")) %>% mutate(PCDP_freq = (PCDP_number/transcripts_per_group))
+# compare frequency
+PCDP_freq_combined <- rbind(C_vir_apop_LFC_PCDP_freq ,C_gig_apop_LFC_PCDP_freq )
+
+# Number rho-related
+C_vir_apop_LFC_rho <- C_vir_apop_LFC[grepl("rho", C_vir_apop_LFC$product, ignore.case = TRUE) | grepl("ras", C_vir_apop_LFC$product, ignore.case = TRUE) & 
+                                       !grepl("polymerase",C_vir_apop_LFC$product, ignore.case = TRUE) ,]
+C_gig_apop_LFC_rho <- C_gig_apop_LFC[grepl("rho", C_gig_apop_LFC$product, ignore.case = TRUE) | grepl("ras", C_gig_apop_LFC$product, ignore.case = TRUE) &
+                                       !grepl("polymerase",C_gig_apop_LFC$product, ignore.case = TRUE) ,]
+#per condition frequency
+C_vir_apop_LFC_rho_freq <- C_vir_apop_LFC_rho %>% group_by(experiment, group_by_sim) %>% filter(grepl("rho", product,ignore.case = TRUE) |grepl("ras", product,ignore.case = TRUE) & !grepl("polymerase", product, ignore.case = TRUE)) %>% summarize(rho_number = n())
+C_gig_apop_LFC_rho_freq <- C_gig_apop_LFC_rho %>% group_by(experiment, group_by_sim) %>% filter(grepl("rho", product,ignore.case = TRUE) |grepl("ras", product,ignore.case = TRUE) & !grepl("polymerase", product, ignore.case = TRUE)) %>% summarize(rho_number = n())
+C_vir_apop_LFC_rho_freq <- left_join(C_vir_apop_LFC_rho_freq,C_vir_apop_LFC_per_group, by = c("experiment","group_by_sim")) %>% mutate(rho_freq = (rho_number/transcripts_per_group))
+C_gig_apop_LFC_rho_freq <- left_join(C_gig_apop_LFC_rho_freq,C_gig_apop_LFC_per_group, by = c("experiment","group_by_sim")) %>% mutate(rho_freq = (rho_number/transcripts_per_group))
+# compare frequency
+Rho_freq_combined <- rbind(C_vir_apop_LFC_rho_freq ,C_gig_apop_LFC_rho_freq )
+
+# Number  myD88
+C_vir_apop_LFC_myD88 <- C_vir_apop_LFC[grepl("myD88", C_vir_apop_LFC$product, ignore.case = TRUE),]
+C_gig_apop_LFC_myD88 <- C_gig_apop_LFC[grepl("myD88", C_gig_apop_LFC$product, ignore.case = TRUE),]
+#per condition frequency
+C_vir_apop_LFC_myD88_freq <- C_vir_apop_LFC_myD88 %>% group_by(experiment, group_by_sim) %>% filter(grepl("myD88", product,ignore.case = TRUE)) %>% summarize(myD88_number = n())
+C_gig_apop_LFC_myD88_freq <- C_gig_apop_LFC_myD88 %>% group_by(experiment, group_by_sim) %>% filter(grepl("myD88", product,ignore.case = TRUE)) %>% summarize(myD88_number = n())
+C_vir_apop_LFC_myD88_freq <- left_join(C_vir_apop_LFC_myD88_freq,C_vir_apop_LFC_per_group, by = c("experiment","group_by_sim")) %>% mutate(myD88_freq = (myD88_number/transcripts_per_group))
+C_gig_apop_LFC_myD88_freq <- left_join(C_gig_apop_LFC_myD88_freq,C_gig_apop_LFC_per_group, by = c("experiment","group_by_sim")) %>% mutate(myD88_freq = (myD88_number/transcripts_per_group))
+# compare frequency
+myD88_freq_combined <- rbind(C_vir_apop_LFC_myD88_freq ,C_gig_apop_LFC_myD88_freq )
+
+# Number inositol
+C_vir_apop_LFC_inositol <- C_vir_apop_LFC[grepl("inositol", C_vir_apop_LFC$product, ignore.case = TRUE) & !grepl("kinase", C_vir_apop_LFC$product, ignore.case = TRUE),]
+C_gig_apop_LFC_inositol <- C_gig_apop_LFC[grepl("inositol", C_gig_apop_LFC$product, ignore.case = TRUE) & !grepl("kinase",C_gig_apop_LFC$product, ignore.case = TRUE),]
+#per condition frequency
+C_vir_apop_LFC_inositol_freq <- C_vir_apop_LFC_inositol %>% group_by(experiment, group_by_sim) %>% filter(grepl("inositol", product,ignore.case = TRUE) & !grepl("kinase",product, ignore.case=TRUE)) %>% summarize(inositol_number = n())
+C_gig_apop_LFC_inositol_freq <- C_gig_apop_LFC_inositol %>% group_by(experiment, group_by_sim) %>% filter(grepl("inositol", product,ignore.case = TRUE) & !grepl("kinase",product, ignore.case=TRUE)) %>% summarize(inositol_number = n())
+C_vir_apop_LFC_inositol_freq <- left_join(C_vir_apop_LFC_inositol_freq,C_vir_apop_LFC_per_group, by = c("experiment","group_by_sim")) %>% mutate(inositol_freq = (inositol_number/transcripts_per_group))
+C_gig_apop_LFC_inositol_freq <- left_join(C_gig_apop_LFC_inositol_freq,C_gig_apop_LFC_per_group, by = c("experiment","group_by_sim")) %>% mutate(inositol_freq = (inositol_number/transcripts_per_group))
+# compare frequency
+inositol_freq_combined <- rbind(C_vir_apop_LFC_inositol_freq ,C_gig_apop_LFC_inositol_freq )
+
+# Number adenylate cyclase
+C_vir_apop_LFC_adenylate <- C_vir_apop_LFC[grepl("adenylate", C_vir_apop_LFC$product, ignore.case = TRUE),]
+C_gig_apop_LFC_adenylate <- C_gig_apop_LFC[grepl("adenylate", C_gig_apop_LFC$product, ignore.case = TRUE),]
+#per condition frequency
+C_vir_apop_LFC_adenylate_freq <- C_vir_apop_LFC_adenylate %>% group_by(experiment, group_by_sim) %>% filter(grepl("adenylate", product,ignore.case = TRUE)) %>% summarize(adenylate_number = n())
+C_gig_apop_LFC_adenylate_freq <- C_gig_apop_LFC_adenylate %>% group_by(experiment, group_by_sim) %>% filter(grepl("adenylate", product,ignore.case = TRUE)) %>% summarize(adenylate_number = n())
+C_vir_apop_LFC_adenylate_freq <- left_join(C_vir_apop_LFC_adenylate_freq,C_vir_apop_LFC_per_group, by = c("experiment","group_by_sim")) %>% mutate(adenylate_freq = (adenylate_number/transcripts_per_group))
+C_gig_apop_LFC_adenylate_freq <- left_join(C_gig_apop_LFC_adenylate_freq,C_gig_apop_LFC_per_group, by = c("experiment","group_by_sim")) %>% mutate(adenylate_freq = (adenylate_number/transcripts_per_group))
+# compare frequency
+adenylate_freq_combined <- rbind(C_vir_apop_LFC_adenylate_freq ,C_gig_apop_LFC_adenylate_freq )
+
+# Number apoptosis inhibitor
+C_vir_apop_LFC_ApopI <- C_vir_apop_LFC[grepl("apoptosis inhibitor", C_vir_apop_LFC$product, ignore.case = TRUE),]
+C_gig_apop_LFC_ApopI <- C_gig_apop_LFC[grepl("apoptosis inhibitor", C_gig_apop_LFC$product, ignore.case = TRUE),]
+#per condition frequency
+C_vir_apop_LFC_ApopI_freq <- C_vir_apop_LFC_ApopI %>% group_by(experiment, group_by_sim) %>% filter(grepl("apoptosis inhibitor", product,ignore.case = TRUE)) %>% summarize(ApopI_number = n())
+C_gig_apop_LFC_ApopI_freq <- C_gig_apop_LFC_ApopI %>% group_by(experiment, group_by_sim) %>% filter(grepl("apoptosis inhibitor", product,ignore.case = TRUE)) %>% summarize(ApopI_number = n())
+C_vir_apop_LFC_ApopI_freq <- left_join(C_vir_apop_LFC_ApopI_freq,C_vir_apop_LFC_per_group, by = c("experiment","group_by_sim")) %>% mutate(ApopI_freq = (ApopI_number/transcripts_per_group))
+C_gig_apop_LFC_ApopI_freq <- left_join(C_gig_apop_LFC_ApopI_freq,C_gig_apop_LFC_per_group, by = c("experiment","group_by_sim")) %>% mutate(ApopI_freq = (ApopI_number/transcripts_per_group))
+# compare frequency
+ApopI_freq_combined <- rbind(C_vir_apop_LFC_ApopI_freq ,C_gig_apop_LFC_ApopI_freq )
+
+## Join all gene family frequency tables 
+Gene_family_frequency <- full_join(GIMAP_freq_combined[,c("experiment","group_by_sim","GIMAP_freq")], IAP_freq_combined[,c("experiment","group_by_sim", "IAP_freq")], 
+                                   by = c("experiment","group_by_sim"))  
+Gene_family_frequency <- full_join(Gene_family_frequency, caspase_freq_combined[,c("experiment","group_by_sim","caspase_freq")], 
+                                   by = c("experiment","group_by_sim")) 
+Gene_family_frequency <- full_join(Gene_family_frequency, TNF_freq_combined[,c("experiment","group_by_sim","tnf_freq")], 
+                                   by = c("experiment","group_by_sim")) 
+Gene_family_frequency <- full_join(Gene_family_frequency, Toll_freq_combined [,c("experiment","group_by_sim","toll_freq")], 
+                                   by = c("experiment","group_by_sim")) 
+Gene_family_frequency <- full_join(Gene_family_frequency, interferon_freq_combined[,c("experiment","group_by_sim","interferon_freq")], 
+                                   by = c("experiment","group_by_sim")) 
+Gene_family_frequency <- full_join(Gene_family_frequency, Hsp_freq_combined[,c("experiment","group_by_sim","hsp_freq")], 
+                                   by = c("experiment","group_by_sim"))  
+Gene_family_frequency <- full_join(Gene_family_frequency, Cathepsin_freq_combined[,c("experiment","group_by_sim","cathepsin_freq")], 
+                                   by = c("experiment","group_by_sim"))  
+Gene_family_frequency <- full_join(Gene_family_frequency, PCDP_freq_combined[,c("experiment","group_by_sim","PCDP_freq")], 
+                                   by = c("experiment","group_by_sim"))  
+Gene_family_frequency <- full_join(Gene_family_frequency, Rho_freq_combined  [,c("experiment","group_by_sim","rho_freq")], 
+                                   by = c("experiment","group_by_sim"))  
+Gene_family_frequency <- full_join(Gene_family_frequency, myD88_freq_combined[,c("experiment","group_by_sim","myD88_freq")], 
+                                   by = c("experiment","group_by_sim"))  
+Gene_family_frequency <- full_join(Gene_family_frequency, inositol_freq_combined[,c("experiment","group_by_sim","inositol_freq")], 
+                                   by = c("experiment","group_by_sim")) 
+Gene_family_frequency <- full_join(Gene_family_frequency, adenylate_freq_combined[,c("experiment","group_by_sim","adenylate_freq")], 
+                                   by = c("experiment","group_by_sim")) 
+Gene_family_frequency <- full_join(Gene_family_frequency, ApopI_freq_combined [,c("experiment","group_by_sim","ApopI_freq")], 
+                                   by = c("experiment","group_by_sim")) 
+Gene_family_frequency_long <- melt(Gene_family_frequency, id.vars= c("experiment","group_by_sim"), measure.vars=c(3:16))
+is.na(Gene_family_frequency_long) <- "0"
+Gene_family_frequency_long_plot <- ggplot(Gene_family_frequency_long, aes(x=experiment, y = value, fill=experiment)) + 
+  geom_col(position="dodge") + facet_grid(.~variable) + theme(axis.text.x = element_text(angle = 90, hjust = 1))
+
+#### SESSION INFO FOR RUNNING SCRIPTS Spring 2020 ####
 
 sessionInfo()
 # R version 3.6.1 (2019-07-05)
