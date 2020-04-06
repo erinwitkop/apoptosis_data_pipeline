@@ -47,7 +47,7 @@ library(limma)
 # Deseq2 Manual updated July 18th, 2019: https://www.bioconductor.org/packages/devel/bioc/manuals/DESeq2/man/DESeq2.pdf
 # the results section of this is particularly useful
 
-##### LOADING GENOME DATA AND GO TERMS ##### 
+##### LOADING GENOME DATA ##### 
 
 #### C. virginica 
 # Import gff file with rtracklayer
@@ -58,7 +58,6 @@ C_vir_rtracklayer <- as.data.frame(C_vir_rtracklayer)
 # Import gff file, using new version of genome annotation
 C_gig_rtracklayer <- rtracklayer::import("/Users/erinroberts/Documents/PhD_Research/Chapter_1_Apoptosis Paper/Chapter1_Apoptosis_Transcriptome_Analyses_2019/DATA ANALYSIS/apoptosis_data_pipeline/DESeq2/2020_Transcriptome_ANALYSIS/GCF_000297895.1_oyster_v9_genomic.gff")
 C_gig_rtracklayer <- as.data.frame(C_gig_rtracklayer)
-C_gig_rtracklayer_transcripts <-  C_gig_rtracklayer %>% filter(type =="mRNA")
 
 #### IMPORT APOPTOSIS GENE NAMES LISTS FOR EACH SPECIES AND MAP ####
 ## NOTE: THIS CODE IS THE SAME AS THAT TO IDENTIFY APOPTOSIS GENES IN THE GENOME FOR THE APOPTOSIS PATHWAY ANNOTATION PART OF THE PAPER FROM Identify_count_annotated_apop_genes.R
@@ -110,13 +109,10 @@ Apoptosis_names_list <- c('bcl-2-related protein A1',
                           'cAMP-responsive element',
                           'cytochrome c-like',
                           'death-associated inhibitor of apoptosis',
-                          'tumor necrosis factor receptor superfamily member 25',
-                          'tumor necrosis factor receptor superfamily member 10A',
-                          'tumor necrosis factor receptor superfamily member 10B',
+                          'tumor necrosis factor receptor superfamily member',
                           'endonuclease G, mitochondrial',
                           'FAS-associated death domain protein',
                           'fas apoptotic inhibitory molecule 1',
-                          'tumor necrosis factor receptor superfamily member 6',
                           'fas cell surface death receptor',
                           'GTPase IMAP family member',
                           'harakiri',
@@ -129,10 +125,9 @@ Apoptosis_names_list <- c('bcl-2-related protein A1',
                           'stress-activated protein kinase JNK',
                           'lipopolysaccharide-induced tumor necrosis factor-alpha',
                           'induced myeloid leukemia cell differentiation protein Mcl-1-like',
-                          'mitogen-activated protein kinase kinase kinase 1-like',
                           'mitogen-activated protein kinase 1',
                           'dual specificity mitogen-activated protein kinase kinase 1',
-                          'mitogen-activated protein kinase kinase kinase 7-like',
+                          'mitogen-activated protein kinase kinase kinase',
                           'transcriptional regulator Myc-A',
                           'myeloid differentiation primary response protein MyD88',
                           'phorbol-12-myristate-13-acetate-induced protein 1',
@@ -168,7 +163,6 @@ Apoptosis_names_list <- c('bcl-2-related protein A1',
                           'tumor necrosis factor',
                           'lymphotoxin-alpha',
                           'CD40 ligand',
-                          'tumor necrosis factor receptor superfamily member',
                           'TNFRSF1A associated via death domain',
                           'TNF receptor-associated factor',
                           'E3 ubiquitin-protein ligase XIAP',
@@ -195,7 +189,7 @@ Apoptosis_names_list <- c('bcl-2-related protein A1',
                           'apoptosis-stimulating of p53 protein 2',
                           'apoptosis inhibitor 5',
                           'apoptotic chromatin condensation inducer in the nucleus',
-                          "high mobility group box 1",
+                          'high mobility group box 1',
                           'ceramide synthase',
                           'cyclic AMP-responsive element-binding protein',
                           'cell death-inducing p53-target protein 1',
@@ -207,34 +201,60 @@ Apoptosis_names_list <- c('bcl-2-related protein A1',
                           'interferon regulatory factor',
                           'stimulator of interferon genes',
                           'interleukin 17-like protein',
-                          'interleukin-17')
+                          'interleukin-17',
+                          'interleukin-1 receptor-associated kinase 4',
+                          'interleukin-1 receptor-associated kinase 1-binding protein',
+                          'TGF-beta-activated kinase 1 and MAP3K7-binding protein',
+                          'sterile alpha and TIR motif-containing protein',
+                          'tyrosine-protein kinase JAK2',
+                          'signal transducer and activator of transcription',
+                          'serine-protein kinase ATM',
+                          'MAP kinase-activating death domain protein',
+                          'death domain-associated protein 6',
+                          'leucine-rich repeat and death domain-containing protein',
+                          'serine/threonine-protein kinase/endoribonuclease IRE1',
+                          'eukaryotic translation initiation factor 2-alpha kinase 3',
+                          'growth arrest and DNA damage-inducible protein GADD45',
+                          'calpain',
+                          'tyrosine-protein phosphatase non-receptor type 13',
+                          'HTRA2',
+                          '3-phosphoinositide-dependent protein kinase 1',
+                          'dronc',
+                          'pyrin',
+                          'proto-oncogene c-Rel',
+                          'leukocyte elastase inhibitor',
+                          'protein patched homolog 1',
+                          'cyclic AMP-dependent transcription factor ATF-4')
 
 #### Grep Apoptosis protein names in genome files ####
 
 # C virginica 
-C_vir_rtracklayer_mRNA <- C_vir_rtracklayer %>% filter(type == "mRNA")
-C_vir_rtracklayer_apop_product <- C_vir_rtracklayer_mRNA[grepl(paste(Apoptosis_names_list,collapse="|"), 
-                                                               C_vir_rtracklayer_mRNA$product, ignore.case = TRUE),]
-nrow(C_vir_rtracklayer_apop_product) #1134
+C_vir_rtracklayer <- C_vir_rtracklayer %>% filter(type == "mRNA")
+C_vir_rtracklayer_apop_product <- C_vir_rtracklayer[grepl(paste(Apoptosis_names_list,collapse="|"), 
+                                                          C_vir_rtracklayer$product, ignore.case = TRUE),]
 
 # Terms to remove
 # remove complement C1q proteins, dual specificity protein phosphatase 1B-like, remove kunitz-type, and NOT other kDA protein names so I can keep all heat shock proteins
-C_vir_rtracklayer_apop_product_final <-C_vir_rtracklayer_apop_product[!grepl("complement C1q", C_vir_rtracklayer_apop_product$product, ignore.case = TRUE) & 
-                                                                         !grepl("dual specificity protein phosphatase 1B-like", C_vir_rtracklayer_apop_product$product, ignore.case = TRUE) &
-                                                                         !grepl("kunitz-type", C_vir_rtracklayer_apop_product$product, ignore.case = TRUE) &
-                                                                         !grepl("mannosyl", C_vir_rtracklayer_apop_product$product, ignore.case = TRUE) &
-                                                                         !grepl("S-acyl", C_vir_rtracklayer_apop_product$product, ignore.case = TRUE) &
-                                                                         !grepl("dynamin-like",C_vir_rtracklayer_apop_product$product, ignore.case = TRUE) &
-                                                                         !grepl("activator of 90 kDa", C_vir_rtracklayer_apop_product$product, ignore.case = TRUE) &
-                                                                         !grepl("zinc finger protein", C_vir_rtracklayer_apop_product$product, ignore.case = TRUE) & 
-                                                                         !grepl("phosphatidylinositol 3-kinase 1", C_vir_rtracklayer_apop_product$product, ignore.case = TRUE)  & 
-                                                                         !grepl("phosphatidylinositol 3-kinase 2", C_vir_rtracklayer_apop_product$product, ignore.case = TRUE)  & 
-                                                                         !grepl("DDB_G0272098",C_vir_rtracklayer_apop_product$product, ignore.case = TRUE)  & 
-                                                                         !grepl("transcriptional regulator Myc-A",C_vir_rtracklayer_apop_product$product, ignore.case = TRUE)  & 
-                                                                         !grepl("caspase-14", C_vir_rtracklayer_apop_product$product, ignore.case = TRUE) &
-                                                                         !grepl("WD repeat-containing protein WRAP73", C_vir_rtracklayer_apop_product$product, ignore.case = TRUE) &
-                                                                         !grepl("tumor protein p63-regulated gene 1-like protein", C_vir_rtracklayer_apop_product$product, ignore.case = TRUE),]
-nrow(C_vir_rtracklayer_apop_product_final) #1054
+C_vir_rtracklayer_apop_product_final <- C_vir_rtracklayer_apop_product[ 
+  !grepl("dual specificity protein phosphatase 1B-like", C_vir_rtracklayer_apop_product$product, ignore.case = TRUE) &
+    !grepl("kunitz-type", C_vir_rtracklayer_apop_product$product, ignore.case = TRUE) &
+    !grepl("complement C1q", C_vir_rtracklayer_apop_product$product, ignore.case = TRUE) &
+    !grepl("mannosyl", C_vir_rtracklayer_apop_product$product, ignore.case = TRUE) &
+    !grepl("S-acyl", C_vir_rtracklayer_apop_product$product, ignore.case = TRUE) &
+    !grepl("activator of 90 kDa", C_vir_rtracklayer_apop_product$product, ignore.case = TRUE) &
+    !grepl("zinc finger protein", C_vir_rtracklayer_apop_product$product, ignore.case = TRUE) & 
+    !grepl("DDB_G0272098",C_vir_rtracklayer_apop_product$product, ignore.case = TRUE)  & 
+    !grepl("WD repeat-containing protein WRAP73", C_vir_rtracklayer_apop_product$product, ignore.case = TRUE) &
+    !grepl("tumor protein p63-regulated gene 1-like protein", C_vir_rtracklayer_apop_product$product, ignore.case = TRUE) &
+    !grepl("mitogen-activated protein kinase kinase kinase kinase 3", C_vir_rtracklayer_apop_product$product, ignore.case = TRUE),] # get rid of MAP4K
+
+nrow(C_vir_rtracklayer_apop_product_final) # 1243
+#View(C_vir_rtracklayer_apop_product_final[26][!duplicated(C_vir_rtracklayer_apop_product_final$product),])
+
+# remove duplicated rows
+C_vir_rtracklayer_apop_product_final <- C_vir_rtracklayer_apop_product_final[!duplicated(C_vir_rtracklayer_apop_product_final$product),]
+nrow(C_vir_rtracklayer_apop_product_final) # 600 unique transcripts
+View(C_vir_rtracklayer_apop_product_final)
 
 ## Identify CG apoptosis genes 
 Apoptosis_names_list_CG <- c('bcl-2-related protein A1',
@@ -284,13 +304,10 @@ Apoptosis_names_list_CG <- c('bcl-2-related protein A1',
                              'cAMP-responsive element',
                              'cytochrome c',
                              'death-associated inhibitor of apoptosis',
-                             'tumor necrosis factor receptor superfamily member 25',
-                             'tumor necrosis factor receptor superfamily member 10A',
-                             'tumor necrosis factor receptor superfamily member 10B',
+                             'tumor necrosis factor receptor superfamily member',
                              'endonuclease G, mitochondrial',
                              'FAS-associated death domain protein',
                              'fas apoptotic inhibitory molecule 1',
-                             'tumor necrosis factor receptor superfamily member 6',
                              'fas cell surface death receptor',
                              'GTPase IMAP family member',
                              'harakiri',
@@ -303,7 +320,7 @@ Apoptosis_names_list_CG <- c('bcl-2-related protein A1',
                              'stress-activated protein kinase JNK',
                              'lipopolysaccharide-induced tumor necrosis factor-alpha',
                              'induced myeloid leukemia cell differentiation protein Mcl-1',
-                             'mitogen-activated protein kinase kinase kinase 1,',
+                             'mitogen-activated protein kinase kinase kinase',
                              'mitogen-activated protein kinase 1',
                              'dual specificity mitogen-activated protein kinase kinase 1',
                              'mitogen-activated protein kinase kinase kinase 7',
@@ -342,7 +359,6 @@ Apoptosis_names_list_CG <- c('bcl-2-related protein A1',
                              'tumor necrosis factor',
                              'lymphotoxin-alpha',
                              'CD40 ligand',
-                             'tumor necrosis factor receptor superfamily member',
                              'TNFRSF1A associated via death domain',
                              'TNF receptor-associated factor',
                              'E3 ubiquitin-protein ligase XIAP',
@@ -358,8 +374,7 @@ Apoptosis_names_list_CG <- c('bcl-2-related protein A1',
                              'aurora kinase A',
                              'glutathione peroxidase 4',
                              'gasdermin',
-                             'poly \\[ADP-ribose]\\ polymerase 1 ',
-                             'poly \\[ADP-ribose]\\ polymerase 1-',
+                             'poly \\[ADP-ribose]\\ polymerase 1-like',
                              'macrophage migration inhibitory factor',
                              'hexokinase-1',
                              'Raf-1 protooncogene serine/threonine kinase',
@@ -382,7 +397,30 @@ Apoptosis_names_list_CG <- c('bcl-2-related protein A1',
                              'interferon regulatory factor',
                              'stimulator of interferon genes',
                              'interleukin 17-like protein',
-                             'interleukin-17')
+                             'interleukin-17',
+                             'interleukin-1 receptor-associated kinase 4',
+                             'interleukin-1 receptor-associated kinase 1-binding protein',
+                             'TGF-beta-activated kinase 1 and MAP3K7-binding protein',
+                             'sterile alpha and TIR motif-containing protein',
+                             'tyrosine-protein kinase JAK2',
+                             'signal transducer and activator of transcription',
+                             'serine-protein kinase ATM',
+                             'MAP kinase-activating death domain protein',
+                             'death domain-associated protein 6',
+                             'leucine-rich repeat and death domain-containing protein',
+                             'serine/threonine-protein kinase/endoribonuclease IRE1',
+                             'eukaryotic translation initiation factor 2-alpha kinase 3',
+                             'growth arrest and DNA damage-inducible protein GADD45',
+                             'calpain',
+                             'tyrosine-protein phosphatase non-receptor type 13',
+                             'HTRA2',
+                             '3-phosphoinositide-dependent protein kinase 1',
+                             'dronc',
+                             'pyrin',
+                             'proto-oncogene c-Rel',
+                             'leukocyte elastase inhibitor',
+                             'protein patched homolog 1',
+                             'cyclic AMP-dependent transcription factor ATF-4')
 
 #### Grep Apoptosis protein names in genome files CG ####
 ## Note unlike C. vir file, C. gigas file has gene names in the "product" column, and still includes comma with transcript info for some
@@ -395,29 +433,32 @@ C_gig_rtracklayer_filtered <- C_gig_rtracklayer %>% filter(type =="mRNA")
 # only genes have the description, the mRNA id's will match with the ID
 C_gig_rtracklayer_apop_product <- C_gig_rtracklayer_filtered[grepl(paste(Apoptosis_names_list_CG,collapse="|"), 
                                                                    C_gig_rtracklayer_filtered$product, ignore.case = TRUE),]
-nrow(C_gig_rtracklayer_apop_product) #788
+nrow(C_gig_rtracklayer_apop_product) #936
 
 # Terms to remove
 # remove complement C1q proteins, dual specificity protein phosphatase 1B-like, remove kunitz-type, and other NOT kDA protein names so I can keep heat shock proteins in both
-C_gig_rtracklayer_apop_product_final <- C_gig_rtracklayer_apop_product[!grepl("complement C1q", C_gig_rtracklayer_apop_product$product, ignore.case = TRUE) &
-                                                                         # !grepl("dual specificity protein phosphatase 1B-like", C_gig_rtracklayer_apop_product$product, ignore.case = TRUE) & not present in list
-                                                                         !grepl("kunitz-type", C_gig_rtracklayer_apop_product$product, ignore.case = TRUE) &
-                                                                         !grepl("mannosyl", C_gig_rtracklayer_apop_product$product, ignore.case = TRUE) &
-                                                                         !grepl("S-acyl", C_gig_rtracklayer_apop_product$product, ignore.case = TRUE) &
-                                                                         !grepl("cytochrome c oxidase", C_gig_rtracklayer_apop_product$product, ignore.case = TRUE) &
-                                                                         !grepl("cytochrome c-type heme lyase", C_gig_rtracklayer_apop_product$product, ignore.case = TRUE) &
-                                                                         !grepl("cytochrome c1", C_gig_rtracklayer_apop_product$product, ignore.case = TRUE) &
-                                                                         !grepl("interferon alpha-inducible protein 27-like protein 2",C_gig_rtracklayer_apop_product$product, ignore.case = TRUE) &
-                                                                         !grepl("dynamin-like",C_gig_rtracklayer_apop_product$product, ignore.case = TRUE) &
-                                                                         !grepl("activator of 90 kDa", C_gig_rtracklayer_apop_product$product, ignore.case = TRUE)  & 
-                                                                         !grepl("phosphatidylinositol 3-kinase 1", C_gig_rtracklayer_apop_product$product, ignore.case = TRUE)  & 
-                                                                         !grepl("phosphatidylinositol 3-kinase 2", C_gig_rtracklayer_apop_product$product, ignore.case = TRUE)  & 
-                                                                         !grepl("DDB_G0272098",C_gig_rtracklayer_apop_product$product, ignore.case = TRUE)  & 
-                                                                         !grepl("transcriptional regulator Myc-A",C_gig_rtracklayer_apop_product$product, ignore.case = TRUE)  & 
-                                                                         !grepl("caspase-14",C_gig_rtracklayer_apop_product$product, ignore.case = TRUE) &
-                                                                         !grepl("WD repeat-containing protein WRAP73", C_gig_rtracklayer_apop_product$product, ignore.case = TRUE) &
-                                                                         !grepl("tumor protein p63-regulated gene 1-like protein", C_gig_rtracklayer_apop_product$product, ignore.case = TRUE),]
-nrow(C_gig_rtracklayer_apop_product_final) #684
+C_gig_rtracklayer_apop_product_final <- C_gig_rtracklayer_apop_product[
+  # !grepl("dual specificity protein phosphatase 1B-like", C_gig_rtracklayer_apop_product$product, ignore.case = TRUE) & not present in list
+  !grepl("kunitz-type", C_gig_rtracklayer_apop_product$product, ignore.case = TRUE) &
+    !grepl("mannosyl", C_gig_rtracklayer_apop_product$product, ignore.case = TRUE) &
+    !grepl("S-acyl", C_gig_rtracklayer_apop_product$product, ignore.case = TRUE) &
+    !grepl("complement C1q", C_gig_rtracklayer_apop_product$product, ignore.case = TRUE) &
+    !grepl("cytochrome c oxidase", C_gig_rtracklayer_apop_product$product, ignore.case = TRUE) &
+    !grepl("cytochrome c-type heme lyase", C_gig_rtracklayer_apop_product$product, ignore.case = TRUE) &
+    !grepl("cytochrome c1", C_gig_rtracklayer_apop_product$product, ignore.case = TRUE) &
+    !grepl("activator of 90 kDa", C_gig_rtracklayer_apop_product$product, ignore.case = TRUE)  & 
+    !grepl("phosphatidylinositol 3-kinase 1", C_gig_rtracklayer_apop_product$product, ignore.case = TRUE)  & 
+    !grepl("phosphatidylinositol 3-kinase 2", C_gig_rtracklayer_apop_product$product, ignore.case = TRUE)  & 
+    !grepl("DDB_G0272098",C_gig_rtracklayer_apop_product$product, ignore.case = TRUE)  & 
+    !grepl("WD repeat-containing protein WRAP73", C_gig_rtracklayer_apop_product$product, ignore.case = TRUE) &
+    !grepl("tumor protein p63-regulated gene 1-like protein", C_gig_rtracklayer_apop_product$product, ignore.case = TRUE) &
+    !grepl("mitogen-activated protein kinase kinase kinase kinase 3", C_gig_rtracklayer_apop_product$product, ignore.case = TRUE) &
+    !grepl("mitogen-activated protein kinase kinase kinase kinase 4", C_gig_rtracklayer_apop_product$product, ignore.case = TRUE),]
+nrow(C_gig_rtracklayer_apop_product_final) #833
+
+# remove duplicated rows
+C_gig_rtracklayer_apop_product_final <- C_gig_rtracklayer_apop_product_final[!duplicated(C_gig_rtracklayer_apop_product_final$product),]
+nrow(C_gig_rtracklayer_apop_product_final) # 563 unique transcripts
 
 #### ZHANG VIBRIO TRANSCRIPTOME ANALYSIS ####
 
@@ -731,11 +772,11 @@ top_Var_Zhang_counts_apop_assay_prot_annot <- left_join(top_Var_Zhang_counts_apo
 ### Extract list of significant Apoptosis Genes (not less than or greater than 1 LFC) using merge
 Zhang_dds_deseq_res_V_alg1_LFC_sig_APOP <- merge(Zhang_dds_deseq_res_V_alg1_LFC_sig, C_gig_rtracklayer_apop_product_final, by = "transcript_id")
 Zhang_dds_deseq_res_V_alg1_LFC_sig_APOP_arranged <- arrange(Zhang_dds_deseq_res_V_alg1_LFC_sig_APOP , -log2FoldChange) 
-nrow(Zhang_dds_deseq_res_V_alg1_LFC_sig_APOP) #20
+nrow(Zhang_dds_deseq_res_V_alg1_LFC_sig_APOP) #23
 
 Zhang_dds_deseq_res_V_tub_LFC_sig_APOP <- merge(Zhang_dds_deseq_res_V_tub_LFC_sig , C_gig_rtracklayer_apop_product_final, by = "transcript_id")
 Zhang_dds_deseq_res_V_tub_LFC_sig_APOP_arranged <- arrange(Zhang_dds_deseq_res_V_tub_LFC_sig_APOP  , -log2FoldChange) 
-nrow(Zhang_dds_deseq_res_V_tub_LFC_sig_APOP) # 16
+nrow(Zhang_dds_deseq_res_V_tub_LFC_sig_APOP) # 15
 
 Zhang_dds_deseq_res_LFC_LPS_sig_APOP <- merge(Zhang_dds_deseq_res_LFC_LPS_sig, C_gig_rtracklayer_apop_product_final, by = "transcript_id")
 Zhang_dds_deseq_res_LFC_LPS_sig_APOP_arranged <- arrange(Zhang_dds_deseq_res_LFC_LPS_sig_APOP , -log2FoldChange) 
@@ -1048,10 +1089,10 @@ Rubio_dds_deseq_J2_9_res_LFC_sig_APOP_arranged <-    arrange(Rubio_dds_deseq_J2_
 Rubio_dds_deseq_LGP32_res_LFC_sig_APOP_arranged <-   arrange(Rubio_dds_deseq_LGP32_res_LFC_sig_APOP, -log2FoldChange)
 Rubio_dds_deseq_LMG20012T_res_LFC_sig_APOP_arranged<-arrange(Rubio_dds_deseq_LMG20012T_res_LFC_sig_APOP, -log2FoldChange)
 
-nrow(Rubio_dds_deseq_J2_8_res_LFC_sig_APOP_arranged ) # 67
-nrow(Rubio_dds_deseq_J2_9_res_LFC_sig_APOP_arranged  ) # 71
-nrow(Rubio_dds_deseq_LGP32_res_LFC_sig_APOP_arranged  ) #72
-nrow(Rubio_dds_deseq_LMG20012T_res_LFC_sig_APOP_arranged) # 66
+nrow(Rubio_dds_deseq_J2_8_res_LFC_sig_APOP_arranged ) # 41
+nrow(Rubio_dds_deseq_J2_9_res_LFC_sig_APOP_arranged  ) # 50
+nrow(Rubio_dds_deseq_LGP32_res_LFC_sig_APOP_arranged  ) #46
+nrow(Rubio_dds_deseq_LMG20012T_res_LFC_sig_APOP_arranged) # 45
 
 #View(Rubio_dds_deseq_J2_8_res_LFC_sig_APOP_arranged)
 #View(Rubio_dds_deseq_J2_9_res_LFC_sig_APOP_arranged)
@@ -1492,19 +1533,19 @@ deLorgeril_Susceptible_dds_res_48_LFC_sig_APOP <- arrange(deLorgeril_Susceptible
 deLorgeril_Susceptible_dds_res_60_LFC_sig_APOP <- arrange(deLorgeril_Susceptible_dds_res_60_LFC_sig_APOP, -log2FoldChange)
 deLorgeril_Susceptible_dds_res_72_LFC_sig_APOP <- arrange(deLorgeril_Susceptible_dds_res_72_LFC_sig_APOP, -log2FoldChange)
 
-nrow(deLorgeril_Resistant_dds_res_6_LFC_sig_APOP) #22
-nrow(deLorgeril_Resistant_dds_res_12_LFC_sig_APOP) #54
-nrow(deLorgeril_Resistant_dds_res_24_LFC_sig_APOP) #79
-nrow(deLorgeril_Resistant_dds_res_48_LFC_sig_APOP) #27
-nrow(deLorgeril_Resistant_dds_res_60_LFC_sig_APOP) # 59
-nrow(deLorgeril_Resistant_dds_res_72_LFC_sig_APOP) # 35
+nrow(deLorgeril_Resistant_dds_res_6_LFC_sig_APOP) #19
+nrow(deLorgeril_Resistant_dds_res_12_LFC_sig_APOP) #48
+nrow(deLorgeril_Resistant_dds_res_24_LFC_sig_APOP) #66
+nrow(deLorgeril_Resistant_dds_res_48_LFC_sig_APOP) #18
+nrow(deLorgeril_Resistant_dds_res_60_LFC_sig_APOP) # 45
+nrow(deLorgeril_Resistant_dds_res_72_LFC_sig_APOP) # 23
 
-nrow(deLorgeril_Susceptible_dds_res_6_LFC_sig_APOP) #28
-nrow(deLorgeril_Susceptible_dds_res_12_LFC_sig_APOP) #92
-nrow(deLorgeril_Susceptible_dds_res_24_LFC_sig_APOP) #164
-nrow(deLorgeril_Susceptible_dds_res_48_LFC_sig_APOP) #34
-nrow(deLorgeril_Susceptible_dds_res_60_LFC_sig_APOP) # 196
-nrow(deLorgeril_Susceptible_dds_res_72_LFC_sig_APOP) # 50
+nrow(deLorgeril_Susceptible_dds_res_6_LFC_sig_APOP) #24
+nrow(deLorgeril_Susceptible_dds_res_12_LFC_sig_APOP) #75
+nrow(deLorgeril_Susceptible_dds_res_24_LFC_sig_APOP) #129
+nrow(deLorgeril_Susceptible_dds_res_48_LFC_sig_APOP) #30
+nrow(deLorgeril_Susceptible_dds_res_60_LFC_sig_APOP) # 149
+nrow(deLorgeril_Susceptible_dds_res_72_LFC_sig_APOP) # 40
 
 #View(deLorgeril_Resistant_dds_res_48_LFC_sig_APOP  $product)
 #View(deLorgeril_Resistant_dds_res_60_LFC_sig_APOP  $product)
@@ -1951,11 +1992,11 @@ He_dds_res_24hr_sig_arranged <- arrange(He_dds_res_24hr_sig_APOP , -log2FoldChan
 He_dds_res_48hr_sig_arranged <- arrange(He_dds_res_48hr_sig_APOP , -log2FoldChange)
 He_dds_res_120hr_sig_arranged <- arrange(He_dds_res_120hr_sig_APOP, -log2FoldChange)
 
-nrow(He_dds_res_6hr_sig_arranged ) # 22
-nrow(He_dds_res_12hr_sig_arranged) # 27
-nrow(He_dds_res_24hr_sig_arranged) # 61
-nrow(He_dds_res_48hr_sig_arranged) # 21
-nrow(He_dds_res_120hr_sig_arranged) # 20
+nrow(He_dds_res_6hr_sig_arranged ) # 16
+nrow(He_dds_res_12hr_sig_arranged) # 20
+nrow(He_dds_res_24hr_sig_arranged) # 45
+nrow(He_dds_res_48hr_sig_arranged) # 18
+nrow(He_dds_res_120hr_sig_arranged) # 14
 
 He_dds_res_6hr_sig_APOP$group_by_sim <-"He_dds_res_6hr_sig_APOP"
 He_dds_res_12hr_sig_APOP$group_by_sim <-"He_dds_res_12hr_sig_APOP"
@@ -2182,7 +2223,7 @@ top_Var_Probiotic_counts_apop_assay_prot_annot <- left_join(top_Var_Probiotic_co
 ### Extract list of significant Apoptosis Genes (not less than or greater than 1 LFC) using merge
 Probiotic_dds_deseq_Challenge_res_LFC_sig_APOP <- merge(Probiotic_dds_deseq_Challenge_res_LFC_sig, C_vir_rtracklayer_apop_product_final, by = "ID")
 Probiotic_dds_deseq_Challenge_res_LFC_sig_APOP_arranged <- arrange(Probiotic_dds_deseq_Challenge_res_LFC_sig_APOP, -log2FoldChange) 
-nrow(Probiotic_dds_deseq_Challenge_res_LFC_sig_APOP) # 22
+nrow(Probiotic_dds_deseq_Challenge_res_LFC_sig_APOP) # 17
 
 Probiotic_dds_deseq_Challenge_res_LFC_sig_APOP_plot <- ggplot(Probiotic_dds_deseq_Challenge_res_LFC_sig_APOP , aes(x=product, y = log2FoldChange, fill=log2FoldChange)) + geom_col(position="dodge") +
   coord_flip() + scale_fill_gradient2(low="purple",mid = "grey", high="darkgreen") + ggtitle("Bacillus pumilus vs Control") +
@@ -2452,11 +2493,11 @@ Pro_RE22_dds_deseq_res_S4_6h_LFC_sig_APOP <- merge(Pro_RE22_dds_deseq_res_S4_6h_
 Pro_RE22_dds_deseq_res_S4_24h_LFC_sig_APOP <- merge(Pro_RE22_dds_deseq_res_S4_24h_LFC_sig, C_vir_rtracklayer_apop_product_final, by =  "ID")
 Pro_RE22_dds_deseq_res_RE22_LFC_sig_APOP <- merge(Pro_RE22_dds_deseq_res_RE22_LFC_sig, C_vir_rtracklayer_apop_product_final, by = "ID")
 
-nrow(Pro_RE22_dds_deseq_res_RI_6h_LFC_sig_APOP ) # 17
-nrow(Pro_RE22_dds_deseq_res_RI_24h_LFC_sig_APOP) # 33
-nrow(Pro_RE22_dds_deseq_res_S4_6h_LFC_sig_APOP ) # 40
-nrow(Pro_RE22_dds_deseq_res_S4_24h_LFC_sig_APOP) # 41
-nrow(Pro_RE22_dds_deseq_res_RE22_LFC_sig_APOP ) # 28 
+nrow(Pro_RE22_dds_deseq_res_RI_6h_LFC_sig_APOP ) # 18
+nrow(Pro_RE22_dds_deseq_res_RI_24h_LFC_sig_APOP) # 35
+nrow(Pro_RE22_dds_deseq_res_S4_6h_LFC_sig_APOP ) # 30
+nrow(Pro_RE22_dds_deseq_res_S4_24h_LFC_sig_APOP) # 42
+nrow(Pro_RE22_dds_deseq_res_RE22_LFC_sig_APOP ) # 20 
 
 # Compare apoptosis genes between group_by_sim groups
 Pro_RE22_dds_deseq_res_RI_6h_LFC_sig_APOP $group_by_sim <- "RI_6h"
@@ -2781,7 +2822,7 @@ top_Var_ROD_Susceptible_apop_assay_prot_annot <- left_join(top_Var_ROD_Susceptib
 ### Extract list of significant Apoptosis Genes (not less than or greater than 1 LFC) using merge
 ROD_Susceptible_dds_res_LFC_sig_APOP <- merge(ROD_Susceptible_dds_res_LFC_sig, C_vir_rtracklayer_apop_product_final, by = "ID")
 ROD_Susceptible_dds_res_LFC_sig_APOP_arranged <- arrange(ROD_Susceptible_dds_res_LFC_sig_APOP, -log2FoldChange) 
-nrow(ROD_Susceptible_dds_res_LFC_sig_APOP) # 41
+nrow(ROD_Susceptible_dds_res_LFC_sig_APOP) # 29
 
 ROD_Resistant_dds_res_LFC_sig_APOP <- merge(ROD_Resistant_dds_res_LFC_sig, C_vir_rtracklayer_apop_product_final, by = "ID")
 ROD_Resistant_dds_res_LFC_sig_APOP_arranged <- arrange(ROD_Resistant_dds_res_LFC_sig_APOP, -log2FoldChange) 
@@ -3300,31 +3341,31 @@ nrow(Dermo_Susceptible_28d_dds_res_LFC_sig) # 2462
 ### Extract list of significant Apoptosis Genes (not less than or greater than 1 LFC) using merge
 Dermo_Susceptible_36hr_dds_res_LFC_sig_APOP <- merge(Dermo_Susceptible_36hr_dds_res_LFC_sig, C_vir_rtracklayer_apop_product_final, by = "ID")
 Dermo_Susceptible_36hr_dds_res_LFC_sig_APOP_arranged <- arrange(Dermo_Susceptible_36hr_dds_res_LFC_sig_APOP, -log2FoldChange) 
-nrow(Dermo_Susceptible_36hr_dds_res_LFC_sig_APOP) # 10
+nrow(Dermo_Susceptible_36hr_dds_res_LFC_sig_APOP) # 6
 
 Dermo_Susceptible_7d_dds_res_LFC_sig_APOP <- merge(Dermo_Susceptible_7d_dds_res_LFC_sig, C_vir_rtracklayer_apop_product_final, by = "ID")
 Dermo_Susceptible_7d_dds_res_LFC_sig_APOP_arranged <- arrange(Dermo_Susceptible_7d_dds_res_LFC_sig_APOP, -log2FoldChange) 
-nrow(Dermo_Susceptible_7d_dds_res_LFC_sig_APOP) # 2
+nrow(Dermo_Susceptible_7d_dds_res_LFC_sig_APOP) # 0
 
 Dermo_Susceptible_28d_dds_res_LFC_sig_APOP <- merge(Dermo_Susceptible_28d_dds_res_LFC_sig, C_vir_rtracklayer_apop_product_final, by = "ID")
 Dermo_Susceptible_28d_dds_res_LFC_sig_APOP_arranged <- arrange(Dermo_Susceptible_28d_dds_res_LFC_sig_APOP, -log2FoldChange) 
-nrow(Dermo_Susceptible_28d_dds_res_LFC_sig_APOP) # 26
+nrow(Dermo_Susceptible_28d_dds_res_LFC_sig_APOP) # 15
 
 Dermo_Tolerant_36hr_dds_res_LFC_sig_APOP <- merge(Dermo_Tolerant_36hr_dds_res_LFC_sig, C_vir_rtracklayer_apop_product_final, by = "ID")
 Dermo_Tolerant_36hr_dds_res_LFC_sig_APOP_arranged <- arrange(Dermo_Tolerant_36hr_dds_res_LFC_sig_APOP, -log2FoldChange) 
-nrow(Dermo_Tolerant_36hr_dds_res_LFC_sig_APOP)  # 12
+nrow(Dermo_Tolerant_36hr_dds_res_LFC_sig_APOP)  # 9
 
 Dermo_Tolerant_7d_dds_res_LFC_sig_APOP <- merge(Dermo_Tolerant_7d_dds_res_LFC_sig, C_vir_rtracklayer_apop_product_final, by = "ID")
 Dermo_Tolerant_7d_dds_res_LFC_sig_APOP_arranged <- arrange(Dermo_Tolerant_7d_dds_res_LFC_sig_APOP, -log2FoldChange) 
-nrow(Dermo_Tolerant_7d_dds_res_LFC_sig_APOP) # 14
+nrow(Dermo_Tolerant_7d_dds_res_LFC_sig_APOP) # 6
 
 Dermo_Tolerant_28d_dds_res_LFC_sig_APOP <- merge(Dermo_Tolerant_28d_dds_res_LFC_sig, C_vir_rtracklayer_apop_product_final, by = "ID")
 Dermo_Tolerant_28d_dds_res_LFC_sig_APOP_arranged <- arrange(Dermo_Tolerant_28d_dds_res_LFC_sig_APOP, -log2FoldChange) 
-nrow(Dermo_Tolerant_28d_dds_res_LFC_sig_APOP) # 11
+nrow(Dermo_Tolerant_28d_dds_res_LFC_sig_APOP) # 10
  
 # Compare apoptosis genes between group_by_sim groups
 Dermo_Susceptible_36hr_dds_res_LFC_sig_APOP$group_by_sim <- "Susceptible_36hr"
-Dermo_Susceptible_7d_dds_res_LFC_sig_APOP$group_by_sim <- "Susceptible_7d"
+#Dermo_Susceptible_7d_dds_res_LFC_sig_APOP$group_by_sim <- "Susceptible_7d"
 Dermo_Susceptible_28d_dds_res_LFC_sig_APOP$group_by_sim <- "Susceptible_28d"
 Dermo_Tolerant_36hr_dds_res_LFC_sig_APOP$group_by_sim <- "Tolerant_36hr"
 Dermo_Tolerant_7d_dds_res_LFC_sig_APOP $group_by_sim <- "Tolerant_7d"
@@ -3333,7 +3374,7 @@ Dermo_Tolerant_28d_dds_res_LFC_sig_APOP $group_by_sim <- "Tolerant_28d"
 # combine data frames 
 Dermo_separated_all_sig_APOP <- rbind( 
   Dermo_Susceptible_36hr_dds_res_LFC_sig_APOP[,c("product","group_by_sim","log2FoldChange")],
-  Dermo_Susceptible_7d_dds_res_LFC_sig_APOP[,c("product","group_by_sim","log2FoldChange")],
+  #Dermo_Susceptible_7d_dds_res_LFC_sig_APOP[,c("product","group_by_sim","log2FoldChange")],
   Dermo_Susceptible_28d_dds_res_LFC_sig_APOP[,c("product","group_by_sim","log2FoldChange")],
     Dermo_Tolerant_36hr_dds_res_LFC_sig_APOP[,c("product","group_by_sim","log2FoldChange")],
     Dermo_Tolerant_7d_dds_res_LFC_sig_APOP[,c("product","group_by_sim","log2FoldChange")],
@@ -3378,7 +3419,7 @@ C_vir_apop_LFC <- rbind(
   ROD_Resistant_dds_res_LFC_sig_APOP[,c("product","group_by_sim","log2FoldChange","experiment", "gene","transcript_id","padj")],
   Probiotic_dds_deseq_Challenge_res_LFC_sig_APOP[,c("product","group_by_sim","log2FoldChange","experiment", "gene","transcript_id","padj")],
   Dermo_Susceptible_36hr_dds_res_LFC_sig_APOP[,c("product","group_by_sim","log2FoldChange","experiment", "gene","transcript_id","padj")],
-  Dermo_Susceptible_7d_dds_res_LFC_sig_APOP[,c("product","group_by_sim","log2FoldChange","experiment", "gene","transcript_id","padj")],
+  #Dermo_Susceptible_7d_dds_res_LFC_sig_APOP[,c("product","group_by_sim","log2FoldChange","experiment", "gene","transcript_id","padj")],
   Dermo_Susceptible_28d_dds_res_LFC_sig_APOP[,c("product","group_by_sim","log2FoldChange","experiment", "gene","transcript_id","padj")],
   Dermo_Tolerant_36hr_dds_res_LFC_sig_APOP[,c("product","group_by_sim","log2FoldChange","experiment", "gene","transcript_id","padj")],
   Dermo_Tolerant_7d_dds_res_LFC_sig_APOP[,c("product","group_by_sim","log2FoldChange","experiment", "gene","transcript_id","padj")],
@@ -3389,6 +3430,187 @@ C_vir_apop_LFC <- rbind(
   Pro_RE22_dds_deseq_res_S4_24h_LFC_sig_APOP[,c("product","group_by_sim","log2FoldChange","experiment", "gene","transcript_id","padj")],
   Pro_RE22_dds_deseq_res_RE22_LFC_sig_APOP[,c("product","group_by_sim","log2FoldChange","experiment", "gene","transcript_id","padj")])
   
+View(arrange(C_vir_apop_LFC, -log2FoldChange) )
+
+# assign to gene families
+Apoptosis_names_df <- data.frame(product=c(# removing this because duplicated with bcl-2 'bcl-2-related protein A1',
+  '^apoptosis-inducing factor 1',
+  'nuclear apoptosis-inducing factor 1',
+  'akt1',
+  'RAC-alpha',
+  'RAC-gamma',
+  'methylthioribulose-1-phosphate dehydratase',
+  '^tumor necrosis factor receptor',
+  '^tumor necrosis factor ligand',
+  'tumor necrosis factor alpha-induced protein',
+  'lipopolysaccharide-induced tumor necrosis factor-alpha',
+  'cell death regulator Aven',
+  'bcl-2',
+  'BAX',
+  'BAG family molecular chaperone regulator',
+  'BH3 interacting domain death agonist',
+  'Bik-like killer protein',
+  'CASP8 and FADD like apoptosis regulator',
+  'transcription factor AP-1',
+  'adenylate cyclase',
+  'caspase-',
+  'caspase activity and apoptosis inhibitor 1',
+  'cell division cycle and apoptosis regulator protein 1',
+  'CD151 antigen',
+  'protein BTG1',
+  'baculoviral IAP',
+  'E3 ubiquitin-protein ligase XIAP',
+  'cAMP-responsive element',
+  'cytochrome c',
+  'endonuclease G, mitochondrial',
+  'FAS-associated death domain protein',
+  'fas apoptotic inhibitory molecule 1',
+  'fas cell surface death receptor',
+  'GTPase IMAP family member',
+  'harakiri',
+  'DNA fragmentation factor',
+  'interferon-induced protein 44',
+  'interferon alpha-inducible protein 27',
+  'NF-kappa-B',
+  'inositol 1,4,5-trisphosphate receptor',
+  'stress-activated protein kinase JNK',
+  'induced myeloid leukemia cell differentiation protein Mcl-1',
+  'mitogen-activated protein kinase kinase kinase',
+  'mitogen-activated protein kinase-',
+  'transcriptional regulator Myc-A',
+  'myeloid differentiation primary response protein MyD88',
+  'phorbol-12-myristate-13-acetate-induced protein 1',
+  'transcription factor p65',
+  'RELB proto-oncogene',
+  'reticuloendotheliosis oncogene',
+  'anti-apoptotic protein NR13',
+  'nuclear mitotic apparatus protein 1',
+  'dynamin-like 120 kDa protein',
+  'cyclin-dependent kinase 5 activator 1',
+  'cellular tumor antigen p53',
+  'programmed cell death protein',
+  'p53 and DNA damage-regulated protein 1',
+  'phosphatidylinositol 3-kinase',
+  'cAMP-dependent protein kinase',
+  'protein kinase C',
+  'BCL2 binding component 3',
+  'cdc42 homolog',
+  'ras-related',
+  'rho-related',
+  'ras-like',
+  'receptor-interacting serine/threonine-protein kinase',
+  'diablo homolog, mitochondrial',
+  'toll-like receptor',
+  'lymphotoxin-alpha',
+  'CD40 ligand',
+  'TNFRSF1A associated via death domain',
+  'TNF receptor-associated factor',
+  'netrin receptor',
+  'neurotrophic receptor tyrosine kinase 1',
+  'sonic hedgehog receptor',
+  'mixed lineage kinase domain',
+  'heat shock protein',
+  'E3 ubiquitin-protein ligase CHIP',
+  'protein phosphatase 1B',
+  'aurora kinase A',
+  'glutathione peroxidase 4',
+  'gasdermin',
+  'poly \\[ADP-ribose]\\ polymerase 1',
+  'macrophage migration inhibitory factor',
+  'hexokinase-1',
+  'Raf-1 protooncogene serine/threonine kinase',
+  'elastase, neutrophil expressed',
+  'cathepsin',
+  'PRKC apoptosis WT1 regulator protein',
+  'apoptosis-stimulating of p53 protein',
+  'apoptosis inhibitor 5',
+  'apoptotic chromatin condensation inducer in the nucleus',
+  "high mobility group box 1",
+  "ceramide synthase",
+  'inhibitor of apoptosis',
+  'cyclic AMP-responsive element-binding protein',
+  'cell death-inducing p53-target protein 1',
+  'TP53-binding protein 1',
+  'p53-induced death domain-containing protein 1',
+  'death domain-containing protein CRADD',
+  'p63',
+  'p73',
+  'interferon regulatory factor',
+  'stimulator of interferon genes',
+  'interleukin 17-like protein',
+  'interleukin-17',
+  'interleukin-1 receptor-associated kinase 4',
+  'interleukin-1 receptor-associated kinase 1-binding protein',
+  'TGF-beta-activated kinase 1 and MAP3K7-binding protein',
+  'sterile alpha and TIR motif-containing protein',
+  'tyrosine-protein kinase JAK2',
+  'signal transducer and activator of transcription',
+  'serine-protein kinase ATM',
+  'MAP kinase-activating death domain protein',
+  'death domain-associated protein 6',
+  'leucine-rich repeat and death domain-containing protein',
+  'serine/threonine-protein kinase/endoribonuclease IRE1',
+  'eukaryotic translation initiation factor 2-alpha kinase 3',
+  'growth arrest and DNA damage-inducible protein GADD45',
+  'calpain',
+  'tyrosine-protein phosphatase non-receptor type 13',
+  'HTRA2',
+  '3-phosphoinositide-dependent protein kinase 1',
+  'dronc',
+  'pyrin',
+  'proto-oncogene c-Rel',
+  'leukocyte elastase inhibitor',
+  'protein patched homolog 1',
+  'cyclic AMP-dependent transcription factor ATF-4',
+  'dual specificity mitogen-activated protein kinase kinase 1',
+  'mitogen-activated protein kinase 1',
+  'mitochondrial Rho GTPase 1'))
+
+Apoptosis_names_df$rownames <- rownames(Apoptosis_names_df)
+# Make new index
+idx2 <- sapply(Apoptosis_names_df$product, grep, C_vir_apop_LFC$product)
+idx1 <- sapply(seq_along(idx2), function(i) rep(i, length(idx2[[i]])))
+
+# create df_merged which has duplicated product column for gene name hits, first column is the index name
+df_merged <- cbind(Apoptosis_names_df[unlist(idx1),,drop=F], C_vir_apop_LFC[unlist(idx2),,drop=F])
+head(df_merged)
+df_merged[is.na(df_merged),]
+nrow(df_merged) # 240 (none duplicated)
+View(df_merged)
+# change column names
+colnames(df_merged)[1] <- "apoptosis_names_query" 
+# subset rownames column
+df_merged <- df_merged[,-2]
+head(df_merged)
+
+# Check df_merged apoptosis gene family name assignments here
+setdiff(C_vir_apop_LFC$transcript_id,df_merged$transcript_id) # none missing
+setdiff(df_merged$transcript_id,C_vir_apop_LFC$transcript_id)
+df_merged[duplicated(df_merged$transcript_id),]
+
+# HOW MANY DIFFERENTIALLY EXPRESSED IN FAMILIES
+df_merged_family_count <- df_merged %>% group_by(apoptosis_names_query) %>% mutate(count=n())
+df_merged_family_count_unique <- df_merged_family_count[!duplicated(df_merged_family_count),]
+df_merged_family_count_unique <- unique(df_merged_family_count_unique[,c("apoptosis_names_query","count")])
+
+# which is most frequent across experiments (total number in each experiment, divided by total transcript number for that family)
+df_merged_family_exp <-  df_merged %>% group_by(experiment, apoptosis_names_query) %>% mutate(count_per_exp=n())
+df_merged_family_exp_unique <- unique(df_merged_family_exp[,c("apoptosis_names_query","experiment", "count_per_exp")])
+ggplot(df_merged_family_exp_unique, aes(x=apoptosis_names_query, y= count_per_exp, fill= experiment)) + geom_col() + coord_flip()
+# looked at bars to see which were common across all experiments 
+
+# how many genes are being used across the significant groups 
+df_merged_family_exp_genes <- df_merged_family_exp %>% group_by(apoptosis_names_query, experiment, gene) %>% mutate(number_genes = n())
+df_merged_family_exp_genes_unique <- unique(df_merged_family_exp_genes[,c("apoptosis_names_query","experiment", "number_genes")])
+ggplot(df_merged_family_exp_genes_unique , aes(x=apoptosis_names_query, y=number_genes , fill= experiment)) + geom_col() + coord_flip()
+
+# graph sd to see which ones are most variable between experiments
+df_merged_family_count_sd <- df_merged_family_exp %>% group_by(apoptosis_names_query, experiment) %>% mutate(sd=sd(log2FoldChange))
+df_merged_family_count_sd <- df_merged_family_count_sd %>% filter(!is.na(sd))
+df_merged_family_count_sd_unique<- unique(df_merged_family_count_sd[,c("apoptosis_names_query","experiment", "sd")])
+View(df_merged_family_count_sd_unique)
+ggplot(df_merged_family_count_sd_unique, aes(x=apoptosis_names_query, y=sd , fill= experiment)) + geom_col() + coord_flip()
+
 # Make plot for up and downregulated
 C_vir_apop_APOP_downregulated <- C_vir_apop_LFC %>% filter(log2FoldChange <= 0)
 C_vir_apop_APOP_upregulated <- C_vir_apop_LFC %>% filter(log2FoldChange > 0)
@@ -3398,6 +3620,9 @@ C_vir_apop_APOP_downregulated_plot <- ggplot(C_vir_apop_APOP_downregulated , aes
   theme(axis.text.x = element_text(angle = 75, hjust = 1)) + coord_flip()
 C_vir_apop_APOP_upregulated_plot <- ggplot(C_vir_apop_APOP_upregulated , aes(x=product,y=log2FoldChange, fill=experiment )) + geom_col(position="dodge") + 
   theme(axis.text.x = element_text(angle = 75, hjust = 1)) + coord_flip()
+C_vir_apop_APOP_plot <- ggplot(C_vir_apop_LFC, aes(x=product,y=log2FoldChange, fill=experiment )) + geom_col(position="dodge") + 
+  theme(axis.text.x = element_text(angle = 75, hjust = 1)) + coord_flip()
+
 
 # C_gig
 Zhang_dds_deseq_res_V_alg1_LFC_sig_APOP$experiment <- "Zhang"
@@ -3453,6 +3678,185 @@ C_gig_apop_LFC <- rbind(Zhang_dds_deseq_res_V_alg1_LFC_sig_APOP[,c("product","gr
                         deLorgeril_Susceptible_dds_res_48_LFC_sig_APOP[,c("product","group_by_sim","log2FoldChange","experiment", "seqnames","Name","gene","padj")],
                         deLorgeril_Susceptible_dds_res_60_LFC_sig_APOP[,c("product","group_by_sim","log2FoldChange","experiment", "seqnames","Name","gene","padj")],
                         deLorgeril_Susceptible_dds_res_72_LFC_sig_APOP[,c("product","group_by_sim","log2FoldChange","experiment", "seqnames","Name","gene","padj")])
+nrow(C_gig_apop_LFC) # 1014
+
+# assign to gene families 
+Apoptosis_names_df_CG <- data.frame(product=c(     # removing this because duplicated with bcl-2 'bcl-2-related protein A1',
+  '^apoptosis-inducing factor 1',
+  'nuclear apoptosis-inducing factor 1',
+  'akt1',
+  'RAC-alpha',
+  'RAC-gamma',
+  'methylthioribulose-1-phosphate dehydratase',
+  '^tumor necrosis factor receptor',
+  '^tumor necrosis factor ligand',
+  '^tumor necrosis factor$',# dollar sign indicates the end of the string
+  'tumor necrosis factor alpha-induced protein',
+  'lipopolysaccharide-induced tumor necrosis factor-alpha',
+  'cell death regulator Aven',
+  'bcl-2',
+  'BAX',
+  'BAG family molecular chaperone regulator',
+  'BH3 interacting domain death agonist',
+  'Bik-like killer protein',
+  'CASP8 and FADD like apoptosis regulator',
+  'transcription factor AP-1',
+  'adenylate cyclase',
+  'caspase-',
+  'caspase activity and apoptosis inhibitor 1',
+  'cell division cycle and apoptosis regulator protein 1',
+  'CD151 antigen',
+  'B-cell translocation gene 1',
+  'baculoviral IAP',
+  'E3 ubiquitin-protein ligase XIAP',
+  'cAMP-responsive element',
+  'cytochrome c',
+  'endonuclease G, mitochondrial',
+  'FAS-associated death domain protein',
+  'fas-associated death domain protein', #as with Heat shock protein beta will need to merge these
+  'fas apoptotic inhibitory molecule 1',
+  'fas cell surface death receptor',
+  'GTPase IMAP family member',
+  'harakiri',
+  'DNA fragmentation factor',
+  'interferon-induced protein 44',
+  'interferon alpha-inducible protein 27',
+  'NF-kappa-B',
+  'inositol 1,4,5-trisphosphate receptor',
+  'stress-activated protein kinase JNK',
+  'induced myeloid leukemia cell differentiation protein Mcl-1',
+  'mitogen-activated protein kinase kinase kinase',
+  'mitogen-activated protein kinase-',
+  'transcriptional regulator Myc-A',
+  'myeloid differentiation primary response protein MyD88',
+  'phorbol-12-myristate-13-acetate-induced protein 1',
+  'transcription factor p65',
+  'RELB proto-oncogene',
+  'reticuloendotheliosis oncogene',
+  'anti-apoptotic protein NR13',
+  'nuclear mitotic apparatus protein 1',
+  'dynamin-like 120 kDa protein',
+  'cyclin-dependent kinase 5 activator 1',
+  'cellular tumor antigen p53',
+  'programmed cell death protein',
+  'p53 and DNA damage-regulated protein 1',
+  'phosphatidylinositol 3-kinase',
+  'cAMP-dependent protein kinase',
+  'protein kinase C',
+  'BCL2 binding component 3',
+  'cdc42 homolog',
+  'ras-related',
+  'rho-related',
+  'ras-like',
+  'receptor-interacting serine/threonine-protein kinase',
+  'diablo homolog, mitochondrial',
+  'toll-like receptor',
+  'lymphotoxin-alpha',
+  'CD40 ligand',
+  'TNFRSF1A associated via death domain',
+  'TNF receptor-associated factor',
+  'netrin receptor',
+  'neurotrophic receptor tyrosine kinase 1',
+  'sonic hedgehog receptor',
+  'mixed lineage kinase domain',
+  'heat shock protein',
+  'Heat shock protein', #will need to recode these later to be in the same group, case sensitivity caused problem
+  'E3 ubiquitin-protein ligase CHIP',
+  'protein phosphatase 1B',
+  'aurora kinase A',
+  'glutathione peroxidase 4',
+  'gasdermin',
+  'poly \\[ADP-ribose]\\ polymerase 1',
+  'macrophage migration inhibitory factor',
+  'hexokinase-1',
+  'Raf-1 protooncogene serine/threonine kinase',
+  'elastase, neutrophil expressed',
+  'cathepsin',
+  'PRKC apoptosis WT1 regulator protein',
+  'apoptosis-stimulating of p53 protein',
+  'apoptosis inhibitor 5',
+  'apoptotic chromatin condensation inducer in the nucleus',
+  "high mobility group box 1",
+  "ceramide synthase",
+  'inhibitor of apoptosis',
+  'cyclic AMP-responsive element-binding protein',
+  'cell death-inducing p53-target protein 1',
+  'TP53-binding protein 1',
+  'p53-induced death domain-containing protein 1',
+  'death domain-containing protein CRADD',
+  'p63',
+  'p73',
+  'interferon regulatory factor',
+  'stimulator of interferon genes',
+  'interleukin 17-like protein',
+  'interleukin-17',
+  'interleukin-1 receptor-associated kinase 4',
+  'interleukin-1 receptor-associated kinase 1-binding protein',
+  'TGF-beta-activated kinase 1 and MAP3K7-binding protein',
+  'sterile alpha and TIR motif-containing protein',
+  'tyrosine-protein kinase JAK2',
+  'signal transducer and activator of transcription',
+  'serine-protein kinase ATM',
+  'MAP kinase-activating death domain protein',
+  'death domain-associated protein 6',
+  'leucine-rich repeat and death domain-containing protein',
+  'serine/threonine-protein kinase/endoribonuclease IRE1',
+  'eukaryotic translation initiation factor 2-alpha kinase 3',
+  'growth arrest and DNA damage-inducible protein GADD45',
+  'calpain',
+  'tyrosine-protein phosphatase non-receptor type 13',
+  'HTRA2',
+  '3-phosphoinositide-dependent protein kinase 1',
+  'Dronc',
+  'pyrin',
+  'proto-oncogene c-Rel',
+  'leukocyte elastase inhibitor',
+  'protein patched homolog 1',
+  'cyclic AMP-dependent transcription factor ATF-4',
+  'dual specificity mitogen-activated protein kinase kinase 1',
+  'mitogen-activated protein kinase 1',
+  'mitochondrial Rho GTPase 1'))
+
+Apoptosis_names_df_CG$rownames <- rownames(Apoptosis_names_df_CG)
+
+# Make new index
+idx2 <- sapply(Apoptosis_names_df_CG$product, grep, C_gig_apop_LFC$product)
+idx1 <- sapply(seq_along(idx2), function(i) rep(i, length(idx2[[i]])))
+
+# create df_merged which has duplicated product column for gene name hits, first column is the index name
+df_merged_CG <- cbind(Apoptosis_names_df_CG[unlist(idx1),,drop=F], C_gig_apop_LFC[unlist(idx2),,drop=F])
+head(df_merged_CG)
+# change column names
+colnames(df_merged_CG)[1] <- "apoptosis_names_query" 
+# subset rownames column
+df_merged_CG <- df_merged_CG[,-2]
+head(df_merged_CG)
+df_merged_CG[is.na(df_merged_CG),]
+nrow(df_merged_CG) # 1014 (none duplicated, missing two)
+View(df_merged_CG)
+
+# HOW MANY DIFFERENTIALLY EXPRESSED IN FAMILIES
+df_merged_family_count_CG <- df_merged_CG %>% group_by(apoptosis_names_query) %>% mutate(count=n())
+df_merged_family_count_unique_CG <- df_merged_family_count_CG[!duplicated(df_merged_family_count_CG),]
+df_merged_family_count_unique_CG <- unique(df_merged_family_count_unique_CG[,c("apoptosis_names_query","count")])
+
+# which is most frequent across experiments (total number in each experiment, divided by total transcript number for that family)
+df_merged_family_exp_CG <-  df_merged_CG %>% group_by(experiment, apoptosis_names_query) %>% mutate(count_per_exp=n())
+df_merged_family_exp_unique_CG <- unique(df_merged_family_exp_CG[,c("apoptosis_names_query","experiment", "count_per_exp")])
+ggplot(df_merged_family_exp_unique_CG, aes(x=apoptosis_names_query, y= count_per_exp, fill= experiment)) + geom_col() + coord_flip()
+
+# how many genes are being used across the significant groups 
+df_merged_family_CG_exp_genes <- df_merged_family_exp_CG %>% group_by(apoptosis_names_query, group_by_sim, gene) %>% mutate(number_genes = n())
+df_merged_family_CG_exp_genes_unique <- unique(df_merged_family_CG_exp_genes[,c("apoptosis_names_query","experiment", "number_genes")])
+ggplot(df_merged_family_CG_exp_genes_unique , aes(x=apoptosis_names_query, y=number_genes , fill= experiment)) + geom_col() + coord_flip()
+
+# graph sd to see which ones are most variable between experiments
+df_merged_family_count_CG_sd <- df_merged_family_exp_CG %>% group_by(apoptosis_names_query, experiment) %>% mutate(sd=sd(log2FoldChange))
+df_merged_family_count_CG_sd <- df_merged_family_count_CG_sd %>% filter(!is.na(sd))
+df_merged_family_count_CG_sd_unique<- unique(df_merged_family_count_CG_sd[,c("apoptosis_names_query","experiment", "sd")])
+View(df_merged_family_count_CG_sd_unique)
+
+ggplot(df_merged_family_count_CG_sd_unique, aes(x=apoptosis_names_query, y=sd , fill= experiment)) + geom_col() + coord_flip()
 
 # Make plot for up and downregulated
 C_gig_apop_APOP_downregulated <- C_gig_apop_LFC %>% filter(log2FoldChange <= 0)
@@ -3463,6 +3867,9 @@ C_gig_apop_APOP_downregulated_plot <- ggplot(C_gig_apop_APOP_downregulated , aes
   theme(axis.text.x = element_text(angle = 75, hjust = 1)) + coord_flip()
 C_gig_apop_APOP_upregulated_plot <- ggplot(C_gig_apop_APOP_upregulated , aes(x=product,y=log2FoldChange, fill=experiment )) + geom_col(position="dodge") + 
   theme(axis.text.x = element_text(angle = 75, hjust = 1)) + coord_flip()
+
+## STOPPED HERE ON RERUNNING MAR 31, 2020 
+
 
 #### COMPARING APOPTOSIS TRANSCRIPT EXPRESSION BETWEEN EXPERIMENTS PCA HEATMAPS VST ON APOP SUBSET ALONE ####
 # some helpful forum posts on the topic: https://www.biostars.org/p/364768/
