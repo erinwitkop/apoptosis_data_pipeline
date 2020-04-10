@@ -2968,10 +2968,10 @@ Dermo_Susceptible_condition_dds <- DESeqDataSetFromMatrix(countData = Dermo_Susc
 
 ## Collapse technical replicates
 Dermo_Tolerant_dds <- collapseReplicates(Dermo_Tolerant_dds, Dermo_Tolerant_dds$Sample_ID, Dermo_Tolerant_dds$Tech_rep)
-Dermo_Dermo_Susceptible_dds <- collapseReplicates(Dermo_Susceptible_dds, Dermo_Susceptible_dds$Sample_ID, Dermo_Susceptible_dds$Tech_rep)
+Dermo_Susceptible_dds <- collapseReplicates(Dermo_Susceptible_dds, Dermo_Susceptible_dds$Sample_ID, Dermo_Susceptible_dds$Tech_rep)
 
 Dermo_Tolerant_condition_dds <- collapseReplicates(Dermo_Tolerant_condition_dds, Dermo_Tolerant_condition_dds$Sample_ID, Dermo_Tolerant_condition_dds$Tech_rep)
-Dermo_Dermo_Susceptible_condition_dds <- collapseReplicates(Dermo_Susceptible_condition_dds, Dermo_Susceptible_condition_dds$Sample_ID, Dermo_Susceptible_condition_dds$Tech_rep)
+Dermo_Susceptible_condition_dds <- collapseReplicates(Dermo_Susceptible_condition_dds, Dermo_Susceptible_condition_dds$Sample_ID, Dermo_Susceptible_condition_dds$Tech_rep)
 
 
 ## Prefiltering the data
@@ -2984,6 +2984,7 @@ Dermo_Tolerant_condition_dds <- Dermo_Tolerant_condition_dds[ rowSums(counts(Der
 Dermo_Susceptible_condition_dds <- Dermo_Susceptible_condition_dds[rowSums(counts(Dermo_Susceptible_condition_dds )) > 10, ]
 
 ## DATA TRANSFORMATION AND VISUALIZATION
+# VST - not affected by the design formula
 # Assess sample clustering after setting initial formula for comparison
 Dermo_Tolerant_dds_vst <- vst(Dermo_Tolerant_dds , blind = TRUE) # keep blind = true before deseq function has been run
 Dermo_Susceptible_dds_vst <- vst(Dermo_Susceptible_dds , blind = TRUE) # keep blind = true before deseq function has been run
@@ -3054,24 +3055,22 @@ nrow(Dermo_Tolerant_condition_dds_res_LFC_sig) # 1200
 Dermo_Susceptible_condition_dds_res_LFC_sig <-  subset(Dermo_Susceptible_condition_dds_res_LFC , padj < 0.05)
 Dermo_Susceptible_condition_dds_res_LFC_sig$ID<- row.names(Dermo_Susceptible_condition_dds_res_LFC_sig)
 Dermo_Susceptible_condition_dds_res_LFC_sig <- as.data.frame(Dermo_Susceptible_condition_dds_res_LFC_sig)
-nrow(Dermo_Susceptible_condition_dds_res_LFC_sig)  # 1035
+nrow(Dermo_Susceptible_condition_dds_res_LFC_sig)  # 659
 
 Dermo_Tolerant_dds_res_LFC_sig <-  subset(Dermo_Tolerant_dds_res_LFC , padj < 0.05)
 Dermo_Tolerant_dds_res_LFC_sig$ID<- row.names(Dermo_Tolerant_dds_res_LFC_sig)
 Dermo_Tolerant_dds_res_LFC_sig <- as.data.frame(Dermo_Tolerant_dds_res_LFC_sig)
 nrow(Dermo_Tolerant_dds_res_LFC_sig) #1200
 
-ermo_Susceptible_dds_res_LFC_sig <-  subset(Dermo_Susceptible_dds_res_LFC , padj < 0.05)
+Dermo_Susceptible_dds_res_LFC_sig <-  subset(Dermo_Susceptible_dds_res_LFC , padj < 0.05)
 Dermo_Susceptible_dds_res_LFC_sig$ID<- row.names(Dermo_Susceptible_dds_res_LFC_sig)
 Dermo_Susceptible_dds_res_LFC_sig <- as.data.frame(Dermo_Susceptible_dds_res_LFC_sig)
-nrow(Dermo_Susceptible_dds_res_LFC_sig)  #1035
+nrow(Dermo_Susceptible_dds_res_LFC_sig)  #659
 
 ### GENE CLUSTERING ANALYSIS HEATMAPS  
 # Extract genes with the highest variance across samples for each comparison using either vst or rlog transformed data
 # This heatmap rather than plotting absolute expression strength plot the amount by which each gene deviates in a specific sample from the gene’s average across all samples. 
 # example codes from RNAseq workflow: https://www.bioconductor.org/packages/devel/workflows/vignettes/rnaseqGene/inst/doc/rnaseqGene.html#other-comparisons
-Dermo_Tolerant_dds_vst
-Dermo_Susceptible_dds_vst
 
 Dermo_Tolerant_dds_LFC_assay <-  head(order(rowVars(assay(Dermo_Tolerant_dds_vst  )), decreasing = TRUE), 200)
 Dermo_Tolerant_mat <- assay(Dermo_Tolerant_dds_vst )[Dermo_Tolerant_dds_LFC_assay,]
@@ -4069,6 +4068,9 @@ C_vir_full_counts <- left_join(C_vir_full_counts ,ROD_counts_PCA , by = "rowname
 C_vir_full_counts <- left_join(C_vir_full_counts ,Dermo_counts_PCA , by = "rownames")
 colnames(C_vir_full_counts)
 row.names(C_vir_full_counts) <- C_vir_full_counts$rownames
+C_vir_common_transcripts <- C_vir_full_counts$rownames
+length(C_vir_common_transcripts) #67876
+ 
 head(C_vir_full_counts)
 C_vir_full_counts <- C_vir_full_counts[,-7] # remove rownames to allow for vst 
 
@@ -4077,6 +4079,7 @@ C_gig_full_counts <- left_join(C_gig_full_counts,Rubio_counts_PCA , by = "rownam
 C_gig_full_counts <- left_join(C_gig_full_counts,deLorgeril_counts_PCA , by = "rownames")
 colnames(C_gig_full_counts)
 row.names(C_gig_full_counts) <- C_gig_full_counts$rownames
+C_gig_common_transcripts <- C_gig_full_counts$rownames
 C_gig_full_counts <- C_gig_full_counts[,-33] # remove rownames to allow for vst 
 
 # Set equal the rownames and colnames of the coldata and count data
