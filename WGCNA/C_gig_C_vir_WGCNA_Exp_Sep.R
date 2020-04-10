@@ -45,7 +45,7 @@ options(stringsAsFactors = FALSE) # make sure these are run every time!
 
 ## Remeber: batch effects represent the systematic technical differences when samples are processed and measured in different batches and which are unrelated to any biological variation
 
-# DATA FORMATTING, batch effect removal only necessary for non-biological technical aspects 
+#####  DATA FORMATTING, BATCH EFFECT REMOVAL ####
 #Dermo_counts: Keep the following as two separate networks, correct for library prep date 
 #Dermo_Tolerant_dds_vst
 #Dermo_Susceptible_dds_vst
@@ -109,23 +109,63 @@ plotPCA(Pro_RE22_dds_rlog_limma, "Family") # corrected
 Pro_RE22_dds_rlog_matrix <- assay(Pro_RE22_dds_rlog_limma)
 Pro_RE22_dds_rlog_matrix <- t(Pro_RE22_dds_rlog_matrix)
 
-## SELECT SOFT THRESHOLDING POWER FOR EACH EXPERIMENT ##
+## LIMIT ANALYSIS TO TRANSCRIPTS EXPRESSED IN ALL EXPERIMENTS
+ncol(Dermo_Tolerant_dds_vst_matrix) #49995
+ncol(Dermo_Susceptible_dds_vst_matrix) # 49634
+ncol(Probiotic_dds_rlog_matrix) # 51052
+ncol(ROD_Resistant_dds_rlog_matrix) # 47205
+ncol(ROD_Susceptible_dds_rlog_matrix)
+ncol(Pro_RE22_dds_rlog_matrix) # 44221
+
+Dermo_Tolerant_dds_vst_matrix_colnames <- colnames(Dermo_Tolerant_dds_vst_matrix)
+Dermo_Susceptible_dds_vst_matrix_colnames <- colnames(Dermo_Susceptible_dds_vst_matrix)
+Probiotic_dds_rlog_matrix_colnames <- colnames(Probiotic_dds_rlog_matrix)
+ROD_Resistant_dds_rlog_matrix_colnames <- colnames(ROD_Resistant_dds_rlog_matrix)
+ROD_Susceptible_dds_rlog_matrix_colnames <- colnames(ROD_Susceptible_dds_rlog_matrix)
+Pro_RE22_dds_rlog_matrix_colnames  <- colnames(Pro_RE22_dds_rlog_matrix)
+
+C_vir_common_vst_transcripts <- Reduce(intersect, list(Dermo_Tolerant_dds_vst_matrix_colnames, Dermo_Susceptible_dds_vst_matrix_colnames,
+      Probiotic_dds_rlog_matrix_colnames,ROD_Resistant_dds_rlog_matrix_colnames,ROD_Susceptible_dds_rlog_matrix_colnames, Pro_RE22_dds_rlog_matrix_colnames))
+head(C_vir_common_vst_transcripts)
+length(C_vir_common_vst_transcripts) # 29440
+
+
+Dermo_Tolerant_dds_vst_matrix_common <- Dermo_Tolerant_dds_vst_matrix[, C_vir_common_vst_transcripts]
+ncol(Dermo_Tolerant_dds_vst_matrix_common)
+
+Dermo_Susceptible_dds_vst_matrix_common <- Dermo_Susceptible_dds_vst_matrix[,C_vir_common_vst_transcripts]
+ncol(Dermo_Susceptible_dds_vst_matrix_common)
+
+Probiotic_dds_rlog_matrix_common <- Probiotic_dds_rlog_matrix[,C_vir_common_vst_transcripts]
+ncol(Probiotic_dds_rlog_matrix_common)
+
+ROD_Resistant_dds_rlog_matrix_common <- ROD_Resistant_dds_rlog_matrix[,C_vir_common_vst_transcripts]
+ncol(ROD_Resistant_dds_rlog_matrix_common)
+
+ROD_Susceptible_dds_rlog_matrix_common <- ROD_Susceptible_dds_rlog_matrix[,C_vir_common_vst_transcripts]
+ncol(ROD_Susceptible_dds_rlog_matrix_common)
+
+Pro_RE22_dds_rlog_matrix_common <- Pro_RE22_dds_rlog_matrix[,C_vir_common_vst_transcripts]
+ncol(Pro_RE22_dds_rlog_matrix_common )
+
+
+#### SELECT SOFT THRESHOLDING POWER FOR EACH EXPERIMENT ####
 # Choose a set of soft-thresholding powers
 powers = c(c(1:10), seq(from = 12, to=20, by=2))
 
 # Call the network topology analysis function, following general recommendations to set network type to "signed hybrid" and using the "bicor" correlation
-Dermo_Tolerant_dds_vst_matrix_sft <- pickSoftThreshold(Dermo_Tolerant_dds_vst_matrix, powerVector = powers, verbose = 5, networkType = "signed hybrid", corFnc = "bicor") 
-Dermo_Susceptible_dds_vst_matrix_sft <- pickSoftThreshold(Dermo_Susceptible_dds_vst_matrix, powerVector = powers, verbose = 5, networkType = "signed hybrid", corFnc = "bicor")
-Probiotic_dds_rlog_matrix_sft <- pickSoftThreshold(Probiotic_dds_rlog_matrix, powerVector = powers, verbose = 5, networkType = "signed hybrid", corFnc = "bicor") 
+Dermo_Tolerant_dds_vst_matrix_common_sft <- pickSoftThreshold(Dermo_Tolerant_dds_vst_matrix_common, powerVector = powers, verbose = 5, networkType = "signed hybrid", corFnc = "bicor") 
+Dermo_Susceptible_dds_vst_matrix_common_sft <- pickSoftThreshold(Dermo_Susceptible_dds_vst_matrix_common, powerVector = powers, verbose = 5, networkType = "signed hybrid", corFnc = "bicor")
+Probiotic_dds_rlog_matrix_common_sft <- pickSoftThreshold(Probiotic_dds_rlog_matrix_common, powerVector = powers, verbose = 5, networkType = "signed hybrid", corFnc = "bicor") 
 # Warning message:
 # executing %dopar% sequentially: no parallel backend registered 
 #From Peter Langfelder: https://bioinformatics.stackexchange.com/questions/10555/r-wgcna-error-code:
 #What you see is a warning, not an error. 
 #Your calculation will run fine, just slower. Unless you see other errors, you should be able to complete all steps of the analysis.
 
-ROD_Resistant_dds_rlog_matrix_sft <- pickSoftThreshold(ROD_Resistant_dds_rlog_matrix, powerVector = powers, verbose = 5, networkType = "signed hybrid", corFnc = "bicor") 
-ROD_Susceptible_dds_rlog_matrix_sft <- pickSoftThreshold(ROD_Susceptible_dds_rlog_matrix, powerVector = powers, verbose = 5, networkType = "signed hybrid", corFnc = "bicor") 
-Pro_RE22_dds_rlog_matrix_sft <- pickSoftThreshold(Pro_RE22_dds_rlog_matrix, powerVector = powers, verbose = 5, networkType = "signed hybrid", corFnc = "bicor") 
+ROD_Resistant_dds_rlog_matrix_common_sft <- pickSoftThreshold(ROD_Resistant_dds_rlog_matrix_common, powerVector = powers, verbose = 5, networkType = "signed hybrid", corFnc = "bicor") 
+ROD_Susceptible_dds_rlog_matrix_common_sft <- pickSoftThreshold(ROD_Susceptible_dds_rlog_matrix_common, powerVector = powers, verbose = 5, networkType = "signed hybrid", corFnc = "bicor") 
+Pro_RE22_dds_rlog_matrix_common_sft <- pickSoftThreshold(Pro_RE22_dds_rlog_matrix_common, powerVector = powers, verbose = 5, networkType = "signed hybrid", corFnc = "bicor") 
 
 # Plot the results:
 sizeGrWindow(9, 5)
@@ -134,49 +174,49 @@ cex1 = 0.9;
 
 #Dermo
 # Scale-free topology fit index as a function of the soft-thresholding power
-plot(Dermo_Tolerant_dds_vst_matrix_sft$fitIndices[,1], -sign(Dermo_Tolerant_dds_vst_matrix_sft$fitIndices[,3])*Dermo_Tolerant_dds_vst_matrix_sft$fitIndices[,2],
+plot(Dermo_Tolerant_dds_vst_matrix_common_sft$fitIndices[,1], -sign(Dermo_Tolerant_dds_vst_matrix_common_sft$fitIndices[,3])*Dermo_Tolerant_dds_vst_matrix_common_sft$fitIndices[,2],
      xlab="Soft Threshold (power)",ylab="Scale Free Topology Model Fit,signed R^2",type="n",
      main = paste("Scale independence"));
-text(Dermo_Tolerant_dds_vst_matrix_sft$fitIndices[,1], -sign(Dermo_Tolerant_dds_vst_matrix_sft$fitIndices[,3])*Dermo_Tolerant_dds_vst_matrix_sft$fitIndices[,2],
+text(Dermo_Tolerant_dds_vst_matrix_common_sft$fitIndices[,1], -sign(Dermo_Tolerant_dds_vst_matrix_common_sft$fitIndices[,3])*Dermo_Tolerant_dds_vst_matrix_common_sft$fitIndices[,2],
      labels=powers,cex=cex1,col="red");
 # this line corresponds to using an R^2 cut-off of h
 abline(h=0.90,col="red")
 # Mean connectivity as a function of the soft-thresholding power
-plot(Dermo_Tolerant_dds_vst_matrix_sft$fitIndices[,1], Dermo_Tolerant_dds_vst_matrix_sft$fitIndices[,5],
+plot(Dermo_Tolerant_dds_vst_matrix_common_sft$fitIndices[,1], Dermo_Tolerant_dds_vst_matrix_common_sft$fitIndices[,5],
      xlab="Soft Threshold (power)",ylab="Mean Connectivity", type="n",
      main = paste("Mean connectivity"))
-text(Dermo_Tolerant_dds_vst_matrix_sft$fitIndices[,1], Dermo_Tolerant_dds_vst_matrix_sft$fitIndices[,5], labels=powers, cex=cex1,col="red")
+text(Dermo_Tolerant_dds_vst_matrix_common_sft$fitIndices[,1], Dermo_Tolerant_dds_vst_matrix_common_sft$fitIndices[,5], labels=powers, cex=cex1,col="red")
 # Softthreshold of 3 since this is lowest value past 0.9 we start to see flattening 
 
 # Scale-free topology fit index as a function of the soft-thresholding power
-plot(Dermo_Susceptible_dds_vst_matrix_sft$fitIndices[,1], -sign(Dermo_Susceptible_dds_vst_matrix_sft$fitIndices[,3])*Dermo_Susceptible_dds_vst_matrix_sft$fitIndices[,2],
+plot(Dermo_Susceptible_dds_vst_matrix_common_sft$fitIndices[,1], -sign(Dermo_Susceptible_dds_vst_matrix_common_sft$fitIndices[,3])*Dermo_Susceptible_dds_vst_matrix_common_sft$fitIndices[,2],
      xlab="Soft Threshold (power)",ylab="Scale Free Topology Model Fit,signed R^2",type="n",
      main = paste("Scale independence"));
-text(Dermo_Susceptible_dds_vst_matrix_sft$fitIndices[,1], -sign(Dermo_Susceptible_dds_vst_matrix_sft$fitIndices[,3])*Dermo_Susceptible_dds_vst_matrix_sft$fitIndices[,2],
+text(Dermo_Susceptible_dds_vst_matrix_common_sft$fitIndices[,1], -sign(Dermo_Susceptible_dds_vst_matrix_common_sft$fitIndices[,3])*Dermo_Susceptible_dds_vst_matrix_common_sft$fitIndices[,2],
      labels=powers,cex=cex1,col="red");
 # this line corresponds to using an R^2 cut-off of h
 abline(h=0.90,col="red")
 # Mean connectivity as a function of the soft-thresholding power
-plot(Dermo_Susceptible_dds_vst_matrix_sft$fitIndices[,1], Dermo_Susceptible_dds_vst_matrix_sft$fitIndices[,5],
+plot(Dermo_Susceptible_dds_vst_matrix_common_sft$fitIndices[,1], Dermo_Susceptible_dds_vst_matrix_common_sft$fitIndices[,5],
      xlab="Soft Threshold (power)",ylab="Mean Connectivity", type="n",
      main = paste("Mean connectivity"))
-text(Dermo_Susceptible_dds_vst_matrix_sft$fitIndices[,1], Dermo_Susceptible_dds_vst_matrix_sft$fitIndices[,5], labels=powers, cex=cex1,col="red")
+text(Dermo_Susceptible_dds_vst_matrix_common_sft$fitIndices[,1], Dermo_Susceptible_dds_vst_matrix_common_sft$fitIndices[,5], labels=powers, cex=cex1,col="red")
 # Softthreshold of 2 
 
 # Probiotic, Probiotic_counts_apop_dds_rlog_matrix_sft: Does not fit scale free topology!
 # Scale-free topology fit index as a function of the soft-thresholding power
-plot(Probiotic_dds_rlog_matrix_sft$fitIndices[,1], -sign(Probiotic_dds_rlog_matrix_sft$fitIndices[,3])*Probiotic_dds_rlog_matrix_sft$fitIndices[,2],
+plot(Probiotic_dds_rlog_matrix_common_sft$fitIndices[,1], -sign(Probiotic_dds_rlog_matrix_common_sft$fitIndices[,3])*Probiotic_dds_rlog_matrix_common_sft$fitIndices[,2],
      xlab="Soft Threshold (power)",ylab="Scale Free Topology Model Fit,signed R^2",type="n",
      main = paste("Scale independence"));
-text(Probiotic_dds_rlog_matrix_sft$fitIndices[,1], -sign(Probiotic_dds_rlog_matrix_sft$fitIndices[,3])*Probiotic_dds_rlog_matrix_sft$fitIndices[,2],
+text(Probiotic_dds_rlog_matrix_common_sft$fitIndices[,1], -sign(Probiotic_dds_rlog_matrix_common_sft$fitIndices[,3])*Probiotic_dds_rlog_matrix_common_sft$fitIndices[,2],
      labels=powers,cex=cex1,col="red");
 # this line corresponds to using an R^2 cut-off of h
 abline(h=0.90,col="red")
 # Mean connectivity as a function of the soft-thresholding power
-plot(Probiotic_dds_rlog_matrix_sft$fitIndices[,1],Probiotic_dds_rlog_matrix_sft$fitIndices[,5],
+plot(Probiotic_dds_rlog_matrix_common_sft$fitIndices[,1],Probiotic_dds_rlog_matrix_common_sft$fitIndices[,5],
      xlab="Soft Threshold (power)",ylab="Mean Connectivity", type="n",
      main = paste("Mean connectivity"))
-text(Probiotic_dds_rlog_matrix_sft$fitIndices[,1], Probiotic_dds_rlog_matrix_sft$fitIndices[,5], labels=powers, cex=cex1,col="red")
+text(Probiotic_dds_rlog_matrix_common_sft$fitIndices[,1], Probiotic_dds_rlog_matrix_common_sft$fitIndices[,5], labels=powers, cex=cex1,col="red")
 # Poor fit of scale free topology: see recommendations here: https://horvath.genetics.ucla.edu/html/CoexpressionNetwork/Rpackages/WGCNA/faq.html
 # This is likely caused by strong clustering by Time
 
@@ -194,52 +234,52 @@ text(Probiotic_dds_rlog_matrix_sft$fitIndices[,1], Probiotic_dds_rlog_matrix_sft
 
 # ROD pick soft threshold
 # Scale-free topology fit index as a function of the soft-thresholding power
-plot(ROD_Resistant_dds_rlog_matrix_sft $fitIndices[,1], -sign(ROD_Resistant_dds_rlog_matrix_sft $fitIndices[,3])*ROD_Resistant_dds_rlog_matrix_sft $fitIndices[,2],
+plot(ROD_Resistant_dds_rlog_matrix_common_sft $fitIndices[,1], -sign(ROD_Resistant_dds_rlog_matrix_common_sft $fitIndices[,3])*ROD_Resistant_dds_rlog_matrix_common_sft $fitIndices[,2],
      xlab="Soft Threshold (power)",ylab="Scale Free Topology Model Fit,signed R^2",type="n",
      main = paste("Scale independence"));
-text(ROD_Resistant_dds_rlog_matrix_sft $fitIndices[,1], -sign(ROD_Resistant_dds_rlog_matrix_sft $fitIndices[,3])*ROD_Resistant_dds_rlog_matrix_sft $fitIndices[,2],
+text(ROD_Resistant_dds_rlog_matrix_common_sft $fitIndices[,1], -sign(ROD_Resistant_dds_rlog_matrix_common_sft $fitIndices[,3])*ROD_Resistant_dds_rlog_matrix_common_sft $fitIndices[,2],
      labels=powers,cex=cex1,col="red");
 # this line corresponds to using an R^2 cut-off of h
 abline(h=0.90,col="red")
 # Mean connectivity as a function of the soft-thresholding power
-plot(ROD_Resistant_dds_rlog_matrix_sft $fitIndices[,1],ROD_Resistant_dds_rlog_matrix_sft $fitIndices[,5],
+plot(ROD_Resistant_dds_rlog_matrix_common_sft $fitIndices[,1],ROD_Resistant_dds_rlog_matrix_common_sft $fitIndices[,5],
      xlab="Soft Threshold (power)",ylab="Mean Connectivity", type="n",
      main = paste("Mean connectivity"))
-text(ROD_Resistant_dds_rlog_matrix_sft $fitIndices[,1], ROD_Resistant_dds_rlog_matrix_sft$fitIndices[,5], labels=powers, cex=cex1,col="red")
+text(ROD_Resistant_dds_rlog_matrix_common_sft $fitIndices[,1], ROD_Resistant_dds_rlog_matrix_common_sft$fitIndices[,5], labels=powers, cex=cex1,col="red")
 # Same story as above, selecting soft threshold of 9 because less than 20 samples
 
 # Scale-free topology fit index as a function of the soft-thresholding power
-plot(  ROD_Susceptible_dds_rlog_matrix_sft$fitIndices[,1], -sign(  ROD_Susceptible_dds_rlog_matrix_sft$fitIndices[,3])*  ROD_Susceptible_dds_rlog_matrix_sft$fitIndices[,2],
+plot(  ROD_Susceptible_dds_rlog_matrix_common_sft$fitIndices[,1], -sign(  ROD_Susceptible_dds_rlog_matrix_common_sft$fitIndices[,3])*  ROD_Susceptible_dds_rlog_matrix_common_sft$fitIndices[,2],
        xlab="Soft Threshold (power)",ylab="Scale Free Topology Model Fit,signed R^2",type="n",
        main = paste("Scale independence"));
-text( ROD_Susceptible_dds_rlog_matrix_sft$fitIndices[,1], -sign(ROD_Susceptible_dds_rlog_matrix_sft$fitIndices[,3])*ROD_Susceptible_dds_rlog_matrix_sft$fitIndices[,2],
+text( ROD_Susceptible_dds_rlog_matrix_common_sft$fitIndices[,1], -sign(ROD_Susceptible_dds_rlog_matrix_common_sft$fitIndices[,3])*ROD_Susceptible_dds_rlog_matrix_common_sft$fitIndices[,2],
       labels=powers,cex=cex1,col="red");
 # this line corresponds to using an R^2 cut-off of h
 abline(h=0.90,col="red")
 # Mean connectivity as a function of the soft-thresholding power
-plot(ROD_Susceptible_dds_rlog_matrix_sft$fitIndices[,1],ROD_Susceptible_dds_rlog_matrix_sft$fitIndices[,5],
+plot(ROD_Susceptible_dds_rlog_matrix_common_sft$fitIndices[,1],ROD_Susceptible_dds_rlog_matrix_common_sft$fitIndices[,5],
      xlab="Soft Threshold (power)",ylab="Mean Connectivity", type="n",
      main = paste("Mean connectivity"))
-text(ROD_Susceptible_dds_rlog_matrix_sft$fitIndices[,1], ROD_Susceptible_dds_rlog_matrix_sft$fitIndices[,5], labels=powers, cex=cex1,col="red")
+text(ROD_Susceptible_dds_rlog_matrix_common_sft$fitIndices[,1], ROD_Susceptible_dds_rlog_matrix_common_sft$fitIndices[,5], labels=powers, cex=cex1,col="red")
 
 # Pro_RE22
 # Scale-free topology fit index as a function of the soft-thresholding power
-plot(Pro_RE22_dds_rlog_matrix_sft$fitIndices[,1], -sign(Pro_RE22_dds_rlog_matrix_sft$fitIndices[,3])*Pro_RE22_dds_rlog_matrix_sft$fitIndices[,2],
+plot(Pro_RE22_dds_rlog_matrix_common_sft$fitIndices[,1], -sign(Pro_RE22_dds_rlog_matrix_common_sft$fitIndices[,3])*Pro_RE22_dds_rlog_matrix_common_sft$fitIndices[,2],
      xlab="Soft Threshold (power)",ylab="Scale Free Topology Model Fit,signed R^2",type="n",
      main = paste("Scale independence"));
-text(Pro_RE22_dds_rlog_matrix_sft$fitIndices[,1], -sign(Pro_RE22_dds_rlog_matrix_sft$fitIndices[,3])*Pro_RE22_dds_rlog_matrix_sft$fitIndices[,2],
+text(Pro_RE22_dds_rlog_matrix_common_sft$fitIndices[,1], -sign(Pro_RE22_dds_rlog_matrix_common_sft$fitIndices[,3])*Pro_RE22_dds_rlog_matrix_common_sft$fitIndices[,2],
      labels=powers,cex=cex1,col="red");
 # this line corresponds to using an R^2 cut-off of h
 abline(h=0.90,col="red")
 # Mean connectivity as a function of the soft-thresholding power
-plot(Pro_RE22_dds_rlog_matrix_sft$fitIndices[,1],Pro_RE22_dds_rlog_matrix_sft$fitIndices[,5],
+plot(Pro_RE22_dds_rlog_matrix_common_sft$fitIndices[,1],Pro_RE22_dds_rlog_matrix_common_sft$fitIndices[,5],
      xlab="Soft Threshold (power)",ylab="Mean Connectivity", type="n",
      main = paste("Mean connectivity"))
-text(Pro_RE22_dds_rlog_matrix_sft$fitIndices[,1], Pro_RE22_dds_rlog_matrix_sft$fitIndices[,5], labels=powers, cex=cex1,col="red")
-# Set soft thresholding to 4
+text(Pro_RE22_dds_rlog_matrix_common_sft$fitIndices[,1], Pro_RE22_dds_rlog_matrix_common_sft$fitIndices[,5], labels=powers, cex=cex1,col="red")
+# Set soft thresholding to 8
 
-### ONE STEP NETWORK CONSTRUCTION, MODULE DETECTION, MODULE DENDROGRAM INSPECTION
-Dermo_Tol_net = blockwiseModules(Dermo_Tolerant_dds_vst_matrix, power = 3, # picked suitable power in the code above 
+#### ONE STEP NETWORK CONSTRUCTION, MODULE DETECTION, MODULE DENDROGRAM INSPECTION #### 
+Dermo_Tol_net = blockwiseModules(Dermo_Tolerant_dds_vst_matrix_common, power = 3, # picked suitable power in the code above 
                                  TOMType = "signed", # use signed TOM type
                                  networkType= "signed hybrid", # use signed hybrid network type
                                  corType = "bicor", # use suggested bicor
@@ -268,7 +308,7 @@ Dermo_Tol_MEs = Dermo_Tol_net$MEs
 Dermo_Tol_geneTree = Dermo_Tol_net$dendrograms[[1]]
 
 # Dermo Susceptible repeat 
-Dermo_Sus_net = blockwiseModules(Dermo_Susceptible_dds_vst_matrix, power = 2, # picked suitable power in the code above 
+Dermo_Sus_net = blockwiseModules(Dermo_Susceptible_dds_vst_matrix_common, power = 2, # picked suitable power in the code above 
                                  TOMType = "signed", # use signed TOM type
                                  networkType= "signed hybrid", # use signed hybrid network type
                                  corType = "bicor", # use suggested bicor
@@ -297,7 +337,7 @@ Dermo_Sus_MEs = Dermo_Sus_net$MEs
 Dermo_Sus_geneTree = Dermo_Sus_net$dendrograms[[1]]
 
 # Probiotic
-Probiotic_net = blockwiseModules(Probiotic_dds_rlog_matrix, power = 9, # picked because less than 20 samples and isn't scale free
+Probiotic_net = blockwiseModules(Probiotic_dds_rlog_matrix_common, power = 9, # picked because less than 20 samples and isn't scale free
                                  TOMType = "signed", # use signed TOM type
                                  networkType= "signed hybrid", # use signed hybrid network type
                                  corType = "bicor", # use suggested bicor
@@ -316,7 +356,7 @@ sizeGrWindow(12, 9)
 # Convert labels to colors for plotting
 Probiotic_mergedColors = labels2colors(Probiotic_net$colors)
 # Plot the dendrogram and the module colors underneath
-plotDendroAndColors(Probiotic_net$dendrograms[[1]], Dermo_Sus_mergedColors[Probiotic_net$blockGenes[[1]]],
+plotDendroAndColors(Probiotic_net$dendrograms[[1]], Probiotic_mergedColors[Probiotic_net$blockGenes[[1]]],
                     "Module colors",
                     dendroLabels = FALSE, hang = 0.03,
                     addGuide = TRUE, guideHang = 0.05)
@@ -326,7 +366,7 @@ Probiotic_MEs = Probiotic_net$MEs
 Probiotic_geneTree = Probiotic_net$dendrograms[[1]]
 
 # ROD Res
-ROD_Res_net = blockwiseModules(ROD_Resistant_dds_rlog_matrix, power = 9, # picked because less than 20 samples and isn't scale free
+ROD_Res_net = blockwiseModules(ROD_Resistant_dds_rlog_matrix_common, power = 9, # picked because less than 20 samples and isn't scale free
                                TOMType = "signed", # use signed TOM type
                                networkType= "signed hybrid", # use signed hybrid network type
                                corType = "bicor", # use suggested bicor
@@ -355,7 +395,7 @@ ROD_Res_MEs = ROD_Res_net$MEs
 ROD_Res_geneTree = ROD_Res_net$dendrograms[[1]]
 
 # ROD Sus
-ROD_Sus_net = blockwiseModules(ROD_Sus_dds_rlog_matrix, power = 9, # picked because less than 20 samples and isn't scale free
+ROD_Sus_net = blockwiseModules(ROD_Susceptible_dds_rlog_matrix_common, power = 9, # picked because less than 20 samples and isn't scale free
                                TOMType = "signed", # use signed TOM type
                                networkType= "signed hybrid", # use signed hybrid network type
                                corType = "bicor", # use suggested bicor
@@ -384,7 +424,7 @@ ROD_Sus_MEs = ROD_Sus_net$MEs
 ROD_Sus_geneTree = ROD_Sus_net$dendrograms[[1]]
 
 # Pro_RE22
-Pro_RE22_net = blockwiseModules(ROD_Sus_dds_rlog_matrix, power = 9, # picked because less than 20 samples and isn't scale free
+Pro_RE22_net = blockwiseModules(Pro_RE22_dds_rlog_matrix_common, power = 8, 
                                 TOMType = "signed", # use signed TOM type
                                 networkType= "signed hybrid", # use signed hybrid network type
                                 corType = "bicor", # use suggested bicor
@@ -412,17 +452,416 @@ Pro_RE22_moduleColors = labels2colors(Pro_RE22_net$colors)
 Pro_RE22_MEs = Pro_RE22_net$MEs
 Pro_RE22_geneTree = Pro_RE22_net$dendrograms[[1]]
 
-## BINARIZE ALL CATEGORICAL VARIABLES TO TEST DISEASE CHALLENGE ASSOCIATIONS
+#### BINARIZE ALL CATEGORICAL VARIABLES TO TEST DISEASE CHALLENGE ASSOCIATIONS ####
+# out = binarizeCategoricalVariable(x,
+# includePairwise = TRUE,
+# includeLevelVsAll = FALSE);
+
+## Dermo
+Dermo_Tolerant_coldata_collapsed <- Dermo_Tolerant_coldata[,c("Sample_ID", "Condition","Time")]
+Dermo_Tolerant_coldata_collapsed <- Dermo_Tolerant_coldata_collapsed[!duplicated(Dermo_Tolerant_coldata_collapsed$Sample_ID),]
+row.names(Dermo_Tolerant_coldata_collapsed ) <- Dermo_Tolerant_coldata_collapsed$Sample_ID
+Dermo_Tolerant_coldata_collapsed <- Dermo_Tolerant_coldata_collapsed[,c("Condition","Time")]
+nrow(Dermo_Tolerant_coldata_collapsed) # 30
+length(row.names(Dermo_Tolerant_dds_vst_matrix_common)) # 30
+
+# check order
+all(row.names(Dermo_Tolerant_coldata_collapsed) %in% row.names(Dermo_Tolerant_dds_vst_matrix_common)) # TRUE
+all(row.names(Dermo_Tolerant_dds_vst_matrix_common) %in% row.names(Dermo_Tolerant_coldata_collapsed) ) # TRUE
+all(row.names(Dermo_Tolerant_coldata_collapsed) == row.names(Dermo_Tolerant_dds_vst_matrix_common)) # FALSE
+all(row.names(Dermo_Tolerant_dds_vst_matrix_common) == row.names(Dermo_Tolerant_coldata_collapsed) ) # FALSE
+
+# fix order
+Dermo_Tolerant_coldata_collapsed<- Dermo_Tolerant_coldata_collapsed[row.names(Dermo_Tolerant_dds_vst_matrix_common),]
+all(row.names(Dermo_Tolerant_coldata_collapsed) == row.names(Dermo_Tolerant_dds_vst_matrix_common)) # TRUE
+all(row.names(Dermo_Tolerant_dds_vst_matrix_common) == row.names(Dermo_Tolerant_coldata_collapsed) ) # TRUE
+
+# Dermo sus
+Dermo_Susceptible_coldata_collapsed<- Dermo_Susceptible_coldata[,c("Sample_ID", "Condition","Time")]
+Dermo_Susceptible_coldata_collapsed <- Dermo_Susceptible_coldata_collapsed[!duplicated(Dermo_Susceptible_coldata_collapsed$Sample_ID),]
+row.names(Dermo_Susceptible_coldata_collapsed ) <- Dermo_Susceptible_coldata_collapsed$Sample_ID
+Dermo_Susceptible_coldata_collapsed <- Dermo_Susceptible_coldata_collapsed[,c("Condition","Time")]
+nrow(Dermo_Susceptible_coldata_collapsed) # 32
+length(row.names(Dermo_Susceptible_dds_vst_matrix_common)) # 32
+
+all(row.names(Dermo_Susceptible_coldata_collapsed) %in% row.names(Dermo_Susceptible_dds_vst_matrix_common)) # TRUE
+all(row.names(Dermo_Susceptible_dds_vst_matrix_common) %in% row.names(Dermo_Susceptible_coldata_collapsed) )  # TRUE
+all(row.names(Dermo_Susceptible_coldata_collapsed) == row.names(Dermo_Susceptible_dds_vst_matrix_common)) # FALSE
+all(row.names(Dermo_Susceptible_dds_vst_matrix_common) == row.names(Dermo_Susceptible_coldata_collapsed) )  # FALSE
+
+# Fix order 
+Dermo_Susceptible_coldata_collapsed <- Dermo_Susceptible_coldata_collapsed[row.names(Dermo_Susceptible_dds_vst_matrix_common),]
+all(row.names(Dermo_Susceptible_coldata_collapsed) == row.names(Dermo_Susceptible_dds_vst_matrix_common)) # TRUE
+all(row.names(Dermo_Susceptible_dds_vst_matrix_common) == row.names(Dermo_Susceptible_coldata_collapsed) ) # TRUE
+
+# Binarize the data table
+Dermo_Tolerant_coldata_collapsed_binarize <- binarizeCategoricalColumns.pairwise(Dermo_Tolerant_coldata_collapsed)
+Dermo_Susceptible_coldata_collapsed_binarize <- binarizeCategoricalColumns.pairwise(Dermo_Susceptible_coldata_collapsed)
+row.names(Dermo_Tolerant_coldata_collapsed_binarize) <- row.names(Dermo_Tolerant_coldata_collapsed)
+row.names(Dermo_Susceptible_coldata_collapsed_binarize) <- row.names(Dermo_Susceptible_coldata_collapsed)
+
+## Probiotic
+#Probiotic_dds_rlog_matrix_common 
+#Probiotic_coldata
+
+Probiotic_coldata_collapsed <- Probiotic_coldata[,c("Condition","Time")]
+length(row.names(Probiotic_coldata_collapsed )) # 6
+
+# check order
+all(row.names(Probiotic_coldata_collapsed) %in% row.names(Probiotic_dds_rlog_matrix_common )) # TRUE
+all(row.names(Probiotic_dds_rlog_matrix_common) %in% row.names(Probiotic_coldata_collapsed) ) # TRUE
+all(row.names(Probiotic_coldata_collapsed) == row.names(Probiotic_dds_rlog_matrix_common )) # TRUE
+all(row.names(Probiotic_dds_rlog_matrix_common) == row.names(Probiotic_coldata_collapsed) ) # TRUE
+
+Probiotic_coldata_collapsed_binarize <- binarizeCategoricalColumns.pairwise(Probiotic_coldata_collapsed)
+row.names(Probiotic_coldata_collapsed_binarize) <- row.names(Probiotic_coldata_collapsed)
+
+#### QUANTIFYING MODULE TRAIT ASSOCIATIONS ####
+
+#### DERMO TOL ####
+# Define numbers of genes and samples
+Dermo_Tol_nGenes = ncol(Dermo_Tolerant_dds_vst_matrix_common)
+Dermo_Tol_nSamples = nrow(Dermo_Tolerant_dds_vst_matrix_common)
+
+# Recalculate MEs with color labels
+Dermo_Tol_MEs0 = moduleEigengenes(Dermo_Tolerant_dds_vst_matrix_common, Dermo_Tol_moduleColors)$eigengenes
+Dermo_Tol_MEs = orderMEs(Dermo_Tol_MEs0)
+Dermo_Tol_moduleTraitCor = cor(Dermo_Tol_MEs, Dermo_Tolerant_coldata_collapsed_binarize, use = "p");
+Dermo_Tol_moduleTraitPvalue = corPvalueStudent(Dermo_Tol_moduleTraitCor, Dermo_Tol_nSamples)
+
+# Graph and color code each the strength of association (correlation) of module eigengenes and trai
+sizeGrWindow(10,6)
+# Will display correlations and their p-values
+Dermo_Tol_textMatrix = paste(signif(Dermo_Tol_moduleTraitCor, 2), "\n(",
+                   signif(Dermo_Tol_moduleTraitPvalue, 1), ")", sep = "");
+dim(Dermo_Tol_textMatrix) = dim(Dermo_Tol_moduleTraitCor)
+par(mar = c(6, 8.5, 3, 3))
+# Display the correlation values within a heatmap plot, color coded by correlation value (red means more highly positively correlated,
+  # green is more negatively correlated)
+labeledHeatmap(Matrix = Dermo_Tol_moduleTraitCor,
+               xLabels = names(Dermo_Tolerant_coldata_collapsed_binarize),
+               yLabels = names(Dermo_Tol_MEs),
+               ySymbols = names(Dermo_Tol_MEs),
+               colorLabels = FALSE,
+               colors = greenWhiteRed(50),
+               textMatrix = Dermo_Tol_textMatrix,
+               setStdMargins = FALSE,
+               cex.text = 0.45,
+               cex.lab = 0.7,
+               zlim = c(-1,1), 
+               yColorWidth = 0.2, 
+               main = paste("Module-trait relationships"))
+
+# Which modules have the highest associations with disease (high correlation and low P value)?
+Dermo_Tol_moduleTraitCor_df <- as.data.frame(Dermo_Tol_moduleTraitCor)
+Dermo_Tol_moduleTraitCor_df$mod_names <- row.names(Dermo_Tol_moduleTraitCor_df)
+Dermo_Tol_moduleTraitCor_df <- Dermo_Tol_moduleTraitCor_df[,c("mod_names","Condition.Injected.vs.Control")]
+Dermo_Tol_moduleTraitPvalue_df <- as.data.frame(Dermo_Tol_moduleTraitPvalue)
+Dermo_Tol_moduleTraitPvalue_df$mod_names <- row.names(Dermo_Tol_moduleTraitPvalue_df)
+Dermo_Tol_moduleTraitPvalue_df <- Dermo_Tol_moduleTraitPvalue_df[,c("mod_names","Condition.Injected.vs.Control")]
+colnames(Dermo_Tol_moduleTraitPvalue_df)[2] <- "pvalue"
+
+Dermo_Tol_moduleTraitCor_Pval_df <- join(Dermo_Tol_moduleTraitCor_df, Dermo_Tol_moduleTraitPvalue_df, by = "mod_names")
+
+# Significantly correlated modules
+Dermo_Tol_moduleTraitCor_Pval_df[order(Dermo_Tol_moduleTraitCor_Pval_df$pvalue),]
+class(Dermo_Tol_moduleTraitCor_Pval_df$pvalue) # numeric
+Dermo_Tol_moduleTraitCor_Pval_df_sig <- Dermo_Tol_moduleTraitCor_Pval_df %>% filter(pvalue <= 0.05)
+Dermo_Tol_moduleTraitCor_Pval_df_sig
+
+### ANNOTATE APOPTOSIS GENES IN SIGNIFICANT MODULES
+Dermo_Tol_moduleTraitCor_Pval_df_sig$mod_names
+
+Dermo_Tol_MEthistle1      <- colnames(Dermo_Tolerant_dds_vst_matrix_common)[Dermo_Tol_moduleColors == "thistle1"]
+Dermo_Tol_MElightgreen    <- colnames(Dermo_Tolerant_dds_vst_matrix_common)[Dermo_Tol_moduleColors == "lightgreen" ]
+Dermo_Tol_MEpink          <- colnames(Dermo_Tolerant_dds_vst_matrix_common)[Dermo_Tol_moduleColors == "pink"]
+Dermo_Tol_MEroyalblue     <- colnames(Dermo_Tolerant_dds_vst_matrix_common)[Dermo_Tol_moduleColors == "royalblue"]
+Dermo_Tol_MEhoneydew1     <- colnames(Dermo_Tolerant_dds_vst_matrix_common)[Dermo_Tol_moduleColors == "honeydew1"]
+Dermo_Tol_MEdarkseagreen3 <- colnames(Dermo_Tolerant_dds_vst_matrix_common)[Dermo_Tol_moduleColors == "darkseagreen3"]
+Dermo_Tol_MEtan           <- colnames(Dermo_Tolerant_dds_vst_matrix_common)[Dermo_Tol_moduleColors == "tan"]
+Dermo_Tol_MEdarkviolet    <- colnames(Dermo_Tolerant_dds_vst_matrix_common)[Dermo_Tol_moduleColors == "darkviolet"]
+Dermo_Tol_MEorangered4    <- colnames(Dermo_Tolerant_dds_vst_matrix_common)[Dermo_Tol_moduleColors == "orangered4"]
+Dermo_Tol_MEyellow        <- colnames(Dermo_Tolerant_dds_vst_matrix_common)[Dermo_Tol_moduleColors == "yellow"]
+Dermo_Tol_MEantiquewhite2 <- colnames(Dermo_Tolerant_dds_vst_matrix_common)[Dermo_Tol_moduleColors == "antiquewhite2"]
+Dermo_Tol_MElightcyan1    <- colnames(Dermo_Tolerant_dds_vst_matrix_common)[Dermo_Tol_moduleColors == "lightcyan1"]
+Dermo_Tol_MEplum2         <- colnames(Dermo_Tolerant_dds_vst_matrix_common)[Dermo_Tol_moduleColors == "plum2"]
+Dermo_Tol_MEturquoise     <- colnames(Dermo_Tolerant_dds_vst_matrix_common)[Dermo_Tol_moduleColors == "turquoise"]
+Dermo_Tol_MElightsteelblue<- colnames(Dermo_Tolerant_dds_vst_matrix_common)[Dermo_Tol_moduleColors == "lightsteelblue"]
+
+Dermo_Tol_MEthistle1_df <- as.data.frame(Dermo_Tol_MEthistle1)
+colnames(Dermo_Tol_MEthistle1_df)[1] <- "ID"
+Dermo_Tol_MEthistle1_annot_apop <- merge(Dermo_Tol_MEthistle1_df, C_vir_rtracklayer_apop_product_final, by = "ID")
+nrow(Dermo_Tol_MEthistle1_annot_apop) # 1
+
+Dermo_Tol_MElightgreen_df <- as.data.frame(Dermo_Tol_MElightgreen)
+colnames(Dermo_Tol_MElightgreen_df)[1] <- "ID"
+Dermo_Tol_MElightgreen_annot_apop <- merge(Dermo_Tol_MElightgreen_df, C_vir_rtracklayer_apop_product_final, by = "ID")
+nrow(Dermo_Tol_MElightgreen_annot_apop) # 2 GIMAP, MycA
+
+Dermo_Tol_MEpink_df <- as.data.frame(Dermo_Tol_MEpink)
+colnames(Dermo_Tol_MEpink_df)[1] <- "ID"
+Dermo_Tol_MEpink_annot_apop <- merge(Dermo_Tol_MEpink_df, C_vir_rtracklayer_apop_product_final, by = "ID")
+nrow(Dermo_Tol_MEpink_annot_apop) # 6 AIF, RhoE, heat shock proteins
+
+# royal blue is negative 
+Dermo_Tol_MEroyalblue_df <- as.data.frame(Dermo_Tol_MEroyalblue)
+colnames(Dermo_Tol_MEroyalblue_df)[1] <- "ID"
+Dermo_Tol_MEroyalblue_annot_apop <- merge(Dermo_Tol_MEroyalblue_df, C_vir_rtracklayer_apop_product_final, by = "ID")
+nrow(Dermo_Tol_MEroyalblue_annot_apop) #1 ATF4
+
+Dermo_Tol_MEhoneydew1_df <- as.data.frame(Dermo_Tol_MEhoneydew1)
+colnames(Dermo_Tol_MEhoneydew1_df)[1] <- "ID"
+Dermo_Tol_MEhoneydew1_annot_apop <- merge(Dermo_Tol_MEhoneydew1_df, C_vir_rtracklayer_apop_product_final, by = "ID")
+nrow(Dermo_Tol_MEhoneydew1_annot_apop) #6 Aven, BIRIAP, MAPK1, cAMP 1
+
+Dermo_Tol_MEdarkseagreen3_df <- as.data.frame(Dermo_Tol_MEdarkseagreen3)
+colnames(Dermo_Tol_MEdarkseagreen3_df)[1] <- "ID"
+Dermo_Tol_MEdarkseagreen3_annot_apop <- merge(Dermo_Tol_MEdarkseagreen3_df, C_vir_rtracklayer_apop_product_final, by = "ID")
+nrow(Dermo_Tol_MEdarkseagreen3_annot_apop) #1 IP3R
+
+Dermo_Tol_MEtan_df <- as.data.frame(Dermo_Tol_MEtan)
+colnames(Dermo_Tol_MEtan_df)[1] <- "ID"
+Dermo_Tol_MEtan_annot_apop <- merge(Dermo_Tol_MEtan_df, C_vir_rtracklayer_apop_product_final, by = "ID")
+nrow(Dermo_Tol_MEtan_annot_apop) #0
+
+Dermo_Tol_MEdarkviolet_df <- as.data.frame(Dermo_Tol_MEdarkviolet)
+colnames(Dermo_Tol_MEdarkviolet_df)[1] <- "ID"
+Dermo_Tol_MEdarkviolet_annot_apop <- merge(Dermo_Tol_MEdarkviolet_df, C_vir_rtracklayer_apop_product_final, by = "ID")
+nrow(Dermo_Tol_MEdarkviolet_annot_apop) #3  BAG, MAPK14, heatshock70
+
+Dermo_Tol_MEorangered4_df <- as.data.frame(Dermo_Tol_MEorangered4)
+colnames(Dermo_Tol_MEorangered4_df)[1] <- "ID"
+Dermo_Tol_MEorangered4_annot_apop <- merge(Dermo_Tol_MEorangered4_df, C_vir_rtracklayer_apop_product_final, by = "ID")
+nrow(Dermo_Tol_MEorangered4_annot_apop)  # 2 ceramide synthase, ras-like GTP RHoL
+
+Dermo_Tol_MEyellow_df <- as.data.frame(Dermo_Tol_MEyellow)
+colnames(Dermo_Tol_MEyellow_df)[1] <- "ID"
+Dermo_Tol_MEyellow_annot_apop <- merge(Dermo_Tol_MEyellow_df, C_vir_rtracklayer_apop_product_final, by = "ID")
+nrow(Dermo_Tol_MEyellow_annot_apop)  # 12 TLR1, TLR2, TNFAIP, STAT5B, HTRA2, BTG1, cytoc, CREB3B
+
+# antique white is negative
+Dermo_Tol_MEantiquewhite2_df <- as.data.frame(Dermo_Tol_MEantiquewhite2)
+colnames(Dermo_Tol_MEantiquewhite2_df)[1] <- "ID"
+Dermo_Tol_MEantiquewhite2_annot_apop <- merge(Dermo_Tol_MEantiquewhite2_df, C_vir_rtracklayer_apop_product_final, by = "ID")
+nrow(Dermo_Tol_MEantiquewhite2_annot_apop)  # 1 TRAF6
+
+Dermo_Tol_MElightcyan1_df <- as.data.frame(Dermo_Tol_MElightcyan1)
+colnames(Dermo_Tol_MElightcyan1_df)[1] <- "ID"
+Dermo_Tol_MElightcyan1_annot_apop <- merge(Dermo_Tol_MElightcyan1_df, C_vir_rtracklayer_apop_product_final, by = "ID")
+nrow(Dermo_Tol_MElightcyan1_annot_apop)  # 2 STAT5B
+
+Dermo_Tol_MEplum2_df <- as.data.frame(Dermo_Tol_MEplum2)
+colnames(Dermo_Tol_MEplum2_df)[1] <- "ID"
+Dermo_Tol_MEplum2_annot_apop <- merge(Dermo_Tol_MEplum2_df, C_vir_rtracklayer_apop_product_final, by = "ID")
+nrow(Dermo_Tol_MEplum2_annot_apop)  # 2 IP3R, dynamin 120
+
+# turqoise is negative
+Dermo_Tol_MEturquoise_df <- as.data.frame(Dermo_Tol_MEturquoise)
+colnames(Dermo_Tol_MEturquoise_df)[1] <- "ID"
+Dermo_Tol_MEturquoise_annot_apop <- merge(Dermo_Tol_MEturquoise_df, C_vir_rtracklayer_apop_product_final, by = "ID")
+nrow(Dermo_Tol_MEturquoise_annot_apop)  # 22 IFI44, GIMAP, caspase 1,7, calpain, PCDC, TLR4
+
+# light steel blue is negative
+Dermo_Tol_MElightsteelblue_df <- as.data.frame(Dermo_Tol_MElightsteelblue)
+colnames(Dermo_Tol_MElightsteelblue_df)[1] <- "ID"
+Dermo_Tol_MElightsteelblue_annot_apop <- merge(Dermo_Tol_MElightsteelblue_df, C_vir_rtracklayer_apop_product_final, by = "ID")
+nrow(Dermo_Tol_MElightsteelblue_annot_apop)  # 0
+
+## Gene relationship to trait and important modules: Gene Significance and Module Membership
+# We quantify associations of individual genes with our trait of interest (weight) by defining Gene
+# Significance GS as (the absolute value of) the correlation between the gene and the trait. 
+# For each module, we also define a quantitative measure of module membership MM as the correlation
+# of the module eigengene and the gene expression profile. This allows us to quantify 
+# the similarity of all genes on the array to every module.
+# higher the absolute value of GS, the more biologically relevant
+
+# Define variable injected 
+Dermo_Tol_injection = as.data.frame(Dermo_Tolerant_coldata_collapsed_binarize$Condition.Injected.vs.Control);
+names(Dermo_Tol_injection) = "injection"
+# names (colors) of the modules
+Dermo_Tol_modNames = substring(names(Dermo_Tol_MEs), 3)
+Dermo_Tol_geneModuleMembership = as.data.frame(cor(Dermo_Tolerant_dds_vst_matrix_common, Dermo_Tol_MEs, use = "p"))
+Dermo_Tol_MMPvalue = as.data.frame(corPvalueStudent(as.matrix(Dermo_Tol_geneModuleMembership), Dermo_Tol_nSamples))
+
+names(Dermo_Tol_geneModuleMembership) = paste("MM", Dermo_Tol_modNames, sep="")
+names(Dermo_Tol_MMPvalue) = paste("p.MM", Dermo_Tol_modNames, sep="")
+
+Dermo_Tol_geneTraitSignificance = as.data.frame(cor(Dermo_Tolerant_dds_vst_matrix_common,Dermo_Tol_injection, use = "p"))
+Dermo_Tol_GSPvalue = as.data.frame(corPvalueStudent(as.matrix(Dermo_Tol_geneTraitSignificance), Dermo_Tol_nSamples))
+
+names(Dermo_Tol_geneTraitSignificance) = paste("GS.", names(Dermo_Tol_injection), sep="")
+names(Dermo_Tol_GSPvalue) = paste("p.GS.", names(Dermo_Tol_injection), sep="")
+
+## Intramodular analysis: identifying genes with high GS and MM
+# Using the GS and MM measures, we can identify genes that have a high significance for disease challenge
+# as well as high module membership in interesting modules. As an example, we look at the brown module 
+# that has the highest association with weight. We plot a scatterplot of Gene Significance vs. Module Membership in the brown module:
+Dermo_Tol_module = "lightgreen" # strong correlation
+Dermo_Tol_column = match(Dermo_Tol_module, Dermo_Tol_modNames)
+Dermo_Tol_moduleGenes = Dermo_Tol_moduleColors==Dermo_Tol_module
+sizeGrWindow(7, 7);
+par(mfrow = c(1,1));
+verboseScatterplot(abs(Dermo_Tol_geneModuleMembership[Dermo_Tol_moduleGenes, Dermo_Tol_column]),
+                   abs(Dermo_Tol_geneTraitSignificance[Dermo_Tol_moduleGenes, 1]),
+                   xlab = paste("Module Membership in", Dermo_Tol_module, "module"),
+                   ylab = "Gene significance for challenge",
+                   main = paste("Module membership vs. gene significance\n"),
+                   cex.main = 1.2, cex.lab = 1.2, cex.axis = 1.2, col = Dermo_Tol_module)
+
+## IDENTIFY HUB GENES IN EACH SIG MODULE ##
+Dermo_S_colorh = c("thistle1","lightgreen","pink","royalblue","honeydew1","darkseagreen3","tan","darkviolet",
+"orangered4","yellow","antiquewhite2","lightcyan1","plum2","turquoise","lightsteelblue")
+
+Dermo_Tol_Module_hub_genes <- chooseTopHubInEachModule(
+  Dermo_Tolerant_dds_vst_matrix_common, 
+  Dermo_Tol_colorh, 
+  power = 3,  # power used for the adjacency network
+  type = "signed hybrid", 
+  corFnc = "bicor"
+  )
+class(Dermo_Tol_Module_hub_genes)
+Dermo_Tol_Module_hub_genes_df <- as.data.frame(Dermo_Tol_Module_hub_genes)
+colnames(Dermo_Tol_Module_hub_genes_df)[1] <- "ID"
+Dermo_Tol_Module_hub_genes_apop <- merge(Dermo_Tol_Module_hub_genes_df, C_vir_rtracklayer, by = "ID")
+nrow(Dermo_Tol_Module_hub_genes_apop) # 15
+
+#### DERMO SUS ####
+# Define numbers of genes and samples
+Dermo_Sus_nGenes = ncol(Dermo_Susceptible_dds_vst_matrix_common)
+Dermo_Sus_nSamples = nrow(Dermo_Susceptible_dds_vst_matrix_common)
+
+# Recalculate MEs with color labels
+Dermo_Sus_MEs0 = moduleEigengenes(Dermo_Susceptible_dds_vst_matrix_common, Dermo_Sus_moduleColors)$eigengenes
+Dermo_Sus_MEs = orderMEs(Dermo_Sus_MEs0)
+Dermo_Sus_moduleTraitCor = cor(Dermo_Sus_MEs, Dermo_Susceptible_coldata_collapsed_binarize, use = "p");
+Dermo_Sus_moduleTraitPvalue = corPvalueStudent(Dermo_Sus_moduleTraitCor, Dermo_Sus_nSamples)
+
+# Graph and color code each the strength of association (correlation) of module eigengenes and trai
+sizeGrWindow(10,6)
+# Will display correlations and their p-values
+Dermo_Sus_textMatrix = paste(signif(Dermo_Sus_moduleTraitCor, 2), "\n(",
+                             signif(Dermo_Sus_moduleTraitPvalue, 1), ")", sep = "");
+dim(Dermo_Sus_textMatrix) = dim(Dermo_Sus_moduleTraitCor)
+par(mar = c(6, 8.5, 3, 3))
+# Display the correlation values within a heatmap plot, color coded by correlation value (red means more highly positively correlated,
+# green is more negatively correlated)
+labeledHeatmap(Matrix = Dermo_Sus_moduleTraitCor,
+               xLabels = names(Dermo_Susceptible_coldata_collapsed_binarize),
+               yLabels = names(Dermo_Sus_MEs),
+               ySymbols = names(Dermo_Sus_MEs),
+               colorLabels = FALSE,
+               colors = greenWhiteRed(50),
+               textMatrix = Dermo_Sus_textMatrix,
+               setStdMargins = FALSE,
+               cex.text = 0.45,
+               cex.lab = 0.7,
+               zlim = c(-1,1), 
+               yColorWidth = 0.2, 
+               main = paste("Module-trait relationships"))
+
+# Which modules have the highest associations with disease (high correlation and low P value)?
+Dermo_Sus_moduleTraitCor_df <- as.data.frame(Dermo_Sus_moduleTraitCor)
+Dermo_Sus_moduleTraitCor_df$mod_names <- row.names(Dermo_Sus_moduleTraitCor_df)
+Dermo_Sus_moduleTraitCor_df <- Dermo_Sus_moduleTraitCor_df[,c("mod_names","Condition.Injected.vs.Control")]
+Dermo_Sus_moduleTraitPvalue_df <- as.data.frame(Dermo_Sus_moduleTraitPvalue)
+Dermo_Sus_moduleTraitPvalue_df$mod_names <- row.names(Dermo_Sus_moduleTraitPvalue_df)
+Dermo_Sus_moduleTraitPvalue_df <- Dermo_Sus_moduleTraitPvalue_df[,c("mod_names","Condition.Injected.vs.Control")]
+colnames(Dermo_Sus_moduleTraitPvalue_df)[2] <- "pvalue"
+
+Dermo_Sus_moduleTraitCor_Pval_df <- join(Dermo_Sus_moduleTraitCor_df, Dermo_Sus_moduleTraitPvalue_df, by = "mod_names")
+
+# Significantly correlated modules
+Dermo_Sus_moduleTraitCor_Pval_df[order(Dermo_Sus_moduleTraitCor_Pval_df$pvalue),]
+class(Dermo_Sus_moduleTraitCor_Pval_df$pvalue) # numeric
+Dermo_Sus_moduleTraitCor_Pval_df_sig <- Dermo_Sus_moduleTraitCor_Pval_df %>% filter(pvalue <= 0.05)
+Dermo_Sus_moduleTraitCor_Pval_df_sig
+
+### ANNOTATE APOPTOSIS GENES IN SIGNIFICANT MODULES
+
+Dermo_Sus_moduleTraitCor_Pval_df_sig$mod_names
+#"MElightgreen"  "MEgreenyellow"
+
+Dermo_Sus_MEgreenyellow      <- colnames(Dermo_Susceptible_dds_vst_matrix_common)[Dermo_Sus_moduleColors == "greenyellow "]
+Dermo_Sus_MElightgreen    <- colnames(Dermo_Susceptible_dds_vst_matrix_common)[Dermo_Sus_moduleColors == "lightgreen" ]
 
 
-## TEST ASSOCIATIONS OF MODULES WITH DISEASE CHALLENGE AND ISOLATE SIGNIFICANT MODULES 
+Dermo_Sus_MEgreenyellow_df <- as.data.frame(Dermo_Sus_MEgreenyellow)
+colnames(Dermo_Sus_MEgreenyellow_df)[1] <- "ID"
+Dermo_Sus_MEgreenyellow_annot_apop <- merge(Dermo_Sus_MEgreenyellow_df, C_vir_rtracklayer_apop_product_final, by = "ID")
+nrow(Dermo_Sus_MEgreenyellow_annot_apop)  # 0
+
+#  light gren is negative
+Dermo_Sus_MElightgreen_df <- as.data.frame(Dermo_Sus_MElightgreen)
+colnames(Dermo_Sus_MElightgreen_df)[1] <- "ID"
+Dermo_Sus_MElightgreen_annot_apop <- merge(Dermo_Sus_MElightgreen_df, C_vir_rtracklayer_apop_product_final, by = "ID")
+nrow(Dermo_Sus_MElightgreen_annot_apop)  # 3 DIAP2, heat shock protein, calpain 5 
+
+## Gene relationship to trait and important modules: Gene Significance and Module Membership
+# We quantify associations of individual genes with our trait of interest (weight) by defining Gene
+# Significance GS as (the absolute value of) the correlation between the gene and the trait. 
+# For each module, we also define a quantitative measure of module membership MM as the correlation
+# of the module eigengene and the gene expression profile. This allows us to quantify 
+# the similarity of all genes on the array to every module.
+# higher the absolute value of GS, the more biologically relevant
+
+# Define variable injected 
+Dermo_Sus_injection = as.data.frame(Dermo_Susceptible_coldata_collapsed_binarize$Condition.Injected.vs.Control);
+names(Dermo_Sus_injection) = "injection"
+# names (colors) of the modules
+Dermo_Sus_modNames = substring(names(Dermo_Sus_MEs), 3)
+Dermo_Sus_geneModuleMembership = as.data.frame(cor(Dermo_Susceptible_dds_vst_matrix_common, Dermo_Sus_MEs, use = "p"))
+Dermo_Sus_MMPvalue = as.data.frame(corPvalueStudent(as.matrix(Dermo_Sus_geneModuleMembership), Dermo_Sus_nSamples))
+
+names(Dermo_Sus_geneModuleMembership) = paste("MM", Dermo_Sus_modNames, sep="")
+names(Dermo_Sus_MMPvalue) = paste("p.MM", Dermo_Sus_modNames, sep="")
+
+Dermo_Sus_geneTraitSignificance = as.data.frame(cor(Dermo_Susceptible_dds_vst_matrix_common,Dermo_Sus_injection, use = "p"))
+Dermo_Sus_GSPvalue = as.data.frame(corPvalueStudent(as.matrix(Dermo_Sus_geneTraitSignificance), Dermo_Sus_nSamples))
+
+names(Dermo_Sus_geneTraitSignificance) = paste("GS.", names(Dermo_Sus_injection), sep="")
+names(Dermo_Sus_GSPvalue) = paste("p.GS.", names(Dermo_Sus_injection), sep="")
+
+## Intramodular analysis: identifying genes with high GS and MM
+# Using the GS and MM measures, we can identify genes that have a high significance for disease challenge
+# as well as high module membership in interesting modules. As an example, we look at the brown module 
+# that has the highest association with weight. We plot a scatterplot of Gene Significance vs. Module Membership in the brown module:
+Dermo_Sus_module = "lightgreen" # strong correlation
+Dermo_Sus_column = match(Dermo_Sus_module, Dermo_Sus_modNames)
+Dermo_Sus_moduleGenes = Dermo_Sus_moduleColors==Dermo_Sus_module
+sizeGrWindow(7, 7);
+par(mfrow = c(1,1));
+verboseScatterplot(abs(Dermo_Sus_geneModuleMembership[Dermo_Sus_moduleGenes, Dermo_Sus_column]),
+                   abs(Dermo_Sus_geneTraitSignificance[Dermo_Sus_moduleGenes, 1]),
+                   xlab = paste("Module Membership in", Dermo_Sus_module, "module"),
+                   ylab = "Gene significance for challenge",
+                   main = paste("Module membership vs. gene significance\n"),
+                   cex.main = 1.2, cex.lab = 1.2, cex.axis = 1.2, col = Dermo_Sus_module)
+
+## IDENTIFY HUB GENES IN EACH SIG MODULE ##
+Dermo_Sus_colorh = c("MElightgreen","MEgreenyellow")
+
+Dermo_Sus_Module_hub_genes <- chooseTopHubInEachModule(
+  Dermo_Susceptible_dds_vst_matrix_common, 
+  Dermo_Sus_colorh, 
+  power = 2,  # power used for the adjacency network
+  type = "signed hybrid", 
+  corFnc = "bicor"
+)
+class(Dermo_Sus_Module_hub_genes)
+Dermo_Sus_Module_hub_genes_df <- as.data.frame(Dermo_Sus_Module_hub_genes)
+colnames(Dermo_Sus_Module_hub_genes_df)[1] <- "ID"
+Dermo_Sus_Module_hub_genes_apop <- merge(Dermo_Sus_Module_hub_genes_df, C_vir_rtracklayer, by = "ID")
+nrow(Dermo_Sus_Module_hub_genes_apop) # 2 uncharacterized loci
+
 
 
 ## IDENTIFY MODULES ENRICHED FOR APOPTOSIS USING anRichment
 
-## MEASURE MODULE PRESERVATION BETWEEN DIFFERENT EXPERIMENTS 
 
-### Run WGCNA first to determine differences between treatments (next will do the consensus set)
+
+#### MEASURE MODULE PRESERVATION BETWEEN DIFFERENT EXPERIMENTS ####
+
+
 
 # Run WGCNA on the datasets with large number of genes 
 # https://horvath.genetics.ucla.edu/html/CoexpressionNetwork/Rpackages/WGCNA/Tutorials/FemaleLiver-02-networkConstr-blockwise.pdf
