@@ -503,7 +503,6 @@ row.names(Dermo_Susceptible_coldata_collapsed_binarize) <- row.names(Dermo_Susce
 ## Probiotic
 #Probiotic_dds_rlog_matrix_common 
 #Probiotic_coldata
-
 Probiotic_coldata_collapsed <- Probiotic_coldata[,c("Condition","Time")]
 length(row.names(Probiotic_coldata_collapsed )) # 6
 
@@ -515,6 +514,38 @@ all(row.names(Probiotic_dds_rlog_matrix_common) == row.names(Probiotic_coldata_c
 
 Probiotic_coldata_collapsed_binarize <- binarizeCategoricalColumns.pairwise(Probiotic_coldata_collapsed)
 row.names(Probiotic_coldata_collapsed_binarize) <- row.names(Probiotic_coldata_collapsed)
+
+## ROD RES
+ROD_Resistant_coldata
+ROD_Susceptible_coldata
+ROD_Resistant_dds_rlog_matrix_common
+ROD_Susceptible_dds_rlog_matrix_common
+
+ROD_Resistant_coldata_collapsed <-ROD_Resistant_coldata[,c("Condition","Time")]
+nrow(ROD_Resistant_coldata_collapsed) # 8
+length(row.names(ROD_Resistant_dds_rlog_matrix_common)) # 8
+
+# check order
+all(row.names(ROD_Resistant_coldata_collapsed) %in% row.names(ROD_Resistant_dds_rlog_matrix_common)) # TRUE
+all(row.names(ROD_Resistant_dds_rlog_matrix_common) %in% row.names(ROD_Resistant_coldata_collapsed) ) # TRUE
+all(row.names(ROD_Resistant_coldata_collapsed) == row.names(ROD_Resistant_dds_rlog_matrix_common)) # TRUE
+all(row.names(ROD_Resistant_dds_rlog_matrix_common) == row.names(ROD_Resistant_coldata_collapsed) ) # TRUE
+
+ROD_Susceptible_coldata_collapsed <-ROD_Susceptible_coldata[,c("Condition","Time")]
+nrow(ROD_Susceptible_coldata_collapsed) # 4
+length(row.names(ROD_Susceptible_dds_rlog_matrix_common)) # 4
+
+# check order
+all(row.names(ROD_Susceptible_coldata_collapsed) %in% row.names(ROD_Susceptible_dds_rlog_matrix_common)) # TRUE
+all(row.names(ROD_Susceptible_dds_rlog_matrix_common) %in% row.names(ROD_Susceptible_coldata_collapsed) ) # TRUE
+all(row.names(ROD_Susceptible_coldata_collapsed) == row.names(ROD_Susceptible_dds_rlog_matrix_common)) # TRUE
+all(row.names(ROD_Susceptible_dds_rlog_matrix_common) == row.names(ROD_Susceptible_coldata_collapsed) ) # TRUE
+
+# Binarize the data table
+ROD_Resistant_coldata_collapsed_binarize <- binarizeCategoricalColumns.pairwise(ROD_Resistant_coldata_collapsed)
+ROD_Susceptible_coldata_collapsed_binarize <- binarizeCategoricalColumns.pairwise(ROD_Susceptible_coldata_collapsed)
+row.names(ROD_Resistant_coldata_collapsed_binarize) <- row.names(ROD_Resistant_coldata_collapsed)
+row.names(ROD_Susceptible_coldata_collapsed_binarize) <- row.names(ROD_Susceptible_coldata_collapsed)
 
 #### QUANTIFYING MODULE TRAIT ASSOCIATIONS ####
 
@@ -781,14 +812,14 @@ Dermo_Sus_moduleTraitCor_Pval_df_sig
 Dermo_Sus_moduleTraitCor_Pval_df_sig$mod_names
 #"MElightgreen"  "MEgreenyellow"
 
-Dermo_Sus_MEgreenyellow      <- colnames(Dermo_Susceptible_dds_vst_matrix_common)[Dermo_Sus_moduleColors == "greenyellow "]
+Dermo_Sus_MEgreenyellow      <- colnames(Dermo_Susceptible_dds_vst_matrix_common)[Dermo_Sus_moduleColors == "greenyellow"]
 Dermo_Sus_MElightgreen    <- colnames(Dermo_Susceptible_dds_vst_matrix_common)[Dermo_Sus_moduleColors == "lightgreen" ]
 
 
 Dermo_Sus_MEgreenyellow_df <- as.data.frame(Dermo_Sus_MEgreenyellow)
 colnames(Dermo_Sus_MEgreenyellow_df)[1] <- "ID"
 Dermo_Sus_MEgreenyellow_annot_apop <- merge(Dermo_Sus_MEgreenyellow_df, C_vir_rtracklayer_apop_product_final, by = "ID")
-nrow(Dermo_Sus_MEgreenyellow_annot_apop)  # 0
+nrow(Dermo_Sus_MEgreenyellow_annot_apop)  # 2 calpain 9, ATF-4
 
 #  light gren is negative
 Dermo_Sus_MElightgreen_df <- as.data.frame(Dermo_Sus_MElightgreen)
@@ -853,6 +884,240 @@ colnames(Dermo_Sus_Module_hub_genes_df)[1] <- "ID"
 Dermo_Sus_Module_hub_genes_apop <- merge(Dermo_Sus_Module_hub_genes_df, C_vir_rtracklayer, by = "ID")
 nrow(Dermo_Sus_Module_hub_genes_apop) # 2 uncharacterized loci
 
+#### PROBIOTIC ####
+Probiotic_coldata_collapsed_binarize 
+Probiotic_dds_rlog_matrix_common
+
+# Define numbers of genes and samples
+Probiotic_nGenes = ncol(Probiotic_dds_rlog_matrix_common)
+Probiotic_nSamples = nrow(Probiotic_dds_rlog_matrix_common)
+
+# Recalculate MEs with color labels
+Probiotic_MEs0 = moduleEigengenes(Probiotic_dds_rlog_matrix_common, Probiotic_moduleColors)$eigengenes
+Probiotic_MEs = orderMEs(Probiotic_MEs0)
+Probiotic_moduleTraitCor = cor(Probiotic_MEs, Probiotic_coldata_collapsed_binarize , use = "p");
+Probiotic_moduleTraitPvalue = corPvalueStudent(Probiotic_moduleTraitCor, Probiotic_nSamples)
+
+# Graph and color code each the strength of association (correlation) of module eigengenes and trait
+sizeGrWindow(10,6)
+# Will display correlations and their p-values
+Probiotic_textMatrix = paste(signif(Probiotic_moduleTraitCor, 2), "\n(",
+                             signif(Probiotic_moduleTraitPvalue, 1), ")", sep = "");
+dim(Probiotic_textMatrix) = dim(Probiotic_moduleTraitCor)
+par(mar = c(6, 8.5, 3, 3))
+# Display the correlation values within a heatmap plot, color coded by correlation value (red means more highly positively correlated,
+# green is more negatively correlated)
+labeledHeatmap(Matrix = Probiotic_moduleTraitCor,
+               xLabels = names(Probiotic_coldata_collapsed_binarize),
+               yLabels = names(Probiotic_MEs),
+               ySymbols = names(Probiotic_MEs),
+               colorLabels = FALSE,
+               colors = greenWhiteRed(50),
+               textMatrix = Probiotic_textMatrix,
+               setStdMargins = FALSE,
+               cex.text = 0.45,
+               cex.lab = 0.7,
+               zlim = c(-1,1), 
+               yColorWidth = 0.2, 
+               main = paste("Module-trait relationships"))
+
+# Which modules have the highest associations with disease (high correlation and low P value)?
+Probiotic_moduleTraitCor_df <- as.data.frame(Probiotic_moduleTraitCor)
+Probiotic_moduleTraitCor_df$mod_names <- row.names(Probiotic_moduleTraitCor_df)
+Probiotic_moduleTraitCor_df <- Probiotic_moduleTraitCor_df[,c("mod_names","Condition.Bacillus_pumilus_RI0695.vs.Untreated_control")]
+Probiotic_moduleTraitPvalue_df <- as.data.frame(Probiotic_moduleTraitPvalue)
+Probiotic_moduleTraitPvalue_df$mod_names <- row.names(Probiotic_moduleTraitPvalue_df)
+Probiotic_moduleTraitPvalue_df <- Probiotic_moduleTraitPvalue_df[,c("mod_names","Condition.Bacillus_pumilus_RI0695.vs.Untreated_control")]
+colnames(Probiotic_moduleTraitPvalue_df)[2] <- "pvalue"
+Probiotic_moduleTraitCor_Pval_df <- join(Probiotic_moduleTraitCor_df, Probiotic_moduleTraitPvalue_df, by = "mod_names")
+
+# Significantly correlated modules
+Probiotic_moduleTraitCor_Pval_df[order(Probiotic_moduleTraitCor_Pval_df$pvalue),]
+class(Probiotic_moduleTraitCor_Pval_df$pvalue) # numeric
+Probiotic_moduleTraitCor_Pval_df_sig <- Probiotic_moduleTraitCor_Pval_df %>% filter(pvalue <= 0.05)
+Probiotic_moduleTraitCor_Pval_df_sig
+
+### ANNOTATE APOPTOSIS GENES IN SIGNIFICANT MODULES
+
+Probiotic_moduleTraitCor_Pval_df_sig$mod_names
+#"MEgrey60"     "MElightgreen"
+
+# grey is negative
+Probiotic_MEgrey60     <- colnames(Probiotic_dds_rlog_matrix_common)[Probiotic_moduleColors == "grey60"]
+Probiotic_MElightgreen    <- colnames(Probiotic_dds_rlog_matrix_common)[Probiotic_moduleColors == "lightgreen" ]
+
+Probiotic_MEgrey60_df <- as.data.frame(Probiotic_MEgrey60)
+colnames(Probiotic_MEgrey60_df)[1] <- "ID"
+Probiotic_MEgrey60_annot_apop <- merge(Probiotic_MEgrey60_df, C_vir_rtracklayer_apop_product_final, by = "ID")
+nrow(Probiotic_MEgrey60_annot_apop)  # 4, MAPK, PCDP
+
+Probiotic_MElightgreen_df <- as.data.frame(Probiotic_MElightgreen)
+colnames(Probiotic_MElightgreen_df)[1] <- "ID"
+Probiotic_MElightgreen_annot_apop <- merge(Probiotic_MElightgreen_df, C_vir_rtracklayer_apop_product_final, by = "ID")
+nrow(Probiotic_MElightgreen_annot_apop)  # 1 dynamin 120
+
+## Gene relationship to trait and important modules: Gene Significance and Module Membership
+# Define variable injected 
+Probiotic_injection = as.data.frame(Probiotic_coldata_collapsed_binarize$Condition.Bacillus_pumilus_RI0695.vs.Untreated_control);
+names(Probiotic_injection) = "challenge"
+# names (colors) of the modules
+Probiotic_modNames = substring(names(Probiotic_MEs), 3)
+Probiotic_geneModuleMembership = as.data.frame(cor(Probiotic_dds_rlog_matrix_common, Probiotic_MEs, use = "p"))
+Probiotic_MMPvalue = as.data.frame(corPvalueStudent(as.matrix(Probiotic_geneModuleMembership), Probiotic_nSamples))
+
+names(Probiotic_geneModuleMembership) = paste("MM", Probiotic_modNames, sep="")
+names(Probiotic_MMPvalue) = paste("p.MM", Probiotic_modNames, sep="")
+
+Probiotic_geneTraitSignificance = as.data.frame(cor(Probiotic_dds_rlog_matrix_common,Probiotic_injection, use = "p"))
+Probiotic_GSPvalue = as.data.frame(corPvalueStudent(as.matrix(Probiotic_geneTraitSignificance), Probiotic_nSamples))
+
+names(Probiotic_geneTraitSignificance) = paste("GS.", names(Probiotic_injection), sep="")
+names(Probiotic_GSPvalue) = paste("p.GS.", names(Probiotic_injection), sep="")
+
+## Intramodular analysis: identifying genes with high GS and MM
+Probiotic_module = "lightgreen"  # extremely strong correlation 
+Probiotic_column = match(Probiotic_module, Probiotic_modNames)
+Probiotic_moduleGenes = Probiotic_moduleColors==Probiotic_module
+sizeGrWindow(7, 7);
+par(mfrow = c(1,1));
+verboseScatterplot(abs(Probiotic_geneModuleMembership[Probiotic_moduleGenes, Probiotic_column]),
+                   abs(Probiotic_geneTraitSignificance[Probiotic_moduleGenes, 1]),
+                   xlab = paste("Module Membership in", Probiotic_module, "module"),
+                   ylab = "Gene significance for challenge",
+                   main = paste("Module membership vs. gene significance\n"),
+                   cex.main = 1.2, cex.lab = 1.2, cex.axis = 1.2, col = Probiotic_module)
+
+## IDENTIFY HUB GENES IN EACH SIG MODULE ##
+Probiotic_colorh = c("MEgrey60"  ,   "MElightgreen")
+
+Probiotic_Module_hub_genes <- chooseTopHubInEachModule(
+  Probiotic_dds_rlog_matrix_common, 
+  Probiotic_colorh, 
+  power = 2,  # power used for the adjacency network
+  type = "signed hybrid", 
+  corFnc = "bicor"
+)
+class(Probiotic_Module_hub_genes)
+Probiotic_Module_hub_genes_df <- as.data.frame(Probiotic_Module_hub_genes)
+colnames(Probiotic_Module_hub_genes_df)[1] <- "ID"
+Probiotic_Module_hub_genes_apop <- merge(Probiotic_Module_hub_genes_df, C_vir_rtracklayer, by = "ID")
+nrow(Probiotic_Module_hub_genes_apop) 
+
+#### ROD RES ####
+# Define numbers of genes and samples
+ROD_Res_nGenes = ncol(ROD_Resistant_dds_rlog_matrix_common)
+ROD_Res_nSamples = nrow(ROD_Resistant_dds_rlog_matrix_common)
+
+# Recalculate MEs with color labels
+ROD_Res_MEs0 = moduleEigengenes(ROD_Resistant_dds_rlog_matrix_common, ROD_Res_moduleColors)$eigengenes
+ROD_Res_MEs = orderMEs(ROD_Res_MEs0)
+ROD_Res_moduleTraitCor = cor(ROD_Res_MEs, ROD_Resistant_coldata_collapsed_binarize , use = "p");
+ROD_Res_moduleTraitPvalue = corPvalueStudent(ROD_Res_moduleTraitCor, ROD_Res_nSamples)
+
+# Graph and color code each the strength of association (correlation) of module eigengenes and trait
+sizeGrWindow(10,6)
+# Will display correlations and their p-values
+ROD_Res_textMatrix = paste(signif(ROD_Res_moduleTraitCor, 2), "\n(",
+                             signif(ROD_Res_moduleTraitPvalue, 1), ")", sep = "");
+dim(ROD_Res_textMatrix) = dim(ROD_Res_moduleTraitCor)
+par(mar = c(6, 8.5, 3, 3))
+# Display the correlation values within a heatmap plot, color coded by correlation value (red means more highly positively correlated,
+# green is more negatively correlated)
+labeledHeatmap(Matrix = ROD_Res_moduleTraitCor,
+               xLabels = names(ROD_Resistant_coldata_collapsed_binarize),
+               yLabels = names(ROD_Res_MEs),
+               ySymbols =names(ROD_Res_MEs),
+               colorLabels = FALSE,
+               colors = greenWhiteRed(50),
+               textMatrix = ROD_Res_textMatrix,
+               setStdMargins = FALSE,
+               cex.text = 0.45,
+               cex.lab = 0.7,
+               zlim = c(-1,1), 
+               yColorWidth = 0.2, 
+               main = paste("Module-trait relationships"))
+
+# Which modules have the highest associations with disease (high correlation and low P value)?
+ROD_Res_moduleTraitCor_df <- as.data.frame(ROD_Res_moduleTraitCor)
+ROD_Res_moduleTraitCor_df$mod_names <- row.names(ROD_Res_moduleTraitCor_df)
+ROD_Res_moduleTraitCor_df <- ROD_Res_moduleTraitCor_df[,c("mod_names","Condition.Resistant_Challenge.vs.Control_Resistant")]
+ROD_Res_moduleTraitPvalue_df <- as.data.frame(ROD_Res_moduleTraitPvalue)
+ROD_Res_moduleTraitPvalue_df$mod_names <- row.names(ROD_Res_moduleTraitPvalue_df)
+ROD_Res_moduleTraitPvalue_df <- ROD_Res_moduleTraitPvalue_df[,c("mod_names","Condition.Resistant_Challenge.vs.Control_Resistant")]
+colnames(ROD_Res_moduleTraitPvalue_df)[2] <- "pvalue"
+ROD_Res_moduleTraitCor_Pval_df <- join(ROD_Res_moduleTraitCor_df, ROD_Res_moduleTraitPvalue_df, by = "mod_names")
+
+# Significantly correlated modules
+ROD_Res_moduleTraitCor_Pval_df[order(ROD_Res_moduleTraitCor_Pval_df$pvalue),]
+class(ROD_Res_moduleTraitCor_Pval_df$pvalue) # numeric
+ROD_Res_moduleTraitCor_Pval_df_sig <- ROD_Res_moduleTraitCor_Pval_df %>% filter(pvalue <= 0.05)
+ROD_Res_moduleTraitCor_Pval_df_sig
+
+### ANNOTATE APOPTOSIS GENES IN SIGNIFICANT MODULES
+
+ROD_Res_moduleTraitCor_Pval_df_sig$mod_names
+#MEplum1"  "MEorange"
+
+# plum1 is negative
+ROD_Res_MEplum1     <- colnames(ROD_Resistant_dds_rlog_matrix_common)[ROD_Res_moduleColors == "plum1"]
+ROD_Res_MEorange  <- colnames(ROD_Resistant_dds_rlog_matrix_common)[ROD_Res_moduleColors == "orange" ]
+
+ROD_Res_MEplum1_df <- as.data.frame(ROD_Res_MEplum1)
+colnames(ROD_Res_MEplum1_df)[1] <- "ID"
+ROD_Res_MEplum1_annot_apop <- merge(ROD_Res_MEplum1_df, C_vir_rtracklayer_apop_product_final, by = "ID")
+nrow(ROD_Res_MEplum1_annot_apop)  # 2, TLR4
+
+ROD_Res_MEorange_df <- as.data.frame(ROD_Res_MEorange)
+colnames(ROD_Res_MEorange_df)[1] <- "ID"
+ROD_Res_MEorange_annot_apop <- merge(ROD_Res_MEorange_df, C_vir_rtracklayer_apop_product_final, by = "ID")
+nrow(ROD_Res_MEorange_annot_apop)  # 3 casp2, tlr3, rac gamma
+
+## Gene relationship to trait and important modules: Gene Significance and Module Membership
+# Define variable injected 
+ROD_Res_injection = as.data.frame(ROD_Resistant_coldata_collapsed_binarize$Condition.Resistant_Challenge.vs.Control_Resistant);
+names(ROD_Res_injection) = "challenge"
+# names (colors) of the modules
+ROD_Res_modNames = substring(names(ROD_Res_MEs), 3)
+ROD_Res_geneModuleMembership = as.data.frame(cor(ROD_Resistant_dds_rlog_matrix_common, ROD_Res_MEs, use = "p"))
+ROD_Res_MMPvalue = as.data.frame(corPvalueStudent(as.matrix(ROD_Res_geneModuleMembership), ROD_Res_nSamples))
+
+names(ROD_Res_geneModuleMembership) = paste("MM", ROD_Res_modNames, sep="")
+names(ROD_Res_MMPvalue) = paste("p.MM", ROD_Res_modNames, sep="")
+
+ROD_Res_geneTraitSignificance = as.data.frame(cor(ROD_Resistant_dds_rlog_matrix_common,ROD_Res_injection, use = "p"))
+ROD_Res_GSPvalue = as.data.frame(corPvalueStudent(as.matrix(ROD_Res_geneTraitSignificance), ROD_Res_nSamples))
+
+names(ROD_Res_geneTraitSignificance) = paste("GS.", names(ROD_Res_injection), sep="")
+names(ROD_Res_GSPvalue) = paste("p.GS.", names(ROD_Res_injection), sep="")
+
+## Intramodular analysis: identifying genes with high GS and MM
+ROD_Res_module = "orange"  
+ROD_Res_column = match(ROD_Res_module, ROD_Res_modNames)
+ROD_Res_moduleGenes = ROD_Res_moduleColors==ROD_Res_module
+sizeGrWindow(7, 7);
+par(mfrow = c(1,1));
+verboseScatterplot(abs(ROD_Res_geneModuleMembership[ROD_Res_moduleGenes, ROD_Res_column]),
+                   abs(ROD_Res_geneTraitSignificance[ROD_Res_moduleGenes, 1]),
+                   xlab = paste("Module Membership in", ROD_Res_module, "module"),
+                   ylab = "Gene significance for challenge",
+                   main = paste("Module membership vs. gene significance\n"),
+                   cex.main = 1.2, cex.lab = 1.2, cex.axis = 1.2, col = Probiotic_module)
+
+## IDENTIFY HUB GENES IN EACH SIG MODULE ##
+ROD_Res_colorh = c("MEplum1",  "MEorange")
+
+ROD_Res_Module_hub_genes <- chooseTopHubInEachModule(
+  ROD_Resistant_dds_rlog_matrix_common, 
+  ROD_Res_colorh, 
+  power = 2,  # power used for the adjacency network
+  type = "signed hybrid", 
+  corFnc = "bicor"
+)
+class(ROD_Res_Module_hub_genes)
+ROD_Res_Module_hub_genes_df <- as.data.frame(ROD_Res_Module_hub_genes)
+colnames(ROD_Res_Module_hub_genes_df)[1] <- "ID"
+ROD_Res_Module_hub_genes <- merge(ROD_Res_Module_hub_genes_df, C_vir_rtracklayer, by = "ID")
+nrow(ROD_Res_Module_hub_genes) 
 
 
 ## IDENTIFY MODULES ENRICHED FOR APOPTOSIS USING anRichment
