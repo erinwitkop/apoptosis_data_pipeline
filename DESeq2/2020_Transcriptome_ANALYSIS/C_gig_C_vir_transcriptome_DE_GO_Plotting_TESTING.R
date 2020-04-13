@@ -223,7 +223,8 @@ Apoptosis_names_list <- c('bcl-2-related protein A1',
                           'proto-oncogene c-Rel',
                           'leukocyte elastase inhibitor',
                           'protein patched homolog 1',
-                          'cyclic AMP-dependent transcription factor ATF-4')
+                          'cyclic AMP-dependent transcription factor ATF-4',
+                          'Siva')
 
 #### Grep Apoptosis protein names in genome files ####
 
@@ -247,13 +248,13 @@ C_vir_rtracklayer_apop_product_final <- C_vir_rtracklayer_apop_product[
     !grepl("tumor protein p63-regulated gene 1-like protein", C_vir_rtracklayer_apop_product$product, ignore.case = TRUE) &
     !grepl("mitogen-activated protein kinase kinase kinase kinase 3", C_vir_rtracklayer_apop_product$product, ignore.case = TRUE),] # get rid of MAP4K
 
-nrow(C_vir_rtracklayer_apop_product_final) # 1243
+nrow(C_vir_rtracklayer_apop_product_final) # 1245
 #View(C_vir_rtracklayer_apop_product_final[26][!duplicated(C_vir_rtracklayer_apop_product_final$product),])
 
 # remove duplicated rows
 C_vir_rtracklayer_apop_product_final <- C_vir_rtracklayer_apop_product_final[!duplicated(C_vir_rtracklayer_apop_product_final$product),]
-nrow(C_vir_rtracklayer_apop_product_final) # 600 unique transcripts
-View(C_vir_rtracklayer_apop_product_final)
+nrow(C_vir_rtracklayer_apop_product_final) # 601 unique transcripts
+#View(C_vir_rtracklayer_apop_product_final)
 
 ## Identify CG apoptosis genes 
 Apoptosis_names_list_CG <- c('bcl-2-related protein A1',
@@ -419,7 +420,8 @@ Apoptosis_names_list_CG <- c('bcl-2-related protein A1',
                              'proto-oncogene c-Rel',
                              'leukocyte elastase inhibitor',
                              'protein patched homolog 1',
-                             'cyclic AMP-dependent transcription factor ATF-4')
+                             'cyclic AMP-dependent transcription factor ATF-4',
+                             'Siva')
 
 #### Grep Apoptosis protein names in genome files CG ####
 ## Note unlike C. vir file, C. gigas file has gene names in the "product" column, and still includes comma with transcript info for some
@@ -432,7 +434,7 @@ C_gig_rtracklayer_filtered <- C_gig_rtracklayer %>% filter(type =="mRNA")
 # only genes have the description, the mRNA id's will match with the ID
 C_gig_rtracklayer_apop_product <- C_gig_rtracklayer_filtered[grepl(paste(Apoptosis_names_list_CG,collapse="|"), 
                                                                    C_gig_rtracklayer_filtered$product, ignore.case = TRUE),]
-nrow(C_gig_rtracklayer_apop_product) #936
+nrow(C_gig_rtracklayer_apop_product) #937
 
 # Terms to remove
 # remove complement C1q proteins, dual specificity protein phosphatase 1B-like, remove kunitz-type, and other NOT kDA protein names so I can keep heat shock proteins in both
@@ -453,11 +455,11 @@ C_gig_rtracklayer_apop_product_final <- C_gig_rtracklayer_apop_product[
     !grepl("tumor protein p63-regulated gene 1-like protein", C_gig_rtracklayer_apop_product$product, ignore.case = TRUE) &
     !grepl("mitogen-activated protein kinase kinase kinase kinase 3", C_gig_rtracklayer_apop_product$product, ignore.case = TRUE) &
     !grepl("mitogen-activated protein kinase kinase kinase kinase 4", C_gig_rtracklayer_apop_product$product, ignore.case = TRUE),]
-nrow(C_gig_rtracklayer_apop_product_final) #833
+nrow(C_gig_rtracklayer_apop_product_final) #834
 
 # remove duplicated rows
 C_gig_rtracklayer_apop_product_final <- C_gig_rtracklayer_apop_product_final[!duplicated(C_gig_rtracklayer_apop_product_final$product),]
-nrow(C_gig_rtracklayer_apop_product_final) # 563 unique transcripts
+nrow(C_gig_rtracklayer_apop_product_final) # 564 unique transcripts
 
 #### ZHANG VIBRIO TRANSCRIPTOME ANALYSIS ####
 
@@ -3562,7 +3564,8 @@ Apoptosis_names_df <- data.frame(product=c(# removing this because duplicated wi
   'cyclic AMP-dependent transcription factor ATF-4',
   'dual specificity mitogen-activated protein kinase kinase 1',
   'mitogen-activated protein kinase 1',
-  'mitochondrial Rho GTPase 1'))
+  'mitochondrial Rho GTPase 1',
+  'Siva'))
 
 Apoptosis_names_df$rownames <- rownames(Apoptosis_names_df)
 # Make new index
@@ -3813,7 +3816,8 @@ Apoptosis_names_df_CG <- data.frame(product=c(     # removing this because dupli
   'cyclic AMP-dependent transcription factor ATF-4',
   'dual specificity mitogen-activated protein kinase kinase 1',
   'mitogen-activated protein kinase 1',
-  'mitochondrial Rho GTPase 1'))
+  'mitochondrial Rho GTPase 1',
+  'Siva'))
 
 Apoptosis_names_df_CG$rownames <- rownames(Apoptosis_names_df_CG)
 
