@@ -11,8 +11,17 @@ library(WGCNA)
 library(cluster)
 library(anRichment)
 library(anRichmentMethods)
+library(dplyr)
+library(plyr)
 # source("https://horvath.genetics.ucla.edu/html/CoexpressionNetwork/GeneAnnotation/installAnRichment.R"); installAnRichment(); 
 
+#### Helpful tutorials for meta-analysis
+# https://horvath.genetics.ucla.edu/html/CoexpressionNetwork/ModulePreservation/
+# https://horvath.genetics.ucla.edu/html/CoexpressionNetwork/JMiller/Tutorial%20document.pdf
+# WGCNA Main tutorial: https://horvath.genetics.ucla.edu/html/CoexpressionNetwork/Rpackages/WGCNA/Tutorials/
+# anRichment: https://horvath.genetics.ucla.edu/html/CoexpressionNetwork/GeneAnnotation/#manualInstall
+# Package FAQs with some quidelines for running: https://horvath.genetics.ucla.edu/html/CoexpressionNetwork/Rpackages/WGCNA/faq.html
+# tutorials on module preservation: https://horvath.genetics.ucla.edu/html/CoexpressionNetwork/ModulePreservation/Tutorials/
 
 #### WGCNA C_VIRGINICA ####
 cor <- WGCNA::cor # make sure these are run every time!
@@ -546,6 +555,32 @@ ROD_Resistant_coldata_collapsed_binarize <- binarizeCategoricalColumns.pairwise(
 ROD_Susceptible_coldata_collapsed_binarize <- binarizeCategoricalColumns.pairwise(ROD_Susceptible_coldata_collapsed)
 row.names(ROD_Resistant_coldata_collapsed_binarize) <- row.names(ROD_Resistant_coldata_collapsed)
 row.names(ROD_Susceptible_coldata_collapsed_binarize) <- row.names(ROD_Susceptible_coldata_collapsed)
+
+## Pro_RE22
+Pro_RE22_coldata_collapsed <- Pro_RE22_coldata[,c("Condition","Time")]
+length(row.names(Pro_RE22_coldata_collapsed )) # 18
+
+# Gsub to just look at RE22, vs. RI0695 at any time, and S4 at any time
+
+Bacillus_pumilus_RI06_95_exposure_24h
+Bacillus_pumilus_RI06_95_exposure_6h
+Phaeobacter_inhibens_S4_exposure_6h
+Phaeobacter_inhibens_S4_exposure_24h
+
+Pro_RE22_coldata_collapsed$Condition <- gsub("Bacillus_pumilus_RI06_95_exposure_24h", "Bacillus_pumilus",Pro_RE22_coldata_collapsed$Condition)
+Pro_RE22_coldata_collapsed$Condition <- gsub("Bacillus_pumilus_RI06_95_exposure_6h", "Bacillus_pumilus",Pro_RE22_coldata_collapsed$Condition)
+Pro_RE22_coldata_collapsed$Condition <- gsub("Phaeobacter_inhibens_S4_exposure_6h", "Phaeobacter_inhibens",Pro_RE22_coldata_collapsed$Condition)
+Pro_RE22_coldata_collapsed$Condition <- gsub("Phaeobacter_inhibens_S4_exposure_24h", "Phaeobacter_inhibens",Pro_RE22_coldata_collapsed$Condition)
+
+# check order
+all(row.names(Pro_RE22_coldata_collapsed ) %in% row.names(Pro_RE22_dds_rlog_matrix_common)) # TRUE
+all(row.names(Pro_RE22_dds_rlog_matrix_common) %in% row.names(Pro_RE22_coldata_collapsed)) # TRUE
+all(row.names(Pro_RE22_coldata_collapsed) == row.names(Pro_RE22_dds_rlog_matrix_common)) # TRUE
+all(row.names(Pro_RE22_dds_rlog_matrix_common) == row.names(Pro_RE22_coldata_collapsed)) # TRUE
+
+# binarize the data table
+Pro_RE22_coldata_collapsed_binarize <- binarizeCategoricalColumns.pairwise(Pro_RE22_coldata_collapsed)
+row.names(Pro_RE22_coldata_collapsed_binarize) <- row.names(Pro_RE22_coldata_collapsed)
 
 #### QUANTIFYING MODULE TRAIT ASSOCIATIONS ####
 
@@ -1101,7 +1136,7 @@ verboseScatterplot(abs(ROD_Res_geneModuleMembership[ROD_Res_moduleGenes, ROD_Res
                    xlab = paste("Module Membership in", ROD_Res_module, "module"),
                    ylab = "Gene significance for challenge",
                    main = paste("Module membership vs. gene significance\n"),
-                   cex.main = 1.2, cex.lab = 1.2, cex.axis = 1.2, col = Probiotic_module)
+                   cex.main = 1.2, cex.lab = 1.2, cex.axis = 1.2, col = ROD_Res_module)
 
 ## IDENTIFY HUB GENES IN EACH SIG MODULE ##
 ROD_Res_colorh = c("MEplum1",  "MEorange")
@@ -1119,12 +1154,527 @@ colnames(ROD_Res_Module_hub_genes_df)[1] <- "ID"
 ROD_Res_Module_hub_genes <- merge(ROD_Res_Module_hub_genes_df, C_vir_rtracklayer, by = "ID")
 nrow(ROD_Res_Module_hub_genes) 
 
+#### ROD SUS ####
+# Define numbers of genes and samples
+ROD_Sus_nGenes = ncol(ROD_Susceptible_dds_rlog_matrix_common)
+ROD_Sus_nSamples = nrow(ROD_Susceptible_dds_rlog_matrix_common)
+
+# Recalculate MEs with color labels
+ROD_Sus_MEs0 = moduleEigengenes(ROD_Susceptible_dds_rlog_matrix_common, ROD_Sus_moduleColors)$eigengenes
+ROD_Sus_MEs = orderMEs(ROD_Sus_MEs0)
+ROD_Sus_moduleTraitCor = cor(ROD_Sus_MEs, ROD_Susceptible_coldata_collapsed_binarize , use = "p");
+ROD_Sus_moduleTraitPvalue = corPvalueStudent(ROD_Sus_moduleTraitCor, ROD_Sus_nSamples)
+
+# Graph and color code each the strength of association (correlation) of module eigengenes and trait
+sizeGrWindow(10,6)
+# Will display correlations and their p-values
+ROD_Sus_textMatrix = paste(signif(ROD_Sus_moduleTraitCor, 2), "\n(",
+                           signif(ROD_Sus_moduleTraitPvalue, 1), ")", sep = "");
+dim(ROD_Sus_textMatrix) = dim(ROD_Sus_moduleTraitCor)
+par(mar = c(6, 8.5, 3, 3))
+# Display the correlation values within a heatmap plot, color coded by correlation value (red means more highly positively correlated,
+# green is more negatively correlated)
+labeledHeatmap(Matrix = ROD_Sus_moduleTraitCor,
+               xLabels = names(ROD_Susceptible_coldata_collapsed_binarize),
+               yLabels = names(ROD_Sus_MEs),
+               ySymbols =names(ROD_Sus_MEs),
+               colorLabels = FALSE,
+               colors = greenWhiteRed(50),
+               textMatrix = ROD_Sus_textMatrix,
+               setStdMargins = FALSE,
+               cex.text = 0.45,
+               cex.lab = 0.7,
+               zlim = c(-1,1), 
+               yColorWidth = 0.2, 
+               main = paste("Module-trait relationships"))
+
+# Which modules have the highest associations with disease (high correlation and low P value)?
+ROD_Sus_moduleTraitCor_df <- as.data.frame(ROD_Sus_moduleTraitCor)
+ROD_Sus_moduleTraitCor_df$mod_names <- row.names(ROD_Sus_moduleTraitCor_df)
+ROD_Sus_moduleTraitCor_df <- ROD_Sus_moduleTraitCor_df[,c("mod_names","Condition.Late_Susecptible.vs.Early_Susceptible")]
+ROD_Sus_moduleTraitPvalue_df <- as.data.frame(ROD_Sus_moduleTraitPvalue)
+ROD_Sus_moduleTraitPvalue_df$mod_names <- row.names(ROD_Sus_moduleTraitPvalue_df)
+ROD_Sus_moduleTraitPvalue_df <- ROD_Sus_moduleTraitPvalue_df[,c("mod_names","Condition.Late_Susecptible.vs.Early_Susceptible")]
+colnames(ROD_Sus_moduleTraitPvalue_df)[2] <- "pvalue"
+ROD_Sus_moduleTraitCor_Pval_df <- join(ROD_Sus_moduleTraitCor_df, ROD_Sus_moduleTraitPvalue_df, by = "mod_names")
+
+# Significantly correlated modules
+ROD_Sus_moduleTraitCor_Pval_df[order(ROD_Sus_moduleTraitCor_Pval_df$pvalue),]
+class(ROD_Sus_moduleTraitCor_Pval_df$pvalue) # numeric
+ROD_Sus_moduleTraitCor_Pval_df_sig <- ROD_Sus_moduleTraitCor_Pval_df %>% filter(pvalue <= 0.05)
+ROD_Sus_moduleTraitCor_Pval_df_sig
+
+### ANNOTATE APOPTOSIS GENES IN SIGNIFICANT MODULES
+
+ROD_Sus_moduleTraitCor_Pval_df_sig$mod_names
+# MEturquoise  MEbrown (negative) 
+
+ROD_Sus_MEturquoise  <- colnames(ROD_Susceptible_dds_rlog_matrix_common)[ROD_Sus_moduleColors == "turquoise"]
+ROD_Sus_MEbrown   <- colnames(ROD_Susceptible_dds_rlog_matrix_common)[ROD_Sus_moduleColors == "brown" ]
+
+ROD_Sus_MEturquoise_df <- as.data.frame(ROD_Sus_MEturquoise)
+colnames(ROD_Sus_MEturquoise_df)[1] <- "ID"
+ROD_Sus_MEturquoise_annot_apop <- merge(ROD_Sus_MEturquoise_df, C_vir_rtracklayer_apop_product_final, by = "ID")
+nrow(ROD_Sus_MEturquoise_annot_apop)  # 46 BIRIAP, GIMAP, TRAF, TLR, caspase
+
+ROD_Sus_MEbrown_df <- as.data.frame(ROD_Sus_MEbrown)
+colnames(ROD_Sus_MEbrown_df)[1] <- "ID"
+ROD_Sus_MEbrown_annot_apop <- merge(ROD_Sus_MEbrown_df, C_vir_rtracklayer_apop_product_final, by = "ID")
+nrow(ROD_Sus_MEbrown_annot_apop)  # 63, IP3R, MAPK, caspase 2,3,8, 9, TRAF, calpain
+
+## Gene relationship to trait and important modules: Gene Significance and Module Membership
+# Define variable injected 
+ROD_Sus_injection = as.data.frame(ROD_Susceptible_coldata_collapsed_binarize$Condition.Late_Susecptible.vs.Early_Susceptible);
+names(ROD_Sus_injection) = "challenge"
+# names (colors) of the modules
+ROD_Sus_modNames = substring(names(ROD_Sus_MEs), 3)
+ROD_Sus_geneModuleMembership = as.data.frame(cor(ROD_Susceptible_dds_rlog_matrix_common, ROD_Sus_MEs, use = "p"))
+ROD_Sus_MMPvalue = as.data.frame(corPvalueStudent(as.matrix(ROD_Sus_geneModuleMembership), ROD_Sus_nSamples))
+
+names(ROD_Sus_geneModuleMembership) = paste("MM", ROD_Sus_modNames, sep="")
+names(ROD_Sus_MMPvalue) = paste("p.MM", ROD_Sus_modNames, sep="")
+
+ROD_Sus_geneTraitSignificance = as.data.frame(cor(ROD_Susceptible_dds_rlog_matrix_common,ROD_Sus_injection, use = "p"))
+ROD_Sus_GSPvalue = as.data.frame(corPvalueStudent(as.matrix(ROD_Sus_geneTraitSignificance), ROD_Sus_nSamples))
+
+names(ROD_Sus_geneTraitSignificance) = paste("GS.", names(ROD_Sus_injection), sep="")
+names(ROD_Sus_GSPvalue) = paste("p.GS.", names(ROD_Sus_injection), sep="")
+
+## Intramodular analysis: identifying genes with high GS and MM
+ROD_Sus_module = "brown"  
+ROD_Sus_column = match(ROD_Sus_module, ROD_Sus_modNames)
+ROD_Sus_moduleGenes = ROD_Sus_moduleColors==ROD_Sus_module
+sizeGrWindow(7, 7);
+par(mfrow = c(1,1));
+verboseScatterplot(abs(ROD_Sus_geneModuleMembership[ROD_Sus_moduleGenes, ROD_Sus_column]),
+                   abs(ROD_Sus_geneTraitSignificance[ROD_Sus_moduleGenes, 1]),
+                   xlab = paste("Module Membership in", ROD_Sus_module, "module"),
+                   ylab = "Gene significance for challenge",
+                   main = paste("Module membership vs. gene significance\n"),
+                   cex.main = 1.2, cex.lab = 1.2, cex.axis = 1.2, col = ROD_Sus_module) # perfect correlation...something has probably gone wrong here!
+
+## IDENTIFY HUB GENES IN EACH SIG MODULE ##
+ROD_Sus_colorh = c("MEturquoise",  "MEbrown")
+
+ROD_Sus_Module_hub_genes <- chooseTopHubInEachModule(
+  ROD_Susceptible_dds_rlog_matrix_common, 
+  ROD_Sus_colorh, 
+  power = 2,  # power used for the adjacency network
+  type = "signed hybrid", 
+  corFnc = "bicor"
+)
+class(ROD_Sus_Module_hub_genes)
+ROD_Sus_Module_hub_genes_df <- as.data.frame(ROD_Sus_Module_hub_genes)
+colnames(ROD_Sus_Module_hub_genes_df)[1] <- "ID"
+ROD_Sus_Module_hub_genes <- merge(ROD_Sus_Module_hub_genes_df, C_vir_rtracklayer, by = "ID")
+nrow(ROD_Res_Module_hub_genes) 
+
+#### PRO_RE22 ####
+
+# Define numbers of genes and samples
+Pro_RE22_nGenes = ncol(Pro_RE22_dds_rlog_matrix_common)
+Pro_RE22_nSamples = nrow(Pro_RE22_dds_rlog_matrix_common)
+
+# Recalculate MEs with color labels
+Pro_RE22_MEs0 = moduleEigengenes(Pro_RE22_dds_rlog_matrix_common, Pro_RE22_moduleColors)$eigengenes
+Pro_RE22_MEs = orderMEs(Pro_RE22_MEs0)
+Pro_RE22_moduleTraitCor = cor(Pro_RE22_MEs, Pro_RE22_coldata_collapsed_binarize , use = "p");
+Pro_RE22_moduleTraitPvalue = corPvalueStudent(Pro_RE22_moduleTraitCor, Pro_RE22_nSamples)
+
+# Graph and color code each the strength of association (correlation) of module eigengenes and trait
+sizeGrWindow(10,6)
+# Will display correlations and their p-values
+Pro_RE22_textMatrix = paste(signif(Pro_RE22_moduleTraitCor, 2), "\n(",
+                           signif(Pro_RE22_moduleTraitPvalue, 1), ")", sep = "");
+dim(Pro_RE22_textMatrix) = dim(Pro_RE22_moduleTraitCor)
+par(mar = c(6, 8.5, 3, 3))
+# Display the correlation values within a heatmap plot, color coded by correlation value (red means more highly positively correlated,
+# green is more negatively correlated)
+labeledHeatmap(Matrix = Pro_RE22_moduleTraitCor,
+               xLabels = names(Pro_RE22_coldata_collapsed_binarize),
+               yLabels = names(Pro_RE22_MEs),
+               ySymbols =names(Pro_RE22_MEs),
+               colorLabels = FALSE,
+               colors = greenWhiteRed(50),
+               textMatrix = Pro_RE22_textMatrix,
+               setStdMargins = FALSE,
+               cex.text = 0.45,
+               cex.lab = 0.7,
+               zlim = c(-1,1), 
+               yColorWidth = 0.2, 
+               main = paste("Module-trait relationships"))
+
+# Which modules have the highest associations with  RI06p5 (high correlation and low P value)?
+Pro_RE22_RI_moduleTraitCor_df <- as.data.frame(Pro_RE22_moduleTraitCor)
+Pro_RE22_RI_moduleTraitCor_df$mod_names <- row.names(Pro_RE22_RI_moduleTraitCor_df)
+Pro_RE22_RI_moduleTraitCor_df <- Pro_RE22_RI_moduleTraitCor_df[,c("mod_names","Condition.Control_no_treatment.vs.Bacillus_pumilus")]
+Pro_RE22_RI_moduleTraitPvalue_df <- as.data.frame(Pro_RE22_moduleTraitPvalue)
+Pro_RE22_RI_moduleTraitPvalue_df$mod_names <- row.names(Pro_RE22_RI_moduleTraitPvalue_df)
+Pro_RE22_RI_moduleTraitPvalue_df <- Pro_RE22_RI_moduleTraitPvalue_df[,c("mod_names","Condition.Control_no_treatment.vs.Bacillus_pumilus")]
+colnames(Pro_RE22_RI_moduleTraitPvalue_df)[2] <- "pvalue"
+Pro_RE22_RI_moduleTraitCor_Pval_df <- join(Pro_RE22_RI_moduleTraitCor_df, Pro_RE22_RI_moduleTraitPvalue_df, by = "mod_names")
+
+Pro_RE22_S4_moduleTraitCor_df <- as.data.frame(Pro_RE22_moduleTraitCor)
+Pro_RE22_S4_moduleTraitCor_df$mod_names <- row.names(Pro_RE22_S4_moduleTraitCor_df)
+Pro_RE22_S4_moduleTraitCor_df <- Pro_RE22_S4_moduleTraitCor_df[,c("mod_names","Condition.Phaeobacter_inhibens.vs.Control_no_treatment" )]
+Pro_RE22_S4_moduleTraitPvalue_df <- as.data.frame(Pro_RE22_moduleTraitPvalue)
+Pro_RE22_S4_moduleTraitPvalue_df$mod_names <- row.names(Pro_RE22_S4_moduleTraitPvalue_df)
+Pro_RE22_S4_moduleTraitPvalue_df <- Pro_RE22_S4_moduleTraitPvalue_df[,c("mod_names","Condition.Phaeobacter_inhibens.vs.Control_no_treatment" )]
+colnames(Pro_RE22_S4_moduleTraitPvalue_df)[2] <- "pvalue"
+Pro_RE22_S4_moduleTraitCor_Pval_df <- join(Pro_RE22_S4_moduleTraitCor_df, Pro_RE22_S4_moduleTraitPvalue_df, by = "mod_names")
+
+Pro_RE22_moduleTraitCor_df <- as.data.frame(Pro_RE22_moduleTraitCor)
+Pro_RE22_moduleTraitCor_df$mod_names <- row.names(Pro_RE22_moduleTraitCor_df)
+Pro_RE22_moduleTraitCor_df <- Pro_RE22_moduleTraitCor_df[,c("mod_names","Condition.Vibrio_coralliilyticus_RE22_exposure_6h.vs.Control_no_treatment")]
+Pro_RE22_moduleTraitPvalue_df <- as.data.frame(Pro_RE22_moduleTraitPvalue)
+Pro_RE22_moduleTraitPvalue_df$mod_names <- row.names(Pro_RE22_moduleTraitPvalue_df)
+Pro_RE22_moduleTraitPvalue_df <- Pro_RE22_moduleTraitPvalue_df[,c("mod_names","Condition.Vibrio_coralliilyticus_RE22_exposure_6h.vs.Control_no_treatment")]
+colnames(Pro_RE22_moduleTraitPvalue_df)[2] <- "pvalue"
+Pro_RE22_moduleTraitCor_Pval_df <- join(Pro_RE22_moduleTraitCor_df, Pro_RE22_moduleTraitPvalue_df, by = "mod_names")
+
+# Significantly correlated modules
+Pro_RE22_RI_moduleTraitCor_Pval_df[order(Pro_RE22_RI_moduleTraitCor_Pval_df$pvalue),]
+class(Pro_RE22_RI_moduleTraitCor_Pval_df$pvalue) # numeric
+# subset just for positive associations
+Pro_RE22_RI_moduleTraitCor_Pval_df_sig <- Pro_RE22_RI_moduleTraitCor_Pval_df %>% filter(pvalue <= 0.05 & Condition.Control_no_treatment.vs.Bacillus_pumilus > 0)
+Pro_RE22_RI_moduleTraitCor_Pval_df_sig # 12
+
+Pro_RE22_S4_moduleTraitCor_Pval_df[order(Pro_RE22_S4_moduleTraitCor_Pval_df$pvalue),]
+class(Pro_RE22_S4_moduleTraitCor_Pval_df$pvalue) # numeric
+Pro_RE22_S4_moduleTraitCor_Pval_df_sig <- Pro_RE22_S4_moduleTraitCor_Pval_df %>% filter(pvalue <= 0.05 & Condition.Phaeobacter_inhibens.vs.Control_no_treatment > 0)
+Pro_RE22_S4_moduleTraitCor_Pval_df_sig # 8
+
+Pro_RE22_moduleTraitCor_Pval_df[order(Pro_RE22_moduleTraitCor_Pval_df$pvalue),]
+class(Pro_RE22_moduleTraitCor_Pval_df$pvalue) # numeric
+Pro_RE22_moduleTraitCor_Pval_df_sig <- Pro_RE22_moduleTraitCor_Pval_df %>% filter(pvalue <= 0.05 & Condition.Vibrio_coralliilyticus_RE22_exposure_6h.vs.Control_no_treatment > 0)
+Pro_RE22_moduleTraitCor_Pval_df_sig #17
+
+### ANNOTATE APOPTOSIS GENES IN SIGNIFICANT MODULES
+
+Pro_RE22_RI_moduleTraitCor_Pval_df_sig_list <- Pro_RE22_RI_moduleTraitCor_Pval_df_sig$mod_names
+  #[1] "MEmediumpurple3" "MEblack"         "MEsteelblue"     "MEpurple"        "MEsalmon"        "MEmidnightblue"  "MEplum1"         "MEcoral1"       
+  #[9] "MEsalmon4"       "MEblue"          "MEred"           "MEorange"     
+Pro_RE22_S4_moduleTraitCor_Pval_df_sig_list <- Pro_RE22_S4_moduleTraitCor_Pval_df_sig$mod_names
+  #[1] "MEdarkolivegreen" "MEdarkorange"     "MEcyan"           "MEgreenyellow"    "MEmagenta"        "MEgreen"          "MElightgreen"     "MEsaddlebrown" 
+Pro_RE22_moduleTraitCor_Pval_df_sig_list <- Pro_RE22_moduleTraitCor_Pval_df_sig$mod_names
+  # [1] "MEdarkseagreen4"  "MEdarkolivegreen" "MEcyan"           "MEmagenta"        "MEgreen"          "MElightgreen"     "MEsaddlebrown"    "MElavenderblush3"
+  # [9] "MEnavajowhite2"   "MEpink"           "MElightpink4"     "MEcoral2"         "MEmaroon"         "MEdarkred"        "MEdarkgreen"      "MEyellow"        
+  #[17] "MEgrey"   
+
+Pro_RE22_MEmediumpurple3 <- colnames(Pro_RE22_dds_rlog_matrix_common)[Pro_RE22_moduleColors == "mediumpurple3"]
+Pro_RE22_MEblack <- colnames(Pro_RE22_dds_rlog_matrix_common)[Pro_RE22_moduleColors == "black"    ]
+Pro_RE22_MEsteelblue <- colnames(Pro_RE22_dds_rlog_matrix_common)[Pro_RE22_moduleColors == "steelblue"   ]
+Pro_RE22_MEpurple <- colnames(Pro_RE22_dds_rlog_matrix_common)[Pro_RE22_moduleColors == "purple"      ]
+Pro_RE22_MEsalmon <- colnames(Pro_RE22_dds_rlog_matrix_common)[Pro_RE22_moduleColors == "salmon"      ]
+Pro_RE22_MEmidnightblue <- colnames(Pro_RE22_dds_rlog_matrix_common)[Pro_RE22_moduleColors == "midnightblue" ]
+Pro_RE22_MEplum1 <- colnames(Pro_RE22_dds_rlog_matrix_common)[Pro_RE22_moduleColors == "plum1"        ]
+Pro_RE22_MEcoral1 <- colnames(Pro_RE22_dds_rlog_matrix_common)[Pro_RE22_moduleColors == "coral1"       ]
+Pro_RE22_MEsalmon4 <- colnames(Pro_RE22_dds_rlog_matrix_common)[Pro_RE22_moduleColors == "salmon4"    ]
+Pro_RE22_MEblue <- colnames(Pro_RE22_dds_rlog_matrix_common)[Pro_RE22_moduleColors == "blue"      ]
+Pro_RE22_MEred <- colnames(Pro_RE22_dds_rlog_matrix_common)[Pro_RE22_moduleColors == "red"     ]
+Pro_RE22_MEorange <- colnames(Pro_RE22_dds_rlog_matrix_common)[Pro_RE22_moduleColors == "orange"     ]
+
+Pro_RE22_MEdarkolivegreen <- colnames(Pro_RE22_dds_rlog_matrix_common)[Pro_RE22_moduleColors == "darkolivegreen" ]
+Pro_RE22_MEdarkorange <- colnames(Pro_RE22_dds_rlog_matrix_common)[Pro_RE22_moduleColors == "darkorange"     ]
+Pro_RE22_MEcyan <- colnames(Pro_RE22_dds_rlog_matrix_common)[Pro_RE22_moduleColors == "cyan"          ]
+Pro_RE22_MEgreenyellow  <- colnames(Pro_RE22_dds_rlog_matrix_common)[Pro_RE22_moduleColors == "greenyellow"  ]
+Pro_RE22_MEmagenta <- colnames(Pro_RE22_dds_rlog_matrix_common)[Pro_RE22_moduleColors == "magenta"       ]
+Pro_RE22_MEgreen  <- colnames(Pro_RE22_dds_rlog_matrix_common)[Pro_RE22_moduleColors == "green"         ]
+Pro_RE22_MElightgreen <- colnames(Pro_RE22_dds_rlog_matrix_common)[Pro_RE22_moduleColors == "lightgreen"   ]
+Pro_RE22_MEsaddlebrown <- colnames(Pro_RE22_dds_rlog_matrix_common)[Pro_RE22_moduleColors == "saddlebrown" ]
+Pro_RE22_MEdarkseagreen4 <- colnames(Pro_RE22_dds_rlog_matrix_common)[Pro_RE22_moduleColors == "darkseagreen4" ]
+Pro_RE22_MEdarkolivegreen  <- colnames(Pro_RE22_dds_rlog_matrix_common)[Pro_RE22_moduleColors == "darkolivegreen" ]
+Pro_RE22_MElightgreen   <- colnames(Pro_RE22_dds_rlog_matrix_common)[Pro_RE22_moduleColors == "lightgreen"     ]
+Pro_RE22_MElavenderblush3 <- colnames(Pro_RE22_dds_rlog_matrix_common)[Pro_RE22_moduleColors == "lavenderblush3"]
+Pro_RE22_MEnavajowhite2   <- colnames(Pro_RE22_dds_rlog_matrix_common)[Pro_RE22_moduleColors == "navajowhite2"   ]
+Pro_RE22_MEpink <- colnames(Pro_RE22_dds_rlog_matrix_common)[Pro_RE22_moduleColors == "pink"        ]
+Pro_RE22_MElightpink4 <- colnames(Pro_RE22_dds_rlog_matrix_common)[Pro_RE22_moduleColors == "lightpink4"   ]
+Pro_RE22_MEcoral2 <- colnames(Pro_RE22_dds_rlog_matrix_common)[Pro_RE22_moduleColors == "coral2"      ]
+Pro_RE22_MEmaroon <- colnames(Pro_RE22_dds_rlog_matrix_common)[Pro_RE22_moduleColors == "maroon"      ]
+Pro_RE22_MEdarkred <- colnames(Pro_RE22_dds_rlog_matrix_common)[Pro_RE22_moduleColors == "darkred"    ]
+Pro_RE22_MEdarkgreen <- colnames(Pro_RE22_dds_rlog_matrix_common)[Pro_RE22_moduleColors == "darkgreen"  ]
+Pro_RE22_MEyellow <- colnames(Pro_RE22_dds_rlog_matrix_common)[Pro_RE22_moduleColors == "yellow"        ]
+Pro_RE22_MEgrey <- colnames(Pro_RE22_dds_rlog_matrix_common)[Pro_RE22_moduleColors == "grey" ]
+
+Pro_RE22_MEmediumpurple3_df <- as.data.frame(Pro_RE22_MEmediumpurple3)
+Pro_RE22_MEblack_df <- as.data.frame(Pro_RE22_MEblack)
+Pro_RE22_MEsteelblue_df <- as.data.frame(Pro_RE22_MEsteelblue)
+Pro_RE22_MEpurple_df <- as.data.frame(Pro_RE22_MEpurple)
+Pro_RE22_MEsalmon_df <- as.data.frame(Pro_RE22_MEsalmon)
+Pro_RE22_MEmidnightblue_df <- as.data.frame(Pro_RE22_MEmidnightblue)
+Pro_RE22_MEplum1_df <- as.data.frame(Pro_RE22_MEplum1)
+Pro_RE22_MEcoral1_df <- as.data.frame(Pro_RE22_MEcoral1)
+Pro_RE22_MEsalmon4_df <- as.data.frame(Pro_RE22_MEsalmon4)
+Pro_RE22_MEblue_df <- as.data.frame(Pro_RE22_MEblue)
+Pro_RE22_MEred_df <- as.data.frame(Pro_RE22_MEred)
+Pro_RE22_MEorange_df <- as.data.frame(Pro_RE22_MEorange)
+Pro_RE22_MEdarkolivegreen_df <- as.data.frame(Pro_RE22_MEdarkolivegreen )
+Pro_RE22_MEdarkorange_df <- as.data.frame(Pro_RE22_MEdarkorange)
+Pro_RE22_MEcyan_df <- as.data.frame(Pro_RE22_MEcyan)
+Pro_RE22_MEgreenyellow_df <- as.data.frame(Pro_RE22_MEgreenyellow)
+Pro_RE22_MEmagenta_df <- as.data.frame(Pro_RE22_MEmagenta)
+Pro_RE22_MEgreen_df <- as.data.frame(Pro_RE22_MEgreen)
+Pro_RE22_MElightgreen_df <- as.data.frame(Pro_RE22_MElightgreen)
+Pro_RE22_MEsaddlebrown_df <- as.data.frame(Pro_RE22_MEsaddlebrown )
+Pro_RE22_MEdarkseagreen4_df <- as.data.frame(Pro_RE22_MEdarkseagreen4)
+Pro_RE22_MEdarkolivegreen_df <- as.data.frame(Pro_RE22_MEdarkolivegreen)
+Pro_RE22_MElightgreen_df <- as.data.frame(Pro_RE22_MElightgreen)
+Pro_RE22_MElavenderblush3_df <- as.data.frame(Pro_RE22_MElavenderblush3)
+Pro_RE22_MEnavajowhite2_df <- as.data.frame(Pro_RE22_MEnavajowhite2 )
+Pro_RE22_MEpink_df <- as.data.frame(Pro_RE22_MEpink)
+Pro_RE22_MElightpink4_df <- as.data.frame(Pro_RE22_MElightpink4)
+Pro_RE22_MEcoral2_df <- as.data.frame(Pro_RE22_MEcoral2)
+Pro_RE22_MEmaroon_df <- as.data.frame(Pro_RE22_MEmaroon)
+Pro_RE22_MEdarkred_df <- as.data.frame(Pro_RE22_MEdarkred)
+Pro_RE22_MEdarkgreen_df <- as.data.frame(Pro_RE22_MEdarkgreen)
+Pro_RE22_MEyellow_df <- as.data.frame(Pro_RE22_MEyellow)
+Pro_RE22_MEgrey_df <- as.data.frame(Pro_RE22_MEgrey)
+
+colnames(Pro_RE22_MEmediumpurple3_df)[1] <- "ID"
+colnames(Pro_RE22_MEblack_df)[1] <- "ID"
+colnames(Pro_RE22_MEsteelblue_df)[1] <- "ID"
+colnames(Pro_RE22_MEpurple_df)[1] <- "ID"
+colnames(Pro_RE22_MEsalmon_df)[1] <- "ID"
+colnames(Pro_RE22_MEmidnightblue_df)[1] <- "ID"
+colnames(Pro_RE22_MEplum1_df)[1] <- "ID"
+colnames(Pro_RE22_MEcoral1_df)[1] <- "ID"
+colnames(Pro_RE22_MEsalmon4_df)[1] <- "ID"
+colnames(Pro_RE22_MEblue_df)[1] <- "ID"
+colnames(Pro_RE22_MEred_df)[1] <- "ID"
+colnames(Pro_RE22_MEorange_df)[1] <- "ID"
+colnames(Pro_RE22_MEdarkolivegreen_df)[1] <- "ID"
+colnames(Pro_RE22_MEdarkorange_df)[1] <- "ID"
+colnames(Pro_RE22_MEcyan_df)[1] <- "ID"
+colnames(Pro_RE22_MEgreenyellow_df)[1] <- "ID"
+colnames(Pro_RE22_MEmagenta_df)[1] <- "ID"
+colnames(Pro_RE22_MEgreen_df)[1] <- "ID"
+colnames(Pro_RE22_MElightgreen_df)[1] <- "ID"
+colnames(Pro_RE22_MEsaddlebrown_df)[1] <- "ID"
+colnames(Pro_RE22_MEdarkseagreen4_df)[1] <- "ID"
+colnames(Pro_RE22_MEdarkolivegreen_df)[1] <- "ID"
+colnames(Pro_RE22_MElightgreen_df)[1] <- "ID"
+colnames(Pro_RE22_MElavenderblush3_df)[1] <- "ID"
+colnames(Pro_RE22_MEnavajowhite2_df)[1] <- "ID"
+colnames(Pro_RE22_MEpink_df)[1] <- "ID"
+colnames(Pro_RE22_MElightpink4_df)[1] <- "ID"
+colnames(Pro_RE22_MEcoral2_df)[1] <- "ID"
+colnames(Pro_RE22_MEmaroon_df)[1] <- "ID"
+colnames(Pro_RE22_MEdarkred_df)[1] <- "ID"
+colnames(Pro_RE22_MEdarkgreen_df)[1] <- "ID"
+colnames(Pro_RE22_MEyellow_df)[1] <- "ID"
+colnames(Pro_RE22_MEgrey_df)[1] <- "ID"
+
+Pro_RE22_MEmediumpurple3_apop <- merge(Pro_RE22_MEmediumpurple3_df, C_vir_rtracklayer_apop_product_final, by = "ID")
+Pro_RE22_MEblack_apop <- merge(Pro_RE22_MEblack_df, C_vir_rtracklayer_apop_product_final, by = "ID")
+Pro_RE22_MEsteelblue_apop <- merge(Pro_RE22_MEsteelblue_df, C_vir_rtracklayer_apop_product_final, by = "ID")
+Pro_RE22_MEpurple_apop <- merge(Pro_RE22_MEpurple_df, C_vir_rtracklayer_apop_product_final, by = "ID")
+Pro_RE22_MEsalmon_apop <- merge(Pro_RE22_MEsalmon_df, C_vir_rtracklayer_apop_product_final, by = "ID")
+Pro_RE22_MEmidnightblue_apop <- merge(Pro_RE22_MEmidnightblue_df, C_vir_rtracklayer_apop_product_final, by = "ID")
+Pro_RE22_MEplum1_apop <- merge(Pro_RE22_MEplum1_df, C_vir_rtracklayer_apop_product_final, by = "ID")
+Pro_RE22_MEcoral1_apop <- merge(Pro_RE22_MEcoral1_df, C_vir_rtracklayer_apop_product_final, by = "ID")
+Pro_RE22_MEsalmon4_apop <- merge(Pro_RE22_MEsalmon4_df, C_vir_rtracklayer_apop_product_final, by = "ID")
+Pro_RE22_MEblue_apop <- merge(Pro_RE22_MEblue_df, C_vir_rtracklayer_apop_product_final, by = "ID")
+Pro_RE22_MEred_apop <- merge(Pro_RE22_MEred_df, C_vir_rtracklayer_apop_product_final, by = "ID")
+Pro_RE22_MEorange_apop <- merge(Pro_RE22_MEorange_df, C_vir_rtracklayer_apop_product_final, by = "ID")
+Pro_RE22_MEdarkolivegreen_apop <- merge(Pro_RE22_MEdarkolivegreen_df, C_vir_rtracklayer_apop_product_final, by = "ID")
+Pro_RE22_MEdarkorange_apop <- merge(Pro_RE22_MEdarkorange_df, C_vir_rtracklayer_apop_product_final, by = "ID")
+Pro_RE22_MEcyan_apop <- merge(Pro_RE22_MEcyan_df, C_vir_rtracklayer_apop_product_final, by = "ID")
+Pro_RE22_MEgreenyellow_apop <- merge(Pro_RE22_MEgreenyellow_df, C_vir_rtracklayer_apop_product_final, by = "ID")
+Pro_RE22_MEmagenta_apop <- merge(Pro_RE22_MEmagenta_df, C_vir_rtracklayer_apop_product_final, by = "ID")
+Pro_RE22_MEgreen_apop <- merge(Pro_RE22_MEgreen_df, C_vir_rtracklayer_apop_product_final, by = "ID")
+Pro_RE22_MElightgreen_apop <- merge(Pro_RE22_MElightgreen_df, C_vir_rtracklayer_apop_product_final, by = "ID")
+Pro_RE22_MEsaddlebrown_apop <- merge(Pro_RE22_MEsaddlebrown_df, C_vir_rtracklayer_apop_product_final, by = "ID")
+Pro_RE22_MEdarkseagreen4_apop <- merge(Pro_RE22_MEdarkseagreen4_df, C_vir_rtracklayer_apop_product_final, by = "ID")
+Pro_RE22_MEdarkolivegreen_apop <- merge(Pro_RE22_MEdarkolivegreen_df, C_vir_rtracklayer_apop_product_final, by = "ID")
+Pro_RE22_MElightgreen_apop <- merge(Pro_RE22_MElightgreen_df, C_vir_rtracklayer_apop_product_final, by = "ID")
+Pro_RE22_MElavenderblush3_apop <- merge(Pro_RE22_MElavenderblush3_df, C_vir_rtracklayer_apop_product_final, by = "ID")
+Pro_RE22_MEnavajowhite2_apop <- merge(Pro_RE22_MEnavajowhite2_df, C_vir_rtracklayer_apop_product_final, by = "ID")
+Pro_RE22_MEpink_apop <- merge(Pro_RE22_MEpink_df, C_vir_rtracklayer_apop_product_final, by = "ID")
+Pro_RE22_MElightpink4_apop <- merge(Pro_RE22_MElightpink4_df, C_vir_rtracklayer_apop_product_final, by = "ID")
+Pro_RE22_MEcoral2_apop <- merge(Pro_RE22_MEcoral2_df, C_vir_rtracklayer_apop_product_final, by = "ID")
+Pro_RE22_MEmaroon_apop <- merge(Pro_RE22_MEmaroon_df, C_vir_rtracklayer_apop_product_final, by = "ID")
+Pro_RE22_MEdarkred_apop <- merge(Pro_RE22_MEdarkred_df, C_vir_rtracklayer_apop_product_final, by = "ID")
+Pro_RE22_MEdarkgreen_apop <- merge(Pro_RE22_MEdarkgreen_df, C_vir_rtracklayer_apop_product_final, by = "ID")
+Pro_RE22_MEyellow_apop <- merge(Pro_RE22_MEyellow_df, C_vir_rtracklayer_apop_product_final, by = "ID")
+Pro_RE22_MEgrey_apop <- merge(Pro_RE22_MEgrey_df, C_vir_rtracklayer_apop_product_final, by = "ID")
+
+nrow(Pro_RE22_MEmediumpurple3_apop) # 4 Rho IFI21
+nrow(Pro_RE22_MEblack_apop) # 12 TLR6, programmed cell death protein, STAT5A
+nrow(Pro_RE22_MEsteelblue_apop) # 1 cell death-inducing p53-target protein 1
+nrow(Pro_RE22_MEpurple_apop) # 4, growth arrest and DNA damage inducible protein GADD45, TGF beta, heat shock protein 
+nrow(Pro_RE22_MEsalmon_apop) # 6, CD151, NFkB inhibition, cathepsin B, LITAF
+nrow(Pro_RE22_MEmidnightblue_apop) # 2 FADD, calpain 5
+nrow(Pro_RE22_MEplum1_apop) # 1 cathepsin L
+nrow(Pro_RE22_MEcoral1_apop) # 0
+nrow(Pro_RE22_MEsalmon4_apop) # 1 PCDP 10
+nrow(Pro_RE22_MEblue_apop) # 23 TRAF, BIRIAP, GIMAP, calpain
+nrow(Pro_RE22_MEred_apop) # 12, TNFL, IP3R, PCDP, IFI44, poly ADP polymerase, mitochondrial heat shock proteins
+nrow(Pro_RE22_MEorange_apop) # 2 MAPK, IP3R
+nrow(Pro_RE22_MEdarkolivegreen_apop) # 3 tollo
+nrow(Pro_RE22_MEdarkorange_apop) # 3 caap1
+nrow(Pro_RE22_MEcyan_apop) #7 MyD88, lymphotoxin alpha, caspase 7, tLr1, TRAF3 
+nrow(Pro_RE22_MEgreenyellow_apop) # 3 IP3R, GADD45, TLR10
+nrow(Pro_RE22_MEmagenta_apop) # bcl1, CREB, NFkB, rhoE, calpain 3
+nrow(Pro_RE22_MEgreen_apop) # 15, TRAF BIR IAP, CRADD-like, IL17, NR13 like, CD151, TNFRSF16
+nrow(Pro_RE22_MElightgreen_apop) # 6, TRAF3, JNK, caspase 8
+nrow(Pro_RE22_MEsaddlebrown_apop) #3  GADD 45, TLR2, CREB
+nrow(Pro_RE22_MEdarkseagreen4_apop) # 1 TNFAIP3
+nrow(Pro_RE22_MElavenderblush3_apop) #0
+nrow(Pro_RE22_MEnavajowhite2_apop) #0
+nrow(Pro_RE22_MEpink_apop) #9 NFkB, calpain, BIRIAP, JNK, pyrin, UNC5C, MYD88
+nrow(Pro_RE22_MElightpink4_apop) #3 STAT5A, P53 damage regulated protein 1, MAPK1
+nrow(Pro_RE22_MEcoral2_apop) #0
+nrow(Pro_RE22_MEmaroon_apop) # 1 cell death inducing p53 target
+nrow(Pro_RE22_MEdarkred_apop) # 3, TLR6, BAG, IP3R
+nrow(Pro_RE22_MEdarkgreen_apop) # 1 TLR3
+nrow(Pro_RE22_MEyellow_apop) #13 caspase8, BIRIAP, aurora kinase, PDCP 6, TLR4, TLR2, ligase CHIP, caspase9  (definitely extrinsic pathway usage)
+nrow(Pro_RE22_MEgrey_apop) # 51 GIMAP, BIRIAP, casp2,3, MAPK, TRAF, programmed cell death proteins , TLRs 
+
+## Gene relationship to trait and important modules: Gene Significance and Module Membership
+# Define variable injected 
+Pro_RE22_injection = as.data.frame(Pro_RE22_coldata_collapsed_binarize$Condition.Vibrio_coralliilyticus_RE22_exposure_6h.vs.Control_no_treatment);
+names(Pro_RE22_injection) = "challenge"
+# names (colors) of the modules
+Pro_RE22_modNames = substring(names(Pro_RE22_MEs), 3)
+Pro_RE22_geneModuleMembership = as.data.frame(cor(Pro_RE22_dds_rlog_matrix_common, Pro_RE22_MEs, use = "p"))
+Pro_RE22_MMPvalue = as.data.frame(corPvalueStudent(as.matrix(Pro_RE22_geneModuleMembership), Pro_RE22_nSamples))
+
+names(Pro_RE22_geneModuleMembership) = paste("MM", Pro_RE22_modNames, sep="")
+names(Pro_RE22_MMPvalue) = paste("p.MM", Pro_RE22_modNames, sep="")
+
+Pro_RE22_geneTraitSignificance = as.data.frame(cor(Pro_RE22_dds_rlog_matrix_common,Pro_RE22_injection, use = "p"))
+Pro_RE22_GSPvalue = as.data.frame(corPvalueStudent(as.matrix(Pro_RE22_geneTraitSignificance), Pro_RE22_nSamples))
+
+names(Pro_RE22_geneTraitSignificance) = paste("GS.", names(Pro_RE22_injection), sep="")
+names(Pro_RE22_GSPvalue) = paste("p.GS.", names(Pro_RE22_injection), sep="")
+
+## Intramodular analysis: identifying genes with high GS and MM
+Pro_RE22_module = "grey"  # poor correlation
+Pro_RE22_column = match(Pro_RE22_module, Pro_RE22_modNames)
+Pro_RE22_moduleGenes = Pro_RE22_moduleColors==Pro_RE22_module
+sizeGrWindow(7, 7);
+par(mfrow = c(1,1));
+verboseScatterplot(abs(Pro_RE22_geneModuleMembership[Pro_RE22_moduleGenes, Pro_RE22_column]),
+                   abs(Pro_RE22_geneTraitSignificance[Pro_RE22_moduleGenes, 1]),
+                   xlab = paste("Module Membership in", Pro_RE22_module, "module"),
+                   ylab = "Gene significance for challenge",
+                   main = paste("Module membership vs. gene significance\n"),
+                   cex.main = 1.2, cex.lab = 1.2, cex.axis = 1.2, col = Pro_RE22_module) # perfect correlation...something has probably gone wrong here!
+
+
+## IDENTIFY HUB GENES IN EACH SIG MODULE ##
+Pro_RE22_colorh = c("MEmediumpurple3_apop","MEblack_apop",
+"MEsteelblue_apop","MEpurple_apop","MEsalmon_apop","MEmidnightblue","MEplum1 ","MEcoral1",
+"MEsalmon4","MEblue","MEred","MEorange","MEdarkolivegreen","MEdarkorange","MEcyan","MEgreenyellow",
+"MEmagenta","MEgreen","MElightgreen","MEsaddlebrown","MEdarkseagreen4","MElavenderblush3","MEnavajowhite",
+"MEpink","MElightpink4","MEcoral2","MEmaroon","MEdarkred","MEdarkgreen","MEyellow","MEgrey")
+          
+Pro_RE22_Module_hub_genes <- chooseTopHubInEachModule(
+  Pro_RE22_dds_rlog_matrix_common, 
+  Pro_RE22_colorh, 
+  power = 2,  # power used for the adjacency network
+  type = "signed hybrid", 
+  corFnc = "bicor"
+)
+class(Pro_RE22_Module_hub_genes)
+Pro_RE22_Module_hub_genes_df <- as.data.frame(Pro_RE22_Module_hub_genes)
+colnames(Pro_RE22_Module_hub_genes_df)[1] <- "ID"
+Pro_RE22_Module_hub_genes <- merge(Pro_RE22_Module_hub_genes_df, C_vir_rtracklayer, by = "ID")
+nrow(Pro_RE22_Module_hub_genes) 
+# includes programmed cell death protein 6 as a hub gene, apoptosis regulatory protein Siva 
+
+#### MEASURE MODULE PRESERVATION BETWEEN C. VIRGINICA DIFFERENT EXPERIMENTS ####
+
+### 1. Are the same module identifiers matched to the same genes across experiments?
+
+Pro_RE22_cyan <- colnames(Pro_RE22_dds_rlog_matrix_common)[Pro_RE22_moduleColors == "cyan"       ]
+ROD_Res_cyan <- colnames(ROD_Resistant_dds_rlog_matrix_common)[ROD_Res_moduleColors == "cyan"       ]
+ROD_Sus_cyan <- colnames(ROD_Susceptible_dds_rlog_matrix_common)[ROD_Sus_moduleColors == "cyan"       ]
+
+head(Pro_RE22_cyan)
+
+all(head(Pro_RE22_cyan) %in% ROD_Res_cyan) # FALSE, seems like the same genes were not assigned to same modules 
+
+## Which modules match one another?
+# Load matchModules function 
+matchModules <- function (gn1, mod1, gn2, mod2, omit="grey", allColors = standardColors()){
+  ## This function converts the module colors from network 2 to the module colors
+  ##  of best match in network 1, given the gene names (gn1,gn2) and corresponding
+  ##  module assignments (mod1,mod2).  Non-overlapping modules will have unique labels.
+  ## omit      = colors that should not be changed
+  ## allColors = color set to choose from (default is all standardColors)
+  
+  # Write out data from network 2 then read it back in to get module overlaps
+  out2 = cbind(gn2, mod2);
+  colnames(out2) = c("Gene","Var1")
+  write.csv(out2,"eraseMe.csv",row.names=FALSE)
+  overlaps = userListEnrichment(gn1, mod1, "eraseMe.csv", "X", "eraseMe.csv")
+  c1 = as.character(overlaps$sigOverlaps[,1])
+  c2 = as.character(overlaps$sigOverlaps[,2]);
+  c2 = substr(c2,3,nchar(c2))
+  kp = (!is.element(c1,omit))&(!is.element(c2,omit))
+  c1 = c1[kp];  c2 = c2[kp]
+  
+  # Change the labels in network 2 to the best overlapping module in network 1
+  cOld <- cNew <- changed <- sort(unique(mod2))
+  cUnused = setdiff(allColors,union(mod1,mod2))
+  while(length(c1)>0){
+    cNew[cOld==c2[1]]=c1[1]
+    changed[cOld==c2[1]]="YES"
+    kp = (c1!=c1[1])&(c2!=c2[1])
+    c1 = c1[kp];  c2 = c2[kp]
+  }
+  changed[is.element(cOld,omit)] = "YES"
+  cNew[changed!="YES"] = cUnused[1:sum(changed!="YES")]
+  modOut = mod2
+  for (i in 1:length(cNew)) modOut[mod2==cOld[i]] = cNew[i]
+  write(paste("Old - New labels:",cOld,"-",cNew),"")
+  return(modOut)
+}
+
+Pro_RE22_gene <- rownames(Pro_RE22_dds_rlog_matrix_common)
+ROD_Res_gene <- rownames(ROD_Resistant_dds_rlog_matrix_common)
+ROD_Sus_gene <- rownames(ROD_Susceptible_dds_rlog_matrix_common)
+
+
+modulesB2_new = matchModules(Pro_RE22_gene, Pro_RE22_moduleColors, ROD_Res_gene, ROD_Res_moduleColors)
+# Old - New labels: black – purple # Your screen output will look like this
+# Old - New labels: blue - brown
+# Old - New labels: brown – greenyellow # etc.
+
+
+enrichmentsB2A1 = userListEnrichment(GeneAB,modulesB2,"kMEtable1.csv","A1","enrichmentB2_A1.csv") enrichmentsB2A1$sigOverlaps # To show the significant overlaps on the screen
+# InputCategories UserDefinedCategories CorrectedPvalues
+# pOut "blue"
+# pOut "turquoise"
+# pOut "green"
+"A1_brown" "A1_yellow" "A1_brown"
+"2.41636641189253e-59" "1.51940862185272e-43" "3.67833377321179e-41" # etc.
+
+
+
+## 1. MEASURE OVERLAP BETWEEN RE22 AND RODs
+
+# Assess whether RE22 moduldes are preserved
+RE22_ROD_multiExpr = list(Pro_RE22=list(data=t(Pro_RE22_dds_rlog_matrix_common)),ROD_Res=list(data=t(ROD_Resistant_coldata_collapsed_binarize)),
+                          ROD_Res=list(data=t(ROD_Susceptible_coldata_collapsed_binarize)))
+multiColor = list(Pro_RE22 = Pro_RE22_modules) 
+mp=modulePreservation(multiExpr,multiColor,
+                      referenceNetworks=1,
+                      verbose=3,networkType="signed",
+                      nPermutations=30
+                      ,maxGoldModuleSize=100,
+                      maxModuleSize=20000) 
+stats = mp$preservation$Z$ref.A1$inColumnsAlsoPresentIn.A2 
+stats[order(-stats[,2]),c(1:2)]
+
+
 
 ## IDENTIFY MODULES ENRICHED FOR APOPTOSIS USING anRichment
 
 
 
-#### MEASURE MODULE PRESERVATION BETWEEN DIFFERENT EXPERIMENTS ####
+
 
 
 
