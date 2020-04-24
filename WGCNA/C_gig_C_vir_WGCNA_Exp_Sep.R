@@ -1798,7 +1798,7 @@ Pro_RE22_RE22_moduleTraitCor_Pval_df_sig_list <- Pro_RE22_RE22_moduleTraitCor_Pv
 Pro_RE22_RE22_moduleTraitCor_Pval_df_sig_list_rm <- str_remove(Pro_RE22_RE22_moduleTraitCor_Pval_df_sig_list, "ME")
 
 # Use function to lookup all apop names for each significant module
-names(Pro_RE22_RE22_moduleTraitCor_Pval_df_sig_list_rm) <- c("turquoise", "cyan" ,     "red",  "darkolivegreen"  )
+names(Pro_RE22_RE22_moduleTraitCor_Pval_df_sig_list_rm) <- c("turquoise",           "pink",      "lightcyan", "darkolivegreen")
 matrix_common= Pro_RE22_dds_rlog_matrix_common_RE22
 moduleColors= Pro_RE22_RE22_moduleColors
 lookup =   C_vir_rtracklayer_apop_product_final
@@ -1859,264 +1859,232 @@ C_vir_all_exp_mod_sig_apop_positive <- C_vir_all_exp_mod_sig_apop %>% filter(mod
 # Column names agree between the datasets, so we can go ahead and measure module preservation between all 
 ## 1. MEASURE OVERLAP BETWEEN RE22 AND RODs
 
-## PRO_RE22 (all, not separated) VS. ROD RES ##
-#Pro_RE22_ROD_multiExpr = list(Pro_RE22=list(data=Pro_RE22_dds_rlog_matrix_common),ROD_Res=list(data=ROD_Resistant_dds_rlog_matrix_common))
-#Pro_RE22_multiColor = list(Pro_RE22 = Pro_RE22_moduleColors) 
-#
-##Load module preservation calculations
-##Pro_RE22_ROD_Res_module_preservation = load(file="/Volumes/My Passport for Mac/Chapter1_Apoptosis_Paper_Saved_DESeq_WGCNA_Data/Pro_RE22_ROD_Res_module_preservation.RData")
-#
-##Pro_RE22_mp =modulePreservation(Pro_RE22_ROD_multiExpr, Pro_RE22_multiColor,
-##                      referenceNetworks=1,
-##                      verbose=3,
-##                      networkType="signed hybrid", # use same signed hybrid as before
-##                      corFnc = "bicor", # use recommended bicor as before 
-##                      nPermutations=100,
-##                      randomSeed = 1, # recommended in langfelder tutorial
-##                      quickCor = 0) # number between 0 and 1 specifying the handling of missing data in calculation of correlation. Zero means exact but potentially slower calculations
-#Pro_RE22_stats = Pro_RE22_mp$preservation$Z$ref.Pro_RE22$inColumnsAlsoPresentIn.ROD_Res
-#Pro_RE22_stats_order <- Pro_RE22_stats[order(-Pro_RE22_stats[,2]),c(1:2)]
-#Pro_RE22_stats_preserved <- Pro_RE22_stats_order %>% rownames_to_column("mod_name") %>% filter(Zsummary.pres > 5.0)
-#Pro_RE22_stats_MR <- Pro_RE22_mp$preservation$observed$ref.Pro_RE22$inColumnsAlsoPresentIn.ROD_Res
-#Pro_RE22_stats_MR <- Pro_RE22_stats_MR [,c("moduleSize","medianRank.pres")]
-#Pro_RE22_stats_MR_order <- Pro_RE22_stats_MR[order(Pro_RE22_stats_MR[,2]),]
-### Moderate preservation between Pro_RE22 and ROD Res
-## brown                 1000     7.8915583 (does okay on median rank)
-## red                   1000     7.1531975 (not in top twenty rank of module preservation)
-## steelblue              175     6.5939398 (steelblue is the top module in the ranking)
-## black                 1000     6.3774745 (not in top twenty)
-## midnightblue           527     5.7505155 (in top twenty)
-## purple                 731     5.7203439 (is in the top twenty)
-## blue                  1000     5.1007921 (not in top twenty)
-## pink                   787     5.0031835 (pink not in top twenty)
-#
-## Save module preservation calculation
-## save(Pro_RE22_mp, file="/Volumes/My Passport for Mac/Chapter1_Apoptosis_Paper_Saved_DESeq_WGCNA_Data/Pro_RE22_ROD_Res_module_preservation.RData")
-#
-## Plot module preservation
-## remember - low median rank means high preservation
-#ggplot(Pro_RE22_stats_MR_order_less20 , aes(x= moduleSize, y = medianRank.pres, color = mod_name)) + 
-#  geom_point() + xlab("Module Size") + ylab("Median Rank") + geom_text(aes(label=mod_name))
-## mod_names moduleSize medianRank.pres
-## 1    steelblue        175               1
-## 2       coral1         37               5
-## 3    honeydew1         38               5
-## 4 navajowhite2         49               6
-## 5       brown4         95               9
-#
+# PRO_RE22 (all, not separated) VS. ROD RES ##
+Pro_RE22_ROD_multiExpr = list(Pro_RE22=list(data=Pro_RE22_dds_rlog_matrix_common),ROD_Res=list(data=ROD_Resistant_dds_rlog_matrix_common))
+Pro_RE22_multiColor = list(Pro_RE22 = Pro_RE22_moduleColors) 
+
+#Load module preservation calculations
+#Pro_RE22_ROD_Res_module_preservation = load(file="/Volumes/My Passport for Mac/Chapter1_Apoptosis_Paper_Saved_DESeq_WGCNA_Data/Pro_RE22_ROD_Res_module_preservation.RData")
+
+#Pro_RE22_mp =modulePreservation(Pro_RE22_ROD_multiExpr, Pro_RE22_multiColor,
+#                      referenceNetworks=1,
+#                      verbose=3,
+#                      networkType="signed hybrid", # use same signed hybrid as before
+#                      corFnc = "bicor", # use recommended bicor as before 
+#                      nPermutations=100,
+#                      randomSeed = 1, # recommended in langfelder tutorial
+#                      quickCor = 0) # number between 0 and 1 specifying the handling of missing data in calculation of correlation. Zero means exact but potentially slower calculations
+Pro_RE22_stats = Pro_RE22_mp$preservation$Z$ref.Pro_RE22$inColumnsAlsoPresentIn.ROD_Res
+Pro_RE22_stats_order <- Pro_RE22_stats[order(-Pro_RE22_stats[,2]),c(1:2)]
+Pro_RE22_stats_preserved <- Pro_RE22_stats_order %>% rownames_to_column("mod_name") %>% filter(Zsummary.pres > 5.0)
+Pro_RE22_stats_MR <- Pro_RE22_mp$preservation$observed$ref.Pro_RE22$inColumnsAlsoPresentIn.ROD_Res
+Pro_RE22_stats_MR <- Pro_RE22_stats_MR [,c("moduleSize","medianRank.pres")]
+Pro_RE22_stats_MR_order <- Pro_RE22_stats_MR[order(Pro_RE22_stats_MR[,2]),]
+## Moderate preservation between Pro_RE22 and ROD Res
+# brown                 1000     7.8915583 (does okay on median rank)
+# red                   1000     7.1531975 (not in top twenty rank of module preservation)
+# steelblue              175     6.5939398 (steelblue is the top module in the ranking)
+# black                 1000     6.3774745 (not in top twenty)
+# midnightblue           527     5.7505155 (in top twenty)
+# purple                 731     5.7203439 (is in the top twenty)
+# blue                  1000     5.1007921 (not in top twenty)
+# pink                   787     5.0031835 (pink not in top twenty)
+
+# Save module preservation calculation
+# save(Pro_RE22_mp, file="/Volumes/My Passport for Mac/Chapter1_Apoptosis_Paper_Saved_DESeq_WGCNA_Data/Pro_RE22_ROD_Res_module_preservation.RData")
+
+# Plot module preservation
+# remember - low median rank means high preservation
+ggplot(Pro_RE22_stats_MR_order_less20 , aes(x= moduleSize, y = medianRank.pres, color = mod_name)) + 
+  geom_point() + xlab("Module Size") + ylab("Median Rank") + geom_text(aes(label=mod_name))
+# mod_names moduleSize medianRank.pres
+# 1    steelblue        175               1
+# 2       coral1         37               5
+# 3    honeydew1         38               5
+# 4 navajowhite2         49               6
+# 5       brown4         95               9
+
 #Pro_RE22_stats_preserved_Zsum_medianRank <- merge(Pro_RE22_stats_MR_order_less20, Pro_RE22_stats_preserved)
-#
-## Were any of these preserved modules significant in Pro_RE22 or ROD_Res?
-#Pro_RE22_RI_SIG_ROD_Res_preserved_all <- Pro_RE22_stats_preserved[Pro_RE22_stats_preserved$mod_name %in% Pro_RE22_RI_moduleTraitCor_Pval_df_sig_list_rm,]
-#Pro_RE22_S4_SIG_ROD_Res_preserved_all <- Pro_RE22_stats_preserved[Pro_RE22_stats_preserved$mod_name %in% Pro_RE22_S4_moduleTraitCor_Pval_df_sig_list_rm,]
-## midnightblue, blue, red 
-#Pro_RE22_RE22_SIG_ROD_Res_preserved_all <- Pro_RE22_stats_preserved[Pro_RE22_stats_preserved$mod_name %in% Pro_RE22_moduleTraitCor_Pval_df_sig_list_rm,]
-##  black       1000      6.377475
-## 2         blue       1000      5.100792
-## 3 midnightblue        527      5.750516
-## 4         pink        787      5.003184
-## 5       purple        731      5.720344
-## 6          red       1000      7.153197
-## 7    steelblue        175      6.593940
-#Pro_RE22_ROD_RES_SIG_preserved_all <- Pro_RE22_stats_preserved[Pro_RE22_stats_preserved$mod_name %in% ROD_Res_moduleTraitCor_Pval_df_sig_list_rm,]
-## 0 
-#
-## Conclusions: 4 conserved between ROD_Res challenge and Pro_RE22, but are only significant with the RE22 and probiotic challenges. 
-#  # No overlap in ones significant in both experiments with disease challenge 
-#
-### Pro_RE22_RE22 VS. ROD_Res ##
-#Pro_RE22_RE22_ROD_multiExpr = list(Pro_RE22_RE22=list(data=Pro_RE22_dds_rlog_matrix_common_RE22),ROD_Res=list(data=ROD_Resistant_dds_rlog_matrix_common))
-#Pro_RE22_RE22_multiColor = list(Pro_RE22_RE22 = Pro_RE22_RE22_moduleColors) 
-## Pro_RE22_ROD_mp =modulePreservation(Pro_RE22_RE22_ROD_multiExpr, Pro_RE22_RE22_multiColor,
-##                                 referenceNetworks=1,
-##                                 verbose=3,
-##                                 networkType="signed hybrid", # use same signed hybrid as before
-##                                 corFnc = "bicor", # use recommended bicor as before 
-##                                 nPermutations=100,
-##                                 randomSeed = 1, # recommended in langfelder tutorial
-##                                 quickCor = 0) # number between 0 and 1 specifying the handling of missing data in calculation of correlation. Zero means exact but potentially slower calculations
-#Pro_RE22_RE22_ROD_Res_stats = Pro_RE22_ROD_mp$preservation$Z$ref.Pro_RE22_RE22$inColumnsAlsoPresentIn.ROD_Res
-#Pro_RE22_RE22_ROD_Res_stats_order <- Pro_RE22_RE22_ROD_Res_stats[order(-Pro_RE22_RE22_ROD_Res_stats[,2]),c(1:2)]
-#Pro_RE22_RE22_ROD_Res_stats_preserved <- Pro_RE22_RE22_ROD_Res_stats_order %>% rownames_to_column("mod_name") %>% filter(Zsummary.pres > 5.0)
-## green module is preserved
-#Pro_RE22_RE22_ROD_Res_stats_MR <- Pro_RE22_ROD_mp$preservation$observed$ref.Pro_RE22_RE22$inColumnsAlsoPresentIn.ROD_Res
-#Pro_RE22_RE22_ROD_Res_stats_MR <- Pro_RE22_RE22_ROD_Res_stats_MR [,c("moduleSize","medianRank.pres")]
-#Pro_RE22_RE22_ROD_Res_stats_MR_order <-Pro_RE22_RE22_ROD_Res_stats_MR[order(-Pro_RE22_RE22_ROD_Res_stats_MR [,2]),]
-#
-## Save module preservation calculation
-## save(Pro_RE22_ROD_mp, file="/Volumes/My Passport for Mac/Chapter1_Apoptosis_Paper_Saved_DESeq_WGCNA_Data/Pro_RE22_RE22_ROD_Res_module_preservation.RData")
-#
-## Plot module preservation
-## remember - low median rank means high preservation
-#ggplot(Pro_RE22_RE22_ROD_Res_stats_MR_order, aes(x= moduleSize, y = medianRank.pres, color = mod_name)) + 
-#  geom_point() + xlab("Module Size") + ylab("Median Rank") + geom_text(aes(label=mod_name))
-#
-## were any of the preserved modules also significant?
-#Pro_RE22_RE22_only_SIG_ROD_Res_preserved <-Pro_RE22_RE22_ROD_Res_stats_preserved [Pro_RE22_RE22_ROD_Res_stats_preserved $mod_name %in% Pro_RE22_RE22_moduleTraitCor_Pval_df_sig_list_rm,]
-## 0
-#Pro_RE22_RE22_only_ROD_RES_SIG_preserved <- Pro_RE22_RE22_ROD_Res_stats_preserved [Pro_RE22_RE22_ROD_Res_stats_preserved $mod_name %in% ROD_Res_moduleTraitCor_Pval_df_sig_list_rm,]
-## 0
-#
-#
-#
-###  ROD_Res VS. Pro_RE22_RE22 REVERSED ## RUNNING NOW need to code for comparing to network 2
-#Pro_RE22_RE22_ROD_RES_multiExpr = list(Pro_RE22_RE22=list(data=Pro_RE22_dds_rlog_matrix_common_RE22),ROD_Res=list(data=ROD_Resistant_dds_rlog_matrix_common))
-## Names for the two sets
-#setLabels = c("Pro_RE22_RE22", "ROD_Res")
-## Important: components of multiExpr must carry identificating names
-#names(Pro_RE22_RE22_ROD_RES_multiExpr) = setLabels
-## Create an object (list) holding the module labels for each set:
-#colorList = list(Pro_RE22_RE22_moduleColors, ROD_Res_moduleColors)
-## Components of the list must be named so that the names can be matched to the names of multiExpr
-#names(colorList) = setLabels
-#Pro_RE22_RE22_multiColor = list(Pro_RE22_RE22 = Pro_RE22_RE22_moduleColors) 
-#Pro_RE22_ROD_Res_BOTH_mp = modulePreservation(Pro_RE22_RE22_ROD_RES_multiExpr, colorList ,
-#                                              referenceNetworks=c(1:2),
-#                                              verbose=3,
-#                                              networkType="signed hybrid", # use same signed hybrid as before
-#                                              corFnc = "bicor", # use recommended bicor as before 
-#                                              nPermutations=100,
-#                                              randomSeed = 1, # recommended in langfelder tutorial
-#                                              quickCor = 0) # number between 0 and 1 specifying the handling of missing data in calculation of correlation. Zero means exact but potentially slower calculations
-## save results
-#save(Pro_RE22_ROD_Res_BOTH_mp, file="/Volumes/My Passport for Mac/Chapter1_Apoptosis_Paper_Saved_DESeq_WGCNA_Data/Pro_RE22_ROD_Res_BOTH_mp_network.RData")
-#
-#Pro_RE22_RE22_ROD_Res_BOTHstats = Pro_RE22_ROD_mp$preservation$Z$ref.Pro_RE22_RE22$inColumnsAlsoPresentIn.ROD_Res
-#Pro_RE22_RE22_ROD_Res_BOTHstats_order <- Pro_RE22_RE22_ROD_Res_stats[order(-Pro_RE22_RE22_ROD_Res_stats[,2]),c(1:2)]
-#Pro_RE22_RE22_ROD_Res_BOTHstats_preserved <- Pro_RE22_RE22_ROD_Res_stats_order %>% rownames_to_column("mod_name") %>% filter(Zsummary.pres > 5.0)
-## green module is preserved
-#Pro_RE22_RE22_ROD_Res_stats_MR <- Pro_RE22_ROD_mp$preservation$observed$ref.Pro_RE22_RE22$inColumnsAlsoPresentIn.ROD_Res
-#Pro_RE22_RE22_ROD_Res_stats_MR <- Pro_RE22_RE22_ROD_Res_stats_MR [,c("moduleSize","medianRank.pres")]
-#Pro_RE22_RE22_ROD_Res_stats_MR_order <-Pro_RE22_RE22_ROD_Res_stats_MR[order(-Pro_RE22_RE22_ROD_Res_stats_MR [,2]),]
-#
-## Save module preservation calculation
-## save(Pro_RE22_ROD_mp, file="/Volumes/My Passport for Mac/Chapter1_Apoptosis_Paper_Saved_DESeq_WGCNA_Data/Pro_RE22_RE22_ROD_Res_module_preservation.RData")
-#
-## Plot module preservation
-## remember - low median rank means high preservation
-#ggplot(Pro_RE22_RE22_ROD_Res_stats_MR_order, aes(x= moduleSize, y = medianRank.pres, color = mod_name)) + 
-#  geom_point() + xlab("Module Size") + ylab("Median Rank") + geom_text(aes(label=mod_name))
-#
-## were any of the preserved modules also significant?
-#Pro_RE22_RE22_only_SIG_ROD_Res_preserved <-Pro_RE22_RE22_ROD_Res_stats_preserved [Pro_RE22_RE22_ROD_Res_stats_preserved $mod_name %in% Pro_RE22_RE22_moduleTraitCor_Pval_df_sig_list_rm,]
-## 0
-#Pro_RE22_RE22_only_ROD_RES_SIG_preserved <- Pro_RE22_RE22_ROD_Res_stats_preserved [Pro_RE22_RE22_ROD_Res_stats_preserved $mod_name %in% ROD_Res_moduleTraitCor_Pval_df_sig_list_rm,]
-## 0
-#
-### Pro_RE22 (all not separated) vs. ROD_Sus modules ##
-# Pro_RE22_Sus_multiExpr = list(Pro_RE22=list(data=Pro_RE22_dds_rlog_matrix_common),ROD_Sus=list(data=ROD_Susceptible_dds_rlog_matrix_common))
-#
-##Load module preservation calculations
-##Pro_RE22_ROD_Sus_module_preservation = load(file="/Volumes/My Passport for Mac/Chapter1_Apoptosis_Paper_Saved_DESeq_WGCNA_Data/Pro_RE22_ROD_Sus_module_preservation.RData")
-#
-## Pro_RE22_Sus_mp =modulePreservation(Pro_RE22_Sus_multiExpr, Pro_RE22_multiColor,
-##                                 referenceNetworks=1,
-##                                 verbose=3,
-##                                 networkType="signed hybrid", # use same signed hybrid as before
-##                                 corFnc = "bicor", # use recommended bicor as before 
-##                                 nPermutations=100,
-##                                 randomSeed = 1, # recommended in langfelder tutorial
-##                                 quickCor = 0) # number between 0 and 1 specifying the handling of missing data in calculation of correlation. Zero means exact but potentially slower calculations
-#Pro_RE22_Sus_stats = Pro_RE22_Sus_mp$preservation$Z$ref.Pro_RE22$inColumnsAlsoPresentIn.ROD_Sus 
-#Pro_RE22_Sus_stats_order <- Pro_RE22_Sus_stats[order(-Pro_RE22_Sus_stats[,2]),c(1:2)]
-#Pro_RE22_Sus_stats_preserved <- Pro_RE22_Sus_stats_order %>% rownames_to_column("mod_name") %>% filter(Zsummary.pres > 5.0)
-##mod_name moduleSize Zsummary.pres
-##1      red       1000      7.327336 (good median rank)
-##2     blue       1000      5.772638 (good median rank)
-##3    brown       1000      5.070500 (bad median rank)
-#
-#Pro_RE22_Sus_stats_MR <- Pro_RE22_Sus_mp$preservation$observed$ref.Pro_RE22$inColumnsAlsoPresentIn.ROD_Sus
-#Pro_RE22_Sus_stats_MR <- Pro_RE22_Sus_stats_MR [,c("moduleSize","medianRank.pres")]
-#Pro_RE22_Sus_stats_MR_order <- Pro_RE22_Sus_stats_MR[order(Pro_RE22_Sus_stats_MR[,2]),]
-#Pro_RE22_Sus_stats_MR_order_less20 <- Pro_RE22_Sus_stats_MR_order %>% rownames_to_column("mod_name") %>% filter(medianRank.pres < 20)
-#
-## Save module preservation calculation
-##save(Pro_RE22_Sus_mp, file="/Volumes/My Passport for Mac/Chapter1_Apoptosis_Paper_Saved_DESeq_WGCNA_Data/Pro_RE22_ROD_Sus_module_preservation.RData")
-#
-## Plot module preservation
-## remember - low median rank means high preservation
-#ggplot(Pro_RE22_Sus_stats_MR_order_less20 , aes(x= moduleSize, y = medianRank.pres, color = mod_name)) + 
-# geom_point() + xlab("Module Size") + ylab("Median Rank") + geom_text(aes(label=mod_name))
-#
-#Pro_RE22_Sus_stats_preserved_Zsum_medianRank <- merge(Pro_RE22_Sus_stats_MR_order_less20, Pro_RE22_Sus_stats_preserved)
-## blue, red (brown )
-#
-#Pro_RE22_RI_SIG_ROD_Sus_preserved_all <- Pro_RE22_Sus_stats_preserved[Pro_RE22_Sus_stats_preserved$mod_name %in% Pro_RE22_RI_moduleTraitCor_Pval_df_sig_list_rm,]
-## 1      red       1000      7.327336
-## 2     blue       1000      5.772638
-#Pro_RE22_S4_SIG_ROD_Sus_preserved_all <- Pro_RE22_Sus_stats_preserved[Pro_RE22_Sus_stats_preserved$mod_name %in%  Pro_RE22_S4_moduleTraitCor_Pval_df_sig_list_rm,]
-## 1      red       1000      7.327336
-## 2     blue       1000      5.772638
-#Pro_RE22_RE22_SIG_ROD_Sus_preserved_all <- Pro_RE22_Sus_stats_preserved[Pro_RE22_Sus_stats_preserved$mod_name %in%  Pro_RE22_moduleTraitCor_Pval_df_sig_list_rm,]
-## 1      red       1000      7.327336
-## 2     blue       1000      5.772638
-#Pro_RE22_ROD_SUS_SIG_preserved_all <- Pro_RE22_Sus_stats_preserved[Pro_RE22_Sus_stats_preserved$mod_name %in%  ROD_Sus_moduleTraitCor_Pval_df_sig_list_rm,]
-## brown
+
+# Were any of these preserved modules significant in Pro_RE22 or ROD_Res?
+Pro_RE22_RI_SIG_ROD_Res_preserved_all <- Pro_RE22_stats_preserved[Pro_RE22_stats_preserved$mod_name %in% Pro_RE22_RI_moduleTraitCor_Pval_df_sig_list_rm,]
+Pro_RE22_S4_SIG_ROD_Res_preserved_all <- Pro_RE22_stats_preserved[Pro_RE22_stats_preserved$mod_name %in% Pro_RE22_S4_moduleTraitCor_Pval_df_sig_list_rm,]
+# midnightblue, blue, red 
+Pro_RE22_RE22_SIG_ROD_Res_preserved_all <- Pro_RE22_stats_preserved[Pro_RE22_stats_preserved$mod_name %in% Pro_RE22_moduleTraitCor_Pval_df_sig_list_rm,]
+#  black       1000      6.377475
+# 2         blue       1000      5.100792
+# 3 midnightblue        527      5.750516
+# 4         pink        787      5.003184
+# 5       purple        731      5.720344
+# 6          red       1000      7.153197
+# 7    steelblue        175      6.593940
+Pro_RE22_ROD_RES_SIG_preserved_all <- Pro_RE22_stats_preserved[Pro_RE22_stats_preserved$mod_name %in% ROD_Res_moduleTraitCor_Pval_df_sig_list_rm,]
+# 0 
+
+# Conclusions: 4 conserved between ROD_Res challenge and Pro_RE22, but are only significant with the RE22 and probiotic challenges. 
+  # No overlap in ones significant in both experiments with disease challenge 
+
+## Pro_RE22_RE22 VS. ROD_Res ##
+Pro_RE22_RE22_ROD_multiExpr = list(Pro_RE22_RE22=list(data=Pro_RE22_dds_rlog_matrix_common_RE22),ROD_Res=list(data=ROD_Resistant_dds_rlog_matrix_common))
+Pro_RE22_RE22_multiColor = list(Pro_RE22_RE22 = Pro_RE22_RE22_moduleColors) 
+# Pro_RE22_ROD_mp =modulePreservation(Pro_RE22_RE22_ROD_multiExpr, Pro_RE22_RE22_multiColor,
+#                                 referenceNetworks=1,
+#                                 verbose=3,
+#                                 networkType="signed hybrid", # use same signed hybrid as before
+#                                 corFnc = "bicor", # use recommended bicor as before 
+#                                 nPermutations=100,
+#                                 randomSeed = 1, # recommended in langfelder tutorial
+#                                 quickCor = 0) # number between 0 and 1 specifying the handling of missing data in calculation of correlation. Zero means exact but potentially slower calculations
+Pro_RE22_RE22_ROD_Res_stats = Pro_RE22_ROD_mp$preservation$Z$ref.Pro_RE22_RE22$inColumnsAlsoPresentIn.ROD_Res
+Pro_RE22_RE22_ROD_Res_stats_order <- Pro_RE22_RE22_ROD_Res_stats[order(-Pro_RE22_RE22_ROD_Res_stats[,2]),c(1:2)]
+Pro_RE22_RE22_ROD_Res_stats_preserved <- Pro_RE22_RE22_ROD_Res_stats_order %>% rownames_to_column("mod_name") %>% filter(Zsummary.pres > 5.0)
+# green module is preserved
+Pro_RE22_RE22_ROD_Res_stats_MR <- Pro_RE22_ROD_mp$preservation$observed$ref.Pro_RE22_RE22$inColumnsAlsoPresentIn.ROD_Res
+Pro_RE22_RE22_ROD_Res_stats_MR <- Pro_RE22_RE22_ROD_Res_stats_MR [,c("moduleSize","medianRank.pres")]
+Pro_RE22_RE22_ROD_Res_stats_MR_order <-Pro_RE22_RE22_ROD_Res_stats_MR[order(-Pro_RE22_RE22_ROD_Res_stats_MR [,2]),]
+
+# Save module preservation calculation
+# save(Pro_RE22_ROD_mp, file="/Volumes/My Passport for Mac/Chapter1_Apoptosis_Paper_Saved_DESeq_WGCNA_Data/Pro_RE22_RE22_ROD_Res_module_preservation.RData")
+
+# Plot module preservation
+# remember - low median rank means high preservation
+ggplot(Pro_RE22_RE22_ROD_Res_stats_MR_order, aes(x= moduleSize, y = medianRank.pres, color = mod_name)) + 
+  geom_point() + xlab("Module Size") + ylab("Median Rank") + geom_text(aes(label=mod_name))
+
+# were any of the preserved modules also significant?
+Pro_RE22_RE22_only_SIG_ROD_Res_preserved <-Pro_RE22_RE22_ROD_Res_stats_preserved [Pro_RE22_RE22_ROD_Res_stats_preserved $mod_name %in% Pro_RE22_RE22_moduleTraitCor_Pval_df_sig_list_rm,]
+# 0
+Pro_RE22_RE22_only_ROD_RES_SIG_preserved <- Pro_RE22_RE22_ROD_Res_stats_preserved [Pro_RE22_RE22_ROD_Res_stats_preserved $mod_name %in% ROD_Res_moduleTraitCor_Pval_df_sig_list_rm,]
+# 0
+
+
+
+##  ROD_Res VS. Pro_RE22_RE22 REVERSED 
+Pro_RE22_RE22_ROD_RES_multiExpr = list(Pro_RE22_RE22=list(data=Pro_RE22_dds_rlog_matrix_common_RE22),ROD_Res=list(data=ROD_Resistant_dds_rlog_matrix_common))
+# Names for the two sets
+setLabels = c("Pro_RE22_RE22", "ROD_Res")
+# Important: components of multiExpr must carry identificating names
+names(Pro_RE22_RE22_ROD_RES_multiExpr) = setLabels
+# Create an object (list) holding the module labels for each set:
+colorList = list(Pro_RE22_RE22_moduleColors, ROD_Res_moduleColors)
+# Components of the list must be named so that the names can be matched to the names of multiExpr
+names(colorList) = setLabels
+Pro_RE22_RE22_multiColor = list(Pro_RE22_RE22 = Pro_RE22_RE22_moduleColors) 
+Pro_RE22_ROD_Res_BOTH_mp = modulePreservation(Pro_RE22_RE22_ROD_RES_multiExpr, colorList ,
+                                              referenceNetworks=c(1:2),
+                                              verbose=3,
+                                              networkType="signed hybrid", # use same signed hybrid as before
+                                              corFnc = "bicor", # use recommended bicor as before 
+                                              nPermutations=100,
+                                              randomSeed = 1, # recommended in langfelder tutorial
+                                              quickCor = 0) # number between 0 and 1 specifying the handling of missing data in calculation of correlation. Zero means exact but potentially slower calculations
+# save results
+save(Pro_RE22_ROD_Res_BOTH_mp, file="/Volumes/My Passport for Mac/Chapter1_Apoptosis_Paper_Saved_DESeq_WGCNA_Data/Pro_RE22_ROD_Res_BOTH_mp_network.RData")
+
+Pro_RE22_RE22_ROD_Res_BOTHstats = Pro_RE22_ROD_mp$preservation$Z$ref.Pro_RE22_RE22$inColumnsAlsoPresentIn.ROD_Res
+Pro_RE22_RE22_ROD_Res_BOTHstats_order <- Pro_RE22_RE22_ROD_Res_stats[order(-Pro_RE22_RE22_ROD_Res_stats[,2]),c(1:2)]
+Pro_RE22_RE22_ROD_Res_BOTHstats_preserved <- Pro_RE22_RE22_ROD_Res_stats_order %>% rownames_to_column("mod_name") %>% filter(Zsummary.pres > 5.0)
+# green module is preserved
+Pro_RE22_RE22_ROD_Res_stats_MR <- Pro_RE22_ROD_mp$preservation$observed$ref.Pro_RE22_RE22$inColumnsAlsoPresentIn.ROD_Res
+Pro_RE22_RE22_ROD_Res_stats_MR <- Pro_RE22_RE22_ROD_Res_stats_MR [,c("moduleSize","medianRank.pres")]
+Pro_RE22_RE22_ROD_Res_stats_MR_order <-Pro_RE22_RE22_ROD_Res_stats_MR[order(-Pro_RE22_RE22_ROD_Res_stats_MR [,2]),]
+
+# Save module preservation calculation
+# save(Pro_RE22_ROD_mp, file="/Volumes/My Passport for Mac/Chapter1_Apoptosis_Paper_Saved_DESeq_WGCNA_Data/Pro_RE22_RE22_ROD_Res_module_preservation.RData")
+
+# Plot module preservation
+# remember - low median rank means high preservation
+ggplot(Pro_RE22_RE22_ROD_Res_stats_MR_order, aes(x= moduleSize, y = medianRank.pres, color = mod_name)) + 
+  geom_point() + xlab("Module Size") + ylab("Median Rank") + geom_text(aes(label=mod_name))
+
+# were any of the preserved modules also significant?
+Pro_RE22_RE22_only_SIG_ROD_Res_preserved <-Pro_RE22_RE22_ROD_Res_stats_preserved [Pro_RE22_RE22_ROD_Res_stats_preserved $mod_name %in% Pro_RE22_RE22_moduleTraitCor_Pval_df_sig_list_rm,]
+# 0
+Pro_RE22_RE22_only_ROD_RES_SIG_preserved <- Pro_RE22_RE22_ROD_Res_stats_preserved [Pro_RE22_RE22_ROD_Res_stats_preserved $mod_name %in% ROD_Res_moduleTraitCor_Pval_df_sig_list_rm,]
+# 0
+
+## Pro_RE22 (all not separated) vs. ROD_Sus modules ##
+ Pro_RE22_Sus_multiExpr = list(Pro_RE22=list(data=Pro_RE22_dds_rlog_matrix_common),ROD_Sus=list(data=ROD_Susceptible_dds_rlog_matrix_common))
+
+#Load module preservation calculations
+#Pro_RE22_ROD_Sus_module_preservation = load(file="/Volumes/My Passport for Mac/Chapter1_Apoptosis_Paper_Saved_DESeq_WGCNA_Data/Pro_RE22_ROD_Sus_module_preservation.RData")
+
+# Pro_RE22_Sus_mp =modulePreservation(Pro_RE22_Sus_multiExpr, Pro_RE22_multiColor,
+#                                 referenceNetworks=1,
+#                                 verbose=3,
+#                                 networkType="signed hybrid", # use same signed hybrid as before
+#                                 corFnc = "bicor", # use recommended bicor as before 
+#                                 nPermutations=100,
+#                                 randomSeed = 1, # recommended in langfelder tutorial
+#                                 quickCor = 0) # number between 0 and 1 specifying the handling of missing data in calculation of correlation. Zero means exact but potentially slower calculations
+Pro_RE22_Sus_stats = Pro_RE22_Sus_mp$preservation$Z$ref.Pro_RE22$inColumnsAlsoPresentIn.ROD_Sus 
+Pro_RE22_Sus_stats_order <- Pro_RE22_Sus_stats[order(-Pro_RE22_Sus_stats[,2]),c(1:2)]
+Pro_RE22_Sus_stats_preserved <- Pro_RE22_Sus_stats_order %>% rownames_to_column("mod_name") %>% filter(Zsummary.pres > 5.0)
+#mod_name moduleSize Zsummary.pres
+#1      red       1000      7.327336 (good median rank)
+#2     blue       1000      5.772638 (good median rank)
+#3    brown       1000      5.070500 (bad median rank)
+
+Pro_RE22_Sus_stats_MR <- Pro_RE22_Sus_mp$preservation$observed$ref.Pro_RE22$inColumnsAlsoPresentIn.ROD_Sus
+Pro_RE22_Sus_stats_MR <- Pro_RE22_Sus_stats_MR [,c("moduleSize","medianRank.pres")]
+Pro_RE22_Sus_stats_MR_order <- Pro_RE22_Sus_stats_MR[order(Pro_RE22_Sus_stats_MR[,2]),]
+Pro_RE22_Sus_stats_MR_order_less20 <- Pro_RE22_Sus_stats_MR_order %>% rownames_to_column("mod_name") %>% filter(medianRank.pres < 20)
+
+# Save module preservation calculation
+#save(Pro_RE22_Sus_mp, file="/Volumes/My Passport for Mac/Chapter1_Apoptosis_Paper_Saved_DESeq_WGCNA_Data/Pro_RE22_ROD_Sus_module_preservation.RData")
+
+# Plot module preservation
+# remember - low median rank means high preservation
+ggplot(Pro_RE22_Sus_stats_MR_order_less20 , aes(x= moduleSize, y = medianRank.pres, color = mod_name)) + 
+ geom_point() + xlab("Module Size") + ylab("Median Rank") + geom_text(aes(label=mod_name))
+
+Pro_RE22_Sus_stats_preserved_Zsum_medianRank <- merge(Pro_RE22_Sus_stats_MR_order_less20, Pro_RE22_Sus_stats_preserved)
+# blue, red (brown )
+
+Pro_RE22_RI_SIG_ROD_Sus_preserved_all <- Pro_RE22_Sus_stats_preserved[Pro_RE22_Sus_stats_preserved$mod_name %in% Pro_RE22_RI_moduleTraitCor_Pval_df_sig_list_rm,]
+# 1      red       1000      7.327336
+# 2     blue       1000      5.772638
+Pro_RE22_S4_SIG_ROD_Sus_preserved_all <- Pro_RE22_Sus_stats_preserved[Pro_RE22_Sus_stats_preserved$mod_name %in%  Pro_RE22_S4_moduleTraitCor_Pval_df_sig_list_rm,]
+# 1      red       1000      7.327336
+# 2     blue       1000      5.772638
+Pro_RE22_RE22_SIG_ROD_Sus_preserved_all <- Pro_RE22_Sus_stats_preserved[Pro_RE22_Sus_stats_preserved$mod_name %in%  Pro_RE22_moduleTraitCor_Pval_df_sig_list_rm,]
+# 1      red       1000      7.327336
+# 2     blue       1000      5.772638
+Pro_RE22_ROD_SUS_SIG_preserved_all <- Pro_RE22_Sus_stats_preserved[Pro_RE22_Sus_stats_preserved$mod_name %in%  ROD_Sus_moduleTraitCor_Pval_df_sig_list_rm,]
+# brown
 
 ### Assess whether Pro_RE22_RE22 vs. ROD_Sus modules are preserved ##
-#Pro_RE22_RE22_ROD_Sus_multiExpr = list(Pro_RE22_RE22=list(data=Pro_RE22_dds_rlog_matrix_common_RE22),ROD_Sus=list(data=ROD_Susceptible_dds_rlog_matrix_common))
-#Pro_RE22_RE22_multiColor = list(Pro_RE22_RE22 = Pro_RE22_RE22_moduleColors) 
-## Pro_RE22_ROD_Sus_mp =modulePreservation(Pro_RE22_RE22_ROD_Sus_multiExpr, Pro_RE22_RE22_multiColor,
-##                                    referenceNetworks=1,
-##                                    verbose=3,
-##                                    networkType="signed hybrid", # use same signed hybrid as before
-##                                    corFnc = "bicor", # use recommended bicor as before 
-##                                    nPermutations=100,
-##                                    randomSeed = 1, # recommended in langfelder tutorial
-##                                    quickCor = 0) # number between 0 and 1 specifying the handling of missing data in calculation of correlation. Zero means exact but potentially slower calculations
-#Pro_RE22_ROD_Sus_stats = Pro_RE22_ROD_Sus_mp$preservation$Z$ref.Pro_RE22_RE22$inColumnsAlsoPresentIn.ROD_Sus
-#Pro_RE22_ROD_Sus_stats_order <- Pro_RE22_ROD_Sus_stats[order(-Pro_RE22_ROD_Sus_stats[,2]),c(1:2)]
-#Pro_RE22_ROD_Sus_stats_preserved <- Pro_RE22_ROD_Sus_stats_order  %>% rownames_to_column("mod_name") %>% filter(Zsummary.pres > 5.0)
-## 0 modules preserved between Pro_RE22_RE22 and the ROD Susceptible 
-#Pro_RE22_ROD_Sus_stats_MR <- Pro_RE22_ROD_Sus_mp$preservation$observed$ref.Pro_RE22_RE22$inColumnsAlsoPresentIn.ROD_Sus
-#Pro_RE22_ROD_Sus_stats_MR <- Pro_RE22_ROD_Sus_stats_MR  [,c("moduleSize","medianRank.pres")]
-#Pro_RE22_ROD_Sus_stats_MR_order <- Pro_RE22_ROD_Sus_stats_MR [order(Pro_RE22_ROD_Sus_stats_MR [,2]),]
-#
-## Save network
-## save(Pro_RE22_ROD_Sus_mp, file="/Volumes/My Passport for Mac/Chapter1_Apoptosis_Paper_Saved_DESeq_WGCNA_Data/Pro_RE22_RE22_ROD_Sus_module_preservation.RData")
-#
-## Plot module preservation
-## remember - low median rank means high preservation
-#ggplot(Pro_RE22_ROD_Sus_stats_MR_order, aes(x= moduleSize, y = medianRank.pres, color = mod_name)) + 
-#  geom_point() + xlab("Module Size") + ylab("Median Rank") + geom_text(aes(label=mod_name))
-#
-## were any of the preserved modules also significant?
-#Pro_RE22_RE22_only_SIG_ROD_Sus_preserved <- Pro_RE22_ROD_Sus_stats_preserved[Pro_RE22_ROD_Sus_stats_preserved$mod_name %in% Pro_RE22_RE22_moduleTraitCor_Pval_df_sig_list_rm,]
-##0 
-#Pro_RE22_RE22_only_ROD_Sus_SIG_preserved <- Pro_RE22_ROD_Sus_stats_preserved[Pro_RE22_ROD_Sus_stats_preserved$mod_name %in% ROD_Sus_moduleTraitCor_Pval_df_sig_list_rm,]
-##0
-#
-#Pro_RE22_RE22_ROD_Sus_multiExpr = list(Pro_RE22_RE22=list(data=Pro_RE22_dds_rlog_matrix_common_RE22),ROD_Sus=list(data=ROD_Susceptible_dds_rlog_matrix_common))
-#Pro_RE22_RE22_multiColor = list(Pro_RE22_RE22 = Pro_RE22_RE22_moduleColors) 
-## Pro_RE22_ROD_Sus_mp =modulePreservation(Pro_RE22_RE22_ROD_Sus_multiExpr, Pro_RE22_RE22_multiColor,
-##                                    referenceNetworks=1,
-##                                    verbose=3,
-##                                    networkType="signed hybrid", # use same signed hybrid as before
-##                                    corFnc = "bicor", # use recommended bicor as before 
-##                                    nPermutations=100,
-##                                    randomSeed = 1, # recommended in langfelder tutorial
-##                                    quickCor = 0) # number between 0 and 1 specifying the handling of missing data in calculation of correlation. Zero means exact but potentially slower calculations
-#Pro_RE22_ROD_Sus_stats = Pro_RE22_ROD_Sus_mp$preservation$Z$ref.Pro_RE22_RE22$inColumnsAlsoPresentIn.ROD_Sus
-#Pro_RE22_ROD_Sus_stats_order <- Pro_RE22_ROD_Sus_stats[order(-Pro_RE22_ROD_Sus_stats[,2]),c(1:2)]
-#Pro_RE22_ROD_Sus_stats_preserved <- Pro_RE22_ROD_Sus_stats_order  %>% rownames_to_column("mod_name") %>% filter(Zsummary.pres > 5.0)
-## 0 modules preserved between Pro_RE22_RE22 and the ROD Susceptible 
-#Pro_RE22_ROD_Sus_stats_MR <- Pro_RE22_ROD_Sus_mp$preservation$observed$ref.Pro_RE22_RE22$inColumnsAlsoPresentIn.ROD_Sus
-#Pro_RE22_ROD_Sus_stats_MR <- Pro_RE22_ROD_Sus_stats_MR  [,c("moduleSize","medianRank.pres")]
-#Pro_RE22_ROD_Sus_stats_MR_order <- Pro_RE22_ROD_Sus_stats_MR [order(Pro_RE22_ROD_Sus_stats_MR [,2]),]
-#
-## Save network
-## save(Pro_RE22_ROD_Sus_mp, file="/Volumes/My Passport for Mac/Chapter1_Apoptosis_Paper_Saved_DESeq_WGCNA_Data/Pro_RE22_RE22_ROD_Sus_module_preservation.RData")
-#
-## Plot module preservation
-## remember - low median rank means high preservation
-#ggplot(Pro_RE22_ROD_Sus_stats_MR_order, aes(x= moduleSize, y = medianRank.pres, color = mod_name)) + 
-#  geom_point() + xlab("Module Size") + ylab("Median Rank") + geom_text(aes(label=mod_name))
-#
-## were any of the preserved modules also significant?
-#Pro_RE22_RE22_only_SIG_ROD_Sus_preserved <- Pro_RE22_ROD_Sus_stats_preserved[Pro_RE22_ROD_Sus_stats_preserved$mod_name %in% Pro_RE22_RE22_moduleTraitCor_Pval_df_sig_list_rm,]
-##0 
-#Pro_RE22_RE22_only_ROD_Sus_SIG_preserved <- Pro_RE22_ROD_Sus_stats_preserved[Pro_RE22_ROD_Sus_stats_preserved$mod_name %in% ROD_Sus_moduleTraitCor_Pval_df_sig_list_rm,]
-##0
+Pro_RE22_RE22_ROD_Sus_multiExpr = list(Pro_RE22_RE22=list(data=Pro_RE22_dds_rlog_matrix_common_RE22),ROD_Sus=list(data=ROD_Susceptible_dds_rlog_matrix_common))
+Pro_RE22_RE22_multiColor = list(Pro_RE22_RE22 = Pro_RE22_RE22_moduleColors) 
+# Pro_RE22_ROD_Sus_mp =modulePreservation(Pro_RE22_RE22_ROD_Sus_multiExpr, Pro_RE22_RE22_multiColor,
+#                                    referenceNetworks=1,
+#                                    verbose=3,
+#                                    networkType="signed hybrid", # use same signed hybrid as before
+#                                    corFnc = "bicor", # use recommended bicor as before 
+#                                    nPermutations=100,
+#                                    randomSeed = 1, # recommended in langfelder tutorial
+#                                    quickCor = 0) # number between 0 and 1 specifying the handling of missing data in calculation of correlation. Zero means exact but potentially slower calculations
+Pro_RE22_ROD_Sus_stats = Pro_RE22_ROD_Sus_mp$preservation$Z$ref.Pro_RE22_RE22$inColumnsAlsoPresentIn.ROD_Sus
+Pro_RE22_ROD_Sus_stats_order <- Pro_RE22_ROD_Sus_stats[order(-Pro_RE22_ROD_Sus_stats[,2]),c(1:2)]
+Pro_RE22_ROD_Sus_stats_preserved <- Pro_RE22_ROD_Sus_stats_order  %>% rownames_to_column("mod_name") %>% filter(Zsummary.pres > 5.0)
+# 0 modules preserved between Pro_RE22_RE22 and the ROD Susceptible 
+Pro_RE22_ROD_Sus_stats_MR <- Pro_RE22_ROD_Sus_mp$preservation$observed$ref.Pro_RE22_RE22$inColumnsAlsoPresentIn.ROD_Sus
+Pro_RE22_ROD_Sus_stats_MR <- Pro_RE22_ROD_Sus_stats_MR  [,c("moduleSize","medianRank.pres")]
+Pro_RE22_ROD_Sus_stats_MR_order <- Pro_RE22_ROD_Sus_stats_MR [order(Pro_RE22_ROD_Sus_stats_MR [,2]),]
+
+# Save network
+# save(Pro_RE22_ROD_Sus_mp, file="/Volumes/My Passport for Mac/Chapter1_Apoptosis_Paper_Saved_DESeq_WGCNA_Data/Pro_RE22_RE22_ROD_Sus_module_preservation.RData")
+
+# Plot module preservation
+# remember - low median rank means high preservation
+ggplot(Pro_RE22_ROD_Sus_stats_MR_order, aes(x= moduleSize, y = medianRank.pres, color = mod_name)) + 
+  geom_point() + xlab("Module Size") + ylab("Median Rank") + geom_text(aes(label=mod_name))
+
+# were any of the preserved modules also significant?
+Pro_RE22_RE22_only_SIG_ROD_Sus_preserved <- Pro_RE22_ROD_Sus_stats_preserved[Pro_RE22_ROD_Sus_stats_preserved$mod_name %in% Pro_RE22_RE22_moduleTraitCor_Pval_df_sig_list_rm,]
+#0 
+Pro_RE22_RE22_only_ROD_Sus_SIG_preserved <- Pro_RE22_ROD_Sus_stats_preserved[Pro_RE22_ROD_Sus_stats_preserved$mod_name %in% ROD_Sus_moduleTraitCor_Pval_df_sig_list_rm,]
+#0
 
 ## ROD_Sus vs. Pro_RE22_RE22 ##
 Pro_RE22_RE22_ROD_Sus_rev_multiExpr = list(ROD_Sus=list(data=ROD_Susceptible_dds_rlog_matrix_common), Pro_RE22_RE22=list(data=Pro_RE22_dds_rlog_matrix_common_RE22))
@@ -2151,86 +2119,86 @@ Pro_RE22_RE22_only_SIG_ROD_Sus_rev_preserved <- Pro_RE22_ROD_Sus_rev_stats_prese
 Pro_RE22_RE22_only_ROD_Sus_SIG_rev_preserved <- Pro_RE22_ROD_Sus_rev_stats_preserved[Pro_RE22_ROD_Sus_rev_stats_preserved$mod_name %in% ROD_Sus_moduleTraitCor_Pval_df_sig_list_rm,]
 #0 
 
-### Assess whether Pro_RE22 (all not separated) and Dermo_Tol modules are preserved ##
-#Pro_RE22_Dermo_multiExpr = list(Pro_RE22=list(data=Pro_RE22_dds_rlog_matrix_common),Dermo_Tol=list(data=Dermo_Tolerant_dds_vst_matrix_common))
-#Pro_RE22_multiColor = list(Pro_RE22 = Pro_RE22_moduleColors) 
-## Load module preservation calculations
-##Pro_RE22_Dermo_Tol = load(file="/Volumes/My Passport for Mac/Chapter1_Apoptosis_Paper_Saved_DESeq_WGCNA_Data/Pro_RE22_Dermo_Tol_module_preservation.RData")
-## Pro_RE22_Dermo_mp =modulePreservation(Pro_RE22_Dermo_multiExpr, Pro_RE22_multiColor,
-##                                 referenceNetworks=1,
-##                                 verbose=3,
-##                                 networkType="signed hybrid", # use same signed hybrid as before
-##                                 corFnc = "bicor", # use recommended bicor as before 
-##                                 nPermutations=100,
-##                                 randomSeed = 1, # recommended in langfelder tutorial
-##                                 quickCor = 0) # number between 0 and 1 specifying the handling of missing data in calculation of correlation. Zero means exact but potentially slower calculations
-#Pro_RE22_Dermo_stats = Pro_RE22_Dermo_mp$preservation$Z$ref.Pro_RE22$inColumnsAlsoPresentIn.Dermo_Tol
-#Pro_RE22_Dermo_stats_order <- Pro_RE22_Dermo_stats[order(-Pro_RE22_Dermo_stats[,2]),c(1:2)]
-#Pro_RE22_Dermo_stats_preserved <- Pro_RE22_Dermo_stats_order %>% rownames_to_column("mod_name") %>% filter(Zsummary.pres > 5.0)
-## mod_name moduleSize Zsummary.pres
-## 1        salmon        615     10.598431 (high median rank)
-## 2        purple        731      9.399914 (decent median rank)
-## 3     steelblue        175      9.376713 (high median rank)
-## 4         brown       1000      9.373572 (decent median rank)
-## 5           red       1000      8.038084 (lower median rank)
-## 6     turquoise       1000      7.472569 (lower median rank)
-## 7        yellow       1000      7.446067 (lower median rank)
-## 8          blue       1000      6.243046 (lower median rank)
-## 9         green       1000      5.794057 (lower median rank)
-## 10    lightcyan        474      5.753286 (lower median rank)
-## 11 midnightblue        527      5.580933 (lower median rank)
-## 12        black       1000      5.354414 (lowest median rank in top twentry)
-#
-#Pro_RE22_Dermo_stats_MR <- Pro_RE22_Dermo_mp$preservation$observed$ref.Pro_RE22$inColumnsAlsoPresentIn.Dermo_Tol
-#Pro_RE22_Dermo_stats_MR <- Pro_RE22_Dermo_stats_MR [,c("moduleSize","medianRank.pres")]
-#Pro_RE22_Dermo_stats_MR_order <- Pro_RE22_Dermo_stats_MR[order(Pro_RE22_Dermo_stats_MR[,2]),]
-#Pro_RE22_Dermo_stats_MR_order_less20 <- Pro_RE22_Dermo_stats_MR_order %>% rownames_to_column("mod_name") %>% filter(medianRank.pres < 20)
-#
-## Save network
-##save(Pro_RE22_Dermo_mp, file="/Volumes/My Passport for Mac/Chapter1_Apoptosis_Paper_Saved_DESeq_WGCNA_Data/Pro_RE22_Dermo_Tol_module_preservation.RData")
-#
-## Plot module preservation
-## remember - low median rank means high preservation
-#ggplot(Pro_RE22_Dermo_stats_MR_order_less20 , aes(x= moduleSize, y = medianRank.pres, color = mod_name)) + 
-# geom_point() + xlab("Module Size") + ylab("Median Rank") + geom_text(aes(label=mod_name))
-#
-#Pro_RE22_Dermo_stats_preserved_Zsum_medianRank <- merge(Pro_RE22_Dermo_stats_MR_order_less20, Pro_RE22_Dermo_stats_preserved)
-## 12 modules
-#
-#Pro_RE22_RI_SIG_Dermo_Tol_preserved_all <- Pro_RE22_Dermo_stats_preserved[Pro_RE22_Dermo_stats_preserved$mod_names %in% Pro_RE22_RI_moduleTraitCor_Pval_df_sig_list_rm,]
-##1        black       1000              19      5.354414
-##2         blue       1000              13      6.243046
-##3        green       1000              18      5.794057
-##4 midnightblue        527              13      5.580933
-##5       purple        731              11      9.399914
-##6          red       1000              15      8.038084
-##7       salmon        615               4     10.598431
-##8    steelblue        175               1      9.376713
-##9       yellow       1000              14      7.446067
-#Pro_RE22_S4_SIG_Dermo_Tol_preserved_all <- Pro_RE22_Dermo_stats_preserved[Pro_RE22_Dermo_stats_preserved$mod_names %in% Pro_RE22_S4_moduleTraitCor_Pval_df_sig_list_rm,]
-##mod_name moduleSize medianRank.pres Zsummary.pres
-##1         blue       1000              13      6.243046
-##2        green       1000              18      5.794057
-##3 midnightblue        527              13      5.580933
-##4          red       1000              15      8.038084
-#Pro_RE22_RE22_SIG_RDermo_Tol_preserved_all <- Pro_RE22_Dermo_stats_preserved[Pro_RE22_Dermo_stats_preserved$mod_names %in% Pro_RE22_moduleTraitCor_Pval_df_sig_list_rm,]
-##       mod_name moduleSize medianRank.pres Zsummary.pres
-## 1        black       1000              19      5.354414
-## 2         blue       1000              13      6.243046
-## 3        green       1000              18      5.794057
-## 4 midnightblue        527              13      5.580933
-## 5       purple        731              11      9.399914
-## 6          red       1000              15      8.038084
-## 7       salmon        615               4     10.598431
-## 8    steelblue        175               1      9.376713
-## 9       yellow       1000              14      7.446067
-#Pro_RE22_Dermo_Tol_SIG_preserved_all <- Pro_RE22_Dermo_stats_preserved[Pro_RE22_Dermo_stats_preserved$mod_names %in% Dermo_Tol_moduleTraitCor_Pval_df_sig_list_rm,]
-## mod_name moduleSize medianRank.pres Zsummary.pres
-## 1 turquoise       1000              14      7.472569
-## 2    yellow       1000              14      7.446067
-#
-## Conclusion: probiotic and Dermo tolerant share two modules significantly correlated with disease challenge 
-#
+## Assess whether Pro_RE22 (all not separated) and Dermo_Tol modules are preserved ##
+Pro_RE22_Dermo_multiExpr = list(Pro_RE22=list(data=Pro_RE22_dds_rlog_matrix_common),Dermo_Tol=list(data=Dermo_Tolerant_dds_vst_matrix_common))
+Pro_RE22_multiColor = list(Pro_RE22 = Pro_RE22_moduleColors) 
+# Load module preservation calculations
+#Pro_RE22_Dermo_Tol = load(file="/Volumes/My Passport for Mac/Chapter1_Apoptosis_Paper_Saved_DESeq_WGCNA_Data/Pro_RE22_Dermo_Tol_module_preservation.RData")
+# Pro_RE22_Dermo_mp =modulePreservation(Pro_RE22_Dermo_multiExpr, Pro_RE22_multiColor,
+#                                 referenceNetworks=1,
+#                                 verbose=3,
+#                                 networkType="signed hybrid", # use same signed hybrid as before
+#                                 corFnc = "bicor", # use recommended bicor as before 
+#                                 nPermutations=100,
+#                                 randomSeed = 1, # recommended in langfelder tutorial
+#                                 quickCor = 0) # number between 0 and 1 specifying the handling of missing data in calculation of correlation. Zero means exact but potentially slower calculations
+Pro_RE22_Dermo_stats = Pro_RE22_Dermo_mp$preservation$Z$ref.Pro_RE22$inColumnsAlsoPresentIn.Dermo_Tol
+Pro_RE22_Dermo_stats_order <- Pro_RE22_Dermo_stats[order(-Pro_RE22_Dermo_stats[,2]),c(1:2)]
+Pro_RE22_Dermo_stats_preserved <- Pro_RE22_Dermo_stats_order %>% rownames_to_column("mod_name") %>% filter(Zsummary.pres > 5.0)
+# mod_name moduleSize Zsummary.pres
+# 1        salmon        615     10.598431 (high median rank)
+# 2        purple        731      9.399914 (decent median rank)
+# 3     steelblue        175      9.376713 (high median rank)
+# 4         brown       1000      9.373572 (decent median rank)
+# 5           red       1000      8.038084 (lower median rank)
+# 6     turquoise       1000      7.472569 (lower median rank)
+# 7        yellow       1000      7.446067 (lower median rank)
+# 8          blue       1000      6.243046 (lower median rank)
+# 9         green       1000      5.794057 (lower median rank)
+# 10    lightcyan        474      5.753286 (lower median rank)
+# 11 midnightblue        527      5.580933 (lower median rank)
+# 12        black       1000      5.354414 (lowest median rank in top twentry)
+
+Pro_RE22_Dermo_stats_MR <- Pro_RE22_Dermo_mp$preservation$observed$ref.Pro_RE22$inColumnsAlsoPresentIn.Dermo_Tol
+Pro_RE22_Dermo_stats_MR <- Pro_RE22_Dermo_stats_MR [,c("moduleSize","medianRank.pres")]
+Pro_RE22_Dermo_stats_MR_order <- Pro_RE22_Dermo_stats_MR[order(Pro_RE22_Dermo_stats_MR[,2]),]
+Pro_RE22_Dermo_stats_MR_order_less20 <- Pro_RE22_Dermo_stats_MR_order %>% rownames_to_column("mod_name") %>% filter(medianRank.pres < 20)
+
+# Save network
+#save(Pro_RE22_Dermo_mp, file="/Volumes/My Passport for Mac/Chapter1_Apoptosis_Paper_Saved_DESeq_WGCNA_Data/Pro_RE22_Dermo_Tol_module_preservation.RData")
+
+# Plot module preservation
+# remember - low median rank means high preservation
+ggplot(Pro_RE22_Dermo_stats_MR_order_less20 , aes(x= moduleSize, y = medianRank.pres, color = mod_name)) + 
+ geom_point() + xlab("Module Size") + ylab("Median Rank") + geom_text(aes(label=mod_name))
+
+Pro_RE22_Dermo_stats_preserved_Zsum_medianRank <- merge(Pro_RE22_Dermo_stats_MR_order_less20, Pro_RE22_Dermo_stats_preserved)
+# 12 modules
+
+Pro_RE22_RI_SIG_Dermo_Tol_preserved_all <- Pro_RE22_Dermo_stats_preserved[Pro_RE22_Dermo_stats_preserved$mod_names %in% Pro_RE22_RI_moduleTraitCor_Pval_df_sig_list_rm,]
+#1        black       1000              19      5.354414
+#2         blue       1000              13      6.243046
+#3        green       1000              18      5.794057
+#4 midnightblue        527              13      5.580933
+#5       purple        731              11      9.399914
+#6          red       1000              15      8.038084
+#7       salmon        615               4     10.598431
+#8    steelblue        175               1      9.376713
+#9       yellow       1000              14      7.446067
+Pro_RE22_S4_SIG_Dermo_Tol_preserved_all <- Pro_RE22_Dermo_stats_preserved[Pro_RE22_Dermo_stats_preserved$mod_names %in% Pro_RE22_S4_moduleTraitCor_Pval_df_sig_list_rm,]
+#mod_name moduleSize medianRank.pres Zsummary.pres
+#1         blue       1000              13      6.243046
+#2        green       1000              18      5.794057
+#3 midnightblue        527              13      5.580933
+#4          red       1000              15      8.038084
+Pro_RE22_RE22_SIG_RDermo_Tol_preserved_all <- Pro_RE22_Dermo_stats_preserved[Pro_RE22_Dermo_stats_preserved$mod_names %in% Pro_RE22_moduleTraitCor_Pval_df_sig_list_rm,]
+#       mod_name moduleSize medianRank.pres Zsummary.pres
+# 1        black       1000              19      5.354414
+# 2         blue       1000              13      6.243046
+# 3        green       1000              18      5.794057
+# 4 midnightblue        527              13      5.580933
+# 5       purple        731              11      9.399914
+# 6          red       1000              15      8.038084
+# 7       salmon        615               4     10.598431
+# 8    steelblue        175               1      9.376713
+# 9       yellow       1000              14      7.446067
+Pro_RE22_Dermo_Tol_SIG_preserved_all <- Pro_RE22_Dermo_stats_preserved[Pro_RE22_Dermo_stats_preserved$mod_names %in% Dermo_Tol_moduleTraitCor_Pval_df_sig_list_rm,]
+# mod_name moduleSize medianRank.pres Zsummary.pres
+# 1 turquoise       1000              14      7.472569
+# 2    yellow       1000              14      7.446067
+
+# Conclusion: probiotic and Dermo tolerant share two modules significantly correlated with disease challenge 
+
 ##  Pro_RE22_RE22 vs Dermo_Tol ##
 Pro_RE22_RE22_Dermo_multiExpr = list(Pro_RE22_RE22=list(data=Pro_RE22_dds_rlog_matrix_common_RE22), Dermo_Tol=list(data=Dermo_Tolerant_dds_vst_matrix_common))
 Pro_RE22_multiColor = list(Dermo_Tol = Pro_RE22_RE22_moduleColors) 
@@ -2313,105 +2281,103 @@ Pro_RE22_RE22_Dermo_Tol_SIG_rev_preserved_all <- Pro_RE22_RE22_Dermo_rev_stats_p
 #23  royalblue        711     12.804810
 #39 orangered4         65      5.341695
 
-# Conclusion: 
+# Assess whether Pro_RE22 (all, not separated) and Dermo_Sus modules are preserved ##
+Pro_RE22_Dermo_Sus_multiExpr = list(Pro_RE22=list(data=Pro_RE22_dds_rlog_matrix_common),Dermo_Sus=list(data=Dermo_Susceptible_dds_vst_matrix_common))
+Pro_RE22_multiColor = list(Pro_RE22 = Pro_RE22_moduleColors) 
+# Load module preservation calculations
+#Pro_RE22_Dermo_Sus = load(file="/Volumes/My Passport for Mac/Chapter1_Apoptosis_Paper_Saved_DESeq_WGCNA_Data/Pro_RE22_Dermo_Sus_module_preservation.RData")
+# Pro_RE22_Dermo_Sus_mp =modulePreservation(Pro_RE22_Dermo_Sus_multiExpr, Pro_RE22_multiColor,
+#                                       referenceNetworks=1,
+#                                       verbose=3,
+#                                       networkType="signed hybrid", # use same signed hybrid as before
+#                                       corFnc = "bicor", # use recommended bicor as before 
+#                                       nPermutations=100,
+#                                       randomSeed = 1, # recommended in langfelder tutorial
+#                                       quickCor = 0) # number between 0 and 1 specifying the handling of missing data in calculation of correlation. Zero means exact but potentially slower calculations
+Pro_RE22_Dermo_Sus_stats = Pro_RE22_Dermo_Sus_mp$preservation$Z$ref.Pro_RE22$inColumnsAlsoPresentIn.Dermo_Sus
+Pro_RE22_Dermo_Sus_stats_order <- Pro_RE22_Dermo_Sus_stats[order(-Pro_RE22_Dermo_Sus_stats[,2]),c(1:2)]
+Pro_RE22_Dermo_Sus_stats_preserved <- Pro_RE22_Dermo_Sus_stats_order %>% rownames_to_column("mod_name") %>% filter(Zsummary.pres > 5.0)
+# mod_name moduleSize Zsummary.pres
+# 1    salmon        615      9.461935 (high median rank)
+# 2 steelblue        175      7.608015 (highest median rank)
+# 3    purple        731      6.821283 (good median rank)
+# 4      blue       1000      6.176316 (medium median rank)
+# 5       red       1000      6.060967 (medium median rank)
+# 6 lightcyan        474      6.010655 (lower median rank)
+# 7     brown       1000      5.165484 (not in top twentry)
+Pro_RE22_Dermo_Sus_stats_MR <- Pro_RE22_Dermo_Sus_mp$preservation$observed$ref.Pro_RE22$inColumnsAlsoPresentIn.Dermo_Sus
+Pro_RE22_Dermo_Sus_stats_MR <- Pro_RE22_Dermo_Sus_stats_MR [,c("moduleSize","medianRank.pres")]
+Pro_RE22_Dermo_Sus_stats_MR_order <- Pro_RE22_Dermo_Sus_stats_MR[order(Pro_RE22_Dermo_Sus_stats_MR[,2]),]
+Pro_RE22_Dermo_Sus_stats_MR_order_less20 <- Pro_RE22_Dermo_Sus_stats_MR_order %>% rownames_to_column("mod_name") %>% filter(medianRank.pres < 20)
 
-## Assess whether Pro_RE22 (all, not separated) and Dermo_Sus modules are preserved ##
-#Pro_RE22_Dermo_Sus_multiExpr = list(Pro_RE22=list(data=Pro_RE22_dds_rlog_matrix_common),Dermo_Sus=list(data=Dermo_Susceptible_dds_vst_matrix_common))
-#Pro_RE22_multiColor = list(Pro_RE22 = Pro_RE22_moduleColors) 
-## Load module preservation calculations
-##Pro_RE22_Dermo_Sus = load(file="/Volumes/My Passport for Mac/Chapter1_Apoptosis_Paper_Saved_DESeq_WGCNA_Data/Pro_RE22_Dermo_Sus_module_preservation.RData")
-## Pro_RE22_Dermo_Sus_mp =modulePreservation(Pro_RE22_Dermo_Sus_multiExpr, Pro_RE22_multiColor,
-##                                       referenceNetworks=1,
-##                                       verbose=3,
-##                                       networkType="signed hybrid", # use same signed hybrid as before
-##                                       corFnc = "bicor", # use recommended bicor as before 
-##                                       nPermutations=100,
-##                                       randomSeed = 1, # recommended in langfelder tutorial
-##                                       quickCor = 0) # number between 0 and 1 specifying the handling of missing data in calculation of correlation. Zero means exact but potentially slower calculations
-#Pro_RE22_Dermo_Sus_stats = Pro_RE22_Dermo_Sus_mp$preservation$Z$ref.Pro_RE22$inColumnsAlsoPresentIn.Dermo_Sus
-#Pro_RE22_Dermo_Sus_stats_order <- Pro_RE22_Dermo_Sus_stats[order(-Pro_RE22_Dermo_Sus_stats[,2]),c(1:2)]
-#Pro_RE22_Dermo_Sus_stats_preserved <- Pro_RE22_Dermo_Sus_stats_order %>% rownames_to_column("mod_name") %>% filter(Zsummary.pres > 5.0)
-## mod_name moduleSize Zsummary.pres
-## 1    salmon        615      9.461935 (high median rank)
-## 2 steelblue        175      7.608015 (highest median rank)
-## 3    purple        731      6.821283 (good median rank)
-## 4      blue       1000      6.176316 (medium median rank)
-## 5       red       1000      6.060967 (medium median rank)
-## 6 lightcyan        474      6.010655 (lower median rank)
-## 7     brown       1000      5.165484 (not in top twentry)
-#Pro_RE22_Dermo_Sus_stats_MR <- Pro_RE22_Dermo_Sus_mp$preservation$observed$ref.Pro_RE22$inColumnsAlsoPresentIn.Dermo_Sus
-#Pro_RE22_Dermo_Sus_stats_MR <- Pro_RE22_Dermo_Sus_stats_MR [,c("moduleSize","medianRank.pres")]
-#Pro_RE22_Dermo_Sus_stats_MR_order <- Pro_RE22_Dermo_Sus_stats_MR[order(Pro_RE22_Dermo_Sus_stats_MR[,2]),]
-#Pro_RE22_Dermo_Sus_stats_MR_order_less20 <- Pro_RE22_Dermo_Sus_stats_MR_order %>% rownames_to_column("mod_name") %>% filter(medianRank.pres < 20)
-#
-## Save network
-##save(Pro_RE22_Dermo_Sus_mp, file="/Volumes/My Passport for Mac/Chapter1_Apoptosis_Paper_Saved_DESeq_WGCNA_Data/Pro_RE22_Dermo_Sus_module_preservation.RData")
-#
-## Plot module preservation
-## remember - low median rank means high preservation
-#ggplot(Pro_RE22_Dermo_Sus_stats_MR_order_less20 , aes(x= moduleSize, y = medianRank.pres, color = mod_name)) + 
-#  geom_point() + xlab("Module Size") + ylab("Median Rank") + geom_text(aes(label=mod_name))
-#
-#Pro_RE22_Dermo_Sus_stats_preserved_Zsum_medianRank <- Pro_RE22_Dermo_Sus_stats_MR_order_less20[Pro_RE22_Dermo_Sus_stats_MR_order_less20$mod_names %in% Pro_RE22_Dermo_Sus_stats_preserved,]
-## 6 modules
-#
-## Were any of these preserved modules significant in Pro_RE22 or Dermo_Sus
-#
-#Pro_RE22_RI_SIG_Dermo_Sus_preserved_all <- Pro_RE22_Dermo_Sus_stats_preserved[Pro_RE22_Dermo_Sus_stats_preserved$mod_name %in% Pro_RE22_RI_moduleTraitCor_Pval_df_sig_list_rm,]
-## mod_name moduleSize Zsummary.pres
-## 1      blue       1000      6.176316
-## 2    purple        731      6.821283
-## 3       red       1000      6.060967
-## 4    salmon        615      9.461935
-## 5 steelblue        175      7.608015
-#Pro_RE22_S4_SIG_Dermo_Sus_preserved_all <-Pro_RE22_Dermo_Sus_stats_preserved[Pro_RE22_Dermo_Sus_stats_preserved$mod_name %in% Pro_RE22_S4_moduleTraitCor_Pval_df_sig_list_rm,]
-## blue, red
-#Pro_RE22_RE22_SIG_Dermo_Sus_preserved_all <-Pro_RE22_Dermo_Sus_stats_preserved[Pro_RE22_Dermo_Sus_stats_preserved$mod_name %in% Pro_RE22_moduleTraitCor_Pval_df_sig_list_rm,]
-## mod_name moduleSize Zsummary.pres
-## 1      blue       1000      6.176316
-## 2    purple        731      6.821283
-## 3       red       1000      6.060967
-## 4    salmon        615      9.461935
-## 5 steelblue        175      7.608015
-#Pro_RE22_Dermo_Sus_SIG_preserved_all <-Pro_RE22_Dermo_Sus_stats_preserved[Pro_RE22_Dermo_Sus_stats_preserved$mod_name %in% Dermo_Sus_moduleTraitCor_Pval_df_sig_list_rm,]
-## 0 
+# Save network
+#save(Pro_RE22_Dermo_Sus_mp, file="/Volumes/My Passport for Mac/Chapter1_Apoptosis_Paper_Saved_DESeq_WGCNA_Data/Pro_RE22_Dermo_Sus_module_preservation.RData")
 
-## Assess whether Pro_RE22_RE22 and Dermo_Sus modules are preserved ##
-#Pro_RE22_RE22_Dermo_Sus_multiExpr = list(Pro_RE22_RE22=list(data=Pro_RE22_dds_rlog_matrix_common_RE22),Dermo_Sus=list(data=Dermo_Susceptible_dds_vst_matrix_common))
-#Pro_RE22_RE22_multiColor = list(Pro_RE22_RE22 = Pro_RE22_RE22_moduleColors) 
-##Pro_RE22_RE22_Dermo_Sus_mp =modulePreservation(Pro_RE22_RE22_Dermo_Sus_multiExpr , Pro_RE22_RE22_multiColor,
-##                                          referenceNetworks=1,
-##                                          verbose=3,
-##                                          networkType="signed hybrid", # use same signed hybrid as before
-##                                          corFnc = "bicor", # use recommended bicor as before 
-##                                          nPermutations=100,
-##                                          randomSeed = 1, # recommended in langfelder tutorial
-##                                          quickCor = 0) # number between 0 and 1 specifying the handling of missing data in calculation of correlation. Zero means exact but potentially slower calculations
-#Pro_RE22_RE22_Dermo_Sus_stats = Pro_RE22_RE22_Dermo_Sus_mp$preservation$Z$ref.Pro_RE22_RE22$inColumnsAlsoPresentIn.Dermo_Sus
-#Pro_RE22_RE22_Dermo_Sus_stats_order <- Pro_RE22_RE22_Dermo_Sus_stats[order(-Pro_RE22_RE22_Dermo_Sus_stats[,2]),c(1:2)]
-#Pro_RE22_RE22_Dermo_Sus_stats_preserved <- Pro_RE22_RE22_Dermo_Sus_stats_order  %>% rownames_to_column("mod_name") %>% filter(Zsummary.pres > 5.0)
-##mod_name moduleSize Zsummary.pres
-##1    black       1000      5.182457
-#Pro_RE22_RE22_Dermo_Sus_stats_MR <- Pro_RE22_RE22_Dermo_Sus_mp$preservation$observed$ref.Pro_RE22_RE22$inColumnsAlsoPresentIn.Dermo_Sus
-#Pro_RE22_RE22_Dermo_Sus_stats_MR <- Pro_RE22_RE22_Dermo_Sus_stats_MR [,c("moduleSize","medianRank.pres")]
-#Pro_RE22_RE22_Dermo_Sus_stats_MR_order <- Pro_RE22_RE22_Dermo_Sus_stats_MR[order(-Pro_RE22_RE22_Dermo_Sus_stats_MR[,2]),]
-#Pro_RE22_RE22_Dermo_Sus_stats_MR_order_less20 <- Pro_RE22_RE22_Dermo_Sus_stats_MR_order %>% rownames_to_column("mod_name") %>% filter(medianRank.pres < 20)
-#
-## Save network
-##save(Pro_RE22_RE22_Dermo_Sus_mp, file="/Volumes/My Passport for Mac/Chapter1_Apoptosis_Paper_Saved_DESeq_WGCNA_Data/Pro_RE22_RE22_Dermo_Sus_module_preservation.RData")
-#
-## Plot module preservation
-## remember - low median rank means high preservation
-#ggplot(Pro_RE22_RE22_Dermo_Sus_stats_MR_order_less20, aes(x= moduleSize, y = medianRank.pres, color = mod_name)) + 
-#  geom_point() + xlab("Module Size") + ylab("Median Rank") + geom_text(aes(label=mod_name))
-#
-## Were any of these preserved modules significant in Pro_RE22 or Dermo_Sus
-#Pro_RE22_RE22_SIG_Dermo_Sus_preserved_all <-Pro_RE22_RE22_Dermo_Sus_stats_preserved[Pro_RE22_RE22_Dermo_Sus_stats_preserved$mod_name %in% Pro_RE22_RE22_moduleTraitCor_Pval_df_sig_list_rm,]
-## 0
-#Pro_RE22_RE22_Dermo_Sus_SIG_preserved_all <-Pro_RE22_RE22_Dermo_Sus_stats_preserved[Pro_RE22_RE22_Dermo_Sus_stats_preserved$mod_name %in% Dermo_Sus_moduleTraitCor_Pval_df_sig_list_rm,]
-##0
-#
-## Dermo_Sus vs.  Pro_RE22_RE22 ##
+# Plot module preservation
+# remember - low median rank means high preservation
+ggplot(Pro_RE22_Dermo_Sus_stats_MR_order_less20 , aes(x= moduleSize, y = medianRank.pres, color = mod_name)) + 
+  geom_point() + xlab("Module Size") + ylab("Median Rank") + geom_text(aes(label=mod_name))
+
+Pro_RE22_Dermo_Sus_stats_preserved_Zsum_medianRank <- Pro_RE22_Dermo_Sus_stats_MR_order_less20[Pro_RE22_Dermo_Sus_stats_MR_order_less20$mod_names %in% Pro_RE22_Dermo_Sus_stats_preserved,]
+# 6 modules
+
+# Were any of these preserved modules significant in Pro_RE22 or Dermo_Sus
+
+Pro_RE22_RI_SIG_Dermo_Sus_preserved_all <- Pro_RE22_Dermo_Sus_stats_preserved[Pro_RE22_Dermo_Sus_stats_preserved$mod_name %in% Pro_RE22_RI_moduleTraitCor_Pval_df_sig_list_rm,]
+# mod_name moduleSize Zsummary.pres
+# 1      blue       1000      6.176316
+# 2    purple        731      6.821283
+# 3       red       1000      6.060967
+# 4    salmon        615      9.461935
+# 5 steelblue        175      7.608015
+Pro_RE22_S4_SIG_Dermo_Sus_preserved_all <-Pro_RE22_Dermo_Sus_stats_preserved[Pro_RE22_Dermo_Sus_stats_preserved$mod_name %in% Pro_RE22_S4_moduleTraitCor_Pval_df_sig_list_rm,]
+# blue, red
+Pro_RE22_RE22_SIG_Dermo_Sus_preserved_all <-Pro_RE22_Dermo_Sus_stats_preserved[Pro_RE22_Dermo_Sus_stats_preserved$mod_name %in% Pro_RE22_moduleTraitCor_Pval_df_sig_list_rm,]
+# mod_name moduleSize Zsummary.pres
+# 1      blue       1000      6.176316
+# 2    purple        731      6.821283
+# 3       red       1000      6.060967
+# 4    salmon        615      9.461935
+# 5 steelblue        175      7.608015
+Pro_RE22_Dermo_Sus_SIG_preserved_all <-Pro_RE22_Dermo_Sus_stats_preserved[Pro_RE22_Dermo_Sus_stats_preserved$mod_name %in% Dermo_Sus_moduleTraitCor_Pval_df_sig_list_rm,]
+# 0 
+
+# Assess whether Pro_RE22_RE22 and Dermo_Sus modules are preserved ##
+Pro_RE22_RE22_Dermo_Sus_multiExpr = list(Pro_RE22_RE22=list(data=Pro_RE22_dds_rlog_matrix_common_RE22),Dermo_Sus=list(data=Dermo_Susceptible_dds_vst_matrix_common))
+Pro_RE22_RE22_multiColor = list(Pro_RE22_RE22 = Pro_RE22_RE22_moduleColors) 
+#Pro_RE22_RE22_Dermo_Sus_mp =modulePreservation(Pro_RE22_RE22_Dermo_Sus_multiExpr , Pro_RE22_RE22_multiColor,
+#                                          referenceNetworks=1,
+#                                          verbose=3,
+#                                          networkType="signed hybrid", # use same signed hybrid as before
+#                                          corFnc = "bicor", # use recommended bicor as before 
+#                                          nPermutations=100,
+#                                          randomSeed = 1, # recommended in langfelder tutorial
+#                                          quickCor = 0) # number between 0 and 1 specifying the handling of missing data in calculation of correlation. Zero means exact but potentially slower calculations
+Pro_RE22_RE22_Dermo_Sus_stats = Pro_RE22_RE22_Dermo_Sus_mp$preservation$Z$ref.Pro_RE22_RE22$inColumnsAlsoPresentIn.Dermo_Sus
+Pro_RE22_RE22_Dermo_Sus_stats_order <- Pro_RE22_RE22_Dermo_Sus_stats[order(-Pro_RE22_RE22_Dermo_Sus_stats[,2]),c(1:2)]
+Pro_RE22_RE22_Dermo_Sus_stats_preserved <- Pro_RE22_RE22_Dermo_Sus_stats_order  %>% rownames_to_column("mod_name") %>% filter(Zsummary.pres > 5.0)
+#mod_name moduleSize Zsummary.pres
+#1    black       1000      5.182457
+Pro_RE22_RE22_Dermo_Sus_stats_MR <- Pro_RE22_RE22_Dermo_Sus_mp$preservation$observed$ref.Pro_RE22_RE22$inColumnsAlsoPresentIn.Dermo_Sus
+Pro_RE22_RE22_Dermo_Sus_stats_MR <- Pro_RE22_RE22_Dermo_Sus_stats_MR [,c("moduleSize","medianRank.pres")]
+Pro_RE22_RE22_Dermo_Sus_stats_MR_order <- Pro_RE22_RE22_Dermo_Sus_stats_MR[order(-Pro_RE22_RE22_Dermo_Sus_stats_MR[,2]),]
+Pro_RE22_RE22_Dermo_Sus_stats_MR_order_less20 <- Pro_RE22_RE22_Dermo_Sus_stats_MR_order %>% rownames_to_column("mod_name") %>% filter(medianRank.pres < 20)
+
+# Save network
+#save(Pro_RE22_RE22_Dermo_Sus_mp, file="/Volumes/My Passport for Mac/Chapter1_Apoptosis_Paper_Saved_DESeq_WGCNA_Data/Pro_RE22_RE22_Dermo_Sus_module_preservation.RData")
+
+# Plot module preservation
+# remember - low median rank means high preservation
+ggplot(Pro_RE22_RE22_Dermo_Sus_stats_MR_order_less20, aes(x= moduleSize, y = medianRank.pres, color = mod_name)) + 
+  geom_point() + xlab("Module Size") + ylab("Median Rank") + geom_text(aes(label=mod_name))
+
+# Were any of these preserved modules significant in Pro_RE22 or Dermo_Sus
+Pro_RE22_RE22_SIG_Dermo_Sus_preserved_all <-Pro_RE22_RE22_Dermo_Sus_stats_preserved[Pro_RE22_RE22_Dermo_Sus_stats_preserved$mod_name %in% Pro_RE22_RE22_moduleTraitCor_Pval_df_sig_list_rm,]
+# 0
+Pro_RE22_RE22_Dermo_Sus_SIG_preserved_all <-Pro_RE22_RE22_Dermo_Sus_stats_preserved[Pro_RE22_RE22_Dermo_Sus_stats_preserved$mod_name %in% Dermo_Sus_moduleTraitCor_Pval_df_sig_list_rm,]
+#0
+
+## Dermo_Sus vs.Pro_RE22_RE22 ##
 Pro_RE22_RE22_Dermo_Sus_rev_multiExpr = list(Dermo_Sus=list(data=Dermo_Susceptible_dds_vst_matrix_common),Pro_RE22_RE22=list(data=Pro_RE22_dds_rlog_matrix_common_RE22))
 Dermo_Sus_multiColor = list(Dermo_Sus = Dermo_Sus_moduleColors) 
 #Pro_RE22_RE22_Dermo_Sus_rev_mp =modulePreservation(Pro_RE22_RE22_Dermo_Sus_rev_multiExpr, Dermo_Sus_multiColor,
@@ -2446,69 +2412,69 @@ Pro_RE22_RE22_Dermo_Sus_SIG_rev_preserved_all <-Pro_RE22_RE22_Dermo_Sus_rev_stat
 # 0 
 
 ## Assess whether Dermo_Tol and ROD_Res modules are preserved ## 
-#ROD_Dermo_multiExpr = list(Dermo_Tol=list(data=Dermo_Tolerant_dds_vst_matrix_common), ROD_Res=list(data=ROD_Resistant_dds_rlog_matrix_common))
-#ROD_Dermo_multiColor = list(Dermo_Tol = Dermo_Tol_moduleColors)
-## Load module preservation
-##Dermo_Tol_ROD_Res = load(file="/Volumes/My Passport for Mac/Chapter1_Apoptosis_Paper_Saved_DESeq_WGCNA_Data/Dermo_Tol_ROD_Res_module_preservation.RData")
-#
-##ROD_Dermo_mp =modulePreservation(ROD_Dermo_multiExpr, ROD_Dermo_multiColor,
-##                                 referenceNetworks=1,
-##                                 verbose=3,
-##                                 networkType="signed hybrid", # use same signed hybrid as before
-##                                 corFnc = "bicor", # use recommended bicor as before 
-##                                 nPermutations=100,
-##                                 randomSeed = 1, # recommended in langfelder tutorial
-##                                 quickCor = 0) # number between 0 and 1 specifying the handling of missing data in calculation of correlation. Zero means exact but potentially slower calculations
-#ROD_Dermo_stats = ROD_Dermo_mp$preservation$Z$ref.Dermo_Tol$inColumnsAlsoPresentIn.ROD_Res
-#ROD_Dermo_stats_order <- ROD_Dermo_stats[order(-ROD_Dermo_stats[,2]),c(1:2)]
-#ROD_Dermo_stats_preserved <- ROD_Dermo_stats_order %>% rownames_to_column("mod_name") %>% filter(Zsummary.pres > 5.0)
-## mod_name moduleSize Zsummary.pres
-## 1        pink        552     21.124021 (high median rank)
-## 2     magenta        458     14.461520 (medium median rank)
-## 3         tan        300     14.281723 (high median rank)
-## 4       green        762     14.061856 (lower median rank)
-## 5   turquoise       1000     13.976882 (lower median rank)
-## 6   darkgreen        218     11.000436 (high median rank)
-## 7        blue       1000      9.858004 (not in top 20)
-## 8        cyan        261      8.939884 (high median rank)
-## 9         red        628      8.528091 (not in top 20)
-## 10      black        618      7.999981 (not in top 20)
-## 11      plum2        127      6.854030 (good rank)
-## 12 lightcyan1        146      6.714021 (medium rank)
-## 13     grey60        246      6.669582 (not in top 20)
-## 14     violet        174      6.052549 (medium rank)
-## 15      white        187      5.852156 (low medium rank)
-## 16      brown       1000      5.646930 (not in top twenty)
-## 17 darkviolet         70      5.146672 (higest median rank)
-#
-#ROD_Dermo_stats_MR <- ROD_Dermo_mp$preservation$observed$ref.Dermo_Tol$inColumnsAlsoPresentIn.ROD_Res
-#ROD_Dermo_stats_MR <-ROD_Dermo_stats_MR[,c("moduleSize","medianRank.pres")]
-#ROD_Dermo_stats_MR_order <- ROD_Dermo_stats_MR[order(ROD_Dermo_stats_MR[,2]),]
-#ROD_Dermo_stats_MR_order_less20 <- ROD_Dermo_stats_MR_order %>% rownames_to_column("mod_name") %>% filter(medianRank.pres < 20)
-#
-## Save network
-##save(ROD_Dermo_mp, file="/Volumes/My Passport for Mac/Chapter1_Apoptosis_Paper_Saved_DESeq_WGCNA_Data/Dermo_Tol_ROD_Res_module_preservation.RData")
-#
-## Plot module preservation
-## remember - low median rank means high preservation
-#ggplot(ROD_Dermo_stats_MR_order_less20  , aes(x= moduleSize, y = medianRank.pres, color = mod_name)) + 
-#  geom_point() + xlab("Module Size") + ylab("Median Rank") + geom_text(aes(label=mod_name))
-#
-#ROR_Dermo_stats_preserved_Zsum_medianRank <- ROD_Dermo_stats_MR_order_less20[ROD_Dermo_stats_MR_order_less20$mod_name , ROD_Dermo_stats_preserved,]
-## 6 modules
-#
-## Were any of these preserved modules significant in Pro_RE22 or Dermo_Tol?
+ROD_Dermo_multiExpr = list(Dermo_Tol=list(data=Dermo_Tolerant_dds_vst_matrix_common), ROD_Res=list(data=ROD_Resistant_dds_rlog_matrix_common))
+ROD_Dermo_multiColor = list(Dermo_Tol = Dermo_Tol_moduleColors)
+# Load module preservation
+#Dermo_Tol_ROD_Res = load(file="/Volumes/My Passport for Mac/Chapter1_Apoptosis_Paper_Saved_DESeq_WGCNA_Data/Dermo_Tol_ROD_Res_module_preservation.RData")
 
-#Dermo_Tol_ROD_Res <- ROD_Dermo_stats_preserved[ROD_Dermo_stats_preserved$mod_name %in% Dermo_Tol_moduleTraitCor_Pval_df_sig_list_rm,]
-## mod_name moduleSize Zsummary.pres
-## 1        pink        552     21.124021
-## 3         tan        300     14.281723
-## 5   turquoise       1000     13.976882
-## 11      plum2        127      6.854030
-## 12 lightcyan1        146      6.714021
-## 17 darkviolet         70      5.146672
-#Dermo_Tol_ROD_Res_ROD <- ROD_Dermo_stats_preserved[ROD_Dermo_stats_preserved$mod_name %in% ROD_Res_moduleTraitCor_Pval_df_sig_list_rm,]
-##0
+#ROD_Dermo_mp =modulePreservation(ROD_Dermo_multiExpr, ROD_Dermo_multiColor,
+#                                 referenceNetworks=1,
+#                                 verbose=3,
+#                                 networkType="signed hybrid", # use same signed hybrid as before
+#                                 corFnc = "bicor", # use recommended bicor as before 
+#                                 nPermutations=100,
+#                                 randomSeed = 1, # recommended in langfelder tutorial
+#                                 quickCor = 0) # number between 0 and 1 specifying the handling of missing data in calculation of correlation. Zero means exact but potentially slower calculations
+ROD_Dermo_stats = ROD_Dermo_mp$preservation$Z$ref.Dermo_Tol$inColumnsAlsoPresentIn.ROD_Res
+ROD_Dermo_stats_order <- ROD_Dermo_stats[order(-ROD_Dermo_stats[,2]),c(1:2)]
+ROD_Dermo_stats_preserved <- ROD_Dermo_stats_order %>% rownames_to_column("mod_name") %>% filter(Zsummary.pres > 5.0)
+# mod_name moduleSize Zsummary.pres
+# 1        pink        552     21.124021 (high median rank)
+# 2     magenta        458     14.461520 (medium median rank)
+# 3         tan        300     14.281723 (high median rank)
+# 4       green        762     14.061856 (lower median rank)
+# 5   turquoise       1000     13.976882 (lower median rank)
+# 6   darkgreen        218     11.000436 (high median rank)
+# 7        blue       1000      9.858004 (not in top 20)
+# 8        cyan        261      8.939884 (high median rank)
+# 9         red        628      8.528091 (not in top 20)
+# 10      black        618      7.999981 (not in top 20)
+# 11      plum2        127      6.854030 (good rank)
+# 12 lightcyan1        146      6.714021 (medium rank)
+# 13     grey60        246      6.669582 (not in top 20)
+# 14     violet        174      6.052549 (medium rank)
+# 15      white        187      5.852156 (low medium rank)
+# 16      brown       1000      5.646930 (not in top twenty)
+# 17 darkviolet         70      5.146672 (higest median rank)
+
+ROD_Dermo_stats_MR <- ROD_Dermo_mp$preservation$observed$ref.Dermo_Tol$inColumnsAlsoPresentIn.ROD_Res
+ROD_Dermo_stats_MR <-ROD_Dermo_stats_MR[,c("moduleSize","medianRank.pres")]
+ROD_Dermo_stats_MR_order <- ROD_Dermo_stats_MR[order(ROD_Dermo_stats_MR[,2]),]
+ROD_Dermo_stats_MR_order_less20 <- ROD_Dermo_stats_MR_order %>% rownames_to_column("mod_name") %>% filter(medianRank.pres < 20)
+
+# Save network
+#save(ROD_Dermo_mp, file="/Volumes/My Passport for Mac/Chapter1_Apoptosis_Paper_Saved_DESeq_WGCNA_Data/Dermo_Tol_ROD_Res_module_preservation.RData")
+
+# Plot module preservation
+# remember - low median rank means high preservation
+ggplot(ROD_Dermo_stats_MR_order_less20  , aes(x= moduleSize, y = medianRank.pres, color = mod_name)) + 
+  geom_point() + xlab("Module Size") + ylab("Median Rank") + geom_text(aes(label=mod_name))
+
+ROR_Dermo_stats_preserved_Zsum_medianRank <- ROD_Dermo_stats_MR_order_less20[ROD_Dermo_stats_MR_order_less20$mod_name , ROD_Dermo_stats_preserved,]
+# 6 modules
+
+# Were any of these preserved modules significant in Pro_RE22 or Dermo_Tol?
+
+Dermo_Tol_ROD_Res <- ROD_Dermo_stats_preserved[ROD_Dermo_stats_preserved$mod_name %in% Dermo_Tol_moduleTraitCor_Pval_df_sig_list_rm,]
+# mod_name moduleSize Zsummary.pres
+# 1        pink        552     21.124021
+# 3         tan        300     14.281723
+# 5   turquoise       1000     13.976882
+# 11      plum2        127      6.854030
+# 12 lightcyan1        146      6.714021
+# 17 darkviolet         70      5.146672
+Dermo_Tol_ROD_Res_ROD <- ROD_Dermo_stats_preserved[ROD_Dermo_stats_preserved$mod_name %in% ROD_Res_moduleTraitCor_Pval_df_sig_list_rm,]
+#0
 
 ## ROD_Res vs. Dermo_Tol ## 
 ROD_Dermo_rev_multiExpr = list(ROD_Res=list(data=ROD_Resistant_dds_rlog_matrix_common), Dermo_Tol=list(data=Dermo_Tolerant_dds_vst_matrix_common))
@@ -2554,49 +2520,49 @@ Dermo_Tol_ROD_rev_Res_ROD <- ROD_Dermo_rev_stats_preserved[ROD_Dermo_rev_stats_p
 # 4   orange        450      6.209411
 
 ## Assess whether Dermo_Sus and ROD_Sus modules are preserved ##
-#ROD_Dermo_Sus_multiExpr = list(Dermo_Sus=list(data=Dermo_Susceptible_dds_vst_matrix_common), ROD_Sus=list(data=ROD_Susceptible_dds_rlog_matrix_common))
-#ROD_Dermo_Sus_multiColor = list(Dermo_Sus = Dermo_Sus_moduleColors)
-## Load module preservation
-##Dermo_Sus_ROD_Sus = load(file="/Volumes/My Passport for Mac/Chapter1_Apoptosis_Paper_Saved_DESeq_WGCNA_Data/Dermo_Sus_ROD_Sus_module_preservation.RData")
-#
-##ROD_Dermo_Sus_mp =modulePreservation(ROD_Dermo_Sus_multiExpr, ROD_Dermo_Sus_multiColor,
-##                                     referenceNetworks=1,
-##                                     verbose=3,
-##                                     networkType="signed hybrid", # use same signed hybrid as before
-##                                     corFnc = "bicor", # use recommended bicor as before 
-##                                     nPermutations=100,
-##                                     randomSeed = 1, # recommended in langfelder tutorial
-##                                     quickCor = 0) # number between 0 and 1 specifying the handling of missing data in calculation of correlation. Zero means exact but potentially slower calculations
-#ROD_Dermo_Sus_stats = ROD_Dermo_Sus_mp$preservation$Z$ref.Dermo_Sus$inColumnsAlsoPresentIn.ROD_Sus 
-#ROD_Dermo_Sus_stats_order <- ROD_Dermo_Sus_stats[order(-ROD_Dermo_Sus_stats[,2]),c(1:2)] 
-#ROD_Dermo_Sus_stats_preserved <- ROD_Dermo_Sus_stats_order %>% rownames_to_column("mod_name") %>% filter(Zsummary.pres > 5.0)
-## mod_name moduleSize Zsummary.pres
-## 1       black        558     14.052762
-## 2   turquoise       1000     10.807381 (only one in the top 20 median rank)
-## 3 lightyellow        253      8.239593
-## 4      purple        446      6.069997
-## 5      salmon        402      5.345025
-#
-#ROD_Dermo_Sus_stats_MR <- ROD_Dermo_Sus_mp$preservation$observed$ref.Dermo_Sus$inColumnsAlsoPresentIn.ROD_Sus
-#ROD_Dermo_Sus_stats_MR <-ROD_Dermo_stats_MR[,c("moduleSize","medianRank.pres")]
-#ROD_Dermo_Sus_stats_MR_order <- ROD_Dermo_Sus_stats_MR[order(ROD_Dermo_stats_MR[,2]),]
-#ROD_Dermo_Sus_stats_MR_order_less20 <- ROD_Dermo_Sus_stats_MR_order %>% rownames_to_column("mod_name") %>% filter(medianRank.pres < 20)
-#
-## Save network
-##save(ROD_Dermo_Sus_mp, file="/Volumes/My Passport for Mac/Chapter1_Apoptosis_Paper_Saved_DESeq_WGCNA_Data/Dermo_Sus_ROD_Sus_module_preservation.RData")
-#
-## Plot module preservation
-## remember - low median rank means high preservation
-#ggplot(ROD_Dermo_Sus_stats_MR_order_less20  , aes(x= moduleSize, y = medianRank.pres, color = mod_name)) + 
-#  geom_point() + xlab("Module Size") + ylab("Median Rank") + geom_text(aes(label=mod_name))
-#
-#ROD_Dermo_Sus_stats_preserved_Zsum_medianRank <- ROD_Dermo_Sus_stats_MR_order_less20[ROD_Dermo_Sus_stats_MR_order_less20$mod_name %in% ROD_Dermo_Sus_stats_preserved,]
-## 1 modules, turqoise
-#
-#Dermo_Sus_ROD_Sus <-ROD_Dermo_Sus_stats_preserved[ROD_Dermo_Sus_stats_preserved$mod_name %in%Dermo_Sus_moduleTraitCor_Pval_df_sig_list_rm,]
-##0
-#Dermo_Sus_ROD_Sus_ROD <-ROD_Dermo_Sus_stats_preserved[ROD_Dermo_Sus_stats_preserved$mod_name %in% ROD_Sus_moduleTraitCor_Pval_df_sig_list_rm,]
-## tuqoise
+ROD_Dermo_Sus_multiExpr = list(Dermo_Sus=list(data=Dermo_Susceptible_dds_vst_matrix_common), ROD_Sus=list(data=ROD_Susceptible_dds_rlog_matrix_common))
+ROD_Dermo_Sus_multiColor = list(Dermo_Sus = Dermo_Sus_moduleColors)
+# Load module preservation
+#Dermo_Sus_ROD_Sus = load(file="/Volumes/My Passport for Mac/Chapter1_Apoptosis_Paper_Saved_DESeq_WGCNA_Data/Dermo_Sus_ROD_Sus_module_preservation.RData")
+
+#ROD_Dermo_Sus_mp =modulePreservation(ROD_Dermo_Sus_multiExpr, ROD_Dermo_Sus_multiColor,
+#                                     referenceNetworks=1,
+#                                     verbose=3,
+#                                     networkType="signed hybrid", # use same signed hybrid as before
+#                                     corFnc = "bicor", # use recommended bicor as before 
+#                                     nPermutations=100,
+#                                     randomSeed = 1, # recommended in langfelder tutorial
+#                                     quickCor = 0) # number between 0 and 1 specifying the handling of missing data in calculation of correlation. Zero means exact but potentially slower calculations
+ROD_Dermo_Sus_stats = ROD_Dermo_Sus_mp$preservation$Z$ref.Dermo_Sus$inColumnsAlsoPresentIn.ROD_Sus 
+ROD_Dermo_Sus_stats_order <- ROD_Dermo_Sus_stats[order(-ROD_Dermo_Sus_stats[,2]),c(1:2)] 
+ROD_Dermo_Sus_stats_preserved <- ROD_Dermo_Sus_stats_order %>% rownames_to_column("mod_name") %>% filter(Zsummary.pres > 5.0)
+# mod_name moduleSize Zsummary.pres
+# 1       black        558     14.052762
+# 2   turquoise       1000     10.807381 (only one in the top 20 median rank)
+# 3 lightyellow        253      8.239593
+# 4      purple        446      6.069997
+# 5      salmon        402      5.345025
+
+ROD_Dermo_Sus_stats_MR <- ROD_Dermo_Sus_mp$preservation$observed$ref.Dermo_Sus$inColumnsAlsoPresentIn.ROD_Sus
+ROD_Dermo_Sus_stats_MR <-ROD_Dermo_stats_MR[,c("moduleSize","medianRank.pres")]
+ROD_Dermo_Sus_stats_MR_order <- ROD_Dermo_Sus_stats_MR[order(ROD_Dermo_stats_MR[,2]),]
+ROD_Dermo_Sus_stats_MR_order_less20 <- ROD_Dermo_Sus_stats_MR_order %>% rownames_to_column("mod_name") %>% filter(medianRank.pres < 20)
+
+# Save network
+#save(ROD_Dermo_Sus_mp, file="/Volumes/My Passport for Mac/Chapter1_Apoptosis_Paper_Saved_DESeq_WGCNA_Data/Dermo_Sus_ROD_Sus_module_preservation.RData")
+
+# Plot module preservation
+# remember - low median rank means high preservation
+ggplot(ROD_Dermo_Sus_stats_MR_order_less20  , aes(x= moduleSize, y = medianRank.pres, color = mod_name)) + 
+  geom_point() + xlab("Module Size") + ylab("Median Rank") + geom_text(aes(label=mod_name))
+
+ROD_Dermo_Sus_stats_preserved_Zsum_medianRank <- ROD_Dermo_Sus_stats_MR_order_less20[ROD_Dermo_Sus_stats_MR_order_less20$mod_name %in% ROD_Dermo_Sus_stats_preserved,]
+# 1 modules, turqoise
+
+Dermo_Sus_ROD_Sus <-ROD_Dermo_Sus_stats_preserved[ROD_Dermo_Sus_stats_preserved$mod_name %in%Dermo_Sus_moduleTraitCor_Pval_df_sig_list_rm,]
+#0
+Dermo_Sus_ROD_Sus_ROD <-ROD_Dermo_Sus_stats_preserved[ROD_Dermo_Sus_stats_preserved$mod_name %in% ROD_Sus_moduleTraitCor_Pval_df_sig_list_rm,]
+# turqoise
 
 ## ROD_Sus vs. Dermo_Sus modules are preserved ##
 ROD_Dermo_Sus_rev_multiExpr = list(ROD_Sus=list(data=ROD_Susceptible_dds_rlog_matrix_common), Dermo_Sus=list(data=Dermo_Susceptible_dds_vst_matrix_common))
@@ -2734,47 +2700,80 @@ ROD_Res_Dermo_Sus_Dermo <- ROD_Res_Dermo_Sus_stats_preserved[ROD_Res_Dermo_Sus_s
 ROD_Res_Dermo_Sus_ROD <- ROD_Res_Dermo_Sus_stats_preserved[ROD_Res_Dermo_Sus_stats_preserved$mod_name %in% ROD_Res_moduleTraitCor_Pval_df_sig_list_rm,]
 #0
 
+## ROD_Res vs Dermo_sus ##
+# NEED TO RUN OVERNIGHT 
+ROD_Res_Dermo_Sus_multiExpr = list(ROD_Res=list(data=ROD_Resistant_dds_rlog_matrix_common), Dermo_Sus=list(data=Dermo_Susceptible_dds_vst_matrix_common))
+ROD_Res_Dermo_Sus_multiColor = list(ROD = Dermo_Sus_moduleColors)
+ROD_Res_Dermo_Sus_mp =modulePreservation(ROD_Res_Dermo_Sus_multiExpr, ROD_Res_Dermo_Sus_multiColor,
+                                        referenceNetworks=1,
+                                        verbose=3,
+                                        networkType="signed hybrid", # use same signed hybrid as before
+                                        corFnc = "bicor", # use recommended bicor as before 
+                                        nPermutations=100,
+                                        randomSeed = 1, # recommended in langfelder tutorial
+                                        quickCor = 0) # number between 0 and 1 specifying the handling of missing data in calculation of correlation. Zero means exact but potentially slower calculations
+ROD_Res_Dermo_Sus_stats = ROD_Res_Dermo_Sus_mp$preservation$Z$ref.Dermo_Sus$inColumnsAlsoPresentIn.ROD_Res
+ROD_Res_Dermo_Sus_stats_order <-ROD_Res_Dermo_Sus_stats[order(-ROD_Res_Dermo_Sus_stats[,2]),c(1:2)] 
+ROD_Res_Dermo_Sus_stats_preserved <- ROD_Res_Dermo_Sus_stats_order %>% rownames_to_column("mod_name") %>% filter(Zsummary.pres > 5.0)
+ROD_Res_Dermo_Sus_stats_MR <- ROD_Res_Dermo_Sus_mp$preservation$observed$ref.Dermo_Sus$inColumnsAlsoPresentIn.ROD_Res
+ROD_Res_Dermo_Sus_stats_MR <- ROD_Res_Dermo_Sus_stats_MR [,c("moduleSize","medianRank.pres")]
+ROD_Res_Dermo_Sus_stats_MR_order <- ROD_Res_Dermo_Sus_stats_MR [order(ROD_Res_Dermo_Sus_stats_MR [,2]),]
+ROD_Res_Dermo_Sus_stats_MR_order_less20 <- ROD_Res_Dermo_Sus_stats_MR_order %>% rownames_to_column("mod_name") %>% filter(medianRank.pres < 20)
+
+# Save network
+#save(ROD_Res_Dermo_Sus_mp, file="/Volumes/My Passport for Mac/Chapter1_Apoptosis_Paper_Saved_DESeq_WGCNA_Data/ROD_Res_Dermo_Sus_module_preservation.RData")
+
+# Plot module preservation
+# remember - low median rank means high preservation
+ggplot(ROD_Res_Dermo_Sus_stats_MR_order_less20  , aes(x= moduleSize, y = medianRank.pres, color = mod_name)) + 
+  geom_point() + xlab("Module Size") + ylab("Median Rank") + geom_text(aes(label=mod_name))
+
+ROD_Res_Dermo_Sus_stats_preserved_Zsum_medianRank <- ROD_Res_Dermo_Sus_stats_MR_order_less20[ROD_Res_Dermo_Sus_stats_MR_order_less20$mod_name %in% ROD_Res_Dermo_Sus_stats_preserved$mod_name ,]
+ROD_Res_Dermo_Sus_Dermo <- ROD_Res_Dermo_Sus_stats_preserved[ROD_Res_Dermo_Sus_stats_preserved$mod_name %in% Dermo_Sus_moduleTraitCor_Pval_df_sig_list_rm,]
+ROD_Res_Dermo_Sus_ROD <- ROD_Res_Dermo_Sus_stats_preserved[ROD_Res_Dermo_Sus_stats_preserved$mod_name %in% ROD_Res_moduleTraitCor_Pval_df_sig_list_rm,]
+
+
 ### Assess module preservation between Probiotic and Pro_RE22 (just the probiotic network, not the full network)
-#Pro_Pro_RE22_multiExpr = list(Pro=list(data=Probiotic_dds_rlog_matrix_common), Pro_RE22=list(data=Pro_RE22_dds_rlog_matrix_common_Pro))
-#Pro_Pro_RE22_multiColor = list(Pro = Probiotic_moduleColors)
-##Pro_Pro_RE22 = load(file="/Volumes/My Passport for Mac/Chapter1_Apoptosis_Paper_Saved_DESeq_WGCNA_Data/Probiotic_Pro_module_preservation.RData")
-##Pro_Pro_RE22_mp =modulePreservation(Pro_Pro_RE22_multiExpr, Pro_Pro_RE22_multiColor,
-##                                     referenceNetworks=1,
-##                                     verbose=3,
-##                                     networkType="signed hybrid", # use same signed hybrid as before
-##                                     corFnc = "bicor", # use recommended bicor as before 
-##                                     nPermutations=100,
-##                                     randomSeed = 1, # recommended in langfelder tutorial
-##                                     quickCor = 0) # number between 0 and 1 specifying the handling of missing data in calculation of correlation. Zero means exact but potentially slower calculations
-#Pro_Pro_RE22_stats = Pro_Pro_RE22_mp$preservation$Z$ref.Pro$inColumnsAlsoPresentIn.Pro_RE22
-#Pro_Pro_RE22_stats_order <- Pro_Pro_RE22_stats[order(-Pro_Pro_RE22_stats[,2]),c(1:2)] 
-#Pro_Pro_RE22_stats_preserved <- Pro_Pro_RE22_stats_order %>% rownames_to_column("mod_name") %>% filter(Zsummary.pres > 5.0)
-## mod_name moduleSize Zsummary.pres
-## 1 turquoise       1000      7.814080
-## 2     brown       1000      5.279559
-#Pro_Pro_RE22_stats_MR <- Pro_Pro_RE22_mp$preservation$observed$ref.Pro$inColumnsAlsoPresentIn.Pro_RE22
-#Pro_Pro_RE22_stats_MR <- Pro_Pro_RE22_stats_MR[,c("moduleSize","medianRank.pres")]
-#Pro_Pro_RE22_stats_MR_order <- Pro_Pro_RE22_stats_MR[order(Pro_Pro_RE22_stats_MR[,2]),]
-#Pro_Pro_RE22_stats_MR_order_less20 <- Pro_Pro_RE22_stats_MR_order %>% rownames_to_column("mod_name") %>% filter(medianRank.pres < 20)
-#
-## Save network
-##save(Pro_Pro_RE22_mp, file="/Volumes/My Passport for Mac/Chapter1_Apoptosis_Paper_Saved_DESeq_WGCNA_Data/Probiotic_Pro_module_preservation.RData")
-#
-## Plot module preservation
-## remember - low median rank means high preservation
-#ggplot(Pro_Pro_RE22_stats_MR_order_less20  , aes(x= moduleSize, y = medianRank.pres, color = mod_name)) + 
-#  geom_point() + xlab("Module Size") + ylab("Median Rank") + geom_text(aes(label=mod_name))
-#
-#Pro_Pro_RE22_pro <- Pro_Pro_RE22_stats_preserved[Pro_Pro_RE22_stats_preserved$mod_name %in% Probiotic_moduleTraitCor_Pval_df_sig_list_rm,]
-## 0
-#Pro_Pro_RE22_Pro_S4 <- Pro_Pro_RE22_stats_preserved[Pro_Pro_RE22_stats_preserved$mod_name %in% Pro_RE22_Pro_moduleTraitCor_Pval_df_sig_list_rm,]
-## mod_name moduleSize Zsummary.pres
-## 2    brown       1000      5.279559
-#Pro_Pro_RE22_Pro_RI <-Pro_Pro_RE22_stats_preserved[Pro_Pro_RE22_stats_preserved$mod_name %in% Pro_RE22_Pro_RI_moduleTraitCor_Pval_df_sig_list_rm,]
-## mod_name moduleSize Zsummary.pres
-## 1 turquoise       1000      7.814080
-## 2     brown       1000      5.279559
-#
+Pro_Pro_RE22_multiExpr = list(Pro=list(data=Probiotic_dds_rlog_matrix_common), Pro_RE22=list(data=Pro_RE22_dds_rlog_matrix_common_Pro))
+Pro_Pro_RE22_multiColor = list(Pro = Probiotic_moduleColors)
+#Pro_Pro_RE22 = load(file="/Volumes/My Passport for Mac/Chapter1_Apoptosis_Paper_Saved_DESeq_WGCNA_Data/Probiotic_Pro_module_preservation.RData")
+#Pro_Pro_RE22_mp =modulePreservation(Pro_Pro_RE22_multiExpr, Pro_Pro_RE22_multiColor,
+#                                     referenceNetworks=1,
+#                                     verbose=3,
+#                                     networkType="signed hybrid", # use same signed hybrid as before
+#                                     corFnc = "bicor", # use recommended bicor as before 
+#                                     nPermutations=100,
+#                                     randomSeed = 1, # recommended in langfelder tutorial
+#                                     quickCor = 0) # number between 0 and 1 specifying the handling of missing data in calculation of correlation. Zero means exact but potentially slower calculations
+Pro_Pro_RE22_stats = Pro_Pro_RE22_mp$preservation$Z$ref.Pro$inColumnsAlsoPresentIn.Pro_RE22
+Pro_Pro_RE22_stats_order <- Pro_Pro_RE22_stats[order(-Pro_Pro_RE22_stats[,2]),c(1:2)] 
+Pro_Pro_RE22_stats_preserved <- Pro_Pro_RE22_stats_order %>% rownames_to_column("mod_name") %>% filter(Zsummary.pres > 5.0)
+# mod_name moduleSize Zsummary.pres
+# 1 turquoise       1000      7.814080
+# 2     brown       1000      5.279559
+Pro_Pro_RE22_stats_MR <- Pro_Pro_RE22_mp$preservation$observed$ref.Pro$inColumnsAlsoPresentIn.Pro_RE22
+Pro_Pro_RE22_stats_MR <- Pro_Pro_RE22_stats_MR[,c("moduleSize","medianRank.pres")]
+Pro_Pro_RE22_stats_MR_order <- Pro_Pro_RE22_stats_MR[order(Pro_Pro_RE22_stats_MR[,2]),]
+Pro_Pro_RE22_stats_MR_order_less20 <- Pro_Pro_RE22_stats_MR_order %>% rownames_to_column("mod_name") %>% filter(medianRank.pres < 20)
+
+# Save network
+#save(Pro_Pro_RE22_mp, file="/Volumes/My Passport for Mac/Chapter1_Apoptosis_Paper_Saved_DESeq_WGCNA_Data/Probiotic_Pro_module_preservation.RData")
+
+# Plot module preservation
+# remember - low median rank means high preservation
+ggplot(Pro_Pro_RE22_stats_MR_order_less20  , aes(x= moduleSize, y = medianRank.pres, color = mod_name)) + 
+  geom_point() + xlab("Module Size") + ylab("Median Rank") + geom_text(aes(label=mod_name))
+
+Pro_Pro_RE22_pro <- Pro_Pro_RE22_stats_preserved[Pro_Pro_RE22_stats_preserved$mod_name %in% Probiotic_moduleTraitCor_Pval_df_sig_list_rm,]
+# 0
+Pro_Pro_RE22_Pro_S4 <- Pro_Pro_RE22_stats_preserved[Pro_Pro_RE22_stats_preserved$mod_name %in% Pro_RE22_Pro_moduleTraitCor_Pval_df_sig_list_rm,]
+# mod_name moduleSize Zsummary.pres
+# 2    brown       1000      5.279559
+Pro_Pro_RE22_Pro_RI <-Pro_Pro_RE22_stats_preserved[Pro_Pro_RE22_stats_preserved$mod_name %in% Pro_RE22_Pro_RI_moduleTraitCor_Pval_df_sig_list_rm,]
+# mod_name moduleSize Zsummary.pres
+# 1 turquoise       1000      7.814080
+# 2     brown       1000      5.279559
+
 ## Conclusions: May be some probiotic specific 
 
 ##  Pro_RE22 (just the probiotic network, not the full network) vs Probiotic 
@@ -3432,29 +3431,29 @@ text(He_dds_vst_matrix_common_sft$fitIndices[,1], He_dds_vst_matrix_common_sft$f
 #                                 pamRespectsDendro = FALSE,# recommended default
 #                                 verbose = 3, 
 #                                 maxBlockSize = 20000) # 20,000 should be okay because I have 16GB memory on my computer
-## How many modules identified
-#table(Zhang_net$colors)
-## Plot dendrogram with colors
-## open a graphics window
-#sizeGrWindow(12, 9)
-## Convert labels to colors for plotting
-#Zhang_mergedColors = labels2colors(Zhang_net$colors)
-## Plot the dendrogram and the module colors underneath
-#plotDendroAndColors(Zhang_net$dendrograms[[1]], Zhang_mergedColors[Zhang_net$blockGenes[[1]]],
-#                    "Module colors",
-#                    dendroLabels = FALSE, hang = 0.03,
-#                    addGuide = TRUE, guideHang = 0.05)
-#Zhang_moduleLabels = Zhang_net$colors
-#Zhang_moduleColors = labels2colors(Zhang_net$colors)
-#Zhang_MEs = Zhang_net$MEs
-#Zhang_geneTree = Zhang_net$dendrograms[[1]]
+# How many modules identified
+table(Zhang_net$colors)
+# Plot dendrogram with colors
+# open a graphics window
+sizeGrWindow(12, 9)
+# Convert labels to colors for plotting
+Zhang_mergedColors = labels2colors(Zhang_net$colors)
+# Plot the dendrogram and the module colors underneath
+plotDendroAndColors(Zhang_net$dendrograms[[1]], Zhang_mergedColors[Zhang_net$blockGenes[[1]]],
+                    "Module colors",
+                    dendroLabels = FALSE, hang = 0.03,
+                    addGuide = TRUE, guideHang = 0.05)
+Zhang_moduleLabels = Zhang_net$colors
+Zhang_moduleColors = labels2colors(Zhang_net$colors)
+Zhang_MEs = Zhang_net$MEs
+Zhang_geneTree = Zhang_net$dendrograms[[1]]
 #
 ## Save Zhang network
 #save(Zhang_net, Zhang_mergedColors, Zhang_moduleLabels, Zhang_moduleColors, Zhang_MEs,Zhang_geneTree, 
 #     file="/Volumes/My Passport for Mac/Chapter1_Apoptosis_Paper_Saved_DESeq_WGCNA_Data/Zhang_network.RData")
 
 # Load Zhang network
-Zhang_network = load(file="/Volumes/My Passport for Mac/Chapter1_Apoptosis_Paper_Saved_DESeq_WGCNA_Data/Zhang_network.RData")
+#Zhang_network = load(file="/Volumes/My Passport for Mac/Chapter1_Apoptosis_Paper_Saved_DESeq_WGCNA_Data/Zhang_network.RData")
 
 
 # Rubio
@@ -3784,6 +3783,11 @@ Zhang_module_Vibrio_apop_df <- left_join(Zhang_module_apop_df,Zhang_moduleTraitC
 Zhang_module_Vibrio_apop_df$exp <- "Zhang_Vibrio"
 
 # specify names for list of lists
+names(Zhang_moduleTraitCor_Pval_LPS_df_sig_list_rm) <- c("darkolivegreen4","chocolate4"      ,"darkorange2","honeydew"       ,"pink"          ,"sienna4"       ,"darkseagreen2"   ,"magenta4"      ,"grey60"     ,"tan3"           ,
+                                                          "ivory"         , "black"          , "powderblue", "darkorange"    , "firebrick4"   , "lightpink2"   , "lightsteelblue" , "midnightblue" , "blue"      , "darkseagreen4"  ,
+                                                          "navajowhite"   , "magenta"        , "lightpink3", "mediumpurple2" , "brown1"       , "yellow2"      , "pink4"          , "paleturquoise", "turquoise" , "thistle1"       ,
+                                                          "cyan"          , "darkolivegreen2", "green4"    , "palevioletred2", "darkseagreen3", "mediumpurple3", "orangered3"     , "tan"          , "indianred3", "mistyrose"      ,
+                                                          "orangered"     , "coral2"         , "plum3"     , "coral4"        , "lightskyblue4", "blue3"        , "navajowhite2"  )
 Zhang_LPS_module_apop <- lapply(Zhang_moduleTraitCor_Pval_LPS_df_sig_list_rm,  lookup_mod_apop_CG)
 Zhang_LPS_module_apop_df <- do.call(rbind,Zhang_LPS_module_apop)
 Zhang_LPS_module_apop_df$mod_names <- gsub("\\..*","",row.names(Zhang_LPS_module_apop_df))
@@ -3961,6 +3965,7 @@ deLorg_Res_moduleTraitCor_Pval_df[order(deLorg_Res_moduleTraitCor_Pval_df$pvalue
 class(deLorg_Res_moduleTraitCor_Pval_df$pvalue) # numeric
 deLorg_Res_moduleTraitCor_Pval_df_sig <- deLorg_Res_moduleTraitCor_Pval_df %>% filter(pvalue <= 0.05)
 deLorg_Res_moduleTraitCor_Pval_df_sig #25
+deLorg_Res_moduleTraitCor_Pval_df_sig <- deLorg_Res_moduleTraitCor_Pval_df_sig %>% filter(mod_names != "MEgrey")
 
 ### ANNOTATE APOPTOSIS GENES IN SIGNIFICANT MODULES
 deLorg_Res_moduleTraitCor_Pval_df_sig_list <- deLorg_Res_moduleTraitCor_Pval_df_sig$mod_names
@@ -3969,7 +3974,7 @@ deLorg_Res_moduleTraitCor_Pval_df_sig_list_rm <- str_remove(deLorg_Res_moduleTra
 # Use function to lookup all apop names for each significant module
 names(deLorg_Res_moduleTraitCor_Pval_df_sig_list_rm) <- c("orangered4" ,     "skyblue3"        ,"indianred2" ,     "lightgreen"   ,   "floralwhite"     ,"lightskyblue4" ,  "coral4"    ,     "lightslateblue" , "green"          ,
                                                            "turquoise" ,      "antiquewhite2"  , "blue"      ,      "plum1"       ,    "darkolivegreen2", "pink"         ,   "skyblue2" ,      "coral1"        ,  "lightpink2"     ,
-                                                           "deeppink1" ,      "salmon4"        , "white"     ,      "greenyellow" ,    "royalblue"      , "brown"        ,   "grey" )
+                                                           "deeppink1" ,      "salmon4"        , "white"     ,      "greenyellow" ,    "royalblue"      , "brown"  )
 matrix_common= deLorgeril_Resistant_dds_vst_matrix_common
 moduleColors= deLorg_Res_moduleColors
 lookup =   C_gig_rtracklayer_apop_product_final
@@ -4112,6 +4117,8 @@ He_moduleTraitCor_Pval_df[order(He_moduleTraitCor_Pval_df$pvalue),]
 class(He_moduleTraitCor_Pval_df$pvalue) # numeric
 He_moduleTraitCor_Pval_df_sig <- He_moduleTraitCor_Pval_df %>% filter(pvalue <= 0.05)
 He_moduleTraitCor_Pval_df_sig # 22
+# remove grey from list
+He_moduleTraitCor_Pval_df_sig <- He_moduleTraitCor_Pval_df_sig %>% filter(mod_names !="MEgrey")
 
 ### ANNOTATE APOPTOSIS GENES IN SIGNIFICANT MODULES
 He_moduleTraitCor_Pval_df_sig_list <- He_moduleTraitCor_Pval_df_sig$mod_names
@@ -4120,7 +4127,7 @@ He_moduleTraitCor_Pval_df_sig_list_rm <- str_remove(He_moduleTraitCor_Pval_df_si
 # Use function to lookup all apop names for each significant module
 names(He_moduleTraitCor_Pval_df_sig_list_rm) <- c("black"       ,"skyblue"  ,"darkolivegreen" , "magenta" , "white"   ,"darkgreen", "darkslateblue","salmon4",         "red" ,           
                                                    "tan"        , "yellow"  , "midnightblue"  ,  "salmon" ,  "lightsteelblue1", "brown4"  ,  "orangered4"  , "brown" ,          "blue",           
-                                                   "darkorange2", "darkgrey", "turquoise"     ,  "grey"    )
+                                                   "darkorange2", "darkgrey", "turquoise"  )
 matrix_common= He_dds_vst_matrix_common
 moduleColors= He_moduleColors
 lookup =   C_gig_rtracklayer_apop_product_final
@@ -4180,6 +4187,17 @@ deLorg_He_multiColor = list(deLorg_Sus = deLorg_Sus_moduleColors)
 deLorg_He_stats = deLorg_He_mp$preservation$Z$ref.deLorg_Sus$inColumnsAlsoPresentIn.He
 deLorg_He_stats_order <- deLorg_He_stats[order(-deLorg_He_stats[,2]),c(1:2)]
 deLorg_He_stats_preserved <- deLorg_He_stats_order %>% rownames_to_column("mod_name") %>% filter(Zsummary.pres > 5.0)
+# mod_name moduleSize Zsummary.pres
+# 1      green       1000     33.794665
+# 2     yellow       1000     30.735406
+# 3    magenta        356     24.497166
+# 4        red        526     23.668887
+# 5      brown       1000     21.318501
+# 6       pink        406     16.401608
+# 7       blue       1000     15.766808
+# 8       gold       1000     11.828504
+# 9  turquoise       1000     11.567648
+# 10     black        484      5.603149
 deLorg_He_stats_MR <- deLorg_He_mp$preservation$observed$ref.deLorg_Sus$inColumnsAlsoPresentIn.He
 deLorg_He_stats_MR <- deLorg_He_stats_MR  [,c("moduleSize","medianRank.pres")]
 deLorg_He_stats_MR_order <- deLorg_He_stats_MR [order(-deLorg_He_stats_MR [,2]),]
@@ -4211,10 +4229,100 @@ He_preserved_all <- deLorg_He_stats_preserved[deLorg_He_stats_preserved$mod_name
 #9  turquoise       1000     11.567648
 #10     black        484      5.603149
 
-## He vs. Delorgeril_Sus have conservation (since He was also susceptible)
+## He vs. Delorgeril_Sus 
 He_deLorg_Sus_multiExpr = list(He=list(data=He_dds_vst_matrix_common),deLorg_Sus=list(data=deLorgeril_Susceptible_dds_vst_matrix_common))
 He_deLorg_Sus_multiColor = list(He = He_moduleColors) 
-He_deLorg_Sus_mp =modulePreservation(He_deLorg_Sus_multiExpr, He_deLorg_Sus_multiColor,
+#He_deLorg_Sus_mp =modulePreservation(He_deLorg_Sus_multiExpr, He_deLorg_Sus_multiColor,
+#                                   referenceNetworks=1,
+#                                   verbose=3,
+#                                   networkType="signed hybrid", # use same signed hybrid as before
+#                                   corFnc = "bicor", # use recommended bicor as before 
+#                                   nPermutations=100,
+#                                   randomSeed = 1, # recommended in langfelder tutorial
+#                                   quickCor = 0) # number between 0 and 1 specifying the handling of missing data in calculation of correlation. Zero means exact but potentially slower calculations
+He_deLorg_Sus_stats = He_deLorg_Sus_mp$preservation$Z$ref.He$inColumnsAlsoPresentIn.deLorg_Sus
+He_deLorg_Sus_stats_order <- He_deLorg_Sus_stats[order(-He_deLorg_Sus_stats[,2]),c(1:2)]
+He_deLorg_Sus_stats_preserved <- He_deLorg_Sus_stats_order %>% rownames_to_column("mod_name") %>% filter(Zsummary.pres > 5.0)
+#mod_name moduleSize Zsummary.pres
+#1              red        450     40.851138
+#2           yellow        794     36.369011
+#3              tan        370     29.637540
+#4          magenta        387     23.378484
+#5    mediumpurple3         86     21.048026
+#6           violet        132     19.980389
+#7            brown        819     19.910803
+#8     midnightblue        339     19.559415
+#9        turquoise       1000     19.230363
+#10       darkgreen        248     18.663438
+#11            blue       1000     18.180394
+#12         skyblue        163     17.047495
+#13     saddlebrown        154     15.920245
+#14            cyan        348     14.604253
+#15            pink        398     13.196043
+#16          salmon        365     12.450763
+#17        skyblue3         93     11.335303
+#18           white        178     11.253941
+#19            gold       1000     11.210571
+#20       lightcyan        339     11.128849
+#21        darkgrey        209     10.404264
+#22   darkslateblue         49     10.213339
+#23        thistle2         46      9.137793
+#24 lightsteelblue1         79      7.507454
+#25   darkturquoise        219      6.854947
+#26           black        413      6.690562
+#27       steelblue        140      6.541944
+#28         salmon4         38      6.498236
+#29      orangered4         86      6.296053
+#30          purple        386      5.698736
+#31           green        682      5.510336
+#32           ivory         72      5.070521
+He_deLorg_Sus_stats_MR <- He_deLorg_Sus_mp$preservation$observed$ref.He$inColumnsAlsoPresentIn.deLorg_Sus
+He_deLorg_Sus_stats_MR <- He_deLorg_Sus_stats_MR  [,c("moduleSize","medianRank.pres")]
+He_deLorg_Sus_stats_MR_order <- He_deLorg_Sus_stats_MR [order(-He_deLorg_Sus_stats_MR [,2]),]
+He_deLorg_Sus_stats_MR_order_less20 <- He_deLorg_Sus_stats_MR_order %>% rownames_to_column("mod_name") %>% filter(medianRank.pres < 20)
+
+# Save module preservation results
+# save(He_deLorg_Sus_mp, file="/Volumes/My Passport for Mac/Chapter1_Apoptosis_Paper_Saved_DESeq_WGCNA_Data/He_deLorg_Sus_module_preservation.RData")
+
+# Plot module preservation
+# remember - low median rank means high preservation
+ggplot(He_deLorg_Sus_stats_MR_order_less20, aes(x= moduleSize, y = medianRank.pres, color = mod_name)) + 
+  geom_point() + xlab("Module Size") + ylab("Median Rank") + geom_text(aes(label=mod_name))
+
+He_deLorg_Sus_stats_preserved_Zsum_medianRank <- He_deLorg_Sus_stats_MR_order_less20[He_deLorg_Sus_stats_MR_order_less20$mod_name %in% He_deLorg_Sus_stats_preserved$mod_name,]
+
+# Were any of these preserved modules significant in deLorg_Sus and He
+He_deLorg_Sus_preserved_all <- He_deLorg_Sus_stats_preserved[He_deLorg_Sus_stats_preserved$mod_name %in% deLorg_Sus_moduleTraitCor_Pval_df_sig_list_rm,]
+#mod_name moduleSize Zsummary.pres
+#8  midnightblue        339     19.559415
+#9     turquoise       1000     19.230363
+#11         blue       1000     18.180394
+#30       purple        386      5.698736
+He_deLorg_Sus_he_preserved_all <- He_deLorg_Sus_stats_preserved[He_deLorg_Sus_stats_preserved$mod_name %in% He_moduleTraitCor_Pval_df_sig_list_rm,]
+#mod_name moduleSize Zsummary.pres
+#1              red        450     40.851138
+#2           yellow        794     36.369011
+#3              tan        370     29.637540
+#4          magenta        387     23.378484
+#7            brown        819     19.910803
+#8     midnightblue        339     19.559415
+#9        turquoise       1000     19.230363
+#10       darkgreen        248     18.663438
+#11            blue       1000     18.180394
+#12         skyblue        163     17.047495
+#16          salmon        365     12.450763
+#18           white        178     11.253941
+#21        darkgrey        209     10.404264
+#22   darkslateblue         49     10.213339
+#24 lightsteelblue1         79      7.507454
+#26           black        413      6.690562
+#28         salmon4         38      6.498236
+#29      orangered4         86      6.296053
+
+## He vs. Delorgeril_Tol 
+He_deLorg_Tol_multiExpr = list(He=list(data=He_dds_vst_matrix_common),deLorg_Tol=list(data=deLorgeril_Tolerant_dds_vst_matrix_common))
+He_deLorg_Tol_multiColor = list(He = He_moduleColors) 
+He_deLorg_Tol_mp =modulePreservation(He_deLorg_Tol_multiExpr, He_deLorg_Tol_multiColor,
                                    referenceNetworks=1,
                                    verbose=3,
                                    networkType="signed hybrid", # use same signed hybrid as before
@@ -4222,73 +4330,151 @@ He_deLorg_Sus_mp =modulePreservation(He_deLorg_Sus_multiExpr, He_deLorg_Sus_mult
                                    nPermutations=100,
                                    randomSeed = 1, # recommended in langfelder tutorial
                                    quickCor = 0) # number between 0 and 1 specifying the handling of missing data in calculation of correlation. Zero means exact but potentially slower calculations
-He_deLorg_Sus_stats = He_deLorg_Sus_mp$preservation$Z$ref.He$inColumnsAlsoPresentIn.deLorg_Sus
-He_deLorg_Sus_stats_order <- He_deLorg_Sus_stats[order(-He_deLorg_Sus_stats[,2]),c(1:2)]
-He_deLorg_Sus_stats_preserved <- He_deLorg_Sus_stats_order %>% rownames_to_column("mod_name") %>% filter(Zsummary.pres > 5.0)
-He_deLorg_Sus_stats_MR <- He_deLorg_Sus_mp$preservation$observed$ref.He$inColumnsAlsoPresentIn.deLorg_Sus
-He_deLorg_Sus_stats_MR <- He_deLorg_Sus_stats_MR  [,c("moduleSize","medianRank.pres")]
-He_deLorg_Sus_stats_MR_order <- He_deLorg_Sus_stats_MR [order(-He_deLorg_Sus_stats_MR [,2]),]
-He_deLorg_Sus_stats_MR_order_less20 <- He_deLorg_Sus_stats_MR_order %>% rownames_to_column("mod_name") %>% filter(medianRank.pres < 20)
+He_deLorg_Tol_stats = He_deLorg_Tol_mp$preservation$Z$ref.He$inColumnsAlsoPresentIn.deLorg_Tol
+He_deLorg_Tol_stats_order <- He_deLorg_Tol_stats[order(-He_deLorg_Tol_stats[,2]),c(1:2)]
+He_deLorg_Tol_stats_preserved <- He_deLorg_Tol_stats_order %>% rownames_to_column("mod_name") %>% filter(Zsummary.pres > 5.0)
+He_deLorg_Tol_stats_MR <- He_deLorg_Tol_mp$preservation$observed$ref.He$inColumnsAlsoPresentIn.deLorg_Tol
+He_deLorg_Tol_stats_MR <- He_deLorg_Tol_stats_MR  [,c("moduleSize","medianRank.pres")]
+He_deLorg_Tol_stats_MR_order <- He_deLorg_Tol_stats_MR [order(-He_deLorg_Sus_stats_MR [,2]),]
+He_deLorg_Tol_stats_MR_order_less20 <- He_deLorg_Tol_stats_MR_order %>% rownames_to_column("mod_name") %>% filter(medianRank.pres < 20)
 
 # Save module preservation results
-save(He_deLorg_Sus_mp, file="/Volumes/My Passport for Mac/Chapter1_Apoptosis_Paper_Saved_DESeq_WGCNA_Data/He_deLorg_Sus_module_preservation.RData")
+save(He_deLorg_Tol_mp, file="/Volumes/My Passport for Mac/Chapter1_Apoptosis_Paper_Saved_DESeq_WGCNA_Data/He_deLorg_Tol_module_preservation.RData")
 
 # Plot module preservation
 # remember - low median rank means high preservation
-ggplot(He_deLorg_Sus_stats_MR_order_less20, aes(x= moduleSize, y = medianRank.pres, color = mod_name)) + 
+ggplot(He_deLorg_Tol_stats_MR_order_less20, aes(x= moduleSize, y = medianRank.pres, color = mod_name)) + 
   geom_point() + xlab("Module Size") + ylab("Median Rank") + geom_text(aes(label=mod_name))
 
-He_deLorg_Sus_stats_preserved_Zsum_medianRank <- He_deLorg_Sus_stats_MR_order_less20[He_deLorg_Sus_stats_MR_order_less20$mod_name %in% deLorg_He_stats_preserved$mod_name,]
+He_deLorg_Tol_stats_preserved_Zsum_medianRank <- He_deLorg_Tol_stats_MR_order_less20[He_deLorg_Tol_stats_MR_order_less20$mod_name %in% He_deLorg_Tol_stats_preserved$mod_name,]
 
-# Were any of these preserved modules significant in deLorg_Sus and He
-He_deLorg_Sus_preserved_all <- He_deLorg_Sus_stats_preserved[He_deLorg_Sus_stats_preserved$mod_name %in% deLorg_Sus_moduleTraitCor_Pval_df_sig_list_rm,]
+# Were any of these preserved modules significant in deLorg_Tol and He
+He_deLorg_Tol_preserved_all <-    He_deLorg_Tol_stats_preserved[He_deLorg_Tol_stats_preserved$mod_name %in% deLorg_Tol_moduleTraitCor_Pval_df_sig_list_rm,]
+He_deLorg_Tol_he_preserved_all <- He_deLorg_Tol_stats_preserved[He_deLorg_Tol_stats_preserved$mod_name %in% He_moduleTraitCor_Pval_df_sig_list_rm,]
 
-He_deLorg_Sus_he_preserved_all <- He_deLorg_Sus_stats_preserved[He_deLorg_Sus_stats_preserved$mod_name %in% He_moduleTraitCor_Pval_df_sig_list_rm,]
+## Delorgeril_Tol vs. He
+deLorg_Tol_He_multiExpr = list(deLorg_Tol=list(data=deLorgeril_Tolerant_dds_vst_matrix_common), He=list(data=He_dds_vst_matrix_common))
+deLorg_Tol_He_multiColor = list(deLorg_Tol = deLorg_Tol_moduleColors) 
+deLorg_Tol_He_mp =modulePreservation(deLorg_Tol_He_multiExpr, deLorg_Tol_He_multiColor,
+                                     referenceNetworks=1,
+                                     verbose=3,
+                                     networkType="signed hybrid", # use same signed hybrid as before
+                                     corFnc = "bicor", # use recommended bicor as before 
+                                     nPermutations=100,
+                                     randomSeed = 1, # recommended in langfelder tutorial
+                                     quickCor = 0) # number between 0 and 1 specifying the handling of missing data in calculation of correlation. Zero means exact but potentially slower calculations
+deLorg_Tol_He_stats = deLorg_Tol_He_mp$preservation$Z$ref.deLorg_Tol$inColumnsAlsoPresentIn.He
+deLorg_Tol_He_stats_order <- deLorg_Tol_He_stats[order(-deLorg_Tol_He_stats[,2]),c(1:2)]
+deLorg_Tol_He_stats_preserved <- deLorg_Tol_He_stats_order %>% rownames_to_column("mod_name") %>% filter(Zsummary.pres > 5.0)
+deLorg_Tol_He_stats_MR <- deLorg_Tol_He_mp$preservation$observed$ref.deLorg_Tol$inColumnsAlsoPresentIn.He
+deLorg_Tol_He_stats_MR <- deLorg_Tol_He_stats_MR [,c("moduleSize","medianRank.pres")]
+deLorg_Tol_He_stats_MR_order <- deLorg_Tol_He_stats_MR [order(-deLorg_Tol_He_stats_MR [,2]),]
+deLorg_Tol_He_stats_MR_order_less20 <- deLorg_Tol_He_stats_MR_order %>% rownames_to_column("mod_name") %>% filter(medianRank.pres < 20)
 
+# Save module preservation results
+save(deLorg_Tol_He_mp, file="/Volumes/My Passport for Mac/Chapter1_Apoptosis_Paper_Saved_DESeq_WGCNA_Data/deLorg_Tol_He_module_preservation.RData")
+
+# Plot module preservation
+# remember - low median rank means high preservation
+ggplot(deLorg_Tol_He_stats_MR_order_less20, aes(x= moduleSize, y = medianRank.pres, color = mod_name)) + 
+  geom_point() + xlab("Module Size") + ylab("Median Rank") + geom_text(aes(label=mod_name))
+
+deLorg_Tol_He_stats_preserved_Zsum_medianRank <- deLorg_Tol_He_stats_MR_order_less20[deLorg_Tol_He_stats_MR_order_less20$mod_name %in% deLorg_Tol_He_stats_preserved$mod_name,]
+
+# Were any of these preserved modules significant in deLorg_Tol and He
+deLorg_Tol_He_Tol_preserved_all <-    deLorg_Tol_He_stats_preserved[deLorg_Tol_He_stats_preserved$mod_name %in% deLorg_Tol_moduleTraitCor_Pval_df_sig_list_rm,]
+deLorg_Tol_He_He_preserved_all <- deLorg_Tol_He_stats_preserved[deLorg_Tol_He_stats_preserved$mod_name %in% He_moduleTraitCor_Pval_df_sig_list_rm,]
 
 # Assess whether deLorg_Sus and deLorgTol have conservation 
-deLorg_Sus_Tol_multiExpr = list(deLorg_Sus=list(data=deLorgeril_Susceptible_dds_vst_matrix_common),deLorg_Tol=list(data=deLorgeril_Resistant_dds_vst_matrix_common))
-deLorg_Sus_Tol_multiColor = list(deLorg_Sus = deLorg_Sus_moduleColors) 
-#deLorg_Sus_Tol_mp =modulePreservation(deLorg_Sus_Tol_multiExpr, deLorg_Sus_Tol_multiColor,
-#                                 referenceNetworks=1,
-#                                 verbose=3,
-#                                 networkType="signed hybrid", # use same signed hybrid as before
-#                                 corFnc = "bicor", # use recommended bicor as before 
-#                                 nPermutations=100,
-#                                 randomSeed = 1, # recommended in langfelder tutorial
-#                                 quickCor = 0) # number between 0 and 1 specifying the handling of missing data in calculation of correlation. Zero means exact but potentially slower calculations
-deLorg_Sus_Tol_stats = deLorg_Sus_Tol_mp$preservation$Z$ref.deLorg_Sus$inColumnsAlsoPresentIn.deLorg_Tol
-deLorg_Sus_Tol_stats_order <- deLorg_Sus_Tol_stats[order(-deLorg_Sus_Tol_stats[,2]),c(1:2)]
-deLorg_Sus_Tol_stats_preserved <- deLorg_Sus_Tol_stats_order %>% rownames_to_column("mod_name") %>% filter(Zsummary.pres > 5.0)
-deLorg_Sus_Tol_stats_MR <- deLorg_Sus_Tol_mp$preservation$observed$ref.deLorg_Sus$inColumnsAlsoPresentIn.deLorg_Tol
-deLorg_Sus_Tol_stats_MR <- deLorg_Sus_Tol_stats_MR[,c("moduleSize","medianRank.pres")]
-deLorg_Sus_Tol_stats_MR_order <- deLorg_Sus_Tol_stats_MR[order(-deLorg_Sus_Tol_stats_MR[,2]),]
-deLorg_Sus_Tol_stats_MR_order_less20 <- deLorg_Sus_Tol_stats_MR_order %>% rownames_to_column("mod_name") %>% filter(medianRank.pres < 20)
+#deLorg_Sus_Tol_multiExpr = list(deLorg_Sus=list(data=deLorgeril_Susceptible_dds_vst_matrix_common),deLorg_Tol=list(data=deLorgeril_Resistant_dds_vst_matrix_common))
+#deLorg_Sus_Tol_multiColor = list(deLorg_Sus = deLorg_Sus_moduleColors) 
+##deLorg_Sus_Tol_mp =modulePreservation(deLorg_Sus_Tol_multiExpr, deLorg_Sus_Tol_multiColor,
+##                                 referenceNetworks=1,
+##                                 verbose=3,
+##                                 networkType="signed hybrid", # use same signed hybrid as before
+##                                 corFnc = "bicor", # use recommended bicor as before 
+##                                 nPermutations=100,
+##                                 randomSeed = 1, # recommended in langfelder tutorial
+##                                 quickCor = 0) # number between 0 and 1 specifying the handling of missing data in calculation of correlation. Zero means exact but potentially slower calculations
+#deLorg_Sus_Tol_stats = deLorg_Sus_Tol_mp$preservation$Z$ref.deLorg_Sus$inColumnsAlsoPresentIn.deLorg_Tol
+#deLorg_Sus_Tol_stats_order <- deLorg_Sus_Tol_stats[order(-deLorg_Sus_Tol_stats[,2]),c(1:2)]
+#deLorg_Sus_Tol_stats_preserved <- deLorg_Sus_Tol_stats_order %>% rownames_to_column("mod_name") %>% filter(Zsummary.pres > 5.0)
+##mod_name moduleSize Zsummary.pres
+##1       yellow       1000     49.473174
+##2        green       1000     34.124863
+##3    turquoise       1000     20.453268
+##4         blue       1000     17.552898
+##5          red        526     16.676912
+##6         pink        406     13.949355
+##7         gold       1000     13.572896
+##8      magenta        356     12.053217
+##9        brown       1000      9.691178
+##10 greenyellow        164      8.095585
+##11      purple        208      6.741922
+##12       black        484      6.005315
+#
+#deLorg_Sus_Tol_stats_MR <- deLorg_Sus_Tol_mp$preservation$observed$ref.deLorg_Sus$inColumnsAlsoPresentIn.deLorg_Tol
+#deLorg_Sus_Tol_stats_MR <- deLorg_Sus_Tol_stats_MR[,c("moduleSize","medianRank.pres")]
+#deLorg_Sus_Tol_stats_MR_order <- deLorg_Sus_Tol_stats_MR[order(-deLorg_Sus_Tol_stats_MR[,2]),]
+#deLorg_Sus_Tol_stats_MR_order_less20 <- deLorg_Sus_Tol_stats_MR_order %>% rownames_to_column("mod_name") %>% filter(medianRank.pres < 20)
+#
+## Save module preservation results
+##save(deLorg_Sus_Tol_mp, file="/Volumes/My Passport for Mac/Chapter1_Apoptosis_Paper_Saved_DESeq_WGCNA_Data/deLorg_Sus_deLorg_Res_module_preservation.RData")
+#
+## Plot module preservation
+## remember - low median rank means high preservation
+#ggplot(deLorg_Sus_Tol_stats_MR_order_less20 , aes(x= moduleSize, y = medianRank.pres, color = mod_name)) + 
+#  geom_point() + xlab("Module Size") + ylab("Median Rank") + geom_text(aes(label=mod_name))
+#
+#deLorg_Sus_Tol_stats_preserved_Zsum_medianRank <- deLorg_Sus_Tol_stats_MR_order_less20[deLorg_Sus_Tol_stats_MR_order_less20$mod_name %in% deLorg_Sus_Tol_stats_preserved$mod_name,]
+#
+## Were any of these preserved modules significant in deLorg_Sus and He
+#deLorg_Sus_Tol_Suspreserved_all <- deLorg_Sus_Tol_stats_preserved[deLorg_Sus_Tol_stats_preserved$mod_name %in% deLorg_Sus_moduleTraitCor_Pval_df_sig_list_rm,]
+## mod_name moduleSize Zsummary.pres
+## 3  turquoise       1000     20.453268
+## 4       blue       1000     17.552898
+## 11    purple        208      6.741922
+#deLorg_Sus_Tol_Tol_preserved_all <- deLorg_Sus_Tol_stats_preserved[deLorg_Sus_Tol_stats_preserved$mod_name %in% deLorg_Res_moduleTraitCor_Pval_df_sig_list_rm,]
+## mod_name moduleSize Zsummary.pres
+## 2        green       1000     34.124863
+## 3    turquoise       1000     20.453268
+## 4         blue       1000     17.552898
+## 6         pink        406     13.949355
+## 9        brown       1000      9.691178
+## 10 greenyellow        164      8.095585
+
+## deLorg_Tol and deLorg_Sus ##  
+deLorg_Tol_Sus_multiExpr = list(deLorg_Tol=list(data=deLorgeril_Resistant_dds_vst_matrix_common), deLorg_Sus=list(data=deLorgeril_Susceptible_dds_vst_matrix_common))
+deLorg_Tol_Sus_multiColor = list(deLorg_Tol = deLorg_Res_moduleColors) 
+deLorg_Tol_Sus_mp =modulePreservation(deLorg_Tol_Sus_multiExpr, deLorg_Tol_Sus_multiColor,
+                                 referenceNetworks=1,
+                                 verbose=3,
+                                 networkType="signed hybrid", # use same signed hybrid as before
+                                 corFnc = "bicor", # use recommended bicor as before 
+                                 nPermutations=100,
+                                 randomSeed = 1, # recommended in langfelder tutorial
+                                 quickCor = 0) # number between 0 and 1 specifying the handling of missing data in calculation of correlation. Zero means exact but potentially slower calculations
+deLorg_Tol_Sus_stats = deLorg_Tol_Sus_mp$preservation$Z$ref.deLorg_Tol$inColumnsAlsoPresentIn.deLorg_Sus
+deLorg_Tol_Sus_stats_order <- deLorg_Tol_Sus_stats[order(-deLorg_Tol_Sus_stats[,2]),c(1:2)]
+deLorg_Tol_Sus_stats_preserved <- deLorg_Tol_Sus_stats_order %>% rownames_to_column("mod_name") %>% filter(Zsummary.pres > 5.0)
+deLorg_Tol_Sus_stats_MR <- deLorg_Tol_Sus_mp$preservation$observed$ref.deLorg_Tol$inColumnsAlsoPresentIn.deLorg_Sus
+deLorg_Tol_Sus_stats_MR <- deLorg_Tol_Sus_stats_MR[,c("moduleSize","medianRank.pres")]
+deLorg_Tol_Sus_stats_MR_order <- deLorg_Tol_Sus_stats_MR[order(-deLorg_Tol_Sus_stats_MR[,2]),]
+deLorg_Tol_Sus_stats_MR_order_less20 <- deLorg_Tol_Sus_stats_MR_order %>% rownames_to_column("mod_name") %>% filter(medianRank.pres < 20)
 
 # Save module preservation results
-#save(deLorg_Sus_Tol_mp, file="/Volumes/My Passport for Mac/Chapter1_Apoptosis_Paper_Saved_DESeq_WGCNA_Data/deLorg_Sus_deLorg_Res_module_preservation.RData")
+save(deLorg_Tol_Sus_mp, file="/Volumes/My Passport for Mac/Chapter1_Apoptosis_Paper_Saved_DESeq_WGCNA_Data/deLorg_Tol_Sus_module_preservation.RData")
 
 # Plot module preservation
 # remember - low median rank means high preservation
-ggplot(deLorg_Sus_Tol_stats_MR_order_less20 , aes(x= moduleSize, y = medianRank.pres, color = mod_name)) + 
+ggplot(deLorg_Tol_Sus_stats_MR_order_less20 , aes(x= moduleSize, y = medianRank.pres, color = mod_name)) + 
   geom_point() + xlab("Module Size") + ylab("Median Rank") + geom_text(aes(label=mod_name))
 
-deLorg_Sus_Tol_stats_preserved_Zsum_medianRank <- deLorg_Sus_Tol_stats_MR_order_less20[deLorg_Sus_Tol_stats_MR_order_less20$mod_name %in% deLorg_Sus_Tol_stats_preserved$mod_name,]
+deLorg_Tol_Sus_stats_preserved_Zsum_medianRank <- deLorg_Tol_Sus_stats_MR_order_less20[deLorg_Tol_Sus_stats_MR_order_less20$mod_name %in% deLorg_Tol_Sus_stats_preserved$mod_name,]
 
 # Were any of these preserved modules significant in deLorg_Sus and He
-deLorg_Sus_Tol_Suspreserved_all <- deLorg_Sus_Tol_stats_preserved[deLorg_Sus_Tol_stats_preserved$mod_name %in% deLorg_Sus_moduleTraitCor_Pval_df_sig_list_rm,]
-# mod_name moduleSize Zsummary.pres
-# 3  turquoise       1000     20.453268
-# 4       blue       1000     17.552898
-# 11    purple        208      6.741922
-deLorg_Sus_Tol_Tol_preserved_all <- deLorg_Sus_Tol_stats_preserved[deLorg_Sus_Tol_stats_preserved$mod_name %in% deLorg_Res_moduleTraitCor_Pval_df_sig_list_rm,]
-# mod_name moduleSize Zsummary.pres
-# 2        green       1000     34.124863
-# 3    turquoise       1000     20.453268
-# 4         blue       1000     17.552898
-# 6         pink        406     13.949355
-# 9        brown       1000      9.691178
-# 10 greenyellow        164      8.095585
+deLorg_Tol_Sus_Suspreserved_all <-  deLorg_Tol_Sus_stats_preserved[deLorg_Tol_Sus_stats_preserved$mod_name %in% deLorg_Sus_moduleTraitCor_Pval_df_sig_list_rm,]
+deLorg_Tol_Sus_Tol_preserved_all <- deLorg_Tol_Sus_stats_preserved[deLorg_Tol_Sus_stats_preserved$mod_name %in% deLorg_Res_moduleTraitCor_Pval_df_sig_list_rm,]
 
 # Assess whether Rubio and He have conservation (since He was also susceptible)
 Rubio_He_multiExpr = list(Rubio=list(data=Rubio_dds_rlog_matrix_common),He=list(data=He_dds_vst_matrix_common))
@@ -4304,6 +4490,25 @@ Rubio_He_multiColor = list(Rubio = Rubio_moduleColors)
 Rubio_He_stats = Rubio_He_mp$preservation$Z$ref.Rubio$inColumnsAlsoPresentIn.He
 Rubio_He_stats_order <- Rubio_He_stats[order(-Rubio_He_stats[,2]),c(1:2)]
 Rubio_He_stats_preserved <- Rubio_He_stats_order %>% rownames_to_column("mod_name") %>% filter(Zsummary.pres > 5.0)
+#mod_name moduleSize Zsummary.pres
+#1    greenyellow        857     30.926061
+#2          brown       1000     20.578240
+#3          green       1000     18.799122
+#4            tan        642     17.368799
+#5      turquoise       1000     16.208233
+#6    lightyellow        322     14.832272
+#7      lightcyan        367     12.060367
+#8  darkturquoise        249     11.250846
+#9           gold       1000     11.036436
+#10          blue       1000     10.921887
+#11    lightgreen        334      9.823507
+#12          cyan        527      9.722070
+#13           red       1000      8.040630
+#14         black       1000      6.498954
+#15       skyblue         93      5.785529
+#16        salmon        633      5.172902
+#17        orange        166      5.028439
+#18       darkred        271      5.012814
 Rubio_He_stats_MR <- Rubio_He_mp$preservation$observed$ref.Rubio$inColumnsAlsoPresentIn.He
 Rubio_He_stats_MR <- Rubio_He_stats_MR[,c("moduleSize","medianRank.pres")]
 Rubio_He_stats_MR_order <- Rubio_He_stats_MR[order(-Rubio_He_stats_MR [,2]),]
@@ -4349,6 +4554,102 @@ He_preserved_all<- Rubio_He_stats_preserved[Rubio_He_stats_preserved$mod_name %i
 # 15   skyblue         93      5.785529
 # 16    salmon        633      5.172902
 
+# He vs Rubio 
+He_Rubio_multiExpr = list(He=list(data=He_dds_vst_matrix_common), Rubio=list(data=Rubio_dds_rlog_matrix_common))
+He_Rubio_multiColor = list(He = He_moduleColors) 
+#He_Rubio_mp =modulePreservation(He_Rubio_multiExpr, He_Rubio_multiColor,
+#                                      referenceNetworks=1,
+#                                      verbose=3,
+#                                      networkType="signed hybrid", # use same signed hybrid as before
+#                                      corFnc = "bicor", # use recommended bicor as before 
+#                                      nPermutations=100,
+#                                      randomSeed = 1, # recommended in langfelder tutorial
+#                                      quickCor = 0) # number between 0 and 1 specifying the handling of missing data in calculation of correlation. Zero means exact but potentially slower calculations
+He_Rubio_stats = He_Rubio_mp$preservation$Z$ref.He$inColumnsAlsoPresentIn.Rubio
+He_Rubio_stats_order <- He_Rubio_stats[order(-He_Rubio_stats[,2]),c(1:2)]
+He_Rubio_stats_preserved <- He_Rubio_stats_order %>% rownames_to_column("mod_name") %>% filter(Zsummary.pres > 5.0)
+#mod_name moduleSize Zsummary.pres
+#1          magenta        387     27.535801
+#2           yellow        794     20.153655
+#3           salmon        365     19.019356
+#4             blue       1000     17.397045
+#5     midnightblue        339     13.156157
+#6      floralwhite         71     12.471832
+#7             cyan        348     11.657512
+#8           purple        386     11.358633
+#9         skyblue3         93     11.356415
+#10             tan        370     10.813415
+#11       turquoise       1000     10.090613
+#12           white        178      9.831406
+#13           brown        819      9.601788
+#14     saddlebrown        154      9.385677
+#15         skyblue        163      9.035803
+#16            gold       1000      9.007044
+#17            pink        398      8.988689
+#18          violet        132      8.772543
+#19 lightsteelblue1         79      8.240611
+#20       lightcyan        339      8.207468
+#21     greenyellow        381      7.775783
+#22   darkslateblue         49      6.350780
+#23       steelblue        140      5.989767
+#24         salmon4         38      5.839396
+#25   paleturquoise        135      5.401110
+#26          orange        195      5.114006
+#27             red        450      5.082108
+#28       darkgreen        248      5.054699
+
+He_Rubio_stats_MR <- He_Rubio_mp$preservation$observed$ref.He$inColumnsAlsoPresentIn.Rubio
+He_Rubio_stats_MR <-He_Rubio_stats_MR[,c("moduleSize","medianRank.pres")]
+He_Rubio_stats_MR_order <- He_Rubio_stats_MR[order(-He_Rubio_stats_MR [,2]),]
+He_Rubio_stats_MR_order_less20 <- He_Rubio_stats_MR_order %>% rownames_to_column("mod_name") %>% filter(medianRank.pres < 20)
+
+# Save module preservation results
+#save(He_Rubio_mp, file="/Volumes/My Passport for Mac/Chapter1_Apoptosis_Paper_Saved_DESeq_WGCNA_Data/He_Rubio_module_preservation.RData")
+
+# Plot module preservation
+# remember - low median rank means high preservation
+ggplot(He_Rubio_stats_MR_order_less20 , aes(x= moduleSize, y = medianRank.pres, color = mod_name)) + 
+  geom_point() + xlab("Module Size") + ylab("Median Rank") + geom_text(aes(label=mod_name))
+
+He_Rubio_stats_preserved_Zsum_medianRank <- Rubio_He_stats_MR_order_less20[Rubio_He_stats_MR_order_less20$mod_name %in% He_Rubio_stats_preserved$mod_name,]
+
+# Were any of these preserved modules significant in deLorg_Sus and He
+He_Rubio_NV_preserved_all <- He_Rubio_stats_preserved[He_Rubio_stats_preserved$mod_name %in% Rubio_moduleTraitCor_Pval_NV_df_sig_list_rm,]
+#mod_name moduleSize Zsummary.pres
+#7           cyan        348     11.657512
+#11     turquoise       1000     10.090613
+#13         brown        819      9.601788
+#18        violet        132      8.772543
+#25 paleturquoise        135      5.401110
+#27           red        450      5.082108
+He_Rubio_V_preserved_all <-  He_Rubio_stats_preserved[He_Rubio_stats_preserved$mod_name %in% Rubio_moduleTraitCor_Pval_V_df_sig_list_rm,]
+# mod_name moduleSize Zsummary.pres
+# 2     yellow        794     20.153655
+# 4       blue       1000     17.397045
+# 7       cyan        348     11.657512
+# 11 turquoise       1000     10.090613
+# 13     brown        819      9.601788
+# 26    orange        195      5.114006
+# 27       red        450      5.082108
+He_Rubio_He_preserved_all<-  He_Rubio_stats_preserved[He_Rubio_stats_preserved$mod_name %in% He_moduleTraitCor_Pval_df_sig_list_rm,]
+# mod_name moduleSize Zsummary.pres
+# 1          magenta        387     27.535801
+# 2           yellow        794     20.153655
+# 3           salmon        365     19.019356
+# 4             blue       1000     17.397045
+# 5     midnightblue        339     13.156157
+# 10             tan        370     10.813415
+# 11       turquoise       1000     10.090613
+# 12           white        178      9.831406
+# 13           brown        819      9.601788
+# 15         skyblue        163      9.035803
+# 19 lightsteelblue1         79      8.240611
+# 22   darkslateblue         49      6.350780
+# 24         salmon4         38      5.839396
+# 27             red        450      5.082108
+# 28       darkgreen        248      5.054699
+
+
 ## Assess whether Zhang and He have conservation (since He was also susceptible) ##
 Zhang_He_multiExpr = list(Zhang=list(data=Zhang_dds_rlog_matrix_common),He=list(data=He_dds_vst_matrix_common))
 Zhang_He_multiColor = list(Zhang = Zhang_moduleColors) 
@@ -4363,6 +4664,14 @@ Zhang_He_multiColor = list(Zhang = Zhang_moduleColors)
 Zhang_He_stats = Zhang_He_mp$preservation$Z$ref.Zhang$inColumnsAlsoPresentIn.He
 Zhang_He_stats_order <- Zhang_He_stats[order(-Zhang_He_stats[,2]),c(1:2)]
 Zhang_He_stats_preserved <- Zhang_He_stats_order %>% rownames_to_column("mod_name") %>% filter(Zsummary.pres > 5.0)
+#mod_name moduleSize Zsummary.pres
+#1          blue       1000     15.979158
+#2       magenta        588     12.212596
+#3        yellow        941      9.095257
+#4     turquoise       1000      8.963291
+#5 paleturquoise        219      7.572312
+#6        purple        531      5.964199
+
 Zhang_He_stats_MR <- Zhang_He_mp$preservation$observed$ref.Zhang$inColumnsAlsoPresentIn.He
 Zhang_He_stats_MR <- Zhang_He_stats_MR[,c("moduleSize","medianRank.pres")]
 Zhang_He_stats_MR_order <- Zhang_He_stats_MR[order(-Zhang_He_stats_MR[,2]),]
@@ -4398,6 +4707,67 @@ Zhang_He_preserved_He_all <- Zhang_He_stats_preserved[Zhang_He_stats_preserved$m
 #3    yellow        941      9.095257
 #4 turquoise       1000      8.963291
 
+# He vs. Zhang
+He_Zhang_multiExpr = list(He=list(data=He_dds_vst_matrix_common),Zhang=list(data=Zhang_dds_rlog_matrix_common))
+He_Zhang_multiColor = list(He = He_moduleColors) 
+#He_Zhang_mp =modulePreservation(He_Zhang_multiExpr , He_Zhang_multiColor,
+#                                referenceNetworks=1,
+#                                verbose=3,
+#                                networkType="signed hybrid", # use same signed hybrid as before
+#                                corFnc = "bicor", # use recommended bicor as before 
+#                                nPermutations=100,
+#                                randomSeed = 1, # recommended in langfelder tutorial
+#                                quickCor = 0) # number between 0 and 1 specifying the handling of missing data in calculation of correlation. Zero means exact but potentially slower calculations
+He_Zhang_stats = He_Zhang_mp$preservation$Z$ref.He$inColumnsAlsoPresentIn.Zhang
+He_Zhang_stats_order <- He_Zhang_stats[order(-He_Zhang_stats[,2]),c(1:2)]
+He_Zhang_stats_preserved <- He_Zhang_stats_order %>% rownames_to_column("mod_name") %>% filter(Zsummary.pres > 5.0)
+#mod_name moduleSize Zsummary.pres
+#1    lightcyan        339     12.024891
+#2      magenta        387     10.822159
+#3         blue       1000      8.309949
+#4       purple        386      7.213162
+#5  floralwhite         71      7.018956
+#6          tan        370      6.578664
+#7         cyan        348      6.389133
+#8      skyblue        163      5.914049
+#9       salmon        365      5.075173
+#10    skyblue3         93      5.072137
+He_Zhang_stats_MR <- He_Zhang_mp$preservation$observed$ref.He$inColumnsAlsoPresentIn.Zhang
+He_Zhang_stats_MR <- He_Zhang_stats_MR[,c("moduleSize","medianRank.pres")]
+He_Zhang_stats_MR_order <- He_Zhang_stats_MR[order(-He_Zhang_stats_MR[,2]),]
+He_Zhang_stats_MR_order_less20 <- He_Zhang_stats_MR_order %>% rownames_to_column("mod_name") %>% filter(medianRank.pres < 20)
+
+# Save module preservation results
+#save(He_Zhang_mp, file="/Volumes/My Passport for Mac/Chapter1_Apoptosis_Paper_Saved_DESeq_WGCNA_Data/He_Zhang_mp_module_preservation.RData")
+
+# Plot module preservation
+# remember - low median rank means high preservation
+ggplot(He_Zhang_stats_MR_order_less20, aes(x= moduleSize, y = medianRank.pres, color = mod_name)) + 
+  geom_point() + xlab("Module Size") + ylab("Median Rank") + geom_text(aes(label=mod_name))
+
+He_Zhang_stats_preserved_Zsum_medianRank <- He_Zhang_stats_MR_order_less20[He_Zhang_stats_MR_order_less20$mod_name %in% He_Zhang_stats_preserved$mod_name, ]
+
+# Were any of these preserved modules significant in deLorg_Sus and He
+He_Zhang_Zhang_LPS_preserved_all <- He_Zhang_stats_preserved[He_Zhang_stats_preserved$mod_name %in% Zhang_moduleTraitCor_Pval_LPS_df_sig_list_rm,]
+#mod_name moduleSize Zsummary.pres
+#2  magenta        387     10.822159
+#3     blue       1000      8.309949
+#6      tan        370      6.578664
+#7     cyan        348      6.389133
+
+He_Zhang_Zhang_Vibrio_preserved_all <- He_Zhang_stats_preserved[He_Zhang_stats_preserved$mod_name %in% Zhang_moduleTraitCor_Pval_Vibrio_df_sig_list_rm,]
+#mod_name moduleSize Zsummary.pres
+#3     blue       1000      8.309949
+#4   purple        386      7.213162
+He_Zhang_He_preserved_He_all <- He_Zhang_stats_preserved[He_Zhang_stats_preserved$mod_name %in%  He_moduleTraitCor_Pval_df_sig_list_rm,]
+#mod_name moduleSize Zsummary.pres
+#2  magenta        387     10.822159
+#3     blue       1000      8.309949
+#6      tan        370      6.578664
+#8  skyblue        163      5.914049
+#9   salmon        365      5.075173
+
+
 ## Assess whether Rubio and deLorg_Sus have conservation (both susceptible susceptible)
 Rubio_deLorg_Sus_multiExpr = list(Rubio=list(data=Rubio_dds_rlog_matrix_common), deLorg_Sus=list(data=deLorgeril_Susceptible_dds_vst_matrix_common))
 Rubio_deLorg_Sus_multiColor = list(Rubio = Rubio_moduleColors) 
@@ -4412,6 +4782,22 @@ Rubio_deLorg_Sus_multiColor = list(Rubio = Rubio_moduleColors)
 Rubio_deLorg_Sus_stats = Rubio_deLorg_Sus_mp$preservation$Z$ref.Rubio$inColumnsAlsoPresentIn.deLorg_Sus
 Rubio_deLorg_Sus_stats_order <- Rubio_deLorg_Sus_stats[order(-Rubio_deLorg_Sus_stats[,2]),c(1:2)]
 Rubio_deLorg_Sus_stats_preserved <- Rubio_deLorg_Sus_stats_order %>% rownames_to_column("mod_name") %>% filter(Zsummary.pres > 5.0)
+#mod_name moduleSize Zsummary.pres
+#1    greenyellow        857     34.234560
+#2          brown       1000     27.352964
+#3      turquoise       1000     18.251003
+#4           cyan        527     15.659252
+#5            tan        642     14.426980
+#6  darkturquoise        249     11.512318
+#7           blue       1000     10.752557
+#8    lightyellow        322     10.424208
+#9           gold       1000      9.891569
+#10         green       1000      9.854796
+#11           red       1000      9.823248
+#12      darkgrey        171      6.377679
+#13         black       1000      6.203096
+#14        salmon        633      5.168682
+
 Rubio_deLorg_Sus_stats_MR <- Rubio_deLorg_Sus_mp$preservation$observed$ref.Rubio$inColumnsAlsoPresentIn.deLorg_Sus
 Rubio_deLorg_Sus_stats_MR <- Rubio_deLorg_Sus_stats_MR [,c("moduleSize","medianRank.pres")]
 Rubio_deLorg_Sus_stats_MR_order <- Rubio_deLorg_Sus_stats_MR [order(-Rubio_deLorg_Sus_stats_MR [,2]),]
@@ -4451,6 +4837,134 @@ Rubio_deLorg_Sus_Rubio_V_preserved_He_all<- Rubio_deLorg_Sus_stats_preserved [Ru
 #10         green       1000      9.854796
 #11           red       1000      9.823248
 
+# DeLorg Sus vs. Rubio 
+deLorg_Sus_Rubio_multiExpr = list(deLorg_Sus=list(data=deLorgeril_Susceptible_dds_vst_matrix_common), Rubio=list(data=Rubio_dds_rlog_matrix_common))
+deLorg_Sus_Rubio_multiColor = list(deLorg_Sus = deLorg_Sus_moduleColors) 
+#deLorg_Sus_Rubio_mp = modulePreservation(deLorg_Sus_Rubio_multiExpr, deLorg_Sus_Rubio_multiColor,
+#                                referenceNetworks=1,
+#                                verbose=3,
+#                                networkType="signed hybrid", # use same signed hybrid as before
+#                                corFnc = "bicor", # use recommended bicor as before 
+#                                nPermutations=100,
+#                                randomSeed = 1, # recommended in langfelder tutorial
+#                                quickCor = 0) # number between 0 and 1 specifying the handling of missing data in calculation of correlation. Zero means exact but potentially slower calculations
+deLorg_Sus_Rubio_stats = deLorg_Sus_Rubio_mp$preservation$Z$ref.deLorg_Sus$inColumnsAlsoPresentIn.Rubio
+deLorg_Sus_Rubio_stats_order <- deLorg_Sus_Rubio_stats[order(-deLorg_Sus_Rubio_stats[,2]),c(1:2)]
+deLorg_Sus_Rubio_stats_preserved <- deLorg_Sus_Rubio_stats_order %>% rownames_to_column("mod_name") %>% filter(Zsummary.pres > 5.0)
+#mod_name moduleSize Zsummary.pres
+#1       red        526     17.918318
+#2    yellow       1000     13.070538
+#3     green       1000     12.151436
+#4     brown       1000     11.733508
+#5      blue       1000      9.901168
+#6      pink        406      9.555296
+#7 turquoise       1000      8.585884
+#8   magenta        356      8.546037
+#9      gold       1000      8.315236
+
+deLorg_Sus_Rubio_stats_MR <- deLorg_Sus_Rubio_mp$preservation$observed$ref.deLorg_Sus$inColumnsAlsoPresentIn.Rubio
+deLorg_Sus_Rubio_stats_MR <- deLorg_Sus_Rubio_stats_MR[,c("moduleSize","medianRank.pres")]
+deLorg_Sus_Rubio_stats_MR_order <- deLorg_Sus_Rubio_stats_MR[order(-deLorg_Sus_Rubio_stats_MR[,2]),]
+deLorg_Sus_Rubio_stats_MR_order_less20 <- deLorg_Sus_Rubio_stats_MR_order  %>% rownames_to_column("mod_name") %>% filter(medianRank.pres < 20)
+
+# Save module preservation results
+# save(deLorg_Sus_Rubio_mp, file="/Volumes/My Passport for Mac/Chapter1_Apoptosis_Paper_Saved_DESeq_WGCNA_Data/deLorg_Sus_Rubio_mp_module_preservation.RData")
+
+# Plot module preservation
+# remember - low median rank means high preservation
+ggplot(deLorg_Sus_Rubio_stats_MR_order_less20, aes(x= moduleSize, y = medianRank.pres, color = mod_name)) + 
+  geom_point() + xlab("Module Size") + ylab("Median Rank") + geom_text(aes(label=mod_name))
+
+deLorg_Sus_Rubio_stats_preserved_Zsum_medianRank <-deLorg_Sus_Rubio_stats_MR_order_less20[deLorg_Sus_Rubio_stats_MR_order_less20$mod_name %in% deLorg_Sus_Rubio_stats_preserved$mod_name, ]
+
+# Were any of these preserved modules significant in deLorg_Sus and He
+deLorg_Sus_Rubio_delorg_Sus_preserved_all <- deLorg_Sus_Rubio_stats_preserved [deLorg_Sus_Rubio_stats_preserved$mod_name %in% deLorg_Sus_moduleTraitCor_Pval_df_sig_list_rm,]
+# mod_name moduleSize Zsummary.pres
+# 5      blue       1000      9.901168
+# 7 turquoise       1000      8.585884
+deLorg_Sus_Rubio_Rubio_NV_preserved_He_all<- deLorg_Sus_Rubio_stats_preserved [deLorg_Sus_Rubio_stats_preserved$mod_name %in%  Rubio_moduleTraitCor_Pval_NV_df_sig_list_rm,]
+#mod_name moduleSize Zsummary.pres
+#1       red        526     17.918318
+#3     green       1000     12.151436
+#4     brown       1000     11.733508
+#7 turquoise       1000      8.585884
+
+deLorg_Sus_Rubio_Rubio_V_preserved_He_all<-  deLorg_Sus_Rubio_stats_preserved [deLorg_Sus_Rubio_stats_preserved$mod_name %in%  Rubio_moduleTraitCor_Pval_V_df_sig_list_rm,]
+#mod_name moduleSize Zsummary.pres
+#1       red        526     17.918318
+#2    yellow       1000     13.070538
+#3     green       1000     12.151436
+#4     brown       1000     11.733508
+#5      blue       1000      9.901168
+#7 turquoise       1000      8.585884
+
+## DeLorg Tol vs. Rubio 
+deLorg_Tol_Rubio_multiExpr = list(deLorg_Tol=list(data=deLorgeril_Tolerant_dds_vst_matrix_common), Rubio=list(data=Rubio_dds_rlog_matrix_common))
+deLorg_Tol_Rubio_multiColor = list(deLorg_Tol = deLorg_Tol_moduleColors) 
+deLorg_Tol_Rubio_mp = modulePreservation(deLorg_Tol_Rubio_multiExpr, deLorg_Tol_Rubio_multiColor,
+                                referenceNetworks=1,
+                                verbose=3,
+                                networkType="signed hybrid", # use same signed hybrid as before
+                                corFnc = "bicor", # use recommended bicor as before 
+                                nPermutations=100,
+                                randomSeed = 1, # recommended in langfelder tutorial
+                                quickCor = 0) # number between 0 and 1 specifying the handling of missing data in calculation of correlation. Zero means exact but potentially slower calculations
+deLorg_Tol_Rubio_stats = deLorg_Tol_Rubio_mp$preservation$Z$ref.deLorg_Tol$inColumnsAlsoPresentIn.Rubio
+deLorg_Tol_Rubio_stats_order <- deLorg_Tol_Rubio_stats[order(-deLorg_Tol_Rubio_stats[,2]),c(1:2)]
+deLorg_Tol_Rubio_stats_preserved <- deLorg_Tol_Rubio_stats_order %>% rownames_to_column("mod_name") %>% filter(Zsummary.pres > 5.0)
+deLorg_Tol_Rubio_stats_MR <- deLorg_Tol_Rubio_mp$preservation$observed$ref.deLorg_Tol$inColumnsAlsoPresentIn.Rubio
+deLorg_Tol_Rubio_stats_MR <- deLorg_Tol_Rubio_stats_MR[,c("moduleSize","medianRank.pres")]
+deLorg_Tol_Rubio_stats_MR_order <- deLorg_Tol_Rubio_stats_MR[order(-deLorg_Tol_Rubio_stats_MR[,2]),]
+deLorg_Tol_Rubio_stats_MR_order_less20 <- deLorg_Tol_Rubio_stats_MR_order  %>% rownames_to_column("mod_name") %>% filter(medianRank.pres < 20)
+
+# Save module preservation results
+save(deLorg_Tol_Rubio_mp, file="/Volumes/My Passport for Mac/Chapter1_Apoptosis_Paper_Saved_DESeq_WGCNA_Data/deLorg_Tol_Rubio_mp_module_preservation.RData")
+
+# Plot module preservation
+# remember - low median rank means high preservation
+ggplot(deLorg_Tol_Rubio_stats_MR_order_less20, aes(x= moduleSize, y = medianRank.pres, color = mod_name)) + 
+  geom_point() + xlab("Module Size") + ylab("Median Rank") + geom_text(aes(label=mod_name))
+
+deLorg_Tol_Rubio_stats_preserved_Zsum_medianRank <-deLorg_Tol_Rubio_stats_MR_order_less20[deLorg_Tol_Rubio_stats_MR_order_less20$mod_name %in% deLorg_Tol_Rubio_stats_preserved$mod_name, ]
+
+# Were any of these preserved modules significant in deLorg_Sus and He
+deLorg_Tol_Rubio_delorg_Tol_preserved_all <- deLorg_Tol_Rubio_stats_preserved [deLorg_Tol_Rubio_stats_preserved$mod_name %in% deLorg_Tol_moduleTraitCor_Pval_df_sig_list_rm,]
+deLorg_Tol_Rubio_Rubio_NV_preserved_He_all<- deLorg_Tol_Rubio_stats_preserved [deLorg_Tol_Rubio_stats_preserved$mod_name %in%  Rubio_moduleTraitCor_Pval_NV_df_sig_list_rm,]
+deLorg_Tol_Rubio_Rubio_V_preserved_He_all<-  deLorg_Tol_Rubio_stats_preserved [deLorg_Tol_Rubio_stats_preserved$mod_name %in%  Rubio_moduleTraitCor_Pval_V_df_sig_list_rm,]
+
+## Rubio vs. deLorg Tol
+Rubio_deLorg_Tol_multiExpr = list(Rubio=list(data=Rubio_dds_rlog_matrix_common), deLorg_Tol=list(data=deLorgeril_Tolerant_dds_vst_matrix_common))
+Rubio_deLorg_Tol_multiColor = list(Rubio = Rubio_moduleColors) 
+Rubio_deLorg_Tol_mp = modulePreservation(Rubio_deLorg_Tol_multiExpr, Rubio_deLorg_Tol_multiColor,
+                                         referenceNetworks=1,
+                                         verbose=3,
+                                         networkType="signed hybrid", # use same signed hybrid as before
+                                         corFnc = "bicor", # use recommended bicor as before 
+                                         nPermutations=100,
+                                         randomSeed = 1, # recommended in langfelder tutorial
+                                         quickCor = 0) # number between 0 and 1 specifying the handling of missing data in calculation of correlation. Zero means exact but potentially slower calculations
+Rubio_deLorg_Tol_stats = Rubio_deLorg_Tol_mp$preservation$Z$ref.Rubio$inColumnsAlsoPresentIn.deLorg_Tol
+Rubio_deLorg_Tol_stats_order <- Rubio_deLorg_Tol_stats[order(-Rubio_deLorg_Tol_stats[,2]),c(1:2)]
+Rubio_deLorg_Tol_stats_preserved <- Rubio_deLorg_Tol_stats_order %>% rownames_to_column("mod_name") %>% filter(Zsummary.pres > 5.0)
+Rubio_deLorg_Tol_stats_MR <- Rubio_deLorg_Tol_mp$preservation$observed$ref.Rubio$inColumnsAlsoPresentIn.deLorg_Tol
+Rubio_deLorg_Tol_stats_MR <- Rubio_deLorg_Tol_stats_MR[,c("moduleSize","medianRank.pres")]
+Rubio_deLorg_Tol_stats_MR_order <- Rubio_deLorg_Tol_stats_MR[order(-Rubio_deLorg_Tol_stats_MR[,2]),]
+Rubio_deLorg_Tol_stats_MR_order_less20 <- Rubio_deLorg_Tol_stats_MR_order  %>% rownames_to_column("mod_name") %>% filter(medianRank.pres < 20)
+
+# Save module preservation results
+save(Rubio_deLorg_Tol_mp, file="/Volumes/My Passport for Mac/Chapter1_Apoptosis_Paper_Saved_DESeq_WGCNA_Data/Rubio_deLorg_Tol_mp_module_preservation.RData")
+
+# Plot module preservation
+# remember - low median rank means high preservation
+ggplot(Rubio_deLorg_Tol_stats_MR_order_less20, aes(x= moduleSize, y = medianRank.pres, color = mod_name)) + 
+  geom_point() + xlab("Module Size") + ylab("Median Rank") + geom_text(aes(label=mod_name))
+
+Rubio_deLorg_Tol_stats_preserved_Zsum_medianRank <- Rubio_deLorg_Tol_stats_MR_order_less20[Rubio_deLorg_Tol_stats_MR_order_less20$mod_name %in% Rubio_deLorg_Tol_stats_preserved$mod_name, ]
+
+# Were any of these preserved modules significant in deLorg_Sus and He
+Rubio_deLorg_Tol_delorg_Tol_preserved_all <- Rubio_deLorg_Tol_stats_preserved [Rubio_deLorg_Tol_stats_preserved$mod_name %in% deLorg_Tol_moduleTraitCor_Pval_df_sig_list_rm,]
+Rubio_deLorg_Tol_Rubio_NV_preserved_He_all<- Rubio_deLorg_Tol_stats_preserved [Rubio_deLorg_Tol_stats_preserved$mod_name %in%  Rubio_moduleTraitCor_Pval_NV_df_sig_list_rm,]
+Rubio_deLorg_Tol_Rubio_V_preserved_He_all<-  Rubio_deLorg_Tol_stats_preserved [Rubio_deLorg_Tol_stats_preserved$mod_name %in%  Rubio_moduleTraitCor_Pval_V_df_sig_list_rm,]
 
 # Assess whether Zhang and Rubio modules are preserved
 Zhang_Rubio_multiExpr = list(Zhang=list(data=Zhang_dds_rlog_matrix_common),Rubio=list(data=Rubio_dds_rlog_matrix_common))
@@ -4512,6 +5026,40 @@ Rubio_V_preserved_all <- Zhang_Rubio_stats_preserved[Zhang_Rubio_stats_preserved
 # 4     green        849      6.617005
 # 6       red        751      5.755566
 
+# Rubio vs. Zhang 
+Rubio_Zhang_multiExpr = list(Rubio=list(data=Rubio_dds_rlog_matrix_common), Zhang=list(data=Zhang_dds_rlog_matrix_common))
+Rubio_multiColor = list(Rubio = Rubio_moduleColors) 
+Rubio_Zhang_mp =modulePreservation(Rubio_Zhang_multiExpr , Rubio_multiColor,
+                                   referenceNetworks=1,
+                                   verbose=3,
+                                   networkType="signed hybrid", # use same signed hybrid as before
+                                   corFnc = "bicor", # use recommended bicor as before 
+                                   nPermutations=100, #need to change to 100
+                                   randomSeed = 1, # recommended in langfelder tutorial
+                                   quickCor = 0) # number between 0 and 1 specifying the handling of missing data in calculation of correlation. Zero means exact but potentially slower calculations
+Rubio_Zhang_stats = Rubio_Zhang_mp$preservation$Z$ref.Rubio$inColumnsAlsoPresentIn.Zhang
+Rubio_Zhang_stats_order <- Rubio_Zhang_stats[order(-Rubio_Zhang_stats[,2]),c(1:2)]
+Rubio_Zhang_stats_preserved <- Rubio_Zhang_stats_order %>% rownames_to_column("mod_name") %>% filter(Zsummary.pres > 5.0)
+Rubio_Zhang_stats_MR <- Rubio_Zhang_mp$preservation$observed$ref.Rubio$inColumnsAlsoPresentIn.Zhang
+Rubio_Zhang_stats_MR <- Rubio_Zhang_stats_MR[,c("moduleSize","medianRank.pres")]
+Rubio_Zhang_stats_MR_order <- Rubio_Zhang_stats_MR[order(Rubio_Zhang_stats_MR[,2]),]
+Rubio_Zhang_stats_MR_order_less20 <- Rubio_Zhang_stats_MR_order %>% rownames_to_column("mod_name") %>% filter(medianRank.pres < 20)
+
+# Save module preservation results
+save(Rubio_Zhang_mp, file="/Volumes/My Passport for Mac/Chapter1_Apoptosis_Paper_Saved_DESeq_WGCNA_Data/Rubio_Zhang_module_preservation.RData")
+
+# Plot module preservation
+# remember - low median rank means high preservation
+ggplot(Rubio_Zhang_stats_MR_order_less20, aes(x= moduleSize, y = medianRank.pres, color = mod_name)) + 
+  geom_point() + xlab("Module Size") + ylab("Median Rank") + geom_text(aes(label=mod_name))
+
+Rubio_Zhang_stats_preserved_Zsum_medianRank <- Rubio_Zhang_stats_MR_order_less20[Rubio_Zhang_stats_MR_order_less20$mod_name %in% Rubio_Zhang_stats_preserved,]
+
+# Were any of these preserved modules significant in Zhang or Rubio
+Rubio_Zhang_Zhang_LPS_preserved_all <- Rubio_Zhang_stats_preserved[Rubio_Zhang_stats_preserved$mod_name %in% Zhang_moduleTraitCor_Pval_LPS_df_sig_list_rm,]
+Rubio_Zhang_Zhang_Vibrio_preserved_all <- Rubio_Zhang_stats_preserved[Rubio_Zhang_stats_preserved$mod_name %in%  Zhang_moduleTraitCor_Pval_Vibrio_df_sig_list_rm,]
+Rubio_Zhang_Rubio_NV_preserved_all <- Rubio_Zhang_stats_preserved[Rubio_Zhang_stats_preserved$mod_name %in%  Rubio_moduleTraitCor_Pval_NV_df_sig_list_rm,]
+Rubio_Zhang_Rubio_V_preserved_all <- Rubio_Zhang_stats_preserved[Rubio_Zhang_stats_preserved$mod_name %in%  Rubio_moduleTraitCor_Pval_V_df_sig_list_rm,]
 
 #### PERFORM CONSENSUS NETWORK ANALYSIS ACROSS C.GIGAS NETWORKS BACTERIA ####
 
