@@ -46,420 +46,10 @@ library(ggpubr)
 # Deseq2 Manual updated July 18th, 2019: https://www.bioconductor.org/packages/devel/bioc/manuals/DESeq2/man/DESeq2.pdf
 # the results section of this is particularly useful
 
-##### LOADING GENOME DATA ##### 
+##### LOADING SAVED GENOME AND APOPTOSIS NAMES ##### 
 
-#### C. virginica 
-# Import gff file with rtracklayer
-C_vir_rtracklayer <- readGFF("/Users/erinroberts/Documents/PhD_Research/Chapter_1_Apoptosis Paper/Chapter1_Apoptosis_Transcriptome_Analyses_2019/DATA ANALYSIS/apoptosis_data_pipeline/DESeq2/2020_Transcriptome_ANALYSIS/ref_C_virginica-3.0_top_level.gff3")
-C_vir_rtracklayer <- as.data.frame(C_vir_rtracklayer)
-
-#### C. gigas
-# Import gff file, using new version of genome annotation
-C_gig_rtracklayer <- readGFF("/Users/erinroberts/Documents/PhD_Research/Chapter_1_Apoptosis Paper/Chapter1_Apoptosis_Transcriptome_Analyses_2019/DATA ANALYSIS/apoptosis_data_pipeline/DESeq2/2020_Transcriptome_ANALYSIS/GCF_000297895.1_oyster_v9_genomic.gff")
-C_gig_rtracklayer <- as.data.frame(C_gig_rtracklayer)
-
-#### IMPORT APOPTOSIS GENE NAMES LISTS FOR EACH SPECIES AND MAP ####
-## NOTE: THIS CODE IS THE SAME AS THAT TO IDENTIFY APOPTOSIS GENES IN THE GENOME FOR THE APOPTOSIS PATHWAY ANNOTATION PART OF THE PAPER FROM Identify_count_annotated_apop_genes.R
-
-Apoptosis_names_list <- c('bcl-2-related protein A1',
-                          'apoptosis-inducing factor 1',
-                          'akt1',
-                          'RAC-alpha serine/threonine-protein kinase-',
-                          'RAC-gamma serine/threonine-protein kinase-',
-                          'methylthioribulose-1-phosphate dehydratase',
-                          'tumor necrosis factor ligand superfamily member 10',
-                          'tumor necrosis factor superfamily member 12',
-                          'cell death regulator Aven',
-                          'BCL2 associated agonist of cell death',
-                          'BAG family molecular chaperone regulator',
-                          'bcl-2 homologous antagonist/killer',
-                          'apoptosis regulator BAX',
-                          'bcl-2-like protein 2',
-                          'bcl-2-like protein 1',
-                          'bcl2 modifying factor',
-                          'Bax inhibitor 1',
-                          'BH3 interacting domain death agonist',
-                          'Bcl-2 interacting killer',
-                          'bcl-2 interacting protein BIM',
-                          'Bik-like killer protein',
-                          'Bcl-2 related ovarian killer',
-                          'CASP8 and FADD like apoptosis regulator',
-                          'transcription factor AP-1',
-                          'caspase activity and apoptosis inhibitor 1',
-                          'DNA fragmentation factor subunit beta',
-                          'adenylate cyclase',
-                          'caspase-1-like',
-                          'caspase-2',
-                          'caspase-3-like',
-                          'caspase-7',
-                          'caspase-8',
-                          'caspase-9',
-                          'caspase-10',
-                          'caspase-11',
-                          'caspase-6',
-                          'caspase-4',
-                          'caspase-5',
-                          'cell division cycle and apoptosis regulator protein 1',
-                          'CD151 antigen',
-                          'protein BTG1',
-                          'interferon alpha',
-                          'caspase activity and apoptosis inhibitor 1',
-                          'baculoviral IAP repeat-containing protein',
-                          'cAMP-responsive element',
-                          'cytochrome c-like',
-                          'death-associated inhibitor of apoptosis',
-                          'tumor necrosis factor receptor superfamily member',
-                          'endonuclease G, mitochondrial',
-                          'FAS-associated death domain protein',
-                          'fas apoptotic inhibitory molecule 1',
-                          'fas cell surface death receptor',
-                          'GTPase IMAP family member',
-                          'harakiri',
-                          'baculoviral IAP repeat-containing protein',
-                          'DNA fragmentation factor subunit alpha',
-                          'interferon-induced protein 44',
-                          'NF-kappa-B inhibitor alpha',
-                          'NF-kappa-B inhibitor epsilon',
-                          'inositol 1,4,5-trisphosphate receptor',
-                          'stress-activated protein kinase JNK',
-                          'lipopolysaccharide-induced tumor necrosis factor-alpha',
-                          'induced myeloid leukemia cell differentiation protein Mcl-1-like',
-                          'mitogen-activated protein kinase 1',
-                          'dual specificity mitogen-activated protein kinase kinase 1',
-                          'mitogen-activated protein kinase kinase kinase',
-                          'transcriptional regulator Myc-A',
-                          'myeloid differentiation primary response protein MyD88',
-                          'phorbol-12-myristate-13-acetate-induced protein 1',
-                          'nuclear factor NF-kappa-B p105 subunit',
-                          'nuclear factor NF-kappa-B p100 subunit',
-                          'transcription factor p65',
-                          'RELB proto-oncogene',
-                          'NF-kB subunit',
-                          'reticuloendotheliosis oncogene',
-                          'anti-apoptotic protein NR13',
-                          'nuclear mitotic apparatus protein 1',
-                          'dynamin-like 120 kDa protein',
-                          'cyclin-dependent kinase 5 activator 1',
-                          'cellular tumor antigen p53',
-                          'programmed cell death protein',
-                          'p53 and DNA damage-regulated protein 1',
-                          'phosphatidylinositol 3-kinase',
-                          'putative inhibitor of apoptosis',
-                          'cAMP-dependent protein kinase',
-                          'protein kinase C delta type',
-                          'protein kinase C iota type',
-                          'BCL2 binding component 3',
-                          'cdc42 homolog',
-                          'ras-like GTP-binding protein rho',
-                          'rho-related GTP-binding protein RhoE-like',
-                          'ras-related C3 botulinum toxin substrate 1',
-                          'rho-related protein racA',
-                          'mitochondrial Rho GTPase 1',
-                          'receptor-interacting serine/threonine-protein kinase 1',
-                          'receptor-interacting serine/threonine-protein kinase 4',
-                          'diablo homolog, mitochondrial',
-                          'toll-like receptor',
-                          'tumor necrosis factor',
-                          'lymphotoxin-alpha',
-                          'CD40 ligand',
-                          'TNFRSF1A associated via death domain',
-                          'TNF receptor-associated factor',
-                          'E3 ubiquitin-protein ligase XIAP',
-                          'netrin receptor',
-                          'neurotrophic receptor tyrosine kinase 1',
-                          'sonic hedgehog receptor',
-                          'receptor-interacting serine/threonine-protein kinase',
-                          'mixed lineage kinase domain',
-                          'heat shock protein',
-                          'E3 ubiquitin-protein ligase CHIP',
-                          'tumor necrosis factor alpha-induced protein 3',
-                          'protein phosphatase 1B',
-                          'aurora kinase A',
-                          'glutathione peroxidase 4',
-                          'gasdermin',
-                          'poly \\[ADP-ribose]\\ polymerase 1-like',
-                          'macrophage migration inhibitory factor',
-                          'hexokinase-1',
-                          'Raf-1 protooncogene serine/threonine kinase',
-                          'elastase, neutrophil expressed',
-                          'cathepsin',
-                          'PRKC apoptosis WT1 regulator protein',
-                          'apoptosis-stimulating of p53 protein 1',
-                          'apoptosis-stimulating of p53 protein 2',
-                          'apoptosis inhibitor 5',
-                          'apoptotic chromatin condensation inducer in the nucleus',
-                          'high mobility group box 1',
-                          'ceramide synthase',
-                          'cyclic AMP-responsive element-binding protein',
-                          'cell death-inducing p53-target protein 1',
-                          'TP53-binding protein 1',
-                          'p53-induced death domain-containing protein 1',
-                          'death domain-containing protein CRADD',
-                          'p63',
-                          'p73',
-                          'interferon regulatory factor',
-                          'stimulator of interferon genes',
-                          'interleukin 17-like protein',
-                          'interleukin-17',
-                          'interleukin-1 receptor-associated kinase 4',
-                          'interleukin-1 receptor-associated kinase 1-binding protein',
-                          'TGF-beta-activated kinase 1 and MAP3K7-binding protein',
-                          'sterile alpha and TIR motif-containing protein',
-                          'tyrosine-protein kinase JAK2',
-                          'signal transducer and activator of transcription',
-                          'serine-protein kinase ATM',
-                          'MAP kinase-activating death domain protein',
-                          'death domain-associated protein 6',
-                          'leucine-rich repeat and death domain-containing protein',
-                          'serine/threonine-protein kinase/endoribonuclease IRE1',
-                          'eukaryotic translation initiation factor 2-alpha kinase 3',
-                          'growth arrest and DNA damage-inducible protein GADD45',
-                          'calpain',
-                          'tyrosine-protein phosphatase non-receptor type 13',
-                          'HTRA2',
-                          '3-phosphoinositide-dependent protein kinase 1',
-                          'dronc',
-                          'pyrin',
-                          'proto-oncogene c-Rel',
-                          'leukocyte elastase inhibitor',
-                          'protein patched homolog 1',
-                          'cyclic AMP-dependent transcription factor ATF-4',
-                          'Siva')
-
-#### Grep Apoptosis protein names in genome files ####
-
-# C virginica 
-C_vir_rtracklayer <- C_vir_rtracklayer %>% filter(type == "mRNA")
-C_vir_rtracklayer_apop_product <- C_vir_rtracklayer[grepl(paste(Apoptosis_names_list,collapse="|"), 
-                                                          C_vir_rtracklayer$product, ignore.case = TRUE),]
-
-# Terms to remove
-# remove complement C1q proteins, dual specificity protein phosphatase 1B-like, remove kunitz-type, and NOT other kDA protein names so I can keep all heat shock proteins
-C_vir_rtracklayer_apop_product_final <- C_vir_rtracklayer_apop_product[ 
-  !grepl("dual specificity protein phosphatase 1B-like", C_vir_rtracklayer_apop_product$product, ignore.case = TRUE) &
-    !grepl("kunitz-type", C_vir_rtracklayer_apop_product$product, ignore.case = TRUE) &
-    !grepl("complement C1q", C_vir_rtracklayer_apop_product$product, ignore.case = TRUE) &
-    !grepl("mannosyl", C_vir_rtracklayer_apop_product$product, ignore.case = TRUE) &
-    !grepl("S-acyl", C_vir_rtracklayer_apop_product$product, ignore.case = TRUE) &
-    !grepl("activator of 90 kDa", C_vir_rtracklayer_apop_product$product, ignore.case = TRUE) &
-    !grepl("zinc finger protein", C_vir_rtracklayer_apop_product$product, ignore.case = TRUE) & 
-    !grepl("DDB_G0272098",C_vir_rtracklayer_apop_product$product, ignore.case = TRUE)  & 
-    !grepl("WD repeat-containing protein WRAP73", C_vir_rtracklayer_apop_product$product, ignore.case = TRUE) &
-    !grepl("tumor protein p63-regulated gene 1-like protein", C_vir_rtracklayer_apop_product$product, ignore.case = TRUE) &
-    !grepl("mitogen-activated protein kinase kinase kinase kinase 3", C_vir_rtracklayer_apop_product$product, ignore.case = TRUE),] # get rid of MAP4K
-
-nrow(C_vir_rtracklayer_apop_product_final) # 1245
-#View(C_vir_rtracklayer_apop_product_final[26][!duplicated(C_vir_rtracklayer_apop_product_final$product),])
-
-# remove duplicated rows
-C_vir_rtracklayer_apop_product_final <- C_vir_rtracklayer_apop_product_final[!duplicated(C_vir_rtracklayer_apop_product_final$product),]
-nrow(C_vir_rtracklayer_apop_product_final) # 601 unique transcripts
-#View(C_vir_rtracklayer_apop_product_final)
-
-## Identify CG apoptosis genes 
-Apoptosis_names_list_CG <- c('bcl-2-related protein A1',
-                             'apoptosis-inducing factor 1',
-                             'akt1',
-                             'RAC-alpha serine/threonine-protein kinase-',
-                             'RAC-gamma serine/threonine-protein kinase-',
-                             'methylthioribulose-1-phosphate dehydratase',
-                             'tumor necrosis factor ligand superfamily member 10',
-                             'tumor necrosis factor superfamily member 12',
-                             'cell death regulator Aven',
-                             'BCL2 associated agonist of cell death',
-                             'BAG family molecular chaperone regulator',
-                             'bcl-2 homologous antagonist/killer',
-                             'apoptosis regulator BAX',
-                             'bcl-2-like protein 2',
-                             'bcl-2-like protein 1',
-                             'bcl2 modifying factor',
-                             'Bax inhibitor 1',
-                             'BH3 interacting domain death agonist',
-                             'Bcl-2 interacting killer',
-                             'bcl-2 interacting protein BIM',
-                             'Bik-like killer protein',
-                             'Bcl-2 related ovarian killer',
-                             'CASP8 and FADD like apoptosis regulator',
-                             'transcription factor AP-1',
-                             'caspase activity and apoptosis inhibitor 1',
-                             'DNA fragmentation factor subunit beta',
-                             'adenylate cyclase',
-                             'caspase-1-like',
-                             'caspase-2',
-                             'caspase-3-like',
-                             'caspase-7',
-                             'caspase-8',
-                             'caspase-9',
-                             'caspase-10',
-                             'caspase-11',
-                             'caspase-6',
-                             'caspase-4',
-                             'caspase-5',
-                             'cell division cycle and apoptosis regulator protein 1',
-                             'CD151 antigen',
-                             'B-cell translocation gene 1',
-                             'interferon alpha',
-                             'caspase activity and apoptosis inhibitor 1',
-                             'baculoviral IAP repeat-containing protein',
-                             'cAMP-responsive element',
-                             'cytochrome c',
-                             'death-associated inhibitor of apoptosis',
-                             'tumor necrosis factor receptor superfamily member',
-                             'endonuclease G, mitochondrial',
-                             'FAS-associated death domain protein',
-                             'fas apoptotic inhibitory molecule 1',
-                             'fas cell surface death receptor',
-                             'GTPase IMAP family member',
-                             'harakiri',
-                             'baculoviral IAP repeat-containing protein',
-                             'DNA fragmentation factor subunit alpha',
-                             'interferon-induced protein 44',
-                             'NF-kappa-B inhibitor alpha',
-                             'NF-kappa-B inhibitor epsilon',
-                             'inositol 1,4,5-trisphosphate receptor',
-                             'stress-activated protein kinase JNK',
-                             'lipopolysaccharide-induced tumor necrosis factor-alpha',
-                             'induced myeloid leukemia cell differentiation protein Mcl-1',
-                             'mitogen-activated protein kinase kinase kinase',
-                             'mitogen-activated protein kinase 1',
-                             'dual specificity mitogen-activated protein kinase kinase 1',
-                             'mitogen-activated protein kinase kinase kinase 7',
-                             'transcriptional regulator Myc-A',
-                             'myeloid differentiation primary response protein MyD88',
-                             'phorbol-12-myristate-13-acetate-induced protein 1',
-                             'nuclear factor NF-kappa-B p105 subunit',
-                             'nuclear factor NF-kappa-B p100 subunit',
-                             'transcription factor p65',
-                             'RELB proto-oncogene',
-                             'NF-kB subunit',
-                             'reticuloendotheliosis oncogene',
-                             'anti-apoptotic protein NR13',
-                             'nuclear mitotic apparatus protein 1',
-                             'dynamin-like 120 kDa protein',
-                             'cyclin-dependent kinase 5 activator 1',
-                             'cellular tumor antigen p53',
-                             'programmed cell death protein',
-                             'p53 and DNA damage-regulated protein 1',
-                             'phosphatidylinositol 3-kinase',
-                             'putative inhibitor of apoptosis',
-                             'cAMP-dependent protein kinase',
-                             'protein kinase C delta type',
-                             'protein kinase C iota type',
-                             'BCL2 binding component 3',
-                             'cdc42 homolog',
-                             'ras-like GTP-binding protein rho',
-                             'rho-related GTP-binding protein RhoE',
-                             'ras-related C3 botulinum toxin substrate 1',
-                             'rho-related protein racA',
-                             'mitochondrial Rho GTPase 1',
-                             'receptor-interacting serine/threonine-protein kinase 1',
-                             'receptor-interacting serine/threonine-protein kinase 4',
-                             'diablo homolog, mitochondrial',
-                             'toll-like receptor',
-                             'tumor necrosis factor',
-                             'lymphotoxin-alpha',
-                             'CD40 ligand',
-                             'TNFRSF1A associated via death domain',
-                             'TNF receptor-associated factor',
-                             'E3 ubiquitin-protein ligase XIAP',
-                             'netrin receptor',
-                             'neurotrophic receptor tyrosine kinase 1',
-                             'sonic hedgehog receptor',
-                             'receptor-interacting serine/threonine-protein kinase',
-                             'mixed lineage kinase domain',
-                             'heat shock protein',
-                             'E3 ubiquitin-protein ligase CHIP',
-                             'tumor necrosis factor alpha-induced protein 3',
-                             'protein phosphatase 1B',
-                             'aurora kinase A',
-                             'glutathione peroxidase 4',
-                             'gasdermin',
-                             'poly \\[ADP-ribose]\\ polymerase 1-like',
-                             'macrophage migration inhibitory factor',
-                             'hexokinase-1',
-                             'Raf-1 protooncogene serine/threonine kinase',
-                             'elastase, neutrophil expressed',
-                             'cathepsin',
-                             'PRKC apoptosis WT1 regulator protein',
-                             'apoptosis-stimulating of p53 protein 1',
-                             'apoptosis-stimulating of p53 protein 2',
-                             'apoptosis inhibitor 5',
-                             'apoptotic chromatin condensation inducer in the nucleus',
-                             "high mobility group box 1",
-                             'ceramide synthase',
-                             'cyclic AMP-responsive element-binding protein',
-                             'cell death-inducing p53-target protein 1',
-                             'TP53-binding protein 1',
-                             'p53-induced death domain-containing protein 1',
-                             'death domain-containing protein CRADD',
-                             'p63',
-                             'p73',
-                             'interferon regulatory factor',
-                             'stimulator of interferon genes',
-                             'interleukin 17-like protein',
-                             'interleukin-17',
-                             'interleukin-1 receptor-associated kinase 4',
-                             'interleukin-1 receptor-associated kinase 1-binding protein',
-                             'TGF-beta-activated kinase 1 and MAP3K7-binding protein',
-                             'sterile alpha and TIR motif-containing protein',
-                             'tyrosine-protein kinase JAK2',
-                             'signal transducer and activator of transcription',
-                             'serine-protein kinase ATM',
-                             'MAP kinase-activating death domain protein',
-                             'death domain-associated protein 6',
-                             'leucine-rich repeat and death domain-containing protein',
-                             'serine/threonine-protein kinase/endoribonuclease IRE1',
-                             'eukaryotic translation initiation factor 2-alpha kinase 3',
-                             'growth arrest and DNA damage-inducible protein GADD45',
-                             'calpain',
-                             'tyrosine-protein phosphatase non-receptor type 13',
-                             'HTRA2',
-                             '3-phosphoinositide-dependent protein kinase 1',
-                             'dronc',
-                             'pyrin',
-                             'proto-oncogene c-Rel',
-                             'leukocyte elastase inhibitor',
-                             'protein patched homolog 1',
-                             'cyclic AMP-dependent transcription factor ATF-4',
-                             'Siva')
-
-#### Grep Apoptosis protein names in genome files CG ####
-## Note unlike C. vir file, C. gigas file has gene names in the "product" column, and still includes comma with transcript info for some
-# than a comman and the transcript name
-# All transcripts from the same gene share the LOC ID in the "gene" column, though the Name column differs
-# C gigas, filter for rows that have NA gene, this will also keep all the lines with transcript information. Filter out gbkey CDS 
-# because I only care about the number of transcripts and genes
-C_gig_rtracklayer_filtered <- C_gig_rtracklayer %>% filter(type =="mRNA")
-
-# only genes have the description, the mRNA id's will match with the ID
-C_gig_rtracklayer_apop_product <- C_gig_rtracklayer_filtered[grepl(paste(Apoptosis_names_list_CG,collapse="|"), 
-                                                                   C_gig_rtracklayer_filtered$product, ignore.case = TRUE),]
-nrow(C_gig_rtracklayer_apop_product) #937
-
-# Terms to remove
-# remove complement C1q proteins, dual specificity protein phosphatase 1B-like, remove kunitz-type, and other NOT kDA protein names so I can keep heat shock proteins in both
-C_gig_rtracklayer_apop_product_final <- C_gig_rtracklayer_apop_product[
-  # !grepl("dual specificity protein phosphatase 1B-like", C_gig_rtracklayer_apop_product$product, ignore.case = TRUE) & not present in list
-  !grepl("kunitz-type", C_gig_rtracklayer_apop_product$product, ignore.case = TRUE) &
-    !grepl("mannosyl", C_gig_rtracklayer_apop_product$product, ignore.case = TRUE) &
-    !grepl("S-acyl", C_gig_rtracklayer_apop_product$product, ignore.case = TRUE) &
-    !grepl("complement C1q", C_gig_rtracklayer_apop_product$product, ignore.case = TRUE) &
-    !grepl("cytochrome c oxidase", C_gig_rtracklayer_apop_product$product, ignore.case = TRUE) &
-    !grepl("cytochrome c-type heme lyase", C_gig_rtracklayer_apop_product$product, ignore.case = TRUE) &
-    !grepl("cytochrome c1", C_gig_rtracklayer_apop_product$product, ignore.case = TRUE) &
-    !grepl("activator of 90 kDa", C_gig_rtracklayer_apop_product$product, ignore.case = TRUE)  & 
-    !grepl("phosphatidylinositol 3-kinase 1", C_gig_rtracklayer_apop_product$product, ignore.case = TRUE)  & 
-    !grepl("phosphatidylinositol 3-kinase 2", C_gig_rtracklayer_apop_product$product, ignore.case = TRUE)  & 
-    !grepl("DDB_G0272098",C_gig_rtracklayer_apop_product$product, ignore.case = TRUE)  & 
-    !grepl("WD repeat-containing protein WRAP73", C_gig_rtracklayer_apop_product$product, ignore.case = TRUE) &
-    !grepl("tumor protein p63-regulated gene 1-like protein", C_gig_rtracklayer_apop_product$product, ignore.case = TRUE) &
-    !grepl("mitogen-activated protein kinase kinase kinase kinase 3", C_gig_rtracklayer_apop_product$product, ignore.case = TRUE) &
-    !grepl("mitogen-activated protein kinase kinase kinase kinase 4", C_gig_rtracklayer_apop_product$product, ignore.case = TRUE),]
-nrow(C_gig_rtracklayer_apop_product_final) #834
-
-# remove duplicated rows
-C_gig_rtracklayer_apop_product_final <- C_gig_rtracklayer_apop_product_final[!duplicated(C_gig_rtracklayer_apop_product_final$product),]
-nrow(C_gig_rtracklayer_apop_product_final) # 564 unique transcripts
+Apoptosis_frames <- load(file="/Volumes/My Passport for Mac/Chapter1_Apoptosis_Paper_Saved_DESeq_WGCNA_Data/C_gig_C_vir_apoptosis_products.RData")
+annotations <- load(file="/Volumes/My Passport for Mac/Chapter1_Apoptosis_Paper_Saved_DESeq_WGCNA_Data/C_gig_C_vir_annotations.RData")
 
 #### ZHANG VIBRIO TRANSCRIPTOME ANALYSIS ####
 
@@ -731,7 +321,7 @@ family_Zhang_mat_prot_annot <- left_join(family_Zhang_mat_prot, select(C_gig_rtr
 C_gig_rtracklayer_apop_product_final_transcript_id <- as.vector(C_gig_rtracklayer_apop_product_final$transcript_id)
 # Search original Zhang_counts for apoptosis genes and do rlog on just these
 Zhang_counts_apop <- Zhang_counts[row.names(Zhang_counts) %in% C_gig_rtracklayer_apop_product_final_transcript_id,]
-nrow(Zhang_counts_apop) #683
+nrow(Zhang_counts_apop) #833
 head(Zhang_counts_apop)
 
 Zhang_counts_apop_dds <- DESeqDataSetFromMatrix(countData = Zhang_counts_apop,
@@ -773,15 +363,15 @@ top_Var_Zhang_counts_apop_assay_prot_annot <- left_join(top_Var_Zhang_counts_apo
 ### Extract list of significant Apoptosis Genes (not less than or greater than 1 LFC) using merge
 Zhang_dds_deseq_res_V_alg1_LFC_sig_APOP <- merge(Zhang_dds_deseq_res_V_alg1_LFC_sig, C_gig_rtracklayer_apop_product_final, by = "transcript_id")
 Zhang_dds_deseq_res_V_alg1_LFC_sig_APOP_arranged <- arrange(Zhang_dds_deseq_res_V_alg1_LFC_sig_APOP , -log2FoldChange) 
-nrow(Zhang_dds_deseq_res_V_alg1_LFC_sig_APOP) #23
+nrow(Zhang_dds_deseq_res_V_alg1_LFC_sig_APOP) #26
 
 Zhang_dds_deseq_res_V_tub_LFC_sig_APOP <- merge(Zhang_dds_deseq_res_V_tub_LFC_sig , C_gig_rtracklayer_apop_product_final, by = "transcript_id")
 Zhang_dds_deseq_res_V_tub_LFC_sig_APOP_arranged <- arrange(Zhang_dds_deseq_res_V_tub_LFC_sig_APOP  , -log2FoldChange) 
-nrow(Zhang_dds_deseq_res_V_tub_LFC_sig_APOP) # 15
+nrow(Zhang_dds_deseq_res_V_tub_LFC_sig_APOP) # 18
 
 Zhang_dds_deseq_res_LFC_LPS_sig_APOP <- merge(Zhang_dds_deseq_res_LFC_LPS_sig, C_gig_rtracklayer_apop_product_final, by = "transcript_id")
 Zhang_dds_deseq_res_LFC_LPS_sig_APOP_arranged <- arrange(Zhang_dds_deseq_res_LFC_LPS_sig_APOP , -log2FoldChange) 
-nrow(Zhang_dds_deseq_res_LFC_LPS_sig_APOP )  #15
+nrow(Zhang_dds_deseq_res_LFC_LPS_sig_APOP )  #20
 
 # Compare apoptosis genes between group_by_sim groups
 Zhang_dds_deseq_res_V_alg1_LFC_sig_APOP$group_by_sim <- "V_aes_V_alg1_V_alg2"
@@ -796,7 +386,7 @@ Zhang_upset_all_sig_APOP <- rbind(Zhang_dds_deseq_res_V_alg1_LFC_sig_APOP[,c("pr
 Zhang_upset_all_sig_APOP_joined <- full_join( Zhang_dds_deseq_res_V_alg1_LFC_sig_APOP[,c("product","group_by_sim")], Zhang_dds_deseq_res_V_tub_LFC_sig_APOP[,c("product","group_by_sim")], by ="product")
 Zhang_upset_all_sig_APOP_joined <- full_join(Zhang_upset_all_sig_APOP_joined , Zhang_dds_deseq_res_LFC_LPS_sig_APOP[,c("product","group_by_sim")], by ="product")
 Zhang_upset_all_sig_APOP_joined <- na.omit(Zhang_upset_all_sig_APOP_joined)
-nrow(Zhang_upset_all_sig_APOP_joined) # 11 shared between all
+nrow(Zhang_upset_all_sig_APOP_joined) # 13 shared between all
 
   # Convert into wide format using reshape
 Zhang_upset_all_sig_APOP_tally <- Zhang_upset_all_sig_APOP %>% group_by(product) %>% tally() 
@@ -1042,7 +632,7 @@ family_Rubio_broken_mat_prot_annot <- left_join(family_Rubio_broken_mat_prot, se
 C_gig_rtracklayer_apop_product_final_transcript_id 
 # Search original Rubio_counts for apoptosis genes and do rlog on just these
 Rubio_counts_apop <- Rubio_counts[row.names(Rubio_counts) %in% C_gig_rtracklayer_apop_product_final_transcript_id,]
-nrow(Rubio_counts_apop) #683
+nrow(Rubio_counts_apop) #833
 head(Rubio_counts_apop)
 Rubio_counts_apop_dds <- DESeqDataSetFromMatrix(countData = Rubio_counts_apop,
                                                 colData = Rubio_coldata,
@@ -1090,10 +680,10 @@ Rubio_dds_deseq_J2_9_res_LFC_sig_APOP_arranged <-    arrange(Rubio_dds_deseq_J2_
 Rubio_dds_deseq_LGP32_res_LFC_sig_APOP_arranged <-   arrange(Rubio_dds_deseq_LGP32_res_LFC_sig_APOP, -log2FoldChange)
 Rubio_dds_deseq_LMG20012T_res_LFC_sig_APOP_arranged<-arrange(Rubio_dds_deseq_LMG20012T_res_LFC_sig_APOP, -log2FoldChange)
 
-nrow(Rubio_dds_deseq_J2_8_res_LFC_sig_APOP_arranged ) # 41
-nrow(Rubio_dds_deseq_J2_9_res_LFC_sig_APOP_arranged  ) # 50
-nrow(Rubio_dds_deseq_LGP32_res_LFC_sig_APOP_arranged  ) #46
-nrow(Rubio_dds_deseq_LMG20012T_res_LFC_sig_APOP_arranged) # 45
+nrow(Rubio_dds_deseq_J2_8_res_LFC_sig_APOP_arranged ) # 80
+nrow(Rubio_dds_deseq_J2_9_res_LFC_sig_APOP_arranged  ) # 88
+nrow(Rubio_dds_deseq_LGP32_res_LFC_sig_APOP_arranged  ) #90
+nrow(Rubio_dds_deseq_LMG20012T_res_LFC_sig_APOP_arranged) # 80
 
 #View(Rubio_dds_deseq_J2_8_res_LFC_sig_APOP_arranged)
 #View(Rubio_dds_deseq_J2_9_res_LFC_sig_APOP_arranged)
@@ -1442,8 +1032,8 @@ C_gig_rtracklayer_apop_product_final_transcript_id
 # Search original counts table for apoptosis genes and do vst on just these
 deLorgeril_Resistant_counts_apop <- deLorgeril_Resistant_counts[row.names(deLorgeril_Resistant_counts) %in% C_gig_rtracklayer_apop_product_final_transcript_id,]
 deLorgeril_Susceptible_counts_apop <- deLorgeril_Susceptible_counts[row.names(deLorgeril_Susceptible_counts) %in% C_gig_rtracklayer_apop_product_final_transcript_id,]
-nrow(deLorgeril_Resistant_counts_apop ) #659
-nrow(deLorgeril_Susceptible_counts_apop ) #659
+nrow(deLorgeril_Resistant_counts_apop ) #833
+nrow(deLorgeril_Susceptible_counts_apop ) #833
 
 deLorgeril_Resistant_counts_apop_dds <- DESeqDataSetFromMatrix(countData = deLorgeril_Resistant_counts_apop,
                                              colData = deLorgeril_Resistant_coldata,
@@ -1534,19 +1124,19 @@ deLorgeril_Susceptible_dds_res_48_LFC_sig_APOP <- arrange(deLorgeril_Susceptible
 deLorgeril_Susceptible_dds_res_60_LFC_sig_APOP <- arrange(deLorgeril_Susceptible_dds_res_60_LFC_sig_APOP, -log2FoldChange)
 deLorgeril_Susceptible_dds_res_72_LFC_sig_APOP <- arrange(deLorgeril_Susceptible_dds_res_72_LFC_sig_APOP, -log2FoldChange)
 
-nrow(deLorgeril_Resistant_dds_res_6_LFC_sig_APOP) #19
-nrow(deLorgeril_Resistant_dds_res_12_LFC_sig_APOP) #48
-nrow(deLorgeril_Resistant_dds_res_24_LFC_sig_APOP) #66
-nrow(deLorgeril_Resistant_dds_res_48_LFC_sig_APOP) #18
-nrow(deLorgeril_Resistant_dds_res_60_LFC_sig_APOP) # 45
-nrow(deLorgeril_Resistant_dds_res_72_LFC_sig_APOP) # 23
+nrow(deLorgeril_Resistant_dds_res_6_LFC_sig_APOP) #30
+nrow(deLorgeril_Resistant_dds_res_12_LFC_sig_APOP) #68
+nrow(deLorgeril_Resistant_dds_res_24_LFC_sig_APOP) #100
+nrow(deLorgeril_Resistant_dds_res_48_LFC_sig_APOP) #30
+nrow(deLorgeril_Resistant_dds_res_60_LFC_sig_APOP) # 75
+nrow(deLorgeril_Resistant_dds_res_72_LFC_sig_APOP) # 42
 
-nrow(deLorgeril_Susceptible_dds_res_6_LFC_sig_APOP) #24
-nrow(deLorgeril_Susceptible_dds_res_12_LFC_sig_APOP) #75
-nrow(deLorgeril_Susceptible_dds_res_24_LFC_sig_APOP) #129
-nrow(deLorgeril_Susceptible_dds_res_48_LFC_sig_APOP) #30
-nrow(deLorgeril_Susceptible_dds_res_60_LFC_sig_APOP) # 149
-nrow(deLorgeril_Susceptible_dds_res_72_LFC_sig_APOP) # 40
+nrow(deLorgeril_Susceptible_dds_res_6_LFC_sig_APOP) #36
+nrow(deLorgeril_Susceptible_dds_res_12_LFC_sig_APOP) #110
+nrow(deLorgeril_Susceptible_dds_res_24_LFC_sig_APOP) #200
+nrow(deLorgeril_Susceptible_dds_res_48_LFC_sig_APOP) #43
+nrow(deLorgeril_Susceptible_dds_res_60_LFC_sig_APOP) # 233
+nrow(deLorgeril_Susceptible_dds_res_72_LFC_sig_APOP) # 62
 
 #View(deLorgeril_Resistant_dds_res_48_LFC_sig_APOP  $product)
 #View(deLorgeril_Resistant_dds_res_60_LFC_sig_APOP  $product)
@@ -1774,7 +1364,7 @@ He_mat_prot_annot <- left_join(He_mat_prot, select(C_gig_rtracklayer_transcripts
 C_gig_rtracklayer_apop_product_final_transcript_id 
 # Search original Rubio_counts for apoptosis genes and do rlog on just these
 He_counts_apop <- He_counts[row.names(He_counts) %in% C_gig_rtracklayer_apop_product_final_transcript_id,]
-nrow(He_counts_apop ) #659
+nrow(He_counts_apop ) #833
 He_counts_apop_dds <- DESeqDataSetFromMatrix(countData = He_counts_apop,
                                                 colData = He_coldata,
                                                 design = ~ Time + Condition) # using same formula as before
@@ -1813,7 +1403,7 @@ top_Var_He_counts_apop_assay_prot_annot <- left_join(top_Var_He_counts_apop_assa
 ### Extract list of significant Apoptosis Genes (not less than or greater than 1 LFC) using merge
 He_dds_res_LFC_sig_APOP <- merge(He_dds_res_LFC_sig , C_gig_rtracklayer_apop_product_final, by = "transcript_id")
 He_dds_res_LFC_sig_arranged <-arrange(He_dds_res_LFC_sig_APOP, -log2FoldChange)
-nrow(He_dds_res_LFC_sig_arranged ) #66
+nrow(He_dds_res_LFC_sig_arranged ) #82
 View(He_dds_res_LFC_sig_arranged)
 
 ### HE SEPARATED FOR EACH TIMEPOINT ###
@@ -1993,11 +1583,11 @@ He_dds_res_24hr_sig_arranged <- arrange(He_dds_res_24hr_sig_APOP , -log2FoldChan
 He_dds_res_48hr_sig_arranged <- arrange(He_dds_res_48hr_sig_APOP , -log2FoldChange)
 He_dds_res_120hr_sig_arranged <- arrange(He_dds_res_120hr_sig_APOP, -log2FoldChange)
 
-nrow(He_dds_res_6hr_sig_arranged ) # 16
-nrow(He_dds_res_12hr_sig_arranged) # 20
-nrow(He_dds_res_24hr_sig_arranged) # 45
-nrow(He_dds_res_48hr_sig_arranged) # 18
-nrow(He_dds_res_120hr_sig_arranged) # 14
+nrow(He_dds_res_6hr_sig_arranged ) # 28
+nrow(He_dds_res_12hr_sig_arranged) # 33
+nrow(He_dds_res_24hr_sig_arranged) # 73
+nrow(He_dds_res_48hr_sig_arranged) # 27
+nrow(He_dds_res_120hr_sig_arranged) # 21
 
 He_dds_res_6hr_sig_APOP$group_by_sim <-"He_dds_res_6hr_sig_APOP"
 He_dds_res_12hr_sig_APOP$group_by_sim <-"He_dds_res_12hr_sig_APOP"
@@ -2185,7 +1775,7 @@ head(familyProbiotic_broken_mat) # some clustering by bacillus, still overall cl
 C_vir_rtracklayer_apop_product_final_ID <- C_vir_rtracklayer_apop_product_final$ID
 # Search original Probiotic_counts for apoptosis genes and do rlog on just these
 Probiotic_counts_apop <- Probiotic_counts[row.names(Probiotic_counts) %in% C_vir_rtracklayer_apop_product_final_ID,]
-nrow(Probiotic_counts_apop) #1026
+nrow(Probiotic_counts_apop) #1245
 head(Probiotic_counts_apop)
 Probiotic_counts_apop_dds <- DESeqDataSetFromMatrix(countData = Probiotic_counts_apop,
                                                 colData = Probiotic_coldata,
@@ -2224,7 +1814,7 @@ top_Var_Probiotic_counts_apop_assay_prot_annot <- left_join(top_Var_Probiotic_co
 ### Extract list of significant Apoptosis Genes (not less than or greater than 1 LFC) using merge
 Probiotic_dds_deseq_Challenge_res_LFC_sig_APOP <- merge(Probiotic_dds_deseq_Challenge_res_LFC_sig, C_vir_rtracklayer_apop_product_final, by = "ID")
 Probiotic_dds_deseq_Challenge_res_LFC_sig_APOP_arranged <- arrange(Probiotic_dds_deseq_Challenge_res_LFC_sig_APOP, -log2FoldChange) 
-nrow(Probiotic_dds_deseq_Challenge_res_LFC_sig_APOP) # 17
+nrow(Probiotic_dds_deseq_Challenge_res_LFC_sig_APOP) # 35
 
 Probiotic_dds_deseq_Challenge_res_LFC_sig_APOP_plot <- ggplot(Probiotic_dds_deseq_Challenge_res_LFC_sig_APOP , aes(x=product, y = log2FoldChange, fill=log2FoldChange)) + geom_col(position="dodge") +
   coord_flip() + scale_fill_gradient2(low="purple",mid = "grey", high="darkgreen") + ggtitle("Bacillus pumilus vs Control") +
@@ -2452,7 +2042,7 @@ head(family_Pro_RE22_broken_mat) # mostly clustering by treatment and still some
 # Gene clustering heatmap with only apoptosis genes #
 # Search original Probiotic_counts for apoptosis genes and do rlog on just these
 Pro_RE22_counts_apop <- Pro_RE22_counts[row.names(Pro_RE22_counts) %in% C_vir_rtracklayer_apop_product_final_ID,]
-nrow(Pro_RE22_counts_apop) #1026
+nrow(Pro_RE22_counts_apop) #1245
 head(Pro_RE22_counts_apop)
 Pro_RE22_counts_apop_dds <- DESeqDataSetFromMatrix(countData = Pro_RE22_counts_apop,
                                                     colData = Pro_RE22_coldata,
@@ -2494,11 +2084,11 @@ Pro_RE22_dds_deseq_res_S4_6h_LFC_sig_APOP <- merge(Pro_RE22_dds_deseq_res_S4_6h_
 Pro_RE22_dds_deseq_res_S4_24h_LFC_sig_APOP <- merge(Pro_RE22_dds_deseq_res_S4_24h_LFC_sig, C_vir_rtracklayer_apop_product_final, by =  "ID")
 Pro_RE22_dds_deseq_res_RE22_LFC_sig_APOP <- merge(Pro_RE22_dds_deseq_res_RE22_LFC_sig, C_vir_rtracklayer_apop_product_final, by = "ID")
 
-nrow(Pro_RE22_dds_deseq_res_RI_6h_LFC_sig_APOP ) # 18
-nrow(Pro_RE22_dds_deseq_res_RI_24h_LFC_sig_APOP) # 35
-nrow(Pro_RE22_dds_deseq_res_S4_6h_LFC_sig_APOP ) # 30
-nrow(Pro_RE22_dds_deseq_res_S4_24h_LFC_sig_APOP) # 42
-nrow(Pro_RE22_dds_deseq_res_RE22_LFC_sig_APOP ) # 20 
+nrow(Pro_RE22_dds_deseq_res_RI_6h_LFC_sig_APOP ) # 30
+nrow(Pro_RE22_dds_deseq_res_RI_24h_LFC_sig_APOP) # 54
+nrow(Pro_RE22_dds_deseq_res_S4_6h_LFC_sig_APOP ) # 51
+nrow(Pro_RE22_dds_deseq_res_S4_24h_LFC_sig_APOP) # 63
+nrow(Pro_RE22_dds_deseq_res_RE22_LFC_sig_APOP ) # 38 
 
 # Compare apoptosis genes between group_by_sim groups
 Pro_RE22_dds_deseq_res_RI_6h_LFC_sig_APOP $group_by_sim <- "RI_6h"
@@ -2731,8 +2321,6 @@ nrow(ROD_Susceptible_dds_res_LFC_sig)  #2020
 # Extract genes with the highest variance across samples for each comparison using either vst or rlog transformed data
 # This heatmap rather than plotting absolute expression strength plot the amount by which each gene deviates in a specific sample from the gene’s average across all samples. 
 # example codes from RNAseq workflow: https://www.bioconductor.org/packages/devel/workflows/vignettes/rnaseqGene/inst/doc/rnaseqGene.html#other-comparisons
-ROD_Resistant_dds_rlog
-ROD_Susceptible_dds_rlog
 
 ROD_Resistant_dds_LFC_assay <-  head(order(rowVars(assay(ROD_Resistant_dds_rlog  )), decreasing = TRUE), 200)
 ROD_Resistant_mat <- assay(ROD_Resistant_dds_rlog )[ROD_Resistant_dds_LFC_assay,]
@@ -2753,8 +2341,8 @@ head(ROD_Susceptible_mat) # some clustering by bacillus, still overall clusterin
 # Search original counts for apoptosis genes and do rlog on just these
 ROD_Resistant_counts_apop <- ROD_Resistant_counts[row.names(ROD_Resistant_counts) %in% C_vir_rtracklayer_apop_product_final_ID,]
 ROD_Susceptible_counts_apop <- ROD_Susceptible_counts[row.names(ROD_Susceptible_counts) %in% C_vir_rtracklayer_apop_product_final_ID,]
-nrow(ROD_Resistant_counts_apop) #1026
-nrow( ROD_Susceptible_counts_apop) # 1026
+nrow(ROD_Resistant_counts_apop) #1245
+nrow( ROD_Susceptible_counts_apop) # 1245
 
 ROD_Resistant_counts_apop_dds <- DESeqDataSetFromMatrix(countData = ROD_Resistant_counts_apop,
                                                     colData = ROD_Resistant_coldata,
@@ -2823,11 +2411,11 @@ top_Var_ROD_Susceptible_apop_assay_prot_annot <- left_join(top_Var_ROD_Susceptib
 ### Extract list of significant Apoptosis Genes (not less than or greater than 1 LFC) using merge
 ROD_Susceptible_dds_res_LFC_sig_APOP <- merge(ROD_Susceptible_dds_res_LFC_sig, C_vir_rtracklayer_apop_product_final, by = "ID")
 ROD_Susceptible_dds_res_LFC_sig_APOP_arranged <- arrange(ROD_Susceptible_dds_res_LFC_sig_APOP, -log2FoldChange) 
-nrow(ROD_Susceptible_dds_res_LFC_sig_APOP) # 29
+nrow(ROD_Susceptible_dds_res_LFC_sig_APOP) # 49
 
 ROD_Resistant_dds_res_LFC_sig_APOP <- merge(ROD_Resistant_dds_res_LFC_sig, C_vir_rtracklayer_apop_product_final, by = "ID")
 ROD_Resistant_dds_res_LFC_sig_APOP_arranged <- arrange(ROD_Resistant_dds_res_LFC_sig_APOP, -log2FoldChange) 
-nrow(ROD_Resistant_dds_res_LFC_sig_APOP) # 3
+nrow(ROD_Resistant_dds_res_LFC_sig_APOP) # 5
 
 ROD_Susceptible_dds_res_LFC_sig_APOP_plot <- ggplot(ROD_Susceptible_dds_res_LFC_sig_APOP , aes(x=product, y = log2FoldChange, fill=log2FoldChange)) + geom_col(position="dodge") +
   coord_flip() + scale_fill_gradient2(low="purple",mid = "grey", high="darkgreen") + ggtitle("Susceptible Early vs Late") +
@@ -3093,8 +2681,8 @@ head(Dermo_Susceptible_mat) # clustering by control and injected
 # Search original counts for apoptosis genes and do rlog on just these
 Dermo_Tolerant_counts_apop <- Dermo_Tolerant_counts[row.names(Dermo_Tolerant_counts) %in% C_vir_rtracklayer_apop_product_final_ID,]
 Dermo_Susceptible_counts_apop <- Dermo_Susceptible_counts[row.names(Dermo_Susceptible_counts) %in% C_vir_rtracklayer_apop_product_final_ID,]
-nrow(Dermo_Tolerant_counts_apop) #1026
-nrow( Dermo_Susceptible_counts_apop) # 1026
+nrow(Dermo_Tolerant_counts_apop) #1245
+nrow( Dermo_Susceptible_counts_apop) # 1245
 
 Dermo_Tolerant_counts_apop_dds <- DESeqDataSetFromMatrix(countData = Dermo_Tolerant_counts_apop,
                                                         colData = Dermo_Tolerant_coldata,
@@ -3162,19 +2750,19 @@ top_Var_Dermo_Susceptible_apop_assay_prot_annot <- left_join(top_Var_Dermo_Susce
 ### Extract list of significant Apoptosis Genes (not less than or greater than 1 LFC) using merge
 Dermo_Tolerant_condition_dds_res_LFC_sig_APOP <- merge(Dermo_Tolerant_condition_dds_res_LFC_sig, C_vir_rtracklayer_apop_product_final, by = "ID")
 Dermo_Tolerant_condition_dds_res_LFC_sig_APOP_arranged <- arrange(Dermo_Tolerant_condition_dds_res_LFC_sig_APOP, -log2FoldChange) 
-nrow(Dermo_Tolerant_condition_dds_res_LFC_sig_APOP) # 22
+nrow(Dermo_Tolerant_condition_dds_res_LFC_sig_APOP) # 29
 
 Dermo_Susceptible_condition_dds_res_LFC_sig_APOP <- merge(Dermo_Susceptible_condition_dds_res_LFC_sig, C_vir_rtracklayer_apop_product_final, by = "ID")
 Dermo_Susceptible_condition_dds_res_LFC_sig_APOP_arranged <- arrange(Dermo_Susceptible_condition_dds_res_LFC_sig_APOP, -log2FoldChange) 
-nrow(Dermo_Susceptible_condition_dds_res_LFC_sig_APOP) # 12 
+nrow(Dermo_Susceptible_condition_dds_res_LFC_sig_APOP) # 16
 
 Dermo_Susceptible_dds_res_LFC_sig_APOP <- merge(Dermo_Susceptible_dds_res_LFC_sig, C_vir_rtracklayer_apop_product_final, by = "ID")
 Dermo_Susceptible_dds_res_LFC_sig_APOP_arranged <- arrange(Dermo_Susceptible_dds_res_LFC_sig_APOP, -log2FoldChange) 
-nrow(Dermo_Susceptible_dds_res_LFC_sig_APOP) # 12
+nrow(Dermo_Susceptible_dds_res_LFC_sig_APOP) # 16
 
 Dermo_Tolerant_dds_res_LFC_sig_APOP <- merge(Dermo_Tolerant_dds_res_LFC_sig, C_vir_rtracklayer_apop_product_final, by = "ID")
 Dermo_Tolerant_dds_res_LFC_sig_APOP_arranged <- arrange(Dermo_Tolerant_dds_res_LFC_sig_APOP, -log2FoldChange) 
-nrow(Dermo_Tolerant_dds_res_LFC_sig_APOP) # 22
+nrow(Dermo_Tolerant_dds_res_LFC_sig_APOP) # 29
 
 # Combined LFC plot
 Dermo_Susceptible_condition_dds_res_LFC_sig_APOP
@@ -3341,31 +2929,31 @@ nrow(Dermo_Susceptible_28d_dds_res_LFC_sig) # 2462
 ### Extract list of significant Apoptosis Genes (not less than or greater than 1 LFC) using merge
 Dermo_Susceptible_36hr_dds_res_LFC_sig_APOP <- merge(Dermo_Susceptible_36hr_dds_res_LFC_sig, C_vir_rtracklayer_apop_product_final, by = "ID")
 Dermo_Susceptible_36hr_dds_res_LFC_sig_APOP_arranged <- arrange(Dermo_Susceptible_36hr_dds_res_LFC_sig_APOP, -log2FoldChange) 
-nrow(Dermo_Susceptible_36hr_dds_res_LFC_sig_APOP) # 6
+nrow(Dermo_Susceptible_36hr_dds_res_LFC_sig_APOP) # 13
 
 Dermo_Susceptible_7d_dds_res_LFC_sig_APOP <- merge(Dermo_Susceptible_7d_dds_res_LFC_sig, C_vir_rtracklayer_apop_product_final, by = "ID")
 Dermo_Susceptible_7d_dds_res_LFC_sig_APOP_arranged <- arrange(Dermo_Susceptible_7d_dds_res_LFC_sig_APOP, -log2FoldChange) 
-nrow(Dermo_Susceptible_7d_dds_res_LFC_sig_APOP) # 0
+nrow(Dermo_Susceptible_7d_dds_res_LFC_sig_APOP) # 3
 
 Dermo_Susceptible_28d_dds_res_LFC_sig_APOP <- merge(Dermo_Susceptible_28d_dds_res_LFC_sig, C_vir_rtracklayer_apop_product_final, by = "ID")
 Dermo_Susceptible_28d_dds_res_LFC_sig_APOP_arranged <- arrange(Dermo_Susceptible_28d_dds_res_LFC_sig_APOP, -log2FoldChange) 
-nrow(Dermo_Susceptible_28d_dds_res_LFC_sig_APOP) # 15
+nrow(Dermo_Susceptible_28d_dds_res_LFC_sig_APOP) # 37
 
 Dermo_Tolerant_36hr_dds_res_LFC_sig_APOP <- merge(Dermo_Tolerant_36hr_dds_res_LFC_sig, C_vir_rtracklayer_apop_product_final, by = "ID")
 Dermo_Tolerant_36hr_dds_res_LFC_sig_APOP_arranged <- arrange(Dermo_Tolerant_36hr_dds_res_LFC_sig_APOP, -log2FoldChange) 
-nrow(Dermo_Tolerant_36hr_dds_res_LFC_sig_APOP)  # 9
+nrow(Dermo_Tolerant_36hr_dds_res_LFC_sig_APOP)  # 16
 
 Dermo_Tolerant_7d_dds_res_LFC_sig_APOP <- merge(Dermo_Tolerant_7d_dds_res_LFC_sig, C_vir_rtracklayer_apop_product_final, by = "ID")
 Dermo_Tolerant_7d_dds_res_LFC_sig_APOP_arranged <- arrange(Dermo_Tolerant_7d_dds_res_LFC_sig_APOP, -log2FoldChange) 
-nrow(Dermo_Tolerant_7d_dds_res_LFC_sig_APOP) # 6
+nrow(Dermo_Tolerant_7d_dds_res_LFC_sig_APOP) # 16
 
 Dermo_Tolerant_28d_dds_res_LFC_sig_APOP <- merge(Dermo_Tolerant_28d_dds_res_LFC_sig, C_vir_rtracklayer_apop_product_final, by = "ID")
 Dermo_Tolerant_28d_dds_res_LFC_sig_APOP_arranged <- arrange(Dermo_Tolerant_28d_dds_res_LFC_sig_APOP, -log2FoldChange) 
-nrow(Dermo_Tolerant_28d_dds_res_LFC_sig_APOP) # 10
+nrow(Dermo_Tolerant_28d_dds_res_LFC_sig_APOP) # 17
  
 # Compare apoptosis genes between group_by_sim groups
 Dermo_Susceptible_36hr_dds_res_LFC_sig_APOP$group_by_sim <- "Susceptible_36hr"
-#Dermo_Susceptible_7d_dds_res_LFC_sig_APOP$group_by_sim <- "Susceptible_7d"
+Dermo_Susceptible_7d_dds_res_LFC_sig_APOP$group_by_sim <- "Susceptible_7d"
 Dermo_Susceptible_28d_dds_res_LFC_sig_APOP$group_by_sim <- "Susceptible_28d"
 Dermo_Tolerant_36hr_dds_res_LFC_sig_APOP$group_by_sim <- "Tolerant_36hr"
 Dermo_Tolerant_7d_dds_res_LFC_sig_APOP $group_by_sim <- "Tolerant_7d"
@@ -3374,7 +2962,7 @@ Dermo_Tolerant_28d_dds_res_LFC_sig_APOP $group_by_sim <- "Tolerant_28d"
 # combine data frames 
 Dermo_separated_all_sig_APOP <- rbind( 
   Dermo_Susceptible_36hr_dds_res_LFC_sig_APOP[,c("product","group_by_sim","log2FoldChange")],
-  #Dermo_Susceptible_7d_dds_res_LFC_sig_APOP[,c("product","group_by_sim","log2FoldChange")],
+  Dermo_Susceptible_7d_dds_res_LFC_sig_APOP[,c("product","group_by_sim","log2FoldChange")],
   Dermo_Susceptible_28d_dds_res_LFC_sig_APOP[,c("product","group_by_sim","log2FoldChange")],
     Dermo_Tolerant_36hr_dds_res_LFC_sig_APOP[,c("product","group_by_sim","log2FoldChange")],
     Dermo_Tolerant_7d_dds_res_LFC_sig_APOP[,c("product","group_by_sim","log2FoldChange")],
@@ -3419,7 +3007,7 @@ C_vir_apop_LFC <- rbind(
   ROD_Resistant_dds_res_LFC_sig_APOP[,c("product","group_by_sim","log2FoldChange","experiment", "gene","transcript_id","padj")],
   Probiotic_dds_deseq_Challenge_res_LFC_sig_APOP[,c("product","group_by_sim","log2FoldChange","experiment", "gene","transcript_id","padj")],
   Dermo_Susceptible_36hr_dds_res_LFC_sig_APOP[,c("product","group_by_sim","log2FoldChange","experiment", "gene","transcript_id","padj")],
-  #Dermo_Susceptible_7d_dds_res_LFC_sig_APOP[,c("product","group_by_sim","log2FoldChange","experiment", "gene","transcript_id","padj")],
+  Dermo_Susceptible_7d_dds_res_LFC_sig_APOP[,c("product","group_by_sim","log2FoldChange","experiment", "gene","transcript_id","padj")],
   Dermo_Susceptible_28d_dds_res_LFC_sig_APOP[,c("product","group_by_sim","log2FoldChange","experiment", "gene","transcript_id","padj")],
   Dermo_Tolerant_36hr_dds_res_LFC_sig_APOP[,c("product","group_by_sim","log2FoldChange","experiment", "gene","transcript_id","padj")],
   Dermo_Tolerant_7d_dds_res_LFC_sig_APOP[,c("product","group_by_sim","log2FoldChange","experiment", "gene","transcript_id","padj")],
@@ -3429,8 +3017,79 @@ C_vir_apop_LFC <- rbind(
   Pro_RE22_dds_deseq_res_S4_6h_LFC_sig_APOP[,c("product","group_by_sim","log2FoldChange","experiment", "gene","transcript_id","padj")],
   Pro_RE22_dds_deseq_res_S4_24h_LFC_sig_APOP[,c("product","group_by_sim","log2FoldChange","experiment", "gene","transcript_id","padj")],
   Pro_RE22_dds_deseq_res_RE22_LFC_sig_APOP[,c("product","group_by_sim","log2FoldChange","experiment", "gene","transcript_id","padj")])
-  
+  nrow(C_vir_apop_LFC ) #427
 View(arrange(C_vir_apop_LFC, -log2FoldChange) )
+
+# combine all non apop transcripts to get number of total DEGs for each 
+ROD_Susceptible_dds_res_LFC_sig_num           <- ROD_Susceptible_dds_res_LFC_sig
+ROD_Resistant_dds_res_LFC_sig_num             <- ROD_Resistant_dds_res_LFC_sig
+Probiotic_dds_deseq_Challenge_res_LFC_sig_num <- Probiotic_dds_deseq_Challenge_res_LFC_sig
+Dermo_Susceptible_36hr_dds_res_LFC_sig_num    <- Dermo_Susceptible_36hr_dds_res_LFC_sig
+Dermo_Susceptible_7d_dds_res_LFC_sig_num      <- Dermo_Susceptible_7d_dds_res_LFC_sig
+Dermo_Susceptible_28d_dds_res_LFC_sig_num     <- Dermo_Susceptible_28d_dds_res_LFC_sig
+Dermo_Tolerant_36hr_dds_res_LFC_sig_num       <- Dermo_Tolerant_36hr_dds_res_LFC_sig
+Dermo_Tolerant_7d_dds_res_LFC_sig_num         <- Dermo_Tolerant_7d_dds_res_LFC_sig
+Dermo_Tolerant_28d_dds_res_LFC_sig_num        <- Dermo_Tolerant_28d_dds_res_LFC_sig
+Pro_RE22_dds_deseq_res_RI_6h_LFC_sig_num      <- Pro_RE22_dds_deseq_res_RI_6h_LFC_sig
+Pro_RE22_dds_deseq_res_RI_24h_LFC_sig_num     <- Pro_RE22_dds_deseq_res_RI_24h_LFC_sig
+Pro_RE22_dds_deseq_res_S4_6h_LFC_sig_num      <- Pro_RE22_dds_deseq_res_S4_6h_LFC_sig
+Pro_RE22_dds_deseq_res_S4_24h_LFC_sig_num     <- Pro_RE22_dds_deseq_res_S4_24h_LFC_sig
+Pro_RE22_dds_deseq_res_RE22_LFC_sig_num       <- Pro_RE22_dds_deseq_res_RE22_LFC_sig
+
+ROD_Susceptible_dds_res_LFC_sig_num           $group_by_sim <- "ROD_susceptible"
+ROD_Resistant_dds_res_LFC_sig_num             $group_by_sim <- "ROD_resistant"
+Probiotic_dds_deseq_Challenge_res_LFC_sig_num $group_by_sim <- "Probiotic"
+Dermo_Susceptible_36hr_dds_res_LFC_sig_num     $group_by_sim <- "Susceptible_36hr"
+Dermo_Susceptible_7d_dds_res_LFC_sig_num      $group_by_sim <- "Susceptible_7d"
+Dermo_Susceptible_28d_dds_res_LFC_sig_num     $group_by_sim <- "Susceptible_28d"
+Dermo_Tolerant_36hr_dds_res_LFC_sig_num       $group_by_sim <- "Tolerant_36hr"
+Dermo_Tolerant_7d_dds_res_LFC_sig_num         $group_by_sim <- "Tolerant_7d"
+Dermo_Tolerant_28d_dds_res_LFC_sig_num        $group_by_sim <- "Tolerant_28d"
+Pro_RE22_dds_deseq_res_RI_6h_LFC_sig_num      $group_by_sim <- "RI_6h"
+Pro_RE22_dds_deseq_res_RI_24h_LFC_sig_num     $group_by_sim <- "RI_24h"
+Pro_RE22_dds_deseq_res_S4_6h_LFC_sig_num      $group_by_sim <- "S4_6h"
+Pro_RE22_dds_deseq_res_S4_24h_LFC_sig_num     $group_by_sim <- "S4_24h"
+Pro_RE22_dds_deseq_res_RE22_LFC_sig_num       $group_by_sim <- "RE22"
+
+ROD_Susceptible_dds_res_LFC_sig_num          <- ROD_Susceptible_dds_res_LFC_sig_num          [,c("ID","group_by_sim")]
+ROD_Resistant_dds_res_LFC_sig_num            <- ROD_Resistant_dds_res_LFC_sig_num            [,c("ID","group_by_sim")]
+Probiotic_dds_deseq_Challenge_res_LFC_sig_num<- Probiotic_dds_deseq_Challenge_res_LFC_sig_num[,c("ID","group_by_sim")]
+Dermo_Susceptible_36hr_dds_res_LFC_sig_num   <- Dermo_Susceptible_36hr_dds_res_LFC_sig_num   [,c("ID","group_by_sim")]
+Dermo_Susceptible_7d_dds_res_LFC_sig_num     <- Dermo_Susceptible_7d_dds_res_LFC_sig_num     [,c("ID","group_by_sim")]
+Dermo_Susceptible_28d_dds_res_LFC_sig_num    <- Dermo_Susceptible_28d_dds_res_LFC_sig_num    [,c("ID","group_by_sim")]
+Dermo_Tolerant_36hr_dds_res_LFC_sig_num      <- Dermo_Tolerant_36hr_dds_res_LFC_sig_num      [,c("ID","group_by_sim")]
+Dermo_Tolerant_7d_dds_res_LFC_sig_num        <- Dermo_Tolerant_7d_dds_res_LFC_sig_num        [,c("ID","group_by_sim")]
+Dermo_Tolerant_28d_dds_res_LFC_sig_num       <- Dermo_Tolerant_28d_dds_res_LFC_sig_num       [,c("ID","group_by_sim")]
+Pro_RE22_dds_deseq_res_RI_6h_LFC_sig_num     <- Pro_RE22_dds_deseq_res_RI_6h_LFC_sig_num     [,c("ID","group_by_sim")]
+Pro_RE22_dds_deseq_res_RI_24h_LFC_sig_num    <- Pro_RE22_dds_deseq_res_RI_24h_LFC_sig_num    [,c("ID","group_by_sim")]
+Pro_RE22_dds_deseq_res_S4_6h_LFC_sig_num     <- Pro_RE22_dds_deseq_res_S4_6h_LFC_sig_num     [,c("ID","group_by_sim")]
+Pro_RE22_dds_deseq_res_S4_24h_LFC_sig_num    <- Pro_RE22_dds_deseq_res_S4_24h_LFC_sig_num    [,c("ID","group_by_sim")]
+Pro_RE22_dds_deseq_res_RE22_LFC_sig_num      <- Pro_RE22_dds_deseq_res_RE22_LFC_sig_num      [,c("ID","group_by_sim")]
+
+C_vir_all_sig_count <- rbind(ROD_Susceptible_dds_res_LFC_sig_num          ,
+                             ROD_Resistant_dds_res_LFC_sig_num            ,
+                             Probiotic_dds_deseq_Challenge_res_LFC_sig_num,
+                             Dermo_Susceptible_36hr_dds_res_LFC_sig_num   ,
+                            Dermo_Susceptible_7d_dds_res_LFC_sig_num     ,
+                             Dermo_Susceptible_28d_dds_res_LFC_sig_num    ,
+                             Dermo_Tolerant_36hr_dds_res_LFC_sig_num      ,
+                             Dermo_Tolerant_7d_dds_res_LFC_sig_num        ,
+                             Dermo_Tolerant_28d_dds_res_LFC_sig_num       ,
+                             Pro_RE22_dds_deseq_res_RI_6h_LFC_sig_num     ,
+                             Pro_RE22_dds_deseq_res_RI_24h_LFC_sig_num    ,
+                             Pro_RE22_dds_deseq_res_S4_6h_LFC_sig_num     ,
+                             Pro_RE22_dds_deseq_res_S4_24h_LFC_sig_num    ,
+                             Pro_RE22_dds_deseq_res_RE22_LFC_sig_num      )
+C_vir_all_sig_count <- C_vir_all_sig_count %>% group_by(group_by_sim ) %>% mutate(sig_total = n())
+C_vir_all_sig_count <- C_vir_all_sig_count[!duplicated(C_vir_all_sig_count[,c("group_by_sim","sig_total")]),]
+C_vir_all_sig_count<- C_vir_all_sig_count[,c("group_by_sim","sig_total")]
+# Number significant transcripts for each 
+C_vir_nsig_apop <- C_vir_apop_LFC %>% group_by(group_by_sim, experiment) %>% mutate(num_sig_apop = n())
+C_vir_nsig_apop_collapsed <- C_vir_nsig_apop[!duplicated(C_vir_nsig_apop[,c("num_sig_apop")]),]
+C_vir_nsig_apop_collapsed <- C_vir_nsig_apop_collapsed[,c("group_by_sim","experiment","num_sig_apop")]  
+
+C_vir_sig_table <- left_join(C_vir_nsig_apop_collapsed, C_vir_all_sig_count)
+C_vir_sig_table <- C_vir_sig_table %>% group_by(group_by_sim) %>% mutate(apop_percent = (num_sig_apop/sig_total)*100)  
 
 # assign to gene families
 Apoptosis_names_df <- data.frame(product=c(# removing this because duplicated with bcl-2 'bcl-2-related protein A1',
@@ -3655,31 +3314,31 @@ deLorgeril_Susceptible_dds_res_60_LFC_sig_APOP$experiment <- "deLorgeril"
 deLorgeril_Susceptible_dds_res_72_LFC_sig_APOP$experiment <- "deLorgeril"
 
 # add in protein, gene and XM info for merging with ortholog information 
-C_gig_apop_LFC <- rbind(Zhang_dds_deseq_res_V_alg1_LFC_sig_APOP[,c("product","group_by_sim","log2FoldChange","experiment", "seqnames","Name","gene","padj")],
-                        Zhang_dds_deseq_res_V_tub_LFC_sig_APOP[,c("product","group_by_sim","log2FoldChange","experiment", "seqnames","Name","gene","padj")],
-                        Zhang_dds_deseq_res_LFC_LPS_sig_APOP[,c("product","group_by_sim","log2FoldChange","experiment", "seqnames","Name","gene","padj")],
-                        Rubio_dds_deseq_J2_8_res_LFC_sig_APOP[,c("product","group_by_sim","log2FoldChange","experiment", "seqnames","Name","gene","padj")],
-                        Rubio_dds_deseq_J2_9_res_LFC_sig_APOP[,c("product","group_by_sim","log2FoldChange","experiment", "seqnames","Name","gene","padj")],
-                        Rubio_dds_deseq_LGP32_res_LFC_sig_APOP[,c("product","group_by_sim","log2FoldChange","experiment", "seqnames","Name","gene","padj")],
-                        Rubio_dds_deseq_LMG20012T_res_LFC_sig_APOP[,c("product","group_by_sim","log2FoldChange","experiment", "seqnames","Name","gene","padj")],
-                        He_dds_res_6hr_sig_APOP[,c("product","group_by_sim","log2FoldChange","experiment", "seqnames","Name","gene","padj")],
-                        He_dds_res_12hr_sig_APOP[,c("product","group_by_sim","log2FoldChange","experiment", "seqnames","Name","gene","padj")],
-                        He_dds_res_24hr_sig_APOP[,c("product","group_by_sim","log2FoldChange","experiment", "seqnames","Name","gene","padj")],
-                        He_dds_res_48hr_sig_APOP[,c("product","group_by_sim","log2FoldChange","experiment", "seqnames","Name","gene","padj")],
-                        He_dds_res_120hr_sig_APOP[,c("product","group_by_sim","log2FoldChange","experiment", "seqnames","Name","gene","padj")],
-                        deLorgeril_Resistant_dds_res_6_LFC_sig_APOP[,c("product","group_by_sim","log2FoldChange","experiment", "seqnames","Name","gene","padj")],
-                        deLorgeril_Resistant_dds_res_12_LFC_sig_APOP[,c("product","group_by_sim","log2FoldChange","experiment", "seqnames","Name","gene","padj")],
-                        deLorgeril_Resistant_dds_res_24_LFC_sig_APOP[,c("product","group_by_sim","log2FoldChange","experiment", "seqnames","Name","gene","padj")],
-                        deLorgeril_Resistant_dds_res_48_LFC_sig_APOP[,c("product","group_by_sim","log2FoldChange","experiment", "seqnames","Name","gene","padj")],
-                        deLorgeril_Resistant_dds_res_60_LFC_sig_APOP[,c("product","group_by_sim","log2FoldChange","experiment", "seqnames","Name","gene","padj")],
-                        deLorgeril_Resistant_dds_res_72_LFC_sig_APOP[,c("product","group_by_sim","log2FoldChange","experiment", "seqnames","Name","gene","padj")],
-                        deLorgeril_Susceptible_dds_res_6_LFC_sig_APOP[,c("product","group_by_sim","log2FoldChange","experiment", "seqnames","Name","gene","padj")],
-                        deLorgeril_Susceptible_dds_res_12_LFC_sig_APOP[,c("product","group_by_sim","log2FoldChange","experiment", "seqnames","Name","gene","padj")],
-                        deLorgeril_Susceptible_dds_res_24_LFC_sig_APOP[,c("product","group_by_sim","log2FoldChange","experiment", "seqnames","Name","gene","padj")],
-                        deLorgeril_Susceptible_dds_res_48_LFC_sig_APOP[,c("product","group_by_sim","log2FoldChange","experiment", "seqnames","Name","gene","padj")],
-                        deLorgeril_Susceptible_dds_res_60_LFC_sig_APOP[,c("product","group_by_sim","log2FoldChange","experiment", "seqnames","Name","gene","padj")],
-                        deLorgeril_Susceptible_dds_res_72_LFC_sig_APOP[,c("product","group_by_sim","log2FoldChange","experiment", "seqnames","Name","gene","padj")])
-nrow(C_gig_apop_LFC) # 1014
+C_gig_apop_LFC <- rbind(Zhang_dds_deseq_res_V_alg1_LFC_sig_APOP       [,c("product","group_by_sim","log2FoldChange","experiment", "gene","transcript_id","padj")],
+                        Zhang_dds_deseq_res_V_tub_LFC_sig_APOP        [,c("product","group_by_sim","log2FoldChange","experiment", "gene","transcript_id","padj")],
+                        Zhang_dds_deseq_res_LFC_LPS_sig_APOP          [,c("product","group_by_sim","log2FoldChange","experiment", "gene","transcript_id","padj")],
+                        Rubio_dds_deseq_J2_8_res_LFC_sig_APOP         [,c("product","group_by_sim","log2FoldChange","experiment", "gene","transcript_id","padj")],
+                        Rubio_dds_deseq_J2_9_res_LFC_sig_APOP         [,c("product","group_by_sim","log2FoldChange","experiment", "gene","transcript_id","padj")],
+                        Rubio_dds_deseq_LGP32_res_LFC_sig_APOP        [,c("product","group_by_sim","log2FoldChange","experiment", "gene","transcript_id","padj")],
+                        Rubio_dds_deseq_LMG20012T_res_LFC_sig_APOP    [,c("product","group_by_sim","log2FoldChange","experiment", "gene","transcript_id","padj")],
+                        He_dds_res_6hr_sig_APOP                       [,c("product","group_by_sim","log2FoldChange","experiment", "gene","transcript_id","padj")],
+                        He_dds_res_12hr_sig_APOP                      [,c("product","group_by_sim","log2FoldChange","experiment", "gene","transcript_id","padj")],
+                        He_dds_res_24hr_sig_APOP                      [,c("product","group_by_sim","log2FoldChange","experiment", "gene","transcript_id","padj")],
+                        He_dds_res_48hr_sig_APOP                      [,c("product","group_by_sim","log2FoldChange","experiment", "gene","transcript_id","padj")],
+                        He_dds_res_120hr_sig_APOP                     [,c("product","group_by_sim","log2FoldChange","experiment", "gene","transcript_id","padj")],
+                        deLorgeril_Resistant_dds_res_6_LFC_sig_APOP   [,c("product","group_by_sim","log2FoldChange","experiment", "gene","transcript_id","padj")],
+                        deLorgeril_Resistant_dds_res_12_LFC_sig_APOP  [,c("product","group_by_sim","log2FoldChange","experiment", "gene","transcript_id","padj")],
+                        deLorgeril_Resistant_dds_res_24_LFC_sig_APOP  [,c("product","group_by_sim","log2FoldChange","experiment", "gene","transcript_id","padj")],
+                        deLorgeril_Resistant_dds_res_48_LFC_sig_APOP  [,c("product","group_by_sim","log2FoldChange","experiment", "gene","transcript_id","padj")],
+                        deLorgeril_Resistant_dds_res_60_LFC_sig_APOP  [,c("product","group_by_sim","log2FoldChange","experiment", "gene","transcript_id","padj")],
+                        deLorgeril_Resistant_dds_res_72_LFC_sig_APOP  [,c("product","group_by_sim","log2FoldChange","experiment", "gene","transcript_id","padj")],
+                        deLorgeril_Susceptible_dds_res_6_LFC_sig_APOP [,c("product","group_by_sim","log2FoldChange","experiment", "gene","transcript_id","padj")],
+                        deLorgeril_Susceptible_dds_res_12_LFC_sig_APOP[,c("product","group_by_sim","log2FoldChange","experiment", "gene","transcript_id","padj")],
+                        deLorgeril_Susceptible_dds_res_24_LFC_sig_APOP[,c("product","group_by_sim","log2FoldChange","experiment", "gene","transcript_id","padj")],
+                        deLorgeril_Susceptible_dds_res_48_LFC_sig_APOP[,c("product","group_by_sim","log2FoldChange","experiment", "gene","transcript_id","padj")],
+                        deLorgeril_Susceptible_dds_res_60_LFC_sig_APOP[,c("product","group_by_sim","log2FoldChange","experiment", "gene","transcript_id","padj")],
+                        deLorgeril_Susceptible_dds_res_72_LFC_sig_APOP[,c("product","group_by_sim","log2FoldChange","experiment", "gene","transcript_id","padj")])
+nrow(C_gig_apop_LFC) # 1613
 
 # assign to gene families 
 Apoptosis_names_df_CG <- data.frame(product=c(     # removing this because duplicated with bcl-2 'bcl-2-related protein A1',
@@ -3834,7 +3493,7 @@ colnames(df_merged_CG)[1] <- "apoptosis_names_query"
 df_merged_CG <- df_merged_CG[,-2]
 head(df_merged_CG)
 df_merged_CG[is.na(df_merged_CG),]
-nrow(df_merged_CG) # 1014 (none duplicated, missing two)
+nrow(df_merged_CG) # 1613 (none duplicated, missing two)
 View(df_merged_CG)
 
 # HOW MANY DIFFERENTIALLY EXPRESSED IN FAMILIES
@@ -4247,52 +3906,39 @@ top_Var_C_gig_assay_mat_prot_annot <- left_join(top_Var_C_gig_apop_assay_mat_pro
 #### DESCRIPTIVE TABLES ####
 
 ### Core set of transcripts and products across each challenge in each species
-### Apr 6th, assess whether the code below is correct 
+### Results removed Apr. 27th, need to assess whether code below is correct still
 
 head(C_vir_apop_LFC)
 C_vir_apop_LFC_core <- Reduce(intersect, split(C_vir_apop_LFC$transcript_id, C_vir_apop_LFC$experiment))
-  # "XM_022474766.1"
 C_vir_apop_LFC_core_product <- Reduce(intersect, split(C_vir_apop_LFC$product, C_vir_apop_LFC$experiment))
-  # "tyrosine-protein kinase JAK2-like, transcript variant X5"
 C_gig_apop_LFC_core <- Reduce(intersect, split(C_gig_apop_LFC$Name, C_gig_apop_LFC$experiment))
-  # "XM_011456852.2" "XM_020072623.1" "XM_011451291.2"
 C_gig_apop_LFC_product <- Reduce(intersect, split(C_gig_apop_LFC$product, C_gig_apop_LFC$experiment))
-  # [1] "tyrosine-protein phosphatase non-receptor type 13, transcript variant X4" "transcription factor AP-1, transcript variant X2"                        
-  # "interferon regulatory factor 1, transcript variant X2"      
+    
 
 # Investigate C_vir bacterial response
 C_vir_apop_LFC_bac <- C_vir_apop_LFC %>% filter(experiment == "Probiotic" | experiment == "Pro_RE22" | experiment == "ROD" )
 C_vir_apop_LFC_bac_core <- Reduce(intersect, split(C_vir_apop_LFC_bac$transcript_id, C_vir_apop_LFC_bac$experiment))
-  # "XM_022474766.1"
 C_vir_apop_LFC_bac_core_product <- Reduce(intersect, split(C_vir_apop_LFC_bac$product, C_vir_apop_LFC_bac$experiment))
-  # "tyrosine-protein kinase JAK2-like, transcript variant X5"
 C_vir_apop_LFC_bac_core <- Reduce(intersect, split(C_vir_apop_LFC_bac$transcript_id, C_vir_apop_LFC_bac$experiment))
-# "XM_022474766.1"
 
 # group RE22 and all the RI and S$ into a group to see which 5 interesect, based on the upset plot
 C_vir_apop_LFC_bac_group_by_sim <- C_vir_apop_LFC %>% filter(experiment == "Probiotic" | experiment == "Pro_RE22" )
 C_vir_apop_LFC_bac_core_group_by_sim <- Reduce(intersect, split(C_vir_apop_LFC_bac_group_by_sim$product, C_vir_apop_LFC_bac_group_by_sim$group_by_sim))
-# "tyrosine-protein kinase JAK2-like, transcript variant X5"
 
 
 C_vir_apop_LFC_BAC_path <- C_vir_apop_LFC_bac %>% filter(group_by_sim == "RE22" | group_by_sim == "ROD_susceptible")
 C_vir_apop_LFC_BAC_path_core <- Reduce(intersect, split(C_vir_apop_LFC_BAC_path$transcript_id, C_vir_apop_LFC_BAC_path$group_by_sim))
-  # "XM_022460059.1" "XM_022467669.1" "XM_022474529.1" "XM_022463142.1"
 C_vir_apop_LFC_BAC_path_core_product <- Reduce(intersect, split(C_vir_apop_LFC_BAC_path$product, C_vir_apop_LFC_BAC_path$group_by_sim))
-#"mitochondrial Rho GTPase 1-like, transcript variant X3"                          "mitogen-activated protein kinase kinase kinase 2-like"                          
-# "signal transducer and activator of transcription 5B-like, transcript variant X3" "stress-activated protein kinase JNK-like, transcript variant X4" 
 
 C_vir_apop_LFC_BAC_pro <- C_vir_apop_LFC_bac %>% filter(group_by_sim == "Probiotic" | group_by_sim == "RI_6h" | group_by_sim == "RI_24h" | group_by_sim == "S4_6h"| group_by_sim == "S4_24h")
 C_vir_apop_LFC_BAC_pro_core <- Reduce(intersect, split(C_vir_apop_LFC_BAC_pro $transcript_id, C_vir_apop_LFC_BAC_pro$group_by_sim))
-  # 0 
+ 
 C_vir_apop_LFC_BAC_pro_core_product <- Reduce(intersect, split(C_vir_apop_LFC_BAC_pro $product, C_vir_apop_LFC_BAC_pro$group_by_sim))
-  # 0
+
 
 C_vir_apop_LFC_BAC_pro_RI <- C_vir_apop_LFC_bac %>% filter(group_by_sim == "Probiotic" | group_by_sim == "RI_6h" | group_by_sim == "RI_24h")
 C_vir_apop_LFC_BAC_pro_RI_core <- Reduce(intersect, split(C_vir_apop_LFC_BAC_pro_RI$transcript_id, C_vir_apop_LFC_BAC_pro_RI$group_by_sim))
-  # "XM_022437239.1" = mitogen-activated protein kinase kinase kinase 7-like, transcript variant X2
 C_vir_apop_LFC_BAC_pro_RI_core_product <- Reduce(intersect, split(C_vir_apop_LFC_BAC_pro_RI$product, C_vir_apop_LFC_BAC_pro_RI$group_by_sim))
-  # [1] "mitogen-activated protein kinase kinase kinase 7-like, transcript variant X2"
 
 C_vir_apop_LFC_BAC_pro_S4 <- C_vir_apop_LFC_bac %>% filter(group_by_sim == "S4_6h" | group_by_sim == "S4_24h")
 C_vir_apop_LFC_BAC_pro_S4_core <- Reduce(intersect, split(C_vir_apop_LFC_BAC_pro_S4$transcript_id,C_vir_apop_LFC_BAC_pro_S4$group_by_sim))
@@ -4300,51 +3946,22 @@ C_vir_apop_LFC_BAC_pro_S4_core <- as.data.frame(C_vir_apop_LFC_BAC_pro_S4_core )
 colnames(C_vir_apop_LFC_BAC_pro_S4_core )[1] <- "transcript_id"  
 C_vir_apop_LFC_BAC_pro_S4_core_name <- left_join(C_vir_apop_LFC_BAC_pro_S4_core, C_vir_apop_LFC_bac, by = "transcript_id")
 View(unique(C_vir_apop_LFC_BAC_pro_S4_core_name$product))
-# caspase-3-like, transcript variant X1
-# adenylate cyclase type 9-like
-# baculoviral IAP repeat-containing protein 6-like, transcript variant X5
-# calpain-B-like, transcript variant X19
-# calpain-B-like, transcript variant X23
-# eukaryotic translation initiation factor 2-alpha kinase 3-like, transcript variant X2
-# tumor necrosis factor alpha-induced protein 3-like, transcript variant X3
-# signal transducer and activator of transcription 5B-like, transcript variant X3
-# baculoviral IAP repeat-containing protein 7-like, transcript variant X4
-# ceramide synthase 5-like, transcript variant X3
-# interferon alpha-inducible protein 27-like protein 2B, transcript variant X1
-# rho-related protein racA-like
-# lipopolysaccharide-induced tumor necrosis factor-alpha factor-like, transcript variant X1
-# myeloid differentiation primary response protein MyD88-like, transcript variant X1
 
 C_vir_apop_LFC_BAC_pro_S4_core_product <- Reduce(intersect, split(C_vir_apop_LFC_BAC_pro_S4$product,C_vir_apop_LFC_BAC_pro_S4$group_by_sim))
- # same as above
+
 
 # Investigate C_gig bacterial response
 C_gig_apop_LFC_bac <- C_gig_apop_LFC %>% filter(experiment == "Zhang" | experiment == "Rubio" )
 C_gig_apop_LFC_bac_core <- Reduce(intersect, split(C_gig_apop_LFC_bac$Name, C_gig_apop_LFC_bac$experiment))
-  # "XM_011414513.2" "XM_011425781.1" "XM_011456317.2" "XM_011456757.2" "XM_020072623.1" "XM_011447078.2" "XM_020070534.1" "XM_011426791.2" "XM_011451291.2" "XM_011456852.2" 
 C_gig_apop_LFC_bac_core_product <- Reduce(intersect, split(C_gig_apop_LFC_bac$product, C_gig_apop_LFC_bac$experiment))
-# hexokinase-1
-# cdc42 homolog
-# myeloid differentiation primary response protein MyD88-like, transcript variant X2
-# GTPase IMAP family member 4, transcript variant X3
-# transcription factor AP-1, transcript variant X2
-# baculoviral IAP repeat-containing protein 3-like, transcript variant X1
-# adenylate cyclase type 2, transcript variant X2
-# cyclic AMP-responsive element-binding protein 3-like protein 3-B, transcript variant X2
-# interferon regulatory factor 1, transcript variant X2
-# tyrosine-protein phosphatase non-receptor type 13, transcript variant X4
 
 C_gig_apop_LFC_BAC_path <- C_gig_apop_LFC_bac %>% filter(group_by_sim == "V_tub_V_ang" | group_by_sim == "V_aes_V_alg1_V_alg2" | group_by_sim == "J2-9 vir" | group_by_sim == "LGP32 vir")
 C_gig_apop_LFC_BAC_path_core <- Reduce(intersect, split(C_gig_apop_LFC_BAC_path $Name, C_gig_apop_LFC_BAC_path $group_by_sim))
-  # "XM_011425781.1" "XM_020070534.1" "XM_020072623.1"
 C_gig_apop_LFC_BAC_path_core_product <- Reduce(intersect, split(C_gig_apop_LFC_BAC_path $product, C_gig_apop_LFC_BAC_path $group_by_sim))
-  # [1] "cdc42 homolog" "caspase-7-like" "adenylate cyclase type 2, transcript variant X2" "transcription factor AP-1, transcript variant X2"
 
 C_gig_apop_LFC_BAC_nonpath <- C_gig_apop_LFC_bac %>% filter(group_by_sim == "LPS_M_lut" | group_by_sim == "J2-8 non-vir" | group_by_sim == "LMG20012T non-vir")
 C_gig_apop_LFC_BAC_nonpath_core <- Reduce(intersect, split(C_gig_apop_LFC_BAC_nonpath$Name, C_gig_apop_LFC_BAC_nonpath$group_by_sim))
-  # "XM_011425781.1" "XM_020072623.1"
 C_gig_apop_LFC_BAC_nonpath_core_product <- Reduce(intersect, split(C_gig_apop_LFC_BAC_nonpath$product, C_gig_apop_LFC_BAC_nonpath$group_by_sim))
-  #  "cdc42 homolog" "transcription factor AP-1, transcript variant X2"
 
 # The lists of shared transcript IDs and shared product names is more similar in C. gigas than in C. virginica...maybe there is just higher transcript diversity in C. virginica?
 
@@ -4599,6 +4216,53 @@ C_gig_apop_LFC_ApopI <- C_gig_apop_LFC[grepl("apoptosis inhibitor", C_gig_apop_L
 #Gene_family_frequency_long_plot <- ggplot(Gene_family_frequency_long, aes(x=experiment, y = value, fill=experiment)) + 
 #  geom_col(position="dodge") + facet_grid(.~variable) + theme(axis.text.x = element_text(angle = 90, hjust = 1))
 
+
+#### EXPORT DATA FRAMES FOR WGCNA ANALYSIS ####
+
+# Export vst or rlog expression matrices and coldata 
+# C_vir expression matrices
+#Dermo_Tolerant_dds_vst
+#Dermo_Susceptible_dds_vst
+#Probiotic_dds_rlog
+#ROD_Resistant_dds_rlog
+#ROD_Susceptible_dds_rlog
+#Pro_RE22_dds_rlog
+# Save to external harddrive
+save(Dermo_Tolerant_dds_vst,Dermo_Susceptible_dds_vst,Probiotic_dds_rlog,ROD_Resistant_dds_rlog,ROD_Susceptible_dds_rlog,Pro_RE22_dds_rlog, 
+     file= "/Volumes/My Passport for Mac/Chapter1_Apoptosis_Paper_Saved_DESeq_WGCNA_Data/C_virginica_normalized_exprssion_WGCNA_input.RData")
+
+# C_vir coldata 
+#Dermo_Tolerant_coldata
+#Dermo_Susceptible_coldata
+#Probiotic_coldata
+#ROD_Resistant_coldata
+#ROD_Susceptible_coldata
+#Pro_RE22_coldata
+# save to external hard drive
+save(Dermo_Tolerant_coldata,Dermo_Susceptible_coldata,Probiotic_coldata,ROD_Resistant_coldata,ROD_Susceptible_coldata,Pro_RE22_coldata,
+     file="/Volumes/My Passport for Mac/Chapter1_Apoptosis_Paper_Saved_DESeq_WGCNA_Data/C_virginica_coldata_WGCNA_input.RData")
+
+# C_gig expression matrices
+#Zhang_dds_rlog
+#Rubio_dds_rlog
+#deLorgeril_Resistant_dds_vst
+#deLorgeril_Susceptible_dds_vst
+#He_dds_vst
+# save to external harddrive
+save(Zhang_dds_rlog,Rubio_dds_rlog,deLorgeril_Resistant_dds_vst,deLorgeril_Susceptible_dds_vst,He_dds_vst,
+     file="/Volumes/My Passport for Mac/Chapter1_Apoptosis_Paper_Saved_DESeq_WGCNA_Data/C_gigas_normalized_exprssion_WGCNA_input.RData")
+
+# C_gig_coldata
+#Zhang_coldata
+#Rubio_coldata
+#deLorgeril_Resistant_coldata
+#deLorgeril_Susceptible_coldata
+#He_coldata
+save(Zhang_coldata,Rubio_coldata,deLorgeril_Resistant_coldata,deLorgeril_Susceptible_coldata,He_coldata, 
+     file = "/Volumes/My Passport for Mac/Chapter1_Apoptosis_Paper_Saved_DESeq_WGCNA_Data/C_gigas_coldata_WGCNA_input.RData")
+
+# Export LFC information
+save(C_gig_apop_LFC, C_vir_apop_LFC, file="/Volumes/My Passport for Mac/Chapter1_Apoptosis_Paper_Saved_DESeq_WGCNA_Data/apop_LFC.RData")
 
 #### SESSION INFO FOR RUNNING SCRIPTS Spring 2020 ####
 

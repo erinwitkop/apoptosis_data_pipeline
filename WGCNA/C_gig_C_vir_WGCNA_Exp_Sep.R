@@ -12,8 +12,8 @@ options(stringsAsFactors = FALSE) # run every time
 library(cluster)
 library(anRichment)
 library(anRichmentMethods)
-library(dplyr)
 library(plyr)
+library(dplyr)
 library(magicfor)
 cor <- WGCNA::cor # run every time
 
@@ -23,6 +23,7 @@ cor <- WGCNA::cor # run every time
 Apoptosis_frames <- load(file="/Volumes/My Passport for Mac/Chapter1_Apoptosis_Paper_Saved_DESeq_WGCNA_Data/C_gig_C_vir_apoptosis_products.RData")
 annotations <- load(file="/Volumes/My Passport for Mac/Chapter1_Apoptosis_Paper_Saved_DESeq_WGCNA_Data/C_gig_C_vir_annotations.RData")
 Apop_LFC <- load(file="/Volumes/My Passport for Mac/Chapter1_Apoptosis_Paper_Saved_DESeq_WGCNA_Data/apop_LFC.RData")
+
 #### Helpful tutorials for meta-analysis
 # https://horvath.genetics.ucla.edu/html/CoexpressionNetwork/ModulePreservation/
 # https://horvath.genetics.ucla.edu/html/CoexpressionNetwork/JMiller/Tutorial%20document.pdf
@@ -3091,160 +3092,412 @@ labeledHeatmap(Matrix = C_vir_Bac_consensusCor,
 
 #### PERFORM CONSENSUS NETWORK ANALYSIS ACROSS C.VIR PROBIOTIC ####
 ## Create MultiExpr from pathogenic bacterial challenges
+## Running consensus analysis on this doesn't make too much sense considering it's only two experiments
+# Code has errors, check before re-running
 
 # We work with two sets:
-nSets = 2
-# For easier labeling of plots, create a vector holding descriptive names of the two sets.
-setLabels = c("Probiotic", "Pro_RE22")
-shortLabels = c("Probiotic", "Pro_RE22")
-# Form multi-set expression data: columns starting from 9 contain actual expression data.
-C_vir_Pro_multiExpr = vector(mode = "list", length = nSets)
+#nSets = 2
+## For easier labeling of plots, create a vector holding descriptive names of the two sets.
+#setLabels = c("Probiotic", "Pro_RE22")
+#shortLabels = c("Probiotic", "Pro_RE22")
+## Form multi-set expression data: columns starting from 9 contain actual expression data.
+#C_vir_Pro_multiExpr = vector(mode = "list", length = nSets)
+#
+#C_vir_Pro_multiExpr[[1]] = list(data = as.data.frame(Probiotic_dds_rlog_matrix_common))
+#names(C_vir_Pro_multiExpr[[1]]$data) = row.names(Probiotic_dds_rlog_matrix_common)
+#rownames(C_vir_Pro_multiExpr[[1]]$data) = row.names(Probiotic_dds_rlog_matrix_common)
+#
+#C_vir_Pro_multiExpr[[2]] = list(data = as.data.frame(Pro_RE22_dds_rlog_matrix_common_Pro))
+#names(C_vir_Pro_multiExpr[[2]]$data) = row.names(Pro_RE22_dds_rlog_matrix_common_Pro)
+#rownames(C_vir_Pro_multiExpr[[2]]$data) = row.names(Pro_RE22_dds_rlog_matrix_common_Pro)
+#
+## Check that the data has the correct format for many functions operating on multiple sets:
+#exprSize_Cvir_Pro = checkSets(C_vir_Pro_multiExpr)
+#
+## Check that all genes and samples have sufficiently low numbers of missing values.
+##gsg = goodSamplesGenesMS(C_vir_Pro_multiExpr, verbose = 3)
+#gsg$allOK # [1] TRUE
+#
+## Assign clinical trait data
+## Create data frame with the sample information 
+#colnames(Probiotic_coldata_collapsed)
+#colnames(Pro_RE22_coldata_Pro_collapsed)
+## all the same
+#
+## Recode colnames to be just the sample name and the colname
+#C_vir_Pro_coldata <- rbind(Probiotic_coldata_collapsed,
+#                           Pro_RE22_coldata_Pro_collapsed)
+#levels(C_vir_Pro_coldata$Condition)
+##[1] "Untreated_control"    "Bacillus_pumilus_RI0695" "Control_no_treatment"    "Bacillus_pumilus"        "Phaeobacter_inhibens"   
+#
+#C_vir_Pro_coldata$Condition <- str_replace(C_vir_Pro_coldata$Condition, "Untreated_control", "Control") # ROD Res
+#C_vir_Pro_coldata$Condition <- str_replace(C_vir_Pro_coldata$Condition, "Bacillus_pumilus_RI0695", "Bacillus_pumilus") # ROD Res
+#C_vir_Pro_coldata$Condition <- str_replace(C_vir_Pro_coldata$Condition, "Control_no_treatment", "Control") # only recode the control for Pro_RE22, we want to keep 
+#C_vir_Pro_coldata <- C_vir_Pro_coldata %>% rownames_to_column("sample")
+#C_vir_Pro_coldata <- C_vir_Pro_coldata[,c("sample","Condition")]
+#
+#C_vir_Pro_coldata_binarize <- binarizeCategoricalColumns.pairwise(C_vir_Pro_coldata[,2])
+#row.names(C_vir_Pro_coldata_binarize) <- C_vir_Pro_coldata$sample
+#
+## See how big the traits are and what are the trait and sample names
+#dim(C_vir_Pro_coldata)
+#names(C_vir_Pro_coldata)
+#C_vir_Pro_coldata$sample
+#
+## Form a multi-set structure that will hold the clinical traits.
+#C_vir_Pro_coldata_all = vector(mode="list", length = nSets)
+#setSamples = rownames(C_vir_Pro_multiExpr[[1]]$data)
+#traitRows = match(setSamples, row.names(C_vir_Pro_coldata_binarize))
+#C_vir_Pro_coldata_all[[1]] = list(data = as.data.frame(C_vir_Pro_coldata_binarize[traitRows,]))
+#rownames(C_vir_Pro_coldata_all[[1]]$data) = rownames(C_vir_Pro_multiExpr[[1]]$data)
+#colnames(C_vir_Pro_coldata_all[[1]]$data) = c("data.Control.vs.Bacillus_pumilus", "data.Phaeobacter_inhibens.vs.Bacillus_pumilus", "data.Phaeobacter_inhibens.vs.Control")
+#
+#setSamples = rownames(C_vir_Pro_multiExpr[[2]]$data)
+#traitRows = match(setSamples, row.names(C_vir_Pro_coldata_binarize))
+#C_vir_Pro_coldata_all[[2]] = list(data = as.data.frame(C_vir_Pro_coldata_binarize[traitRows,]))
+#
+## Define data set dimensions
+#nGenes = exprSize_Cvir_Pro$nGenes
+#nSamples = exprSize_Cvir_Pro$nSamples
+#
+## Choose soft-thresholing powers
+## Choose set based on where all three datasets level off - picking 9 since none fit the topology free network criterion
+#
+## Network construction 
+##C_vir_Pro_net = blockwiseConsensusModules(
+##  C_vir_Pro_multiExpr,
+##  power = 9,
+##  minModuleSize = 30, 
+##  deepSplit = 2,
+##  pamRespectsDendro = FALSE,
+##  mergeCutHeight = 0.25, 
+##  numericLabels = TRUE,
+##  minKMEtoStay = 0,
+##  verbose = 5,
+##  TOMType = "signed", # use signed TOM type
+##  networkType= "signed hybrid", # use signed hybrid network type
+##  corType = "bicor", # use suggested bicor
+##  maxBlockSize = 20000)
+#names(C_vir_Pro_net)
+#C_vir_Pro_consMEs = C_vir_Pro_net$multiMEs
+#C_vir_Pro_moduleLabels = C_vir_Pro_net$colors
+## Convert the numeric labels to color labels
+#C_vir_Pro_moduleColors = labels2colors(C_vir_Pro_moduleLabels)
+#C_vir_Pro_consTree = C_vir_Pro_net$dendrograms[[1]]
+#
+#save(C_vir_Pro_net, file="/Volumes/My Passport for Mac/Chapter1_Apoptosis_Paper_Saved_DESeq_WGCNA_Data/C_vir_Pro_consensus_modules_net.RData")
+#
+## plot dendrogram
+#sizeGrWindow(8,6)
+#plotDendroAndColors(C_vir_Pro_consTree, C_vir_Pro_moduleColors,
+#                    "Module colors",
+#                    dendroLabels = FALSE, hang = 0.03,
+#                    addGuide = TRUE, guideHang = 0.05,
+#                    main = "Consensus gene dendrogram and module colors")
+#dev.off()
+#
+## Relate consensus modules to external traits
+## Set up variables to contain the module-trait correlations
+#C_vir_Pro_moduleTraitCor = list()
+#C_vir_Pro_moduleTraitPvalue = list()
+## Calculate the correlations
+#C_vir_Pro_moduleTraitCor[[1]] = cor(C_vir_Pro_consMEs[[1]]$data, C_vir_Pro_coldata_all[[1]]$data, use = "p")
+#C_vir_Pro_moduleTraitPvalue[[1]] = corPvalueFisher(C_vir_Pro_moduleTraitCor[[1]], exprSize_Cvir_Pro$nSamples[1])
+#C_vir_Pro_moduleTraitCor[[2]] = cor(C_vir_Pro_consMEs[[2]]$data, C_vir_Pro_coldata_all[[2]]$data, use = "p")
+#C_vir_Pro_moduleTraitPvalue[[2]] = corPvalueFisher(C_vir_Pro_moduleTraitCor[[2]], exprSize_Cvir_Pro$nSamples[2])
+#
+### DISPLAY MODULE TRAIT CORRELATIONS FOR CONSENSUS MODULES, I care about columns 1 and 3 
+## Need to fix and invesigate this!
+## Initialize matrices to hold the consensus correlation and p-value
+#C_vir_Pro_consensusCor = matrix(NA, nrow(C_vir_Pro_moduleTraitCor[[1]]), ncol(C_vir_Pro_moduleTraitCor[[1]]))
+#C_vir_Pro_consensusPvalue = matrix(NA, nrow(C_vir_Pro_moduleTraitCor[[1]]), ncol(C_vir_Pro_moduleTraitCor[[1]]))
+## Find consensus negative correlations
+#C_vir_Pro_negative = C_vir_Pro_moduleTraitCor[[1]] < 0 & C_vir_Pro_moduleTraitCor[[2]] < 0
+#C_vir_Pro_consensusCor[C_vir_Pro_negative] = pmax(C_vir_Pro_moduleTraitCor[[1]][C_vir_Pro_negative], C_vir_Pro_moduleTraitCor[[2]][C_vir_Pro_negative])
+#C_vir_Pro_consensusPvalue[C_vir_Pro_negative] = pmax(C_vir_Pro_moduleTraitPvalue[[1]][C_vir_Pro_negative], C_vir_Pro_moduleTraitPvalue[[2]][C_vir_Pro_negative])
+## Find consensus positive correlations
+#C_vir_Pro_positive = C_vir_Pro_moduleTraitCor[[1]] > 0 & C_vir_Pro_moduleTraitCor[[2]] > 0
+#C_vir_Pro_consensusCor[C_vir_Pro_positive] = pmin(C_vir_Pro_moduleTraitCor[[1]][C_vir_Pro_positive], C_vir_Pro_moduleTraitCor[[2]][C_vir_Pro_positive])
+#C_vir_Pro_consensusPvalue[C_vir_Pro_positive] = pmax(C_vir_Pro_moduleTraitPvalue[[1]][C_vir_Pro_positive], C_vir_Pro_moduleTraitPvalue[[2]][C_vir_Pro_positive])
+#
+## Convert numerical lables to colors for labeling of modules in the plot
+#C_vir_Pro_MEColors = labels2colors(as.numeric(substring(names(C_vir_Pro_consMEs[[1]]$data), 3)));
+#C_vir_Pro_MEColorNames = paste("ME", C_vir_Pro_MEColors, sep="");
+#
+## Plot the consensus modules for a set, but is same across sets
+#C_vir_Pro_textMatrix = paste(signif(C_vir_Pro_consensusCor, 2), "\n(",
+#                             signif(C_vir_Pro_consensusPvalue, 1), ")", sep = "")
+#dim(C_vir_Pro_textMatrix) = dim(C_vir_Pro_moduleTraitCor[[1]])
+#sizeGrWindow(10,7)
+##pdf(file = "Plots/ModuleTraitRelationships-consensus.pdf", wi = 10, he = 7);
+#par(mar = c(6, 8.8, 3, 2.2));
+#labeledHeatmap(Matrix = C_vir_Pro_consensusCor,
+#               xLabels = names(C_vir_Pro_coldata_all[[1]]$data),
+#               yLabels = C_vir_Pro_MEColorNames,
+#               ySymbols =C_vir_Pro_MEColorNames,
+#               colorLabels = FALSE,
+#               colors = greenWhiteRed(50),
+#               textMatrix = C_vir_Pro_textMatrix,
+#               setStdMargins = FALSE,
+#               cex.text = 0.5,
+#               zlim = c(-1,1),
+#               main = paste("Consensus module--trait relationships across\n",
+#                            paste(setLabels, collapse = " and ")))
+#
 
-C_vir_Pro_multiExpr[[1]] = list(data = as.data.frame(Probiotic_dds_rlog_matrix_common))
-names(C_vir_Pro_multiExpr[[1]]$data) = row.names(Probiotic_dds_rlog_matrix_common)
-rownames(C_vir_Pro_multiExpr[[1]]$data) = row.names(Probiotic_dds_rlog_matrix_common)
+#### RUNNING DERMO TOLERANT FULL DATASET ####
 
-C_vir_Pro_multiExpr[[2]] = list(data = as.data.frame(Pro_RE22_dds_rlog_matrix_common_Pro))
-names(C_vir_Pro_multiExpr[[2]]$data) = row.names(Pro_RE22_dds_rlog_matrix_common_Pro)
-rownames(C_vir_Pro_multiExpr[[2]]$data) = row.names(Pro_RE22_dds_rlog_matrix_common_Pro)
+Dermo_Tolerant_dds_vst_matrix
 
-# Check that the data has the correct format for many functions operating on multiple sets:
-exprSize_Cvir_Pro = checkSets(C_vir_Pro_multiExpr)
+# Pick soft threshold
+powers = c(c(1:10), seq(from = 12, to=20, by=2))
 
-# Check that all genes and samples have sufficiently low numbers of missing values.
-#gsg = goodSamplesGenesMS(C_vir_Pro_multiExpr, verbose = 3)
-gsg$allOK # [1] TRUE
+# Call the network topology analysis function, following general recommendations to set network type to "signed hybrid" and using the "bicor" correlation
+Dermo_Tolerant_dds_vst_matrix_sft <- pickSoftThreshold(Dermo_Tolerant_dds_vst_matrix, powerVector = powers, verbose = 5, networkType = "signed hybrid", corFnc = "bicor") 
 
-# Assign clinical trait data
-# Create data frame with the sample information 
-colnames(Probiotic_coldata_collapsed)
-colnames(Pro_RE22_coldata_Pro_collapsed)
-# all the same
+#Dermo
+# Scale-free topology fit index as a function of the soft-thresholding power
+plot(Dermo_Tolerant_dds_vst_matrix_sft$fitIndices[,1], -sign(Dermo_Tolerant_dds_vst_matrix_sft$fitIndices[,3])*Dermo_Tolerant_dds_vst_matrix_sft$fitIndices[,2],
+     xlab="Soft Threshold (power)",ylab="Scale Free Topology Model Fit,signed R^2",type="n",
+     main = paste("Scale independence"));
+text(Dermo_Tolerant_dds_vst_matrix_sft$fitIndices[,1], -sign(Dermo_Tolerant_dds_vst_matrix_sft$fitIndices[,3])*Dermo_Tolerant_dds_vst_matrix_sft$fitIndices[,2],
+     labels=powers,cex=cex1,col="red");
+# this line corresponds to using an R^2 cut-off of h
+abline(h=0.90,col="red")
+# Mean connectivity as a function of the soft-thresholding power
+plot(Dermo_Tolerant_dds_vst_matrix_sft$fitIndices[,1], Dermo_Tolerant_dds_vst_matrix_sft$fitIndices[,5],
+     xlab="Soft Threshold (power)",ylab="Mean Connectivity", type="n",
+     main = paste("Mean connectivity"))
+text(Dermo_Tolerant_dds_vst_matrix_sft$fitIndices[,1], Dermo_Tolerant_dds_vst_matrix_sft$fitIndices[,5], labels=powers, cex=cex1,col="red")
+# Softthreshold of 3 since this is lowest value past 0.9 we start to see flattening 
 
-# Recode colnames to be just the sample name and the colname
-C_vir_Pro_coldata <- rbind(Probiotic_coldata_collapsed,
-                           Pro_RE22_coldata_Pro_collapsed)
-levels(C_vir_Pro_coldata$Condition)
-#[1] "Untreated_control"    "Bacillus_pumilus_RI0695" "Control_no_treatment"    "Bacillus_pumilus"        "Phaeobacter_inhibens"   
-
-C_vir_Pro_coldata$Condition <- str_replace(C_vir_Pro_coldata$Condition, "Untreated_control", "Control") # ROD Res
-C_vir_Pro_coldata$Condition <- str_replace(C_vir_Pro_coldata$Condition, "Bacillus_pumilus_RI0695", "Bacillus_pumilus") # ROD Res
-C_vir_Pro_coldata$Condition <- str_replace(C_vir_Pro_coldata$Condition, "Control_no_treatment", "Control") # only recode the control for Pro_RE22, we want to keep 
-C_vir_Pro_coldata <- C_vir_Pro_coldata %>% rownames_to_column("sample")
-C_vir_Pro_coldata <- C_vir_Pro_coldata[,c("sample","Condition")]
-
-C_vir_Pro_coldata_binarize <- binarizeCategoricalColumns.pairwise(C_vir_Pro_coldata[,2])
-row.names(C_vir_Pro_coldata_binarize) <- C_vir_Pro_coldata$sample
-
-# See how big the traits are and what are the trait and sample names
-dim(C_vir_Pro_coldata)
-names(C_vir_Pro_coldata)
-C_vir_Pro_coldata$sample
-
-# Form a multi-set structure that will hold the clinical traits.
-C_vir_Pro_coldata_all = vector(mode="list", length = nSets)
-setSamples = rownames(C_vir_Pro_multiExpr[[1]]$data)
-traitRows = match(setSamples, row.names(C_vir_Pro_coldata_binarize))
-C_vir_Pro_coldata_all[[1]] = list(data = as.data.frame(C_vir_Pro_coldata_binarize[traitRows,]))
-rownames(C_vir_Pro_coldata_all[[1]]$data) = rownames(C_vir_Pro_multiExpr[[1]]$data)
-colnames(C_vir_Pro_coldata_all[[1]]$data) = c("data.Control.vs.Bacillus_pumilus", "data.Phaeobacter_inhibens.vs.Bacillus_pumilus", "data.Phaeobacter_inhibens.vs.Control")
-
-setSamples = rownames(C_vir_Pro_multiExpr[[2]]$data)
-traitRows = match(setSamples, row.names(C_vir_Pro_coldata_binarize))
-C_vir_Pro_coldata_all[[2]] = list(data = as.data.frame(C_vir_Pro_coldata_binarize[traitRows,]))
-
-# Define data set dimensions
-nGenes = exprSize_Cvir_Pro$nGenes
-nSamples = exprSize_Cvir_Pro$nSamples
-
-# Choose soft-thresholing powers
-# Choose set based on where all three datasets level off - picking 9 since none fit the topology free network criterion
-
-# Network construction 
-#C_vir_Pro_net = blockwiseConsensusModules(
-#  C_vir_Pro_multiExpr,
-#  power = 9,
-#  minModuleSize = 30, 
-#  deepSplit = 2,
-#  pamRespectsDendro = FALSE,
-#  mergeCutHeight = 0.25, 
-#  numericLabels = TRUE,
-#  minKMEtoStay = 0,
-#  verbose = 5,
-#  TOMType = "signed", # use signed TOM type
-#  networkType= "signed hybrid", # use signed hybrid network type
-#  corType = "bicor", # use suggested bicor
-#  maxBlockSize = 20000)
-names(C_vir_Pro_net)
-C_vir_Pro_consMEs = C_vir_Pro_net$multiMEs
-C_vir_Pro_moduleLabels = C_vir_Pro_net$colors
-# Convert the numeric labels to color labels
-C_vir_Pro_moduleColors = labels2colors(C_vir_Pro_moduleLabels)
-C_vir_Pro_consTree = C_vir_Pro_net$dendrograms[[1]]
-
-save(C_vir_Pro_net, file="/Volumes/My Passport for Mac/Chapter1_Apoptosis_Paper_Saved_DESeq_WGCNA_Data/C_vir_Pro_consensus_modules_net.RData")
-
-# plot dendrogram
-sizeGrWindow(8,6)
-plotDendroAndColors(C_vir_Pro_consTree, C_vir_Pro_moduleColors,
+## ONE STEP NETWORK CONSTRUCTION, MODULE DETECTION, MODULE DENDROGRAM INSPECTION ##
+# Dermo_Tol_full_net = blockwiseModules(Dermo_Tolerant_dds_vst_matrix, power = 3, # picked suitable power in the code above 
+#                                 TOMType = "signed", # use signed TOM type
+#                                 networkType= "signed hybrid", # use signed hybrid network type
+#                                 corType = "bicor", # use suggested bicor
+#                                 TminModuleSize = 30, # recommended default
+#                                 reassignThreshold = 0, # recommended default
+#                                 mergeCutHeight = 0.25, # recommended default
+#                                 numericLabels = TRUE, # recommended default
+#                                 pamRespectsDendro = FALSE,# recommended default
+#                                 verbose = 3, 
+#                                 maxBlockSize = 20000) # 20,000 should be okay because I have 16GB memory on my computer
+# 
+# How many modules identified
+table(Dermo_Tol_full_net$colors)
+# Plot dendrogram with colors
+# open a graphics window
+sizeGrWindow(12, 9)
+# Convert labels to colors for plotting
+Dermo_Tol_full_mergedColors = labels2colors(Dermo_Tol_full_net$colors)
+# Plot the dendrogram and the module colors underneath
+plotDendroAndColors(Dermo_Tol_full_net$dendrograms[[1]], Dermo_Tol_full_mergedColors[Dermo_Tol_full_net$blockGenes[[1]]],
                     "Module colors",
                     dendroLabels = FALSE, hang = 0.03,
-                    addGuide = TRUE, guideHang = 0.05,
-                    main = "Consensus gene dendrogram and module colors")
-dev.off()
+                    addGuide = TRUE, guideHang = 0.05)
+Dermo_Tol_full_moduleLabels = Dermo_Tol_full_net$colors
+Dermo_Tol_full_moduleColors = labels2colors(Dermo_Tol_full_net$colors)
+Dermo_Tol_full_MEs = Dermo_Tol_full_net$MEs
+Dermo_Tol_full_geneTree = Dermo_Tol_full_net$dendrograms[[1]]
+# save network
+save(Dermo_Tol_full_net, Dermo_Tol_full_mergedColors, Dermo_Tol_full_moduleLabels, Dermo_Tol_full_moduleColors, Dermo_Tol_full_MEs, Dermo_Tol_full_geneTree, 
+     file = "/Volumes/My Passport for Mac/Chapter1_Apoptosis_Paper_Saved_DESeq_WGCNA_Data/Dermo_Tol_full_network.RData")
 
-# Relate consensus modules to external traits
-# Set up variables to contain the module-trait correlations
-C_vir_Pro_moduleTraitCor = list()
-C_vir_Pro_moduleTraitPvalue = list()
-# Calculate the correlations
-C_vir_Pro_moduleTraitCor[[1]] = cor(C_vir_Pro_consMEs[[1]]$data, C_vir_Pro_coldata_all[[1]]$data, use = "p")
-C_vir_Pro_moduleTraitPvalue[[1]] = corPvalueFisher(C_vir_Pro_moduleTraitCor[[1]], exprSize_Cvir_Pro$nSamples[1])
-C_vir_Pro_moduleTraitCor[[2]] = cor(C_vir_Pro_consMEs[[2]]$data, C_vir_Pro_coldata_all[[2]]$data, use = "p")
-C_vir_Pro_moduleTraitPvalue[[2]] = corPvalueFisher(C_vir_Pro_moduleTraitCor[[2]], exprSize_Cvir_Pro$nSamples[2])
+# Quantify module trait associations 
+# Define numbers of genes and samples
+Dermo_Tol_full_nGenes = ncol(Dermo_Tolerant_dds_vst_matrix)
+Dermo_Tol_full_nSamples = nrow(Dermo_Tolerant_dds_vst_matrix)
 
-## DISPLAY MODULE TRAIT CORRELATIONS FOR CONSENSUS MODULES, I care about columns 1 and 3 
-# Need to fix and invesigate this!
-# Initialize matrices to hold the consensus correlation and p-value
-C_vir_Pro_consensusCor = matrix(NA, nrow(C_vir_Pro_moduleTraitCor[[1]]), ncol(C_vir_Pro_moduleTraitCor[[1]]))
-C_vir_Pro_consensusPvalue = matrix(NA, nrow(C_vir_Pro_moduleTraitCor[[1]]), ncol(C_vir_Pro_moduleTraitCor[[1]]))
-# Find consensus negative correlations
-C_vir_Pro_negative = C_vir_Pro_moduleTraitCor[[1]] < 0 & C_vir_Pro_moduleTraitCor[[2]] < 0
-C_vir_Pro_consensusCor[C_vir_Pro_negative] = pmax(C_vir_Pro_moduleTraitCor[[1]][C_vir_Pro_negative], C_vir_Pro_moduleTraitCor[[2]][C_vir_Pro_negative])
-C_vir_Pro_consensusPvalue[C_vir_Pro_negative] = pmax(C_vir_Pro_moduleTraitPvalue[[1]][C_vir_Pro_negative], C_vir_Pro_moduleTraitPvalue[[2]][C_vir_Pro_negative])
-# Find consensus positive correlations
-C_vir_Pro_positive = C_vir_Pro_moduleTraitCor[[1]] > 0 & C_vir_Pro_moduleTraitCor[[2]] > 0
-C_vir_Pro_consensusCor[C_vir_Pro_positive] = pmin(C_vir_Pro_moduleTraitCor[[1]][C_vir_Pro_positive], C_vir_Pro_moduleTraitCor[[2]][C_vir_Pro_positive])
-C_vir_Pro_consensusPvalue[C_vir_Pro_positive] = pmax(C_vir_Pro_moduleTraitPvalue[[1]][C_vir_Pro_positive], C_vir_Pro_moduleTraitPvalue[[2]][C_vir_Pro_positive])
+# Recalculate MEs with color labels
+Dermo_Tol_full_MEs0 = moduleEigengenes(Dermo_Tolerant_dds_vst_matrix, Dermo_Tol_full_moduleColors)$eigengenes
+Dermo_Tol_full_MEs = orderMEs(Dermo_Tol_full_MEs0)
+Dermo_Tol_full_moduleTraitCor = cor(Dermo_Tol_full_MEs, Dermo_Tolerant_coldata_collapsed_binarize, use = "p");
+Dermo_Tol_full_moduleTraitPvalue = corPvalueStudent(Dermo_Tol_full_moduleTraitCor, Dermo_Tol_full_nSamples)
 
-# Convert numerical lables to colors for labeling of modules in the plot
-C_vir_Pro_MEColors = labels2colors(as.numeric(substring(names(C_vir_Pro_consMEs[[1]]$data), 3)));
-C_vir_Pro_MEColorNames = paste("ME", C_vir_Pro_MEColors, sep="");
-
-# Plot the consensus modules for a set, but is same across sets
-C_vir_Pro_textMatrix = paste(signif(C_vir_Pro_consensusCor, 2), "\n(",
-                             signif(C_vir_Pro_consensusPvalue, 1), ")", sep = "")
-dim(C_vir_Pro_textMatrix) = dim(C_vir_Pro_moduleTraitCor[[1]])
-sizeGrWindow(10,7)
-#pdf(file = "Plots/ModuleTraitRelationships-consensus.pdf", wi = 10, he = 7);
-par(mar = c(6, 8.8, 3, 2.2));
-labeledHeatmap(Matrix = C_vir_Pro_consensusCor,
-               xLabels = names(C_vir_Pro_coldata_all[[1]]$data),
-               yLabels = C_vir_Pro_MEColorNames,
-               ySymbols =C_vir_Pro_MEColorNames,
+# Graph and color code each the strength of association (correlation) of module eigengenes and trai
+sizeGrWindow(10,6)
+# Will display correlations and their p-values
+Dermo_Tol_full_textMatrix = paste(signif(Dermo_Tol_full_moduleTraitCor, 2), "\n(",
+                             signif(Dermo_Tol_full_moduleTraitPvalue, 1), ")", sep = "");
+dim(Dermo_Tol_full_textMatrix) = dim(Dermo_Tol_full_moduleTraitCor)
+par(mar = c(6, 8.5, 3, 3))
+# Display the correlation values within a heatmap plot, color coded by correlation value (red means more highly positively correlated,
+# green is more negatively correlated)
+labeledHeatmap(Matrix = Dermo_Tol_full_moduleTraitCor,
+               xLabels = names(Dermo_Tolerant_coldata_collapsed_binarize),
+               yLabels = names(Dermo_Tol_full_MEs),
+               ySymbols = names(Dermo_Tol_full_MEs),
                colorLabels = FALSE,
                colors = greenWhiteRed(50),
-               textMatrix = C_vir_Pro_textMatrix,
+               textMatrix = Dermo_Tol_full_textMatrix,
                setStdMargins = FALSE,
-               cex.text = 0.5,
-               zlim = c(-1,1),
-               main = paste("Consensus module--trait relationships across\n",
-                            paste(setLabels, collapse = " and ")))
+               cex.text = 0.45,
+               cex.lab = 0.7,
+               zlim = c(-1,1), 
+               yColorWidth = 0.2, 
+               main = paste("Module-trait relationships"))
 
-# Conclusion: no significant consensus modules across probiotic challenges
+# Which modules have the highest associations with disease (high correlation and low P value)?
+Dermo_Tol_full_moduleTraitCor_df <- as.data.frame(Dermo_Tol_full_moduleTraitCor)
+Dermo_Tol_full_moduleTraitCor_df$mod_names <- row.names(Dermo_Tol_full_moduleTraitCor_df)
+Dermo_Tol_full_moduleTraitCor_df <- Dermo_Tol_full_moduleTraitCor_df[,c("mod_names","Condition.Injected.vs.Control")]
+Dermo_Tol_full_moduleTraitPvalue_df <- as.data.frame(Dermo_Tol_full_moduleTraitPvalue)
+Dermo_Tol_full_moduleTraitPvalue_df$mod_names <- row.names(Dermo_Tol_full_moduleTraitPvalue_df)
+Dermo_Tol_full_moduleTraitPvalue_df <- Dermo_Tol_full_moduleTraitPvalue_df[,c("mod_names","Condition.Injected.vs.Control")]
+colnames(Dermo_Tol_full_moduleTraitPvalue_df)[2] <- "pvalue"
+
+Dermo_Tol_full_moduleTraitCor_Pval_df <- join(Dermo_Tol_full_moduleTraitCor_df, Dermo_Tol_full_moduleTraitPvalue_df, by = "mod_names")
+
+# Significantly correlated modules
+Dermo_Tol_full_moduleTraitCor_Pval_df[order(Dermo_Tol_full_moduleTraitCor_Pval_df$pvalue),]
+class(Dermo_Tol_full_moduleTraitCor_Pval_df$pvalue) # numeric
+Dermo_Tol_full_moduleTraitCor_Pval_df_sig <- Dermo_Tol_full_moduleTraitCor_Pval_df %>% filter(pvalue <= 0.05)
+Dermo_Tol_full_moduleTraitCor_Pval_df_sig
+
+### ANNOTATE APOPTOSIS GENES IN SIGNIFICANT MODULES
+Dermo_Tol_full_moduleTraitCor_Pval_df_sig_list <- Dermo_Tol_full_moduleTraitCor_Pval_df_sig$mod_names
+Dermo_Tol_full_moduleTraitCor_Pval_df_sig_list_rm <- str_remove(Dermo_Tol_full_moduleTraitCor_Pval_df_sig_list, "ME")
+
+# Use function to lookup all apop names for each significant module
+matrix_common= Dermo_Tolerant_dds_vst_matrix_common
+moduleColors=Dermo_Tol_full_moduleColors
+lookup =   C_vir_rtracklayer_apop_product_final
+
+lookup_mod_apop <- function(list) {
+  list_vec <- colnames(matrix_common)[moduleColors == list]
+  list_apop <- lookup[lookup$ID %in% list_vec,]
+  list_apop_short <- list_apop[,c("product","transcript_id","gene")]
+}
+# specify names for list of lists
+names(Dermo_Tol_full_moduleTraitCor_Pval_df_sig_list_rm) <- c("darkslateblue", "turquoise",     "greenyellow",   "skyblue3" ,     "cyan"  ,        "red"  ,         "tan" )
+
+Dermo_Tol_full_module_apop <- lapply(Dermo_Tol_full_moduleTraitCor_Pval_df_sig_list_rm,  lookup_mod_apop)
+Dermo_Tol_full_module_apop_df <- do.call(rbind,Dermo_Tol_full_module_apop)
+Dermo_Tol_full_module_apop_df$mod_names <- gsub("\\..*","",row.names(Dermo_Tol_full_module_apop_df))
+Dermo_Tol_full_module_apop_df$mod_names <- gsub("^","ME",Dermo_Tol_full_module_apop_df$mod_names)
+# add module significance
+Dermo_Tol_full_module_apop_df <- left_join(Dermo_Tol_full_module_apop_df,Dermo_Tol_full_moduleTraitCor_Pval_df_sig)
+Dermo_Tol_full_module_apop_df$exp <- "Dermo_Tol"
+
+## Gene relationship to trait and important modules: Gene Significance and Module Membership
+# Define variable injected 
+Dermo_Tol_full_injection = as.data.frame(Dermo_Tolerant_coldata_collapsed_binarize$Condition.Injected.vs.Control);
+names(Dermo_Tol_full_injection) = "injection"
+# names (colors) of the modules
+Dermo_Tol_full_modNames = substring(names(Dermo_Tol_full_MEs), 3)
+Dermo_Tol_full_geneModuleMembership = as.data.frame(cor(Dermo_Tolerant_dds_vst_matrix, Dermo_Tol_full_MEs, use = "p"))
+Dermo_Tol_full_MMPvalue = as.data.frame(corPvalueStudent(as.matrix(Dermo_Tol_full_geneModuleMembership), Dermo_Tol_full_nSamples))
+
+names(Dermo_Tol_full_geneModuleMembership) = paste("MM", Dermo_Tol_full_modNames, sep="")
+names(Dermo_Tol_full_MMPvalue) = paste("p.MM", Dermo_Tol_full_modNames, sep="")
+
+Dermo_Tol_full_geneTraitSignificance = as.data.frame(cor(Dermo_Tolerant_dds_vst_matrix,Dermo_Tol_full_injection, use = "p"))
+Dermo_Tol_full_GSPvalue = as.data.frame(corPvalueStudent(as.matrix(Dermo_Tol_full_geneTraitSignificance), Dermo_Tol_full_nSamples))
+
+names(Dermo_Tol_full_geneTraitSignificance) = paste("GS.", names(Dermo_Tol_full_injection), sep="")
+names(Dermo_Tol_full_GSPvalue) = paste("p.GS.", names(Dermo_Tol_full_injection), sep="")
+
+## Intramodular analysis: identifying genes with high GS and MM
+# Using the GS and MM measures, we can identify genes that have a high significance for disease challenge
+# as well as high module membership in interesting modules. As an example, we look at the brown module 
+# that has the highest association with weight. We plot a scatterplot of Gene Significance vs. Module Membership in the brown module:
+#Dermo_Tol_full_module = "skyblue3" # not that strong of an association
+Dermo_Tol_full_module = "turquoise" # cor = 0.37
+#Dermo_Tol_full_module = "greenyellow" # cor = 0.33
+Dermo_Tol_full_column = match(Dermo_Tol_full_module, Dermo_Tol_full_modNames)
+Dermo_Tol_full_moduleGenes = Dermo_Tol_full_moduleColors==Dermo_Tol_full_module
+sizeGrWindow(7, 7);
+par(mfrow = c(1,1));
+verboseScatterplot(abs(Dermo_Tol_full_geneModuleMembership[Dermo_Tol_full_moduleGenes, Dermo_Tol_full_column]),
+                   abs(Dermo_Tol_full_geneTraitSignificance[Dermo_Tol_full_moduleGenes, 1]),
+                   xlab = paste("Module Membership in", Dermo_Tol_full_module, "module"),
+                   ylab = "Gene significance for challenge",
+                   main = paste("Module membership vs. gene significance\n"),
+                   cex.main = 1.2, cex.lab = 1.2, cex.axis = 1.2, col = Dermo_Tol_full_module)
+
+## IDENTIFY HUB GENES IN EACH SIG MODULE ##
+Dermo_Tol_full_colorh = c("darkslateblue", "turquoise",     "greenyellow",   "skyblue3" ,     "cyan"  ,        "red"  ,         "tan" )
+
+Dermo_Tol_full_Module_hub_genes <- chooseTopHubInEachModule(
+  Dermo_Tolerant_dds_vst_matrix_common, 
+  Dermo_Tol_full_colorh, 
+  power = 3,  # power used for the adjacency network
+  type = "signed hybrid", 
+  corFnc = "bicor"
+  )
+class(Dermo_Tol_full_Module_hub_genes)
+Dermo_Tol_full_Module_hub_genes_df <- as.data.frame(Dermo_Tol_full_Module_hub_genes)
+colnames(Dermo_Tol_full_Module_hub_genes_df)[1] <- "ID"
+Dermo_Tol_full_Module_hub_genes_apop <- merge(Dermo_Tol_full_Module_hub_genes_df, C_vir_rtracklayer, by = "ID")
+nrow(Dermo_Tol_full_Module_hub_genes_apop) # 7, none involed in apoptosis
+
+## Compare turquoise module from consensus network to the full network
+
+Dermo_Tol_full_module_apop_df_turq <- Dermo_Tol_full_module_apop_df %>% filter(mod_names == "MEturquoise")
+Dermo_Tol_full_module_apop_df_turq$type <- "full"
+Dermo_Tol_module_apop_df_turq <- Dermo_Tol_module_apop_df %>% filter(mod_names == "MEturquoise")
+Dermo_Tol_module_apop_df_turq$type <- "consensus"
+
+Dermo_Tol_turq_comparison <- full_join(Dermo_Tol_full_module_apop_df_turq[,c("product","transcript_id","type")], Dermo_Tol_module_apop_df_turq[,c("product","transcript_id","type")], by ="transcript_id")
+# few shared genes 
+
+## Export modules to cytoscape for visualization ###
+# Recalculate topological overlap if needed
+Dermo_Tol_full_TOM = TOMsimilarityFromExpr(Dermo_Tolerant_dds_vst_matrix,
+                                           power = 3, # picked suitable power in the code above 
+                                           TOMType = "signed", # use signed TOM type
+                                           networkType= "signed hybrid", # use signed hybrid network type
+                                           corType = "bicor") # use suggested bicor
+
+# Select modules
+Dermo_Tol_full_modules = c("darkslateblue", "turquoise", "greenyellow",   "skyblue3" , "cyan"  ,"red"  , "tan" )
+# Select module probes
+Dermo_Tol_full_probes = names(Dermo_Tolerant_dds_vst_matrix)
+Dermo_Tol_full_inModule = is.finite(match(Dermo_Tol_full_moduleColors, Dermo_Tol_full_modules))
+Dermo_Tol_full_modProbes = Dermo_Tol_full_probes[Dermo_Tol_full_inModule]
+Dermo_Tol_full_modGenes = C_vir_rtracklayer$product[match(Dermo_Tol_full_modProbes, C_vir_rtracklayer$transcript_id)]
+# Select the corresponding Topological Overlap
+Dermo_Tol_full_modTOM = Dermo_Tol_full_net[Dermo_Tol_full_inModule, Dermo_Tol_full_inModule]
+
+dimnames(Dermo_Tol_full_modTOM) = list(Dermo_Tol_full_modProbes, Dermo_Tol_full_modProbes)
+# Export the network into edge and node list files Cytoscape can read
+Dermo_Tol_full_cyt = exportNetworkToCytoscape(Dermo_Tol_fullmod_TOM,
+                               edgeFile = paste("CytoscapeInput-edges-", paste(Dermo_Tol_full_modules, collapse="-"), ".txt", sep=""),
+                               nodeFile = paste("CytoscapeInput-nodes-", paste(Dermo_Tol_full_modules, collapse="-"), ".txt", sep=""),
+                               weighted = TRUE,
+                               threshold = 0.02,
+                               nodeNames = Dermo_Tol_full_modProbes,
+                               altNodeNames = Dermo_Tol_full_modGenes,
+                               nodeAttr = Dermo_Tol_full_moduleColors[Dermo_Tol_full_inModule])
+
+#### COMPARE CONSENSUS AND FULL IAP AND GIMAP ####
+
+Dermo_Tolerant_dds_vst_matrix
+Dermo_Susceptible_dds_vst_matrix
+Probiotic_dds_rlog_matrix
+ROD_Susceptible_dds_rlog_matrix
+Pro_RE22_dds_rlog_matrix
+
+# Number of GIMAPs and IAPs in consensus set 
+C_vir_common_vst_transcripts_df <- as.data.frame(C_vir_common_vst_transcripts)
+colnames(C_vir_common_vst_transcripts_df)[1] <- "ID"
+C_vir_common_vst_transcripts_df_annot <- left_join(C_vir_common_vst_transcripts_df, C_vir_rtracklayer_apop_product_final[,c("ID","product","transcript_id")])
+C_vir_common_vst_transcripts_df_annot <- C_vir_common_vst_transcripts_df_annot %>% filter(!is.na(transcript_id ))
+nrow(C_vir_common_vst_transcripts_df_annot ) # 302
+nrow(C_vir_rtracklayer_apop_product_final) # 601 ....I've lost about half of my genes by doing it this way
+
+# Number of IAPs in consensus set
+C_vir_common_vst_transcripts_df_annot_IAP <- C_vir_common_vst_transcripts_df_annot[grepl("IAP", C_vir_common_vst_transcripts_df_annot$product, ignore.case = TRUE),]
+nrow(C_vir_common_vst_transcripts_df_annot_IAP) # 12 unique IAPs remained in my consensus set 
+
+# Number of GIMAPs in consensus set
+C_vir_common_vst_transcripts_df_annot_GIMAP <- C_vir_common_vst_transcripts_df_annot[grepl("IMAP", C_vir_common_vst_transcripts_df_annot$product, ignore.case = TRUE),]
+nrow(C_vir_common_vst_transcripts_df_annot_GIMAP) # 5 unique GIMAP transcripts remained in my consensus set 
+
+# Number of IAPs in 
 
 
-## IDENTIFY MODULES ENRICHED FOR APOPTOSIS USING anRichment
 
 
 #### C. GIGAS WGCNA ####
@@ -4320,7 +4573,7 @@ He_deLorg_Sus_he_preserved_all <- He_deLorg_Sus_stats_preserved[He_deLorg_Sus_st
 #29      orangered4         86      6.296053
 
 ## He vs. Delorgeril_Tol 
-He_deLorg_Tol_multiExpr = list(He=list(data=He_dds_vst_matrix_common),deLorg_Tol=list(data=deLorgeril_Tolerant_dds_vst_matrix_common))
+He_deLorg_Tol_multiExpr = list(He=list(data=He_dds_vst_matrix_common),deLorg_Tol=list(data=deLorgeril_Resistant_dds_vst_matrix_common))
 He_deLorg_Tol_multiColor = list(He = He_moduleColors) 
 He_deLorg_Tol_mp =modulePreservation(He_deLorg_Tol_multiExpr, He_deLorg_Tol_multiColor,
                                    referenceNetworks=1,
@@ -4349,12 +4602,43 @@ ggplot(He_deLorg_Tol_stats_MR_order_less20, aes(x= moduleSize, y = medianRank.pr
 He_deLorg_Tol_stats_preserved_Zsum_medianRank <- He_deLorg_Tol_stats_MR_order_less20[He_deLorg_Tol_stats_MR_order_less20$mod_name %in% He_deLorg_Tol_stats_preserved$mod_name,]
 
 # Were any of these preserved modules significant in deLorg_Tol and He
-He_deLorg_Tol_preserved_all <-    He_deLorg_Tol_stats_preserved[He_deLorg_Tol_stats_preserved$mod_name %in% deLorg_Tol_moduleTraitCor_Pval_df_sig_list_rm,]
+He_deLorg_Tol_preserved_all <-    He_deLorg_Tol_stats_preserved[He_deLorg_Tol_stats_preserved$mod_name %in% deLorg_Res_moduleTraitCor_Pval_df_sig_list_rm,]
+#mod_name moduleSize Zsummary.pres
+#6         blue       1000     17.918548
+#11   turquoise       1000     15.434665
+#18    skyblue3         93     12.944139
+#19 greenyellow        381     12.500035
+#22        pink        398     10.192308
+#25  lightgreen        309      9.194302
+#29       white        178      7.437909
+#30       brown        819      7.203497
+#31 floralwhite         71      6.806136
+#35     salmon4         38      5.885579
 He_deLorg_Tol_he_preserved_all <- He_deLorg_Tol_stats_preserved[He_deLorg_Tol_stats_preserved$mod_name %in% He_moduleTraitCor_Pval_df_sig_list_rm,]
+#mod_name moduleSize Zsummary.pres
+#1              red        450     76.257779
+#2              tan        370     41.447376
+#3          skyblue        163     26.891464
+#4          magenta        387     20.875964
+#5           yellow        794     19.879381
+#6             blue       1000     17.918548
+#7     midnightblue        339     16.942338
+#10       darkgreen        248     16.225612
+#11       turquoise       1000     15.434665
+#14          salmon        365     14.377787
+#23           black        413     10.020731
+#26        darkgrey        209      9.108802
+#28 lightsteelblue1         79      7.565908
+#29           white        178      7.437909
+#30           brown        819      7.203497
+#32   darkslateblue         49      6.563884
+#35         salmon4         38      5.885579
+#36  darkolivegreen        130      5.609281
+
 
 ## Delorgeril_Tol vs. He
-deLorg_Tol_He_multiExpr = list(deLorg_Tol=list(data=deLorgeril_Tolerant_dds_vst_matrix_common), He=list(data=He_dds_vst_matrix_common))
-deLorg_Tol_He_multiColor = list(deLorg_Tol = deLorg_Tol_moduleColors) 
+deLorg_Tol_He_multiExpr = list(deLorg_Tol=list(data=deLorgeril_Resistant_dds_vst_matrix_common), He=list(data=He_dds_vst_matrix_common))
+deLorg_Tol_He_multiColor = list(deLorg_Tol = deLorg_Res_moduleColors) 
 deLorg_Tol_He_mp =modulePreservation(deLorg_Tol_He_multiExpr, deLorg_Tol_He_multiColor,
                                      referenceNetworks=1,
                                      verbose=3,
@@ -4382,8 +4666,30 @@ ggplot(deLorg_Tol_He_stats_MR_order_less20, aes(x= moduleSize, y = medianRank.pr
 deLorg_Tol_He_stats_preserved_Zsum_medianRank <- deLorg_Tol_He_stats_MR_order_less20[deLorg_Tol_He_stats_MR_order_less20$mod_name %in% deLorg_Tol_He_stats_preserved$mod_name,]
 
 # Were any of these preserved modules significant in deLorg_Tol and He
-deLorg_Tol_He_Tol_preserved_all <-    deLorg_Tol_He_stats_preserved[deLorg_Tol_He_stats_preserved$mod_name %in% deLorg_Tol_moduleTraitCor_Pval_df_sig_list_rm,]
+deLorg_Tol_He_Tol_preserved_all <-    deLorg_Tol_He_stats_preserved[deLorg_Tol_He_stats_preserved$mod_name %in% deLorg_Res_moduleTraitCor_Pval_df_sig_list_rm,]
+#mod_name moduleSize Zsummary.pres
+#2         blue       1000      31.03493
+#5    turquoise       1000      18.49194
+#6         pink        525      17.33296
+#9        brown       1000      14.28718
+#11 greenyellow        475      13.79025
+#12       white        110      12.59825
+#15       green        690      10.34434
+
 deLorg_Tol_He_He_preserved_all <- deLorg_Tol_He_stats_preserved[deLorg_Tol_He_stats_preserved$mod_name %in% He_moduleTraitCor_Pval_df_sig_list_rm,]
+#mod_name moduleSize Zsummary.pres
+#1         yellow        870     35.478220
+#2           blue       1000     31.034927
+#3          black        566     21.762627
+#4            red        680     21.071764
+#5      turquoise       1000     18.491943
+#9          brown       1000     14.287180
+#10           tan        475     14.277122
+#12         white        110     12.598251
+#16     darkgreen        165      9.701913
+#17       magenta        510      9.167497
+#22 darkslateblue         69      5.681363
+#24  midnightblue        355      5.017819
 
 # Assess whether deLorg_Sus and deLorgTol have conservation 
 #deLorg_Sus_Tol_multiExpr = list(deLorg_Sus=list(data=deLorgeril_Susceptible_dds_vst_matrix_common),deLorg_Tol=list(data=deLorgeril_Resistant_dds_vst_matrix_common))
@@ -4474,7 +4780,20 @@ deLorg_Tol_Sus_stats_preserved_Zsum_medianRank <- deLorg_Tol_Sus_stats_MR_order_
 
 # Were any of these preserved modules significant in deLorg_Sus and He
 deLorg_Tol_Sus_Suspreserved_all <-  deLorg_Tol_Sus_stats_preserved[deLorg_Tol_Sus_stats_preserved$mod_name %in% deLorg_Sus_moduleTraitCor_Pval_df_sig_list_rm,]
+#mod_name moduleSize Zsummary.pres
+#1       blue       1000     43.977505
+#4  turquoise       1000     24.620722
+#21    purple        481      7.691346
 deLorg_Tol_Sus_Tol_preserved_all <- deLorg_Tol_Sus_stats_preserved[deLorg_Tol_Sus_stats_preserved$mod_name %in% deLorg_Res_moduleTraitCor_Pval_df_sig_list_rm,]
+#mod_name moduleSize Zsummary.pres
+#1           blue       1000     43.977505
+#3          brown       1000     26.525211
+#4      turquoise       1000     24.620722
+#5          green        690     22.984064
+#7    greenyellow        475     17.587972
+#9          white        110     14.414030
+#19          pink        525      8.806550
+#23 antiquewhite2         42      6.659519
 
 # Assess whether Rubio and He have conservation (since He was also susceptible)
 Rubio_He_multiExpr = list(Rubio=list(data=Rubio_dds_rlog_matrix_common),He=list(data=He_dds_vst_matrix_common))
@@ -5063,7 +5382,78 @@ Rubio_Zhang_Rubio_V_preserved_all <- Rubio_Zhang_stats_preserved[Rubio_Zhang_sta
 
 #### PERFORM CONSENSUS NETWORK ANALYSIS ACROSS C.GIGAS NETWORKS BACTERIA ####
 
-## Perform Functional Enrichment of Apoptosis genes using AnRichment 
+# haven't performed yet for bacteria and virus 
+
+
+#### COMPARE CONSENSUS AND FULL IAP AND GIMAP ####
+
+# Number of GIMAPs and IAPs in consensus set 
+C_gig_common_vst_transcripts_df <- as.data.frame(C_gig_common_vst_transcripts)
+colnames(C_gig_common_vst_transcripts_df)[1] <- "transcript_id"
+C_gig_common_vst_transcripts_df_annot <- left_join(C_gig_common_vst_transcripts_df, C_gig_rtracklayer_apop_product_final[,c("product","transcript_id")])
+C_gig_common_vst_transcripts_df_annot <- C_gig_common_vst_transcripts_df_annot %>% filter(!is.na(product))
+nrow(C_gig_common_vst_transcripts_df_annot ) # 363
+nrow(C_gig_rtracklayer_apop_product_final) # 564
+
+# Number of IAPs in consensus set
+C_gig_common_vst_transcripts_df_annot_IAP <- C_gig_common_vst_transcripts_df_annot[grepl("IAP", C_gig_common_vst_transcripts_df_annot$product, ignore.case = TRUE),]
+nrow(C_gig_common_vst_transcripts_df_annot_IAP) # 24 unique IAPs remained in my consensus set 
+
+# Number of GIMAPs in consensus set
+C_gig_common_vst_transcripts_df_annot_GIMAP <- C_gig_common_vst_transcripts_df_annot[grepl("IMAP", C_gig_common_vst_transcripts_df_annot$product, ignore.case = TRUE),]
+nrow(C_gig_common_vst_transcripts_df_annot_GIMAP) # 7  unique GIMAP transcripts remained in my consensus set 
+
+# IAPs in each set 
+C_gig_rtracklayer_apop_product_final_IAP_list <- C_gig_rtracklayer_apop_product_final[grepl("IAP",C_gig_rtracklayer_apop_product_final$product, ignore.case = TRUE),]
+C_gig_rtracklayer_apop_product_final_IAP_list <- C_gig_rtracklayer_apop_product_final_IAP_list$transcript_id
+length(C_gig_rtracklayer_apop_product_final_IAP_list) # 38
+
+Zhang_dds_rlog_matrix_IAP <- colnames(Zhang_dds_rlog_matrix)[colnames(Zhang_dds_rlog_matrix) %in% C_gig_rtracklayer_apop_product_final_IAP_list]
+Zhang_dds_rlog_matrix_IAP <- C_gig_rtracklayer_apop_product_final[C_gig_rtracklayer_apop_product_final$transcript_id %in% Zhang_dds_rlog_matrix_IAP,]
+Zhang_dds_rlog_matrix_IAP$exp <- "Zhang"
+Rubio_dds_rlog_matrix_IAP <- colnames(Rubio_dds_rlog_matrix)[colnames(Zhang_dds_rlog_matrix) %in% C_gig_rtracklayer_apop_product_final_IAP_list]
+Rubio_dds_rlog_matrix_IAP <- C_gig_rtracklayer_apop_product_final[C_gig_rtracklayer_apop_product_final$transcript_id %in% Rubio_dds_rlog_matrix_IAP ,]
+Rubio_dds_rlog_matrix_IAP$ exp <- "Rubio"
+deLorgeril_Resistant_dds_vst_matrix_IAP <- colnames(deLorgeril_Resistant_dds_vst_matrix)[colnames(deLorgeril_Resistant_dds_vst_matrix) %in% C_gig_rtracklayer_apop_product_final_IAP_list]
+deLorgeril_Resistant_dds_vst_matrix_IAP <- C_gig_rtracklayer_apop_product_final[C_gig_rtracklayer_apop_product_final$transcript_id %in% deLorgeril_Resistant_dds_vst_matrix_IAP,]
+deLorgeril_Resistant_dds_vst_matrix_IAP$exp <-"deLorg_Res"
+deLorgeril_Susceptible_dds_vst_matrix_IAP <- colnames(deLorgeril_Susceptible_dds_vst_matrix)[colnames(deLorgeril_Susceptible_dds_vst_matrix) %in% C_gig_rtracklayer_apop_product_final_IAP_list]
+deLorgeril_Susceptible_dds_vst_matrix_IAP <- C_gig_rtracklayer_apop_product_final[C_gig_rtracklayer_apop_product_final$transcript_id %in% deLorgeril_Susceptible_dds_vst_matrix_IAP,]
+deLorgeril_Susceptible_dds_vst_matrix_IAP$exp <- "deLorg_Sus"
+He_dds_vst_matrix_IAP <- colnames(He_dds_vst_matrix)[colnames(He_dds_vst_matrix) %in% C_gig_rtracklayer_apop_product_final_IAP_list]
+He_dds_vst_matrix_IAP <- C_gig_rtracklayer_apop_product_final[C_gig_rtracklayer_apop_product_final$transcript_id %in% He_dds_vst_matrix_IAP,]
+He_dds_vst_matrix_IAP$ exp <- "He"
+
+C_gig_IAP <- rbind(Zhang_dds_rlog_matrix_IAP, Rubio_dds_rlog_matrix_IAP, 
+               deLorgeril_Resistant_dds_vst_matrix_IAP, deLorgeril_Susceptible_dds_vst_matrix_IAP, He_dds_vst_matrix_IAP)
+
+C_gig_IAP_number <- C_gig_IAP %>% group_by(exp) %>% dplyr::summarise(IAP_count = n())
+C_gig_IAP_number$species <- "C_gigas"
+
+# GIMAPs in each set 
+C_gig_rtracklayer_apop_product_final_IMAP_list <- C_gig_rtracklayer_apop_product_final[grepl("IMAP",C_gig_rtracklayer_apop_product_final$product, ignore.case = TRUE),]
+C_gig_rtracklayer_apop_product_final_IMAP_list <- C_gig_rtracklayer_apop_product_final_IMAP_list$transcript_id
+length(C_gig_rtracklayer_apop_product_final_IMAP_list) #14
+C_g_genome_test <- C_gig_rtracklayer[grepl()]
+
+Zhang_dds_rlog_matrix_IMAP <- colnames(Zhang_dds_rlog_matrix)[colnames(Zhang_dds_rlog_matrix) %in% C_gig_rtracklayer_apop_product_final_IMAP_list]
+Zhang_dds_rlog_matrix_IMAP <- C_gig_rtracklayer_apop_product_final[C_gig_rtracklayer_apop_product_final$transcript_id %in% Zhang_dds_rlog_matrix_IMAP,]
+Zhang_dds_rlog_matrix_IMAP$exp <- "Zhang"
+Rubio_dds_rlog_matrix_IMAP <- colnames(Rubio_dds_rlog_matrix)[colnames(Zhang_dds_rlog_matrix) %in% C_gig_rtracklayer_apop_product_final_IMAP_list]
+Rubio_dds_rlog_matrix_IMAP <- C_gig_rtracklayer_apop_product_final[C_gig_rtracklayer_apop_product_final$transcript_id %in% Rubio_dds_rlog_matrix_IMAP ,]
+Rubio_dds_rlog_matrix_IMAP$exp <- "Rubio"
+
+deLorgeril_Resistant_dds_vst_matrix_IMAP <- colnames(deLorgeril_Resistant_dds_vst_matrix)[colnames(deLorgeril_Resistant_dds_vst_matrix) %in% C_gig_rtracklayer_apop_product_final_IMAP_list]
+deLorgeril_Resistant_dds_vst_matrix_IMAP <- C_gig_rtracklayer_apop_product_final[C_gig_rtracklayer_apop_product_final$transcript_id %in% deLorgeril_Resistant_dds_vst_matrix_IMAP,]
+deLorgeril_Resistant_dds_vst_matrix_IMAP$exp <- "delorg_Res"
+deLorgeril_Susceptible_dds_vst_matrix_IMAP <- colnames(deLorgeril_Susceptible_dds_vst_matrix)[colnames(deLorgeril_Susceptible_dds_vst_matrix) %in% C_gig_rtracklayer_apop_product_final_IMAP_list]
+deLorgeril_Susceptible_dds_vst_matrix_IMAP <- C_gig_rtracklayer_apop_product_final[C_gig_rtracklayer_apop_product_final$transcript_id %in% deLorgeril_Susceptible_dds_vst_matrix_IMAP,]
+deLorgeril_Susceptible_dds_vst_matrix_IMAP$exp <- "deLorg_Sus"
+He_dds_vst_matrix_IMAP <- colnames(He_dds_vst_matrix)[colnames(He_dds_vst_matrix) %in% C_gig_rtracklayer_apop_product_final_IMAP_list]
+He_dds_vst_matrix_IMAP <- C_gig_rtracklayer_apop_product_final[C_gig_rtracklayer_apop_product_final$transcript_id %in% He_dds_vst_matrix_IMAP,]
+He_dds_vst_matrix_IMAP$exp <- "He"
+
+C_gig_GIMAP <- 
 
 # Tutorials: https://horvath.genetics.ucla.edu/html/CoexpressionNetwork/GeneAnnotation/
 
