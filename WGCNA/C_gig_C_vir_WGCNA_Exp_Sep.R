@@ -9,6 +9,7 @@ library(tidyverse)
 library(limma)
 library(WGCNA)
 options(stringsAsFactors = FALSE) # run every time
+allowWGCNAThreads()
 library(cluster)
 library(anRichment)
 library(anRichmentMethods)
@@ -16,6 +17,8 @@ library(plyr)
 library(dplyr)
 library(magicfor)
 cor <- WGCNA::cor # run every time
+library(UpSetR)
+library(reshape2)
 
 # source("https://horvath.genetics.ucla.edu/html/CoexpressionNetwork/GeneAnnotation/installAnRichment.R"); installAnRichment(); 
 
@@ -1114,7 +1117,6 @@ Probiotic_module_apop_df$mod_names <- gsub("^","ME",Probiotic_module_apop_df$mod
 Probiotic_module_apop_df <- left_join(Probiotic_module_apop_df,Probiotic_moduleTraitCor_Pval_df_sig)
 Probiotic_module_apop_df$exp <- "Probiotic"
 
-
 ## Gene relationship to trait and important modules: Gene Significance and Module Membership
 # Define variable injected 
 Probiotic_injection = as.data.frame(Probiotic_coldata_collapsed_binarize$Condition.Bacillus_pumilus_RI0695.vs.Untreated_control);
@@ -1356,6 +1358,7 @@ ROD_Sus_module_apop_df$mod_names <- gsub("^","ME",ROD_Sus_module_apop_df$mod_nam
 # add module significance
 ROD_Sus_module_apop_df <- left_join(ROD_Sus_module_apop_df,ROD_Sus_moduleTraitCor_Pval_df_sig)
 ROD_Sus_module_apop_df$exp <- "ROD_Sus"
+
 ## Gene relationship to trait and important modules: Gene Significance and Module Membership
 # Define variable injected 
 ROD_Sus_injection = as.data.frame(ROD_Susceptible_coldata_collapsed_binarize$Condition.Late_Susecptible.vs.Early_Susceptible);
@@ -1853,6 +1856,7 @@ colnames(Pro_RE22_Pro_RI_module_apop_df )[5] <- "mod_signif" # use dataframes fr
 colnames(Pro_RE22_RE22_module_apop_df)[5] <- "mod_signif" # use dataframes from the separated networks rather than the combined network
 C_vir_all_exp_mod_sig_apop <- rbind(Dermo_Tol_module_apop_df,Dermo_Sus_module_apop_df,ROD_Res_module_apop_df,ROD_Sus_module_apop_df,
                                     Probiotic_module_apop_df,Pro_RE22_Pro_module_apop_df ,Pro_RE22_Pro_RI_module_apop_df ,Pro_RE22_RE22_module_apop_df)
+nrow(C_vir_all_exp_mod_sig_apop) # 914 (was 451)
 C_vir_all_exp_mod_sig_apop_positive <- C_vir_all_exp_mod_sig_apop %>% filter(mod_signif >0)
 
 #### ONE WAY MEASURE MODULE PRESERVATION BETWEEN C. VIRGINICA DIFFERENT EXPERIMENTS ####
@@ -2910,7 +2914,7 @@ Pro_Pro_RE22_Pro_RI_rev <-Pro_Pro_RE22_rev_stats_preserved[Pro_Pro_RE22_rev_stat
   # ROD Res and Dermo Sus
 
 
-      
+
 #### HEATMAP OF MODULES OF INTEREST ACROSS EXPERIMENTS ####
 
 
@@ -3247,14 +3251,12 @@ labeledHeatmap(Matrix = C_vir_Bac_consensusCor,
 
 #### RUNNING DERMO TOLERANT FULL DATASET ####
 
-Dermo_Tolerant_dds_vst_matrix
-
 # Pick soft threshold
 powers = c(c(1:10), seq(from = 12, to=20, by=2))
 
 # Call the network topology analysis function, following general recommendations to set network type to "signed hybrid" and using the "bicor" correlation
 Dermo_Tolerant_dds_vst_matrix_sft <- pickSoftThreshold(Dermo_Tolerant_dds_vst_matrix, powerVector = powers, verbose = 5, networkType = "signed hybrid", corFnc = "bicor") 
-
+save(Dermo_Tolerant_dds_vst_matrix_sft, file="/Volumes/My Passport for Mac/Chapter1_Apoptosis_Paper_Saved_DESeq_WGCNA_Data/Dermo_Tolerant_dds_vst_matrix_sft")
 #Dermo
 # Scale-free topology fit index as a function of the soft-thresholding power
 plot(Dermo_Tolerant_dds_vst_matrix_sft$fitIndices[,1], -sign(Dermo_Tolerant_dds_vst_matrix_sft$fitIndices[,3])*Dermo_Tolerant_dds_vst_matrix_sft$fitIndices[,2],
@@ -3272,6 +3274,7 @@ text(Dermo_Tolerant_dds_vst_matrix_sft$fitIndices[,1], Dermo_Tolerant_dds_vst_ma
 # Softthreshold of 3 since this is lowest value past 0.9 we start to see flattening 
 
 ## ONE STEP NETWORK CONSTRUCTION, MODULE DETECTION, MODULE DENDROGRAM INSPECTION ##
+Dermo_Tol_full_net <- load(file="/Volumes/My Passport for Mac/Chapter1_Apoptosis_Paper_Saved_DESeq_WGCNA_Data/Dermo_Tol_full_network.RData")
 # Dermo_Tol_full_net = blockwiseModules(Dermo_Tolerant_dds_vst_matrix, power = 3, # picked suitable power in the code above 
 #                                 TOMType = "signed", # use signed TOM type
 #                                 networkType= "signed hybrid", # use signed hybrid network type
@@ -3290,19 +3293,19 @@ table(Dermo_Tol_full_net$colors)
 # open a graphics window
 sizeGrWindow(12, 9)
 # Convert labels to colors for plotting
-Dermo_Tol_full_mergedColors = labels2colors(Dermo_Tol_full_net$colors)
+#Dermo_Tol_full_mergedColors = labels2colors(Dermo_Tol_full_net$colors)
 # Plot the dendrogram and the module colors underneath
 plotDendroAndColors(Dermo_Tol_full_net$dendrograms[[1]], Dermo_Tol_full_mergedColors[Dermo_Tol_full_net$blockGenes[[1]]],
                     "Module colors",
                     dendroLabels = FALSE, hang = 0.03,
                     addGuide = TRUE, guideHang = 0.05)
-Dermo_Tol_full_moduleLabels = Dermo_Tol_full_net$colors
-Dermo_Tol_full_moduleColors = labels2colors(Dermo_Tol_full_net$colors)
-Dermo_Tol_full_MEs = Dermo_Tol_full_net$MEs
-Dermo_Tol_full_geneTree = Dermo_Tol_full_net$dendrograms[[1]]
+#Dermo_Tol_full_moduleLabels = Dermo_Tol_full_net$colors
+#Dermo_Tol_full_moduleColors = labels2colors(Dermo_Tol_full_net$colors)
+#Dermo_Tol_full_MEs = Dermo_Tol_full_net$MEs
+#Dermo_Tol_full_geneTree = Dermo_Tol_full_net$dendrograms[[1]]
 # save network
-save(Dermo_Tol_full_net, Dermo_Tol_full_mergedColors, Dermo_Tol_full_moduleLabels, Dermo_Tol_full_moduleColors, Dermo_Tol_full_MEs, Dermo_Tol_full_geneTree, 
-     file = "/Volumes/My Passport for Mac/Chapter1_Apoptosis_Paper_Saved_DESeq_WGCNA_Data/Dermo_Tol_full_network.RData")
+#save(Dermo_Tol_full_net, Dermo_Tol_full_mergedColors, Dermo_Tol_full_moduleLabels, Dermo_Tol_full_moduleColors, Dermo_Tol_full_MEs, Dermo_Tol_full_geneTree, 
+#     file = "/Volumes/My Passport for Mac/Chapter1_Apoptosis_Paper_Saved_DESeq_WGCNA_Data/Dermo_Tol_full_network.RData")
 
 # Quantify module trait associations 
 # Define numbers of genes and samples
@@ -3432,7 +3435,7 @@ colnames(Dermo_Tol_full_Module_hub_genes_df)[1] <- "ID"
 Dermo_Tol_full_Module_hub_genes_apop <- merge(Dermo_Tol_full_Module_hub_genes_df, C_vir_rtracklayer, by = "ID")
 nrow(Dermo_Tol_full_Module_hub_genes_apop) # 7, none involed in apoptosis
 
-## Compare turquoise module from consensus network to the full network
+## Compare turquoise module from consensus network to the full network...doesn't make sense to do this since I haven't confirmed that they are preserved yet 
 
 Dermo_Tol_full_module_apop_df_turq <- Dermo_Tol_full_module_apop_df %>% filter(mod_names == "MEturquoise")
 Dermo_Tol_full_module_apop_df_turq$type <- "full"
@@ -3444,11 +3447,13 @@ Dermo_Tol_turq_comparison <- full_join(Dermo_Tol_full_module_apop_df_turq[,c("pr
 
 ## Export modules to cytoscape for visualization ###
 # Recalculate topological overlap if needed
-Dermo_Tol_full_TOM = TOMsimilarityFromExpr(Dermo_Tolerant_dds_vst_matrix,
-                                           power = 3, # picked suitable power in the code above 
-                                           TOMType = "signed", # use signed TOM type
-                                           networkType= "signed hybrid", # use signed hybrid network type
-                                           corType = "bicor") # use suggested bicor
+#Dermo_Tol_full_TOM = TOMsimilarityFromExpr(Dermo_Tolerant_dds_vst_matrix,
+#                                           power = 3, # picked suitable power in the code above 
+#                                           TOMType = "signed", # use signed TOM type
+#                                           networkType= "signed hybrid", # use signed hybrid network type
+#                                           corType = "bicor") # use suggested bicor
+#
+save(Dermo_Tol_full_TOM, file="/Volumes/My Passport for Mac/Chapter1_Apoptosis_Paper_Saved_DESeq_WGCNA_Data/Dermo_Tol_full_TOM.RData" )
 
 # Select modules
 Dermo_Tol_full_modules = c("darkslateblue", "turquoise", "greenyellow",   "skyblue3" , "cyan"  ,"red"  , "tan" )
@@ -3473,32 +3478,96 @@ Dermo_Tol_full_cyt = exportNetworkToCytoscape(Dermo_Tol_fullmod_TOM,
 
 #### COMPARE CONSENSUS AND FULL IAP AND GIMAP ####
 
-Dermo_Tolerant_dds_vst_matrix
-Dermo_Susceptible_dds_vst_matrix
-Probiotic_dds_rlog_matrix
-ROD_Susceptible_dds_rlog_matrix
-Pro_RE22_dds_rlog_matrix
-
 # Number of GIMAPs and IAPs in consensus set 
 C_vir_common_vst_transcripts_df <- as.data.frame(C_vir_common_vst_transcripts)
 colnames(C_vir_common_vst_transcripts_df)[1] <- "ID"
 C_vir_common_vst_transcripts_df_annot <- left_join(C_vir_common_vst_transcripts_df, C_vir_rtracklayer_apop_product_final[,c("ID","product","transcript_id")])
 C_vir_common_vst_transcripts_df_annot <- C_vir_common_vst_transcripts_df_annot %>% filter(!is.na(transcript_id ))
-nrow(C_vir_common_vst_transcripts_df_annot ) # 302
-nrow(C_vir_rtracklayer_apop_product_final) # 601 ....I've lost about half of my genes by doing it this way
+nrow(C_vir_common_vst_transcripts_df_annot ) # 598
+nrow(C_vir_rtracklayer_apop_product_final) # 1245 ....I've lost more than half of my genes by doing it this way
 
 # Number of IAPs in consensus set
 C_vir_common_vst_transcripts_df_annot_IAP <- C_vir_common_vst_transcripts_df_annot[grepl("IAP", C_vir_common_vst_transcripts_df_annot$product, ignore.case = TRUE),]
-nrow(C_vir_common_vst_transcripts_df_annot_IAP) # 12 unique IAPs remained in my consensus set 
+nrow(C_vir_common_vst_transcripts_df_annot_IAP) # 48 unique IAPs remained in my consensus set 
 
 # Number of GIMAPs in consensus set
 C_vir_common_vst_transcripts_df_annot_GIMAP <- C_vir_common_vst_transcripts_df_annot[grepl("IMAP", C_vir_common_vst_transcripts_df_annot$product, ignore.case = TRUE),]
-nrow(C_vir_common_vst_transcripts_df_annot_GIMAP) # 5 unique GIMAP transcripts remained in my consensus set 
+nrow(C_vir_common_vst_transcripts_df_annot_GIMAP) # 25 unique GIMAP transcripts remained in my consensus set 
 
-# Number of IAPs in 
+# IAPs in each set 
+C_vir_rtracklayer_apop_product_final_IAP_list <- C_vir_rtracklayer_apop_product_final[grepl("IAP",C_vir_rtracklayer_apop_product_final$product, ignore.case = TRUE),]
+C_vir_rtracklayer_apop_product_final_IAP_list <- C_vir_rtracklayer_apop_product_final_IAP_list$ID
+length(C_vir_rtracklayer_apop_product_final_IAP_list) # 105
 
+Dermo_Tolerant_dds_vst_matrix_IAP <- colnames(Dermo_Tolerant_dds_vst_matrix)[colnames(Dermo_Tolerant_dds_vst_matrix) %in% C_vir_rtracklayer_apop_product_final_IAP_list]
+Dermo_Susceptible_dds_vst_matrix_IAP <- colnames(Dermo_Susceptible_dds_vst_matrix)[colnames(Dermo_Susceptible_dds_vst_matrix) %in% C_vir_rtracklayer_apop_product_final_IAP_list]
+Probiotic_dds_rlog_matrix_IAP <- colnames(Probiotic_dds_rlog_matrix)[colnames(Probiotic_dds_rlog_matrix) %in% C_vir_rtracklayer_apop_product_final_IAP_list]
+ROD_Susceptible_dds_rlog_matrix_IAP <- colnames(ROD_Susceptible_dds_rlog_matrix)[colnames(ROD_Susceptible_dds_rlog_matrix) %in% C_vir_rtracklayer_apop_product_final_IAP_list]
+ROD_Resistant_dds_rlog_matrix_IAP <- colnames(ROD_Resistant_dds_rlog_matrix)[colnames(ROD_Resistant_dds_rlog_matrix) %in% C_vir_rtracklayer_apop_product_final_IAP_list]
+Pro_RE22_dds_rlog_matrix_IAP <- colnames(Pro_RE22_dds_rlog_matrix)[colnames(Pro_RE22_dds_rlog_matrix) %in% C_vir_rtracklayer_apop_product_final_IAP_list]
 
+Dermo_Tolerant_dds_vst_matrix_IAP <- C_vir_rtracklayer_apop_product_final[C_vir_rtracklayer_apop_product_final$ID %in% Dermo_Tolerant_dds_vst_matrix_IAP,]
+Dermo_Susceptible_dds_vst_matrix_IAP <- C_vir_rtracklayer_apop_product_final[C_vir_rtracklayer_apop_product_final$ID %in% Dermo_Susceptible_dds_vst_matrix_IAP,]
+Probiotic_dds_rlog_matrix_IAP <- C_vir_rtracklayer_apop_product_final[C_vir_rtracklayer_apop_product_final$ID %in% Probiotic_dds_rlog_matrix_IAP,]
+ROD_Susceptible_dds_rlog_matrix_IAP <- C_vir_rtracklayer_apop_product_final[C_vir_rtracklayer_apop_product_final$ID %in% ROD_Susceptible_dds_rlog_matrix_IAP,]
+ROD_Resistant_dds_rlog_matrix_IAP <- C_vir_rtracklayer_apop_product_final[C_vir_rtracklayer_apop_product_final$ID %in% ROD_Resistant_dds_rlog_matrix_IAP,]
+Pro_RE22_dds_rlog_matrix_IAP <- C_vir_rtracklayer_apop_product_final[C_vir_rtracklayer_apop_product_final$ID %in% Pro_RE22_dds_rlog_matrix_IAP,]
 
+Dermo_Tolerant_dds_vst_matrix_IAP$exp <- "Dermo_Tolerant"
+Dermo_Susceptible_dds_vst_matrix_IAP$exp <- "Dermo_Susceptible"
+Probiotic_dds_rlog_matrix_IAP$exp <- "Probiotic"
+ROD_Susceptible_dds_rlog_matrix_IAP$exp <- "ROD_Susceptible"
+ROD_Resistant_dds_rlog_matrix_IAP$exp <- "ROD_Resistant"
+Pro_RE22_dds_rlog_matrix_IAP$exp <- "Pro_RE22"
+
+C_vir_IAP <- rbind(Dermo_Tolerant_dds_vst_matrix_IAP,
+                   Dermo_Susceptible_dds_vst_matrix_IAP,
+                   Probiotic_dds_rlog_matrix_IAP,
+                     ROD_Susceptible_dds_rlog_matrix_IAP,
+                   ROD_Resistant_dds_rlog_matrix_IAP,
+                   Pro_RE22_dds_rlog_matrix_IAP)
+
+C_vir_IAP_number <- C_vir_IAP %>% group_by(exp) %>% dplyr::summarise(count = n())
+C_vir_IAP_number$species <- "C_vir"
+C_vir_IAP_number$type <- "IAP"
+
+# GIMAPs in each set 
+# IAPs in each set 
+C_vir_rtracklayer_apop_product_final_IMAP_list <- C_vir_rtracklayer_apop_product_final[grepl("IMAP",C_vir_rtracklayer_apop_product_final$product, ignore.case = TRUE),]
+C_vir_rtracklayer_apop_product_final_IMAP_list <- C_vir_rtracklayer_apop_product_final_IMAP_list$ID
+length(C_vir_rtracklayer_apop_product_final_IMAP_list) # 105
+
+Dermo_Tolerant_dds_vst_matrix_IMAP <- colnames(Dermo_Tolerant_dds_vst_matrix)[colnames(Dermo_Tolerant_dds_vst_matrix) %in% C_vir_rtracklayer_apop_product_final_IMAP_list]
+Dermo_Susceptible_dds_vst_matrix_IMAP <- colnames(Dermo_Susceptible_dds_vst_matrix)[colnames(Dermo_Susceptible_dds_vst_matrix) %in% C_vir_rtracklayer_apop_product_final_IMAP_list]
+Probiotic_dds_rlog_matrix_IMAP <- colnames(Probiotic_dds_rlog_matrix)[colnames(Probiotic_dds_rlog_matrix) %in% C_vir_rtracklayer_apop_product_final_IMAP_list]
+ROD_Susceptible_dds_rlog_matrix_IMAP <- colnames(ROD_Susceptible_dds_rlog_matrix)[colnames(ROD_Susceptible_dds_rlog_matrix) %in% C_vir_rtracklayer_apop_product_final_IMAP_list]
+ROD_Resistant_dds_rlog_matrix_IMAP <- colnames(ROD_Resistant_dds_rlog_matrix)[colnames(ROD_Resistant_dds_rlog_matrix) %in% C_vir_rtracklayer_apop_product_final_IMAP_list]
+Pro_RE22_dds_rlog_matrix_IMAP <- colnames(Pro_RE22_dds_rlog_matrix)[colnames(Pro_RE22_dds_rlog_matrix) %in% C_vir_rtracklayer_apop_product_final_IMAP_list]
+
+Dermo_Tolerant_dds_vst_matrix_IMAP <- C_vir_rtracklayer_apop_product_final[C_vir_rtracklayer_apop_product_final$ID %in% Dermo_Tolerant_dds_vst_matrix_IMAP,]
+Dermo_Susceptible_dds_vst_matrix_IMAP <- C_vir_rtracklayer_apop_product_final[C_vir_rtracklayer_apop_product_final$ID %in% Dermo_Susceptible_dds_vst_matrix_IMAP,]
+Probiotic_dds_rlog_matrix_IMAP <- C_vir_rtracklayer_apop_product_final[C_vir_rtracklayer_apop_product_final$ID %in% Probiotic_dds_rlog_matrix_IMAP,]
+ROD_Susceptible_dds_rlog_matrix_IMAP <- C_vir_rtracklayer_apop_product_final[C_vir_rtracklayer_apop_product_final$ID %in% ROD_Susceptible_dds_rlog_matrix_IMAP,]
+ROD_Resistant_dds_rlog_matrix_IMAP <- C_vir_rtracklayer_apop_product_final[C_vir_rtracklayer_apop_product_final$ID %in% ROD_Resistant_dds_rlog_matrix_IMAP,]
+Pro_RE22_dds_rlog_matrix_IMAP <- C_vir_rtracklayer_apop_product_final[C_vir_rtracklayer_apop_product_final$ID %in% Pro_RE22_dds_rlog_matrix_IMAP,]
+
+Dermo_Tolerant_dds_vst_matrix_IMAP$exp <- "Dermo_Tolerant"
+Dermo_Susceptible_dds_vst_matrix_IMAP$exp <- "Dermo_Susceptible"
+Probiotic_dds_rlog_matrix_IMAP$exp <- "Probiotic"
+ROD_Susceptible_dds_rlog_matrix_IMAP$exp <- "ROD_Susceptible"
+ROD_Resistant_dds_rlog_matrix_IMAP$exp <- "ROD_Resistant"
+Pro_RE22_dds_rlog_matrix_IMAP$exp <- "Pro_RE22"
+
+C_vir_IMAP <- rbind(Dermo_Tolerant_dds_vst_matrix_IMAP,
+                   Dermo_Susceptible_dds_vst_matrix_IMAP,
+                   Probiotic_dds_rlog_matrix_IMAP,
+                   ROD_Susceptible_dds_rlog_matrix_IMAP,
+                   ROD_Resistant_dds_rlog_matrix_IMAP,
+                   Pro_RE22_dds_rlog_matrix_IMAP)
+
+C_vir_IMAP_number <- C_vir_IMAP %>% group_by(exp) %>% dplyr::summarise(count = n())
+C_vir_IMAP_number$species <- "C_vir"
+C_vir_IMAP_number$type <- "GIMAP"
 
 #### C. GIGAS WGCNA ####
 
@@ -4303,6 +4372,7 @@ deLorg_Sus_moduleTraitCor_Pval_df_sig_list_rm <- str_remove(deLorg_Sus_moduleTra
 # Use function to lookup all apop names for each significant module
 deLorg_Sus_moduleTraitCor_Pval_df_sig_list_rm
 names(deLorg_Sus_moduleTraitCor_Pval_df_sig_list_rm) <- c( "purple",       "turquoise" ,   "midnightblue", "blue" )
+
 matrix_common= deLorgeril_Susceptible_dds_vst_matrix_common
 moduleColors= deLorg_Sus_moduleColors
 lookup =   C_gig_rtracklayer_apop_product_final
@@ -4415,6 +4485,7 @@ C_gig_all_exp_mod_sig_apop <- rbind(Zhang_LPS_module_apop_df,
                                     deLorg_Res_module_apop_df,
                                     deLorg_Sus_module_apop_df,
                                     He_module_apop_df)
+nrow(C_gig_all_exp_mod_sig_apop) # 1337
 C_gig_all_exp_mod_sig_apop_positive <- C_gig_all_exp_mod_sig_apop %>% filter(mod_signif >0)
 
 
@@ -5392,8 +5463,8 @@ C_gig_common_vst_transcripts_df <- as.data.frame(C_gig_common_vst_transcripts)
 colnames(C_gig_common_vst_transcripts_df)[1] <- "transcript_id"
 C_gig_common_vst_transcripts_df_annot <- left_join(C_gig_common_vst_transcripts_df, C_gig_rtracklayer_apop_product_final[,c("product","transcript_id")])
 C_gig_common_vst_transcripts_df_annot <- C_gig_common_vst_transcripts_df_annot %>% filter(!is.na(product))
-nrow(C_gig_common_vst_transcripts_df_annot ) # 363
-nrow(C_gig_rtracklayer_apop_product_final) # 564
+nrow(C_gig_common_vst_transcripts_df_annot ) # 546
+nrow(C_gig_rtracklayer_apop_product_final) # 833
 
 # Number of IAPs in consensus set
 C_gig_common_vst_transcripts_df_annot_IAP <- C_gig_common_vst_transcripts_df_annot[grepl("IAP", C_gig_common_vst_transcripts_df_annot$product, ignore.case = TRUE),]
@@ -5401,12 +5472,12 @@ nrow(C_gig_common_vst_transcripts_df_annot_IAP) # 24 unique IAPs remained in my 
 
 # Number of GIMAPs in consensus set
 C_gig_common_vst_transcripts_df_annot_GIMAP <- C_gig_common_vst_transcripts_df_annot[grepl("IMAP", C_gig_common_vst_transcripts_df_annot$product, ignore.case = TRUE),]
-nrow(C_gig_common_vst_transcripts_df_annot_GIMAP) # 7  unique GIMAP transcripts remained in my consensus set 
+nrow(C_gig_common_vst_transcripts_df_annot_GIMAP) # 15  unique GIMAP transcripts remained in my consensus set 
 
 # IAPs in each set 
 C_gig_rtracklayer_apop_product_final_IAP_list <- C_gig_rtracklayer_apop_product_final[grepl("IAP",C_gig_rtracklayer_apop_product_final$product, ignore.case = TRUE),]
 C_gig_rtracklayer_apop_product_final_IAP_list <- C_gig_rtracklayer_apop_product_final_IAP_list$transcript_id
-length(C_gig_rtracklayer_apop_product_final_IAP_list) # 38
+length(C_gig_rtracklayer_apop_product_final_IAP_list) # 51
 
 Zhang_dds_rlog_matrix_IAP <- colnames(Zhang_dds_rlog_matrix)[colnames(Zhang_dds_rlog_matrix) %in% C_gig_rtracklayer_apop_product_final_IAP_list]
 Zhang_dds_rlog_matrix_IAP <- C_gig_rtracklayer_apop_product_final[C_gig_rtracklayer_apop_product_final$transcript_id %in% Zhang_dds_rlog_matrix_IAP,]
@@ -5427,14 +5498,14 @@ He_dds_vst_matrix_IAP$ exp <- "He"
 C_gig_IAP <- rbind(Zhang_dds_rlog_matrix_IAP, Rubio_dds_rlog_matrix_IAP, 
                deLorgeril_Resistant_dds_vst_matrix_IAP, deLorgeril_Susceptible_dds_vst_matrix_IAP, He_dds_vst_matrix_IAP)
 
-C_gig_IAP_number <- C_gig_IAP %>% group_by(exp) %>% dplyr::summarise(IAP_count = n())
+C_gig_IAP_number <- C_gig_IAP %>% group_by(exp) %>% dplyr::summarise(count = n())
 C_gig_IAP_number$species <- "C_gigas"
+C_gig_IAP_number$type <- "IAP"
 
 # GIMAPs in each set 
 C_gig_rtracklayer_apop_product_final_IMAP_list <- C_gig_rtracklayer_apop_product_final[grepl("IMAP",C_gig_rtracklayer_apop_product_final$product, ignore.case = TRUE),]
 C_gig_rtracklayer_apop_product_final_IMAP_list <- C_gig_rtracklayer_apop_product_final_IMAP_list$transcript_id
-length(C_gig_rtracklayer_apop_product_final_IMAP_list) #14
-C_g_genome_test <- C_gig_rtracklayer[grepl()]
+length(C_gig_rtracklayer_apop_product_final_IMAP_list) #36
 
 Zhang_dds_rlog_matrix_IMAP <- colnames(Zhang_dds_rlog_matrix)[colnames(Zhang_dds_rlog_matrix) %in% C_gig_rtracklayer_apop_product_final_IMAP_list]
 Zhang_dds_rlog_matrix_IMAP <- C_gig_rtracklayer_apop_product_final[C_gig_rtracklayer_apop_product_final$transcript_id %in% Zhang_dds_rlog_matrix_IMAP,]
@@ -5445,7 +5516,7 @@ Rubio_dds_rlog_matrix_IMAP$exp <- "Rubio"
 
 deLorgeril_Resistant_dds_vst_matrix_IMAP <- colnames(deLorgeril_Resistant_dds_vst_matrix)[colnames(deLorgeril_Resistant_dds_vst_matrix) %in% C_gig_rtracklayer_apop_product_final_IMAP_list]
 deLorgeril_Resistant_dds_vst_matrix_IMAP <- C_gig_rtracklayer_apop_product_final[C_gig_rtracklayer_apop_product_final$transcript_id %in% deLorgeril_Resistant_dds_vst_matrix_IMAP,]
-deLorgeril_Resistant_dds_vst_matrix_IMAP$exp <- "delorg_Res"
+deLorgeril_Resistant_dds_vst_matrix_IMAP$exp <- "deLorg_Res"
 deLorgeril_Susceptible_dds_vst_matrix_IMAP <- colnames(deLorgeril_Susceptible_dds_vst_matrix)[colnames(deLorgeril_Susceptible_dds_vst_matrix) %in% C_gig_rtracklayer_apop_product_final_IMAP_list]
 deLorgeril_Susceptible_dds_vst_matrix_IMAP <- C_gig_rtracklayer_apop_product_final[C_gig_rtracklayer_apop_product_final$transcript_id %in% deLorgeril_Susceptible_dds_vst_matrix_IMAP,]
 deLorgeril_Susceptible_dds_vst_matrix_IMAP$exp <- "deLorg_Sus"
@@ -5453,7 +5524,74 @@ He_dds_vst_matrix_IMAP <- colnames(He_dds_vst_matrix)[colnames(He_dds_vst_matrix
 He_dds_vst_matrix_IMAP <- C_gig_rtracklayer_apop_product_final[C_gig_rtracklayer_apop_product_final$transcript_id %in% He_dds_vst_matrix_IMAP,]
 He_dds_vst_matrix_IMAP$exp <- "He"
 
-C_gig_GIMAP <- 
+C_gig_IMAP <- rbind(Zhang_dds_rlog_matrix_IMAP, Rubio_dds_rlog_matrix_IMAP, 
+                   deLorgeril_Resistant_dds_vst_matrix_IMAP, deLorgeril_Susceptible_dds_vst_matrix_IMAP, He_dds_vst_matrix_IMAP)
+
+C_gig_IMAP_number <- C_gig_IMAP %>% group_by(exp) %>% dplyr::summarise(count = n())
+C_gig_IMAP_number$species <- "C_gigas"
+C_gig_IMAP_number$type <- "GIMAP"
+
+## Combine C_gig IAP and GIMAP with C_vir
+
+genome_IAP_GIMAP_number = data.frame(exp = c("C_vir_IAP","C_gig_IAP","C_vir_GIMAP","C_gig_GIMAP"), count=c("105","51","107","36"),
+                                     species=c("C_vir","C_gigas","C_vir","C_gigas"), type=c("IAP", "IAP","GIMAP","GIMAP"), ref=c("ref","ref","ref","ref"))
+genome_IAP_GIMAP_number$count <- as.numeric(genome_IAP_GIMAP_number$count)
+
+C_gig_IMAP_number$ref <- "GIMAP"
+C_vir_IMAP_number$ref <- "GIMAP"
+C_gig_IAP_number$ref <- "IAP"
+C_vir_IAP_number$ref <- "IAP"
+
+consensus_IAP_GIMAP_number <- rbind(C_gig_IMAP_number, C_vir_IMAP_number, C_gig_IAP_number, C_vir_IAP_number,genome_IAP_GIMAP_number)
+
+# Plot
+ggplot(consensus_IAP_GIMAP_number, aes(x=exp, y =count, fill=ref)) + geom_col(position="dodge") + coord_flip() + 
+  ggtitle("GIMAP and IAP transcripts in each transcript data set") + xlab("Experiment") + ylab("Number of Transcripts") + facet_grid(.~type)
+
+#### UPSET PLOT OF IAP AND GIMAP  ####
+# helpful tutorial for doing this: http://genomespot.blogspot.com/2017/09/upset-plots-as-replacement-to-venn.html
+# http://crazyhottommy.blogspot.com/2016/01/upset-plot-for-overlapping-chip-seq.html
+# https://www.littlemissdata.com/blog/set-analysis
+# UpsetR vignette: https://cran.r-project.org/web/packages/UpSetR/vignettes/basic.usage.html
+
+
+C_vir_all_exp_mod_sig_apop_IAP <- C_vir_all_exp_mod_sig_apop[grepl("IAP",C_vir_all_exp_mod_sig_apop$product, ignore.case = TRUE),]
+C_gig_all_exp_mod_sig_apop_IAP <- C_gig_all_exp_mod_sig_apop[grepl("IAP",C_gig_all_exp_mod_sig_apop$product, ignore.case = TRUE),]
+C_vir_all_exp_mod_sig_apop_IMAP <- C_vir_all_exp_mod_sig_apop[grepl("IMAP",C_vir_all_exp_mod_sig_apop$product, ignore.case = TRUE),]
+C_gig_all_exp_mod_sig_apop_IMAP <- C_gig_all_exp_mod_sig_apop[grepl("IMAP",C_gig_all_exp_mod_sig_apop$product, ignore.case = TRUE),]
+
+C_vir_all_exp_mod_sig_apop_IAP_upset <- C_vir_all_exp_mod_sig_apop_IAP [,c("transcript_id","exp")]
+C_gig_all_exp_mod_sig_apop_IAP_upset <- C_gig_all_exp_mod_sig_apop_IAP [,c("transcript_id","exp")]
+C_vir_all_exp_mod_sig_apop_IMAP_upset <- C_vir_all_exp_mod_sig_apop_IMAP[,c("transcript_id","exp")]
+C_gig_all_exp_mod_sig_apop_IMAP_upset <- C_gig_all_exp_mod_sig_apop_IMAP[,c("transcript_id","exp")]
+
+# Convert into wide format using reshape
+C_vir_all_exp_mod_sig_apop_IAP_upset_wide  <- C_vir_all_exp_mod_sig_apop_IAP_upset %>%mutate(value=1) %>% spread(exp, value, fill =0 )
+C_gig_all_exp_mod_sig_apop_IAP_upset_wide  <- C_gig_all_exp_mod_sig_apop_IAP_upset %>%mutate(value=1) %>% spread(exp, value, fill =0 )
+C_vir_all_exp_mod_sig_apop_IMAP_upset_wide <- C_vir_all_exp_mod_sig_apop_IMAP_upset %>%mutate(value=1) %>% spread(exp, value, fill =0 )
+C_gig_all_exp_mod_sig_apop_IMAP_upset_wide <- C_gig_all_exp_mod_sig_apop_IMAP_upset %>%mutate(value=1) %>% spread(exp, value, fill =0 )
+
+
+# Make upset plots
+C_vir_all_exp_mod_sig_apop_IAP_upset_wide_GROUP <- upset(C_vir_all_exp_mod_sig_apop_IAP_upset_wide,  mainbar.y.label = "Transcript id Intersections", 
+                                         sets.x.label = "C_vir IAP upset ", text.scale = c(1.3, 1.3, 1.3, 1.3, 2, 1.0), order.by="freq")
+
+C_gig_all_exp_mod_sig_apop_IAP_upset_wide_GROUP <- upset(C_gig_all_exp_mod_sig_apop_IAP_upset_wide,  mainbar.y.label = "Transcript id Intersections", 
+                                                         sets.x.label = "C_gig IAP upset ", text.scale = c(1.3, 1.3, 1.3, 1.3, 2, 1.0), order.by="freq")
+
+C_gig_all_exp_mod_sig_apop_IMAP_upset_wide_GROUP <- upset(C_gig_all_exp_mod_sig_apop_IMAP_upset_wide,  mainbar.y.label = "Transcript id Intersections", 
+                                                         sets.x.label = "C_gig IAP upset ", text.scale = c(1.3, 1.3, 1.3, 1.3, 2, 1.0), order.by="freq")
+
+C_vir_all_exp_mod_sig_apop_IMAP_upset_wide_GROUP <- upset(C_vir_all_exp_mod_sig_apop_IMAP_upset_wide,  mainbar.y.label = "Transcript id Intersections", 
+                                                          sets.x.label = "C_gig IAP upset ", text.scale = c(1.3, 1.3, 1.3, 1.3, 2, 1.0), order.by="freq")
+## Extract products that appear only once 
+#C_vir_apop_LFC_notshared  <- C_vir_apop_LFC[!(duplicated(C_vir_apop_LFC$transcript_id) | duplicated(C_vir_apop_LFC$transcript_id, fromLast = TRUE)), ]
+#C_gig_apop_LFC_notshared <- C_gig_apop_LFC[!(duplicated(C_gig_apop_LFC$Name) | duplicated(C_gig_apop_LFC$Name, fromLast = TRUE)), ]
+
+
+
 
 # Tutorials: https://horvath.genetics.ucla.edu/html/CoexpressionNetwork/GeneAnnotation/
 
+#### SESSION INFO ####
+sessionInfo()
