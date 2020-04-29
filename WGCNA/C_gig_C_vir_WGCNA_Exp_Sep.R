@@ -7,7 +7,7 @@
 ### LOAD PACKAGES ####
 library(tidyverse)
 library(limma)
-library(WGCNA)
+library(WGCNA) # v WGCNA_1.68
 options(stringsAsFactors = FALSE) # run every time
 allowWGCNAThreads()
 library(cluster)
@@ -19,6 +19,7 @@ library(magicfor)
 cor <- WGCNA::cor # run every time
 library(UpSetR)
 library(reshape2)
+# Using R version 3.6.1 
 
 # source("https://horvath.genetics.ucla.edu/html/CoexpressionNetwork/GeneAnnotation/installAnRichment.R"); installAnRichment(); 
 
@@ -183,6 +184,13 @@ Pro_RE22_coldata_Pro <-  Pro_RE22_coldata %>% rownames_to_column("sample") %>% f
 
 Pro_RE22_dds_rlog_matrix_common_Pro <- Pro_RE22_dds_rlog_matrix_common[Pro_RE22_coldata_Pro$sample,]
 Pro_RE22_dds_rlog_matrix_common_RE22 <- Pro_RE22_dds_rlog_matrix_common[Pro_RE22_coldata_RE22$sample,]
+
+Pro_RE22_dds_rlog_matrix_Pro <- Pro_RE22_dds_rlog_matrix[Pro_RE22_coldata_Pro$sample,]
+Pro_RE22_dds_rlog_matrix_RE22 <- Pro_RE22_dds_rlog_matrix[Pro_RE22_coldata_RE22$sample,]
+
+# Save these
+save(Pro_RE22_dds_rlog_matrix_Pro , file="/Volumes/My Passport for Mac/Chapter1_Apoptosis_Paper_Saved_DESeq_WGCNA_Data/Pro_RE22_dds_rlog_matrix_Pro.RData")
+save(Pro_RE22_dds_rlog_matrix_RE22, file="/Volumes/My Passport for Mac/Chapter1_Apoptosis_Paper_Saved_DESeq_WGCNA_Data/Pro_RE22_dds_rlog_matrix_RE22.RData")
 
 # Do column names agree between all?
 all(colnames(Dermo_Tolerant_dds_vst_matrix_common ) %in% colnames(Probiotic_dds_rlog_matrix_common)) # TRUE
@@ -3476,6 +3484,222 @@ Dermo_Tol_full_cyt = exportNetworkToCytoscape(Dermo_Tol_fullmod_TOM,
                                altNodeNames = Dermo_Tol_full_modGenes,
                                nodeAttr = Dermo_Tol_full_moduleColors[Dermo_Tol_full_inModule])
 
+#### RUNNING PRO_RE22 FULL DATASET ####
+
+# Pick soft threshold
+powers = c(c(1:10), seq(from = 12, to=20, by=2))
+
+# Call the network topology analysis function, following general recommendations to set network type to "signed hybrid" and using the "bicor" correlation
+#Pro_RE22_dds_rlog_matrix_RE22_sft <- pickSoftThreshold(Pro_RE22_dds_rlog_matrix_RE22, powerVector = powers, verbose = 5, networkType = "signed hybrid", corFnc = "bicor") 
+#save(Pro_RE22_dds_rlog_matrix_RE22_sft, file="/Volumes/My Passport for Mac/Chapter1_Apoptosis_Paper_Saved_DESeq_WGCNA_Data/Pro_RE22_dds_rlog_matrix_RE22_sft")
+#Dermo
+# Scale-free topology fit index as a function of the soft-thresholding power
+plot(Pro_RE22_dds_rlog_matrix_RE22_sft$fitIndices[,1], -sign(Pro_RE22_dds_rlog_matrix_RE22_sft$fitIndices[,3])*Pro_RE22_dds_rlog_matrix_RE22_sft$fitIndices[,2],
+     xlab="Soft Threshold (power)",ylab="Scale Free Topology Model Fit,signed R^2",type="n",
+     main = paste("Scale independence"));
+text(Pro_RE22_dds_rlog_matrix_RE22_sft$fitIndices[,1], -sign(Pro_RE22_dds_rlog_matrix_RE22_sft$fitIndices[,3])*Pro_RE22_dds_rlog_matrix_RE22_sft$fitIndices[,2],
+     labels=powers,cex=cex1,col="red");
+# this line corresponds to using an R^2 cut-off of h
+abline(h=0.90,col="red")
+# Mean connectivity as a function of the soft-thresholding power
+plot(Pro_RE22_dds_rlog_matrix_RE22_sft$fitIndices[,1], Pro_RE22_dds_rlog_matrix_RE22_sft$fitIndices[,5],
+     xlab="Soft Threshold (power)",ylab="Mean Connectivity", type="n",
+     main = paste("Mean connectivity"))
+text(Pro_RE22_dds_rlog_matrix_RE22_sft$fitIndices[,1], Pro_RE22_dds_rlog_matrix_RE22_sft$fitIndices[,5], labels=powers, cex=cex1,col="red")
+# Softthreshold of 9 since low number of samples and doesnt fit scale free topology 
+
+## ONE STEP NETWORK CONSTRUCTION, MODULE DETECTION, MODULE DENDROGRAM INSPECTION ##
+# Pro_RE22_RE22_full_net <- load(file="/Volumes/My Passport for Mac/Chapter1_Apoptosis_Paper_Saved_DESeq_WGCNA_Data/Pro_RE22_RE22_full_net.RData")
+#Pro_RE22_RE22_full_net = blockwiseModules(Pro_RE22_dds_rlog_matrix_RE22, power = 9, # picked suitable power in the code above 
+#                                 TOMType = "signed", # use signed TOM type
+#                                 networkType= "signed hybrid", # use signed hybrid network type
+#                                 corType = "bicor", # use suggested bicor
+#                                 TminModuleSize = 30, # recommended default
+#                                 reassignThreshold = 0, # recommended default
+#                                 mergeCutHeight = 0.25, # recommended default
+#                                 numericLabels = TRUE, # recommended default
+#                                 pamRespectsDendro = FALSE,# recommended default
+#                                 verbose = 3, 
+#                                 maxBlockSize = 20000) # 20,000 should be okay because I have 16GB memory on my computer
+# 
+# How many modules identified
+table(Pro_RE22_RE22_full_net$colors)
+# Plot dendrogram with colors
+# open a graphics window
+sizeGrWindow(12, 9)
+# Convert labels to colors for plotting
+Pro_RE22_RE22_full_net_mergedColors = labels2colors(Pro_RE22_RE22_full_net$colors)
+# Plot the dendrogram and the module colors underneath
+plotDendroAndColors(Pro_RE22_RE22_full_net$dendrograms[[1]], Pro_RE22_RE22_full_net_mergedColors[Pro_RE22_RE22_full_net$blockGenes[[1]]],
+                    "Module colors",
+                    dendroLabels = FALSE, hang = 0.03,
+                    addGuide = TRUE, guideHang = 0.05)
+Pro_RE22_RE22_full_net_moduleLabels = Pro_RE22_RE22_full_net$colors
+Pro_RE22_RE22_full_net_moduleColors = labels2colors(Pro_RE22_RE22_full_net$colors)
+Pro_RE22_RE22_full_net_MEs = Pro_RE22_RE22_full_net$MEs
+Pro_RE22_RE22_full_net_geneTree = Pro_RE22_RE22_full_net$dendrograms[[1]]
+# save network
+#save(Pro_RE22_RE22_full_net, Pro_RE22_RE22_full_net_mergedColors, Pro_RE22_RE22_full_net_moduleLabels, Pro_RE22_RE22_full_net_moduleColors, Pro_RE22_RE22_full_net_MEs, Pro_RE22_RE22_full_net_geneTree, 
+#     file = "/Volumes/My Passport for Mac/Chapter1_Apoptosis_Paper_Saved_DESeq_WGCNA_Data/Pro_RE22_RE22_full_net.RData")
+
+# Quantify module trait associations 
+# Define numbers of genes and samples
+Pro_RE22_RE22_full_nGenes = ncol(Pro_RE22_dds_rlog_matrix_RE22)
+Pro_RE22_RE22_full_nSamples = nrow(Pro_RE22_dds_rlog_matrix_RE22)
+
+# Recalculate MEs with color labels
+Pro_RE22_RE22_full_MEs0 = moduleEigengenes(Pro_RE22_dds_rlog_matrix_RE22, Pro_RE22_RE22_full_net_moduleColors)$eigengenes
+Pro_RE22_RE22_full_MEs = orderMEs(Pro_RE22_RE22_full_MEs0)
+Pro_RE22_RE22_full_moduleTraitCor = cor(Pro_RE22_RE22_full_MEs, Pro_RE22_coldata_RE22_collapsed_binarize, use = "p");
+Pro_RE22_RE22_full_moduleTraitPvalue = corPvalueStudent(Pro_RE22_RE22_full_moduleTraitCor, Pro_RE22_RE22_full_nSamples)
+
+# Graph and color code each the strength of association (correlation) of module eigengenes and trai
+sizeGrWindow(10,6)
+# Will display correlations and their p-values
+Pro_RE22_RE22_full_textMatrix = paste(signif(Pro_RE22_RE22_full_moduleTraitCor, 2), "\n(",
+                                  signif(Pro_RE22_RE22_full_moduleTraitPvalue, 1), ")", sep = "");
+dim(Pro_RE22_RE22_full_textMatrix) = dim(Pro_RE22_RE22_full_moduleTraitCor)
+par(mar = c(6, 8.5, 3, 3))
+# Display the correlation values within a heatmap plot, color coded by correlation value (red means more highly positively correlated,
+# green is more negatively correlated)
+labeledHeatmap(Matrix = Pro_RE22_RE22_full_moduleTraitCor,
+               xLabels = names(Pro_RE22_coldata_RE22_collapsed_binarize),
+               yLabels = names(Pro_RE22_RE22_full_MEs),
+               ySymbols = names(Pro_RE22_RE22_full_MEs),
+               colorLabels = FALSE,
+               colors = greenWhiteRed(50),
+               textMatrix = Pro_RE22_RE22_full_textMatrix,
+               setStdMargins = FALSE,
+               cex.text = 0.45,
+               cex.lab = 0.7,
+               zlim = c(-1,1), 
+               yColorWidth = 0.2, 
+               main = paste("Module-trait relationships"))
+
+# Which modules have the highest associations with disease (high correlation and low P value)?
+Pro_RE22_RE22_full_moduleTraitCor_df <- as.data.frame(Pro_RE22_RE22_full_moduleTraitCor)
+Pro_RE22_RE22_full_moduleTraitCor_df$mod_names <- row.names(Pro_RE22_RE22_full_moduleTraitCor_df)
+Pro_RE22_RE22_full_moduleTraitCor_df <- Pro_RE22_RE22_full_moduleTraitCor_df[,c("mod_names","Condition.Vibrio_coralliilyticus_RE22_exposure_6h.vs.Control_no_treatment")]
+Pro_RE22_RE22_full_moduleTraitPvalue_df <- as.data.frame(Pro_RE22_RE22_full_moduleTraitPvalue)
+Pro_RE22_RE22_full_moduleTraitPvalue_df$mod_names <- row.names(Pro_RE22_RE22_full_moduleTraitPvalue_df)
+Pro_RE22_RE22_full_moduleTraitPvalue_df <- Pro_RE22_RE22_full_moduleTraitPvalue_df[,c("mod_names","Condition.Vibrio_coralliilyticus_RE22_exposure_6h.vs.Control_no_treatment")]
+colnames(Pro_RE22_RE22_full_moduleTraitPvalue_df)[2] <- "pvalue"
+
+Pro_RE22_RE22_full_moduleTraitCor_Pval_df <- join(Pro_RE22_RE22_full_moduleTraitCor_df,Pro_RE22_RE22_full_moduleTraitPvalue_df, by = "mod_names")
+
+# Significantly correlated modules
+Pro_RE22_RE22_full_moduleTraitCor_Pval_df[order(Pro_RE22_RE22_full_moduleTraitCor_Pval_df$pvalue),]
+class(Pro_RE22_RE22_full_moduleTraitCor_Pval_df$pvalue) # numeric
+Pro_RE22_RE22_full_moduleTraitCor_Pval_df_sig <- Pro_RE22_RE22_full_moduleTraitCor_Pval_df %>% filter(pvalue <= 0.05)
+Pro_RE22_RE22_full_moduleTraitCor_Pval_df_sig
+
+### ANNOTATE APOPTOSIS GENES IN SIGNIFICANT MODULES
+Pro_RE22_RE22_full_moduleTraitCor_Pval_df_sig_list <- Pro_RE22_RE22_full_moduleTraitCor_Pval_df_sig$mod_names
+Pro_RE22_RE22_full_moduleTraitCor_Pval_df_sig_list_rm <- str_remove(Pro_RE22_RE22_full_moduleTraitCor_Pval_df_sig_list, "ME")
+
+# Use function to lookup all apop names for each significant module
+matrix_common= Pro_RE22_dds_rlog_matrix_RE22
+moduleColors=Pro_RE22_RE22_full_net_moduleColors
+lookup =   C_vir_rtracklayer_apop_product_final
+
+lookup_mod_apop <- function(list) {
+  list_vec <- colnames(matrix_common)[moduleColors == list]
+  list_apop <- lookup[lookup$ID %in% list_vec,]
+  list_apop_short <- list_apop[,c("product","transcript_id","gene")]
+}
+# specify names for list of lists
+names(Pro_RE22_RE22_full_moduleTraitCor_Pval_df_sig_list_rm) <- c("darkgreen",  "tan" ,       "turquoise",  "darkorange" )
+
+Pro_RE22_RE22_full_module_apop <- lapply(Pro_RE22_RE22_full_moduleTraitCor_Pval_df_sig_list_rm,  lookup_mod_apop)
+Pro_RE22_RE22_full_module_apop_df <- do.call(rbind,Pro_RE22_RE22_full_module_apop)
+Pro_RE22_RE22_full_module_apop_df$mod_names <- gsub("\\..*","",row.names(Pro_RE22_RE22_full_module_apop_df))
+Pro_RE22_RE22_full_module_apop_df$mod_names <- gsub("^","ME",Pro_RE22_RE22_full_module_apop_df$mod_names)
+# add module significance
+Pro_RE22_RE22_full_module_apop_df <- left_join(Pro_RE22_RE22_full_module_apop_df,Pro_RE22_RE22_full_moduleTraitCor_Pval_df_sig)
+Pro_RE22_RE22_full_module_apop_df$exp <- "Pro_RE22_RE22_full"
+
+## Gene relationship to trait and important modules: Gene Significance and Module Membership
+# Define variable injected 
+Pro_RE22_RE22_full_treatment = as.data.frame(Pro_RE22_coldata_RE22_collapsed_binarize$Condition.Vibrio_coralliilyticus_RE22_exposure_6h.vs.Control_no_treatment);
+names(Pro_RE22_RE22_full_treatment) = "RE22"
+# names (colors) of the modules
+Pro_RE22_RE22_full_modNames = substring(names(Pro_RE22_RE22_full_MEs), 3)
+Pro_RE22_RE22_full_geneModuleMembership = as.data.frame(cor(Pro_RE22_dds_rlog_matrix_RE22, Pro_RE22_RE22_full_MEs, use = "p"))
+Pro_RE22_RE22_full_MMPvalue = as.data.frame(corPvalueStudent(as.matrix(Pro_RE22_RE22_full_geneModuleMembership),Pro_RE22_RE22_full_nSamples))
+
+names(Pro_RE22_RE22_full_geneModuleMembership) = paste("MM", Pro_RE22_RE22_full_modNames, sep="")
+names(Pro_RE22_RE22_full_MMPvalue) = paste("p.MM", Pro_RE22_RE22_full_modNames, sep="")
+
+Pro_RE22_RE22_full_geneTraitSignificance = as.data.frame(cor(Pro_RE22_dds_rlog_matrix_RE22,Pro_RE22_RE22_full_treatment, use = "p"))
+Pro_RE22_RE22_full_GSPvalue = as.data.frame(corPvalueStudent(as.matrix(Pro_RE22_RE22_full_geneTraitSignificance), Pro_RE22_RE22_full_nSamples))
+
+names(Pro_RE22_RE22_full_geneTraitSignificance) = paste("GS.", names(Pro_RE22_RE22_full_treatment), sep="")
+names(Pro_RE22_RE22_full_GSPvalue) = paste("p.GS.", names(Pro_RE22_RE22_full_treatment), sep="")
+
+## Intramodular analysis: identifying genes with high GS and MM
+# Using the GS and MM measures, we can identify genes that have a high significance for disease challenge
+# as well as high module membership in interesting modules. As an example, we look at the brown module 
+# that has the highest association with weight. We plot a scatterplot of Gene Significance vs. Module Membership in the brown module:
+Pro_RE22_RE22_full_module = "turquoise" #  0.88 very high correlation!
+Pro_RE22_RE22_full_column = match(Pro_RE22_RE22_full_module, Pro_RE22_RE22_full_modNames)
+Pro_RE22_RE22_full_moduleGenes = Pro_RE22_RE22_full_net_moduleColors==Pro_RE22_RE22_full_module
+sizeGrWindow(7, 7);
+par(mfrow = c(1,1));
+verboseScatterplot(abs(Pro_RE22_RE22_full_geneModuleMembership[Pro_RE22_RE22_full_moduleGenes, Pro_RE22_RE22_full_column]),
+                   abs(Pro_RE22_RE22_full_geneTraitSignificance[Pro_RE22_RE22_full_moduleGenes, 1]),
+                   xlab = paste("Module Membership in", Pro_RE22_RE22_full_module, "module"),
+                   ylab = "Gene significance for challenge",
+                   main = paste("Module membership vs. gene significance\n"),
+                   cex.main = 1.2, cex.lab = 1.2, cex.axis = 1.2, col = Dermo_Tol_full_module)
+
+## IDENTIFY HUB GENES IN EACH SIG MODULE ##
+Pro_RE22_RE22_full_colorh = c("darkgreen",  "tan" ,       "turquoise",  "darkorange")
+
+Pro_RE22_RE22_full_Module_hub_genes <- chooseTopHubInEachModule(
+  Pro_RE22_dds_rlog_matrix_RE22, 
+  Pro_RE22_RE22_full_colorh, 
+  power = 9,  # power used for the adjacency network
+  type = "signed hybrid", 
+  corFnc = "bicor"
+)
+class(Pro_RE22_RE22_full_Module_hub_genes)
+Pro_RE22_RE22_full_Module_hub_genes_df <- as.data.frame(Pro_RE22_RE22_full_Module_hub_genes)
+colnames(Pro_RE22_RE22_full_Module_hub_genes_df)[1] <- "ID"
+Pro_RE22_RE22_full_Module_hub_genes_apop <- merge(Pro_RE22_RE22_full_Module_hub_genes_df, C_vir_rtracklayer, by = "ID")
+nrow(Pro_RE22_RE22_full_Module_hub_genes_apop) # 4, none involed in apoptosis
+
+## Export modules to cytoscape for visualization ###
+# Recalculate topological overlap if needed
+Pro_RE22_RE22_full_TOM = TOMsimilarityFromExpr(Pro_RE22_dds_rlog_matrix_RE22,
+                                           power = 9, # picked suitable power in the code above 
+                                           TOMType = "signed", # use signed TOM type
+                                           networkType= "signed hybrid", # use signed hybrid network type
+                                           corType = "bicor") # use suggested bicor
+
+save(Pro_RE22_RE22_full_TOM, file="/Volumes/My Passport for Mac/Chapter1_Apoptosis_Paper_Saved_DESeq_WGCNA_Data/Pro_RE22_RE22_full_TOM.RData" )
+
+# Select modules
+Dermo_Tol_full_modules = c("darkgreen",  "tan" ,       "turquoise",  "darkorange" )
+# Select module probes
+Dermo_Tol_full_probes = names(Dermo_Tolerant_dds_vst_matrix)
+Dermo_Tol_full_inModule = is.finite(match(Dermo_Tol_full_moduleColors, Dermo_Tol_full_modules))
+Dermo_Tol_full_modProbes = Dermo_Tol_full_probes[Dermo_Tol_full_inModule]
+Dermo_Tol_full_modGenes = C_vir_rtracklayer$product[match(Dermo_Tol_full_modProbes, C_vir_rtracklayer$transcript_id)]
+# Select the corresponding Topological Overlap
+Dermo_Tol_full_modTOM = Dermo_Tol_full_net[Dermo_Tol_full_inModule, Dermo_Tol_full_inModule]
+
+dimnames(Dermo_Tol_full_modTOM) = list(Dermo_Tol_full_modProbes, Dermo_Tol_full_modProbes)
+# Export the network into edge and node list files Cytoscape can read
+Dermo_Tol_full_cyt = exportNetworkToCytoscape(Dermo_Tol_fullmod_TOM,
+                                              edgeFile = paste("CytoscapeInput-edges-", paste(Dermo_Tol_full_modules, collapse="-"), ".txt", sep=""),
+                                              nodeFile = paste("CytoscapeInput-nodes-", paste(Dermo_Tol_full_modules, collapse="-"), ".txt", sep=""),
+                                              weighted = TRUE,
+                                              threshold = 0.02,
+                                              nodeNames = Dermo_Tol_full_modProbes,
+                                              altNodeNames = Dermo_Tol_full_modGenes,
+                                              nodeAttr = Dermo_Tol_full_moduleColors[Dermo_Tol_full_inModule])
+
+
 #### COMPARE CONSENSUS AND FULL IAP AND GIMAP ####
 
 # Number of GIMAPs and IAPs in consensus set 
@@ -5595,3 +5819,36 @@ C_vir_all_exp_mod_sig_apop_IMAP_upset_wide_GROUP <- upset(C_vir_all_exp_mod_sig_
 
 #### SESSION INFO ####
 sessionInfo()
+#R version 3.6.1 (2019-07-05)
+#Platform: x86_64-apple-darwin15.6.0 (64-bit)
+#Running under: macOS Mojave 10.14
+#
+#Matrix products: default
+#BLAS:   /System/Library/Frameworks/Accelerate.framework/Versions/A/Frameworks/vecLib.framework/Versions/A/libBLAS.dylib
+#LAPACK: /Library/Frameworks/R.framework/Versions/3.6/Resources/lib/libRlapack.dylib
+#
+#locale:
+#  [1] en_US.UTF-8/en_US.UTF-8/en_US.UTF-8/C/en_US.UTF-8/en_US.UTF-8
+#
+#attached base packages:
+#  [1] parallel  stats4    stats     graphics  grDevices utils     datasets  methods   base     
+#
+#other attached packages:
+#  [1] DESeq2_1.24.0               SummarizedExperiment_1.14.1 DelayedArray_0.10.0         BiocParallel_1.18.1         matrixStats_0.54.0         
+#[6] Biobase_2.44.0              GenomicRanges_1.36.0        GenomeInfoDb_1.20.0         IRanges_2.18.2              S4Vectors_0.22.0           
+#[11] BiocGenerics_0.30.0        
+#
+#loaded via a namespace (and not attached):
+#  [1] bitops_1.0-6           robust_0.4-18.1        fit.models_0.5-14      bit64_0.9-7            doParallel_1.0.15      RColorBrewer_1.1-2     dynamicTreeCut_1.63-1 
+#[8] tools_3.6.1            backports_1.1.5        R6_2.4.1               rpart_4.1-15           Hmisc_4.2-0            DBI_1.0.0              colorspace_1.4-1      
+#[15] nnet_7.3-12            tidyselect_0.2.5       gridExtra_2.3          bit_1.1-14             compiler_3.6.1         preprocessCore_1.46.0  WGCNA_1.68            
+#[22] htmlTable_1.13.1       scales_1.1.0           checkmate_1.9.4        DEoptimR_1.0-8         mvtnorm_1.0-11         robustbase_0.93-5      genefilter_1.66.0     
+#[29] stringr_1.4.0          digest_0.6.23          foreign_0.8-72         XVector_0.24.0         rrcov_1.4-7            base64enc_0.1-3        pkgconfig_2.0.3       
+#[36] htmltools_0.3.6        htmlwidgets_1.3        rlang_0.4.2            rstudioapi_0.10        RSQLite_2.1.2          impute_1.58.0          acepack_1.4.1         
+#[43] dplyr_0.8.3            RCurl_1.95-4.12        magrittr_1.5           GO.db_3.8.2            GenomeInfoDbData_1.2.1 Formula_1.2-3          Matrix_1.2-17         
+#[50] Rcpp_1.0.3             munsell_0.5.0          lifecycle_0.1.0        yaml_2.2.0             stringi_1.4.6          MASS_7.3-51.4          zlibbioc_1.30.0       
+#[57] grid_3.6.1             blob_1.2.0             crayon_1.3.4           lattice_0.20-38        splines_3.6.1          annotate_1.62.0        locfit_1.5-9.1        
+#[64] zeallot_0.1.0          knitr_1.24             pillar_1.4.3           fastcluster_1.1.25     geneplotter_1.62.0     codetools_0.2-16       XML_3.99-0.3          
+#[71] glue_1.3.1             latticeExtra_0.6-28    data.table_1.12.8      vctrs_0.2.1            foreach_1.4.7          gtable_0.3.0           purrr_0.3.3           
+#[78] assertthat_0.2.1       ggplot2_3.3.0          xfun_0.9               xtable_1.8-4           survival_2.44-1.1      pcaPP_1.9-73           tibble_2.1.3          
+#[85] iterators_1.0.12       AnnotationDbi_1.46.1   memoise_1.1.0          cluster_2.1.0        
