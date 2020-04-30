@@ -189,8 +189,8 @@ Pro_RE22_dds_rlog_matrix_Pro <- Pro_RE22_dds_rlog_matrix[Pro_RE22_coldata_Pro$sa
 Pro_RE22_dds_rlog_matrix_RE22 <- Pro_RE22_dds_rlog_matrix[Pro_RE22_coldata_RE22$sample,]
 
 # Save these
-save(Pro_RE22_dds_rlog_matrix_Pro , file="/Volumes/My Passport for Mac/Chapter1_Apoptosis_Paper_Saved_DESeq_WGCNA_Data/Pro_RE22_dds_rlog_matrix_Pro.RData")
-save(Pro_RE22_dds_rlog_matrix_RE22, file="/Volumes/My Passport for Mac/Chapter1_Apoptosis_Paper_Saved_DESeq_WGCNA_Data/Pro_RE22_dds_rlog_matrix_RE22.RData")
+write.table(Pro_RE22_dds_rlog_matrix_Pro , file="/Volumes/My Passport for Mac/Chapter1_Apoptosis_Paper_Saved_DESeq_WGCNA_Data/Pro_RE22_dds_rlog_matrix_Pro.table")
+write.table(Pro_RE22_dds_rlog_matrix_RE22, file="/Volumes/My Passport for Mac/Chapter1_Apoptosis_Paper_Saved_DESeq_WGCNA_Data/Pro_RE22_dds_rlog_matrix_RE22.table")
 
 # Do column names agree between all?
 all(colnames(Dermo_Tolerant_dds_vst_matrix_common ) %in% colnames(Probiotic_dds_rlog_matrix_common)) # TRUE
@@ -3262,6 +3262,9 @@ labeledHeatmap(Matrix = C_vir_Bac_consensusCor,
 # Pick soft threshold
 powers = c(c(1:10), seq(from = 12, to=20, by=2))
 
+# save for running TOM from cluster
+write.table(Dermo_Tolerant_dds_vst_matrix, file="/Volumes/My Passport for Mac/Chapter1_Apoptosis_Paper_Saved_DESeq_WGCNA_Data/Dermo_Tolerant_dds_vst_matrix.table")
+
 # Call the network topology analysis function, following general recommendations to set network type to "signed hybrid" and using the "bicor" correlation
 Dermo_Tolerant_dds_vst_matrix_sft <- pickSoftThreshold(Dermo_Tolerant_dds_vst_matrix, powerVector = powers, verbose = 5, networkType = "signed hybrid", corFnc = "bicor") 
 save(Dermo_Tolerant_dds_vst_matrix_sft, file="/Volumes/My Passport for Mac/Chapter1_Apoptosis_Paper_Saved_DESeq_WGCNA_Data/Dermo_Tolerant_dds_vst_matrix_sft")
@@ -3461,21 +3464,24 @@ Dermo_Tol_turq_comparison <- full_join(Dermo_Tol_full_module_apop_df_turq[,c("pr
 #                                           networkType= "signed hybrid", # use signed hybrid network type
 #                                           corType = "bicor") # use suggested bicor
 #
-save(Dermo_Tol_full_TOM, file="/Volumes/My Passport for Mac/Chapter1_Apoptosis_Paper_Saved_DESeq_WGCNA_Data/Dermo_Tol_full_TOM.RData" )
+#save(Dermo_Tol_full_TOM, file="/Volumes/My Passport for Mac/Chapter1_Apoptosis_Paper_Saved_DESeq_WGCNA_Data/Dermo_Tol_full_TOM.RData" )
 
 # Select modules
 Dermo_Tol_full_modules = c("darkslateblue", "turquoise", "greenyellow",   "skyblue3" , "cyan"  ,"red"  , "tan" )
 # Select module probes
-Dermo_Tol_full_probes = names(Dermo_Tolerant_dds_vst_matrix)
+Dermo_Tol_full_probes = colnames(Dermo_Tolerant_dds_vst_matrix)
+# export moduleColors file for use in cluster
+write.table(Dermo_Tol_full_moduleColors, file="/Volumes/My Passport for Mac/Chapter1_Apoptosis_Paper_Saved_DESeq_WGCNA_Data/Dermo_Tol_full_moduleColors.table")
+
 Dermo_Tol_full_inModule = is.finite(match(Dermo_Tol_full_moduleColors, Dermo_Tol_full_modules))
 Dermo_Tol_full_modProbes = Dermo_Tol_full_probes[Dermo_Tol_full_inModule]
-Dermo_Tol_full_modGenes = C_vir_rtracklayer$product[match(Dermo_Tol_full_modProbes, C_vir_rtracklayer$transcript_id)]
+Dermo_Tol_full_modGenes = C_vir_rtracklayer$ID[match(Dermo_Tol_full_modProbes, C_vir_rtracklayer$ID)]
 # Select the corresponding Topological Overlap
-Dermo_Tol_full_modTOM = Dermo_Tol_full_net[Dermo_Tol_full_inModule, Dermo_Tol_full_inModule]
+Dermo_Tol_full_modTOM = Dermo_Tol_full_TOM[Dermo_Tol_full_inModule, Dermo_Tol_full_inModule]
 
 dimnames(Dermo_Tol_full_modTOM) = list(Dermo_Tol_full_modProbes, Dermo_Tol_full_modProbes)
 # Export the network into edge and node list files Cytoscape can read
-Dermo_Tol_full_cyt = exportNetworkToCytoscape(Dermo_Tol_fullmod_TOM,
+Dermo_Tol_full_cyt = exportNetworkToCytoscape(Dermo_Tol_full_modTOM,
                                edgeFile = paste("CytoscapeInput-edges-", paste(Dermo_Tol_full_modules, collapse="-"), ".txt", sep=""),
                                nodeFile = paste("CytoscapeInput-nodes-", paste(Dermo_Tol_full_modules, collapse="-"), ".txt", sep=""),
                                weighted = TRUE,
@@ -3483,6 +3489,25 @@ Dermo_Tol_full_cyt = exportNetworkToCytoscape(Dermo_Tol_fullmod_TOM,
                                nodeNames = Dermo_Tol_full_modProbes,
                                altNodeNames = Dermo_Tol_full_modGenes,
                                nodeAttr = Dermo_Tol_full_moduleColors[Dermo_Tol_full_inModule])
+
+
+## Compare IAPs and GIMAPs between Consensus set and Full set
+
+# Consensus set in significant modules
+Dermo_Tol_module_apop_df_IAP <- Dermo_Tol_module_apop_df[grepl("IAP", Dermo_Tol_module_apop_df$product, ignore.case = TRUE),]
+Dermo_Tol_module_apop_df_IAP <- Dermo_Tol_module_apop_df_IAP[order(Dermo_Tol_module_apop_df_IAP$product),]
+Dermo_Tol_module_apop_df_GIMAP <- Dermo_Tol_module_apop_df[grepl("IMAP", Dermo_Tol_module_apop_df$product, ignore.case = TRUE),]
+Dermo_Tol_module_apop_df_GIMAP <- Dermo_Tol_module_apop_df_GIMAP[order(Dermo_Tol_module_apop_df_GIMAP$product),]
+
+# full set in significant modules
+Dermo_Tol_full_module_apop_df_IAP <-   Dermo_Tol_full_module_apop_df[grepl("IAP", Dermo_Tol_full_module_apop_df$product, ignore.case = TRUE),]
+Dermo_Tol_full_module_apop_df_IAP <-   Dermo_Tol_full_module_apop_df_IAP[order(Dermo_Tol_full_module_apop_df_IAP$product),]
+Dermo_Tol_full_module_apop_df_GIMAP <- Dermo_Tol_full_module_apop_df[grepl("IMAP", Dermo_Tol_full_module_apop_df$product, ignore.case = TRUE),]
+Dermo_Tol_full_module_apop_df_GIMAP <- Dermo_Tol_full_module_apop_df_GIMAP[order(Dermo_Tol_full_module_apop_df_GIMAP$product),]
+
+setdiff(Dermo_Tol_module_apop_df_IAP$transcript_id,Dermo_Tol_full_module_apop_df_IAP$transcript_id)
+setdiff(Dermo_Tol_full_module_apop_df_IAP$transcript_id,Dermo_Tol_module_apop_df_IAP$transcript_id)
+
 
 #### RUNNING PRO_RE22 FULL DATASET ####
 
@@ -3670,37 +3695,55 @@ nrow(Pro_RE22_RE22_full_Module_hub_genes_apop) # 4, none involed in apoptosis
 
 ## Export modules to cytoscape for visualization ###
 # Recalculate topological overlap if needed
-Pro_RE22_RE22_full_TOM = TOMsimilarityFromExpr(Pro_RE22_dds_rlog_matrix_RE22,
-                                           power = 9, # picked suitable power in the code above 
-                                           TOMType = "signed", # use signed TOM type
-                                           networkType= "signed hybrid", # use signed hybrid network type
-                                           corType = "bicor") # use suggested bicor
-
-save(Pro_RE22_RE22_full_TOM, file="/Volumes/My Passport for Mac/Chapter1_Apoptosis_Paper_Saved_DESeq_WGCNA_Data/Pro_RE22_RE22_full_TOM.RData" )
+#Pro_RE22_RE22_full_TOM = TOMsimilarityFromExpr(Pro_RE22_dds_rlog_matrix_RE22,
+#                                           power = 9, # picked suitable power in the code above 
+#                                           TOMType = "signed", # use signed TOM type
+#                                           networkType= "signed hybrid", # use signed hybrid network type
+#                                           corType = "bicor") # use suggested bicor
+#
+#save(Pro_RE22_RE22_full_TOM, file="/Volumes/My Passport for Mac/Chapter1_Apoptosis_Paper_Saved_DESeq_WGCNA_Data/Pro_RE22_RE22_full_TOM.RData" )
 
 # Select modules
-Dermo_Tol_full_modules = c("darkgreen",  "tan" ,       "turquoise",  "darkorange" )
+Pro_RE22_RE22_full_modules = c("darkgreen",  "tan" ,       "turquoise",  "darkorange" )
 # Select module probes
-Dermo_Tol_full_probes = names(Dermo_Tolerant_dds_vst_matrix)
-Dermo_Tol_full_inModule = is.finite(match(Dermo_Tol_full_moduleColors, Dermo_Tol_full_modules))
-Dermo_Tol_full_modProbes = Dermo_Tol_full_probes[Dermo_Tol_full_inModule]
-Dermo_Tol_full_modGenes = C_vir_rtracklayer$product[match(Dermo_Tol_full_modProbes, C_vir_rtracklayer$transcript_id)]
-# Select the corresponding Topological Overlap
-Dermo_Tol_full_modTOM = Dermo_Tol_full_net[Dermo_Tol_full_inModule, Dermo_Tol_full_inModule]
+Pro_RE22_RE22_full_probes = colnames(Pro_RE22_dds_rlog_matrix_RE22)
+# export moduleColors file for use in cluster
+write.table(Pro_RE22_RE22_full_net_moduleColors, file="/Volumes/My Passport for Mac/Chapter1_Apoptosis_Paper_Saved_DESeq_WGCNA_Data/Pro_RE22_RE22_full_net_moduleColors.table")
 
-dimnames(Dermo_Tol_full_modTOM) = list(Dermo_Tol_full_modProbes, Dermo_Tol_full_modProbes)
+Pro_RE22_RE22_full_inModule = is.finite(match(Pro_RE22_RE22_full_net_moduleColors, Pro_RE22_RE22_full_modules))
+Pro_RE22_RE22_full_modProbes = Pro_RE22_RE22_full_probes[Pro_RE22_RE22_full_inModule]
+Pro_RE22_RE22_full_modGenes = C_vir_rtracklayer$ID[match(Pro_RE22_RE22_full_modProbes, C_vir_rtracklayer$ID)]
+# Select the corresponding Topological Overlap
+Pro_RE22_RE22_full_modTOM = Pro_RE22_RE22_full_TOM[Pro_RE22_RE22_full_inModule, Pro_RE22_RE22_full_inModule]
+
+dimnames(Pro_RE22_RE22_full_modTOM ) = list(Pro_RE22_RE22_full_modProbes, Pro_RE22_RE22_full_modProbes)
 # Export the network into edge and node list files Cytoscape can read
-Dermo_Tol_full_cyt = exportNetworkToCytoscape(Dermo_Tol_fullmod_TOM,
-                                              edgeFile = paste("CytoscapeInput-edges-", paste(Dermo_Tol_full_modules, collapse="-"), ".txt", sep=""),
-                                              nodeFile = paste("CytoscapeInput-nodes-", paste(Dermo_Tol_full_modules, collapse="-"), ".txt", sep=""),
+Pro_RE22_RE22_full_cyt = exportNetworkToCytoscape(Pro_RE22_RE22_full_modTOM,
+                                              edgeFile = paste("CytoscapeInput-edges-", paste(Pro_RE22_RE22_full_modules, collapse="-"), ".txt", sep=""),
+                                              nodeFile = paste("CytoscapeInput-nodes-", paste(Pro_RE22_RE22_full_modules, collapse="-"), ".txt", sep=""),
                                               weighted = TRUE,
                                               threshold = 0.02,
-                                              nodeNames = Dermo_Tol_full_modProbes,
-                                              altNodeNames = Dermo_Tol_full_modGenes,
-                                              nodeAttr = Dermo_Tol_full_moduleColors[Dermo_Tol_full_inModule])
+                                              nodeNames = Pro_RE22_RE22_full_modProbes,
+                                              altNodeNames = Pro_RE22_RE22_full_modGenes,
+                                              nodeAttr = Pro_RE22_RE22_full_net_moduleColors[Pro_RE22_RE22_full_inModule])
+
+## Compare IAPs and GIMAPs between Consensus set and Full set
+
+# consensus set 
+Pro_RE22_RE22_module_apop_df_IAP <-  Pro_RE22_RE22_module_apop_df[grepl("IAP", Pro_RE22_RE22_module_apop_df$product, ignore.case = TRUE),]
+Pro_RE22_RE22_module_apop_df_IAP <-  Pro_RE22_RE22_module_apop_df_IAP[order(Pro_RE22_RE22_module_apop_df_IAP$product),]
+Pro_RE22_RE22_module_apop_df_GIMAP <-Pro_RE22_RE22_module_apop_df[grepl("IMAP", Pro_RE22_RE22_module_apop_df$product, ignore.case = TRUE),]
+Pro_RE22_RE22_module_apop_df_GIMAP <-Pro_RE22_RE22_module_apop_df_GIMAP[order(Pro_RE22_RE22_module_apop_df_GIMAP$product),]
+
+# full set 
+Pro_RE22_RE22_full_module_apop_df_IAP <-  Pro_RE22_RE22_full_module_apop_df[grepl("IAP", Pro_RE22_RE22_full_module_apop_df$product, ignore.case = TRUE),]
+Pro_RE22_RE22_full_module_apop_df_IAP <-  Pro_RE22_RE22_full_module_apop_df_IAP[order(Pro_RE22_RE22_full_module_apop_df_IAP$product),]
+Pro_RE22_RE22_full_module_apop_df_GIMAP <-Pro_RE22_RE22_full_module_apop_df[grepl("IMAP", Pro_RE22_RE22_full_module_apop_df$product, ignore.case = TRUE),]
+Pro_RE22_RE22_full_module_apop_df_GIMAP <-Pro_RE22_RE22_full_module_apop_df_GIMAP[order(Pro_RE22_RE22_full_module_apop_df_GIMAP$product),]
 
 
-#### COMPARE CONSENSUS AND FULL IAP AND GIMAP ####
+
+#### COMPARE ALL CONSENSUS AND FULL IAP AND GIMAP ACROSS ALL DATASETS, NOT JUST THOSE IN SIGNIFICANT MODULES ####
 
 # Number of GIMAPs and IAPs in consensus set 
 C_vir_common_vst_transcripts_df <- as.data.frame(C_vir_common_vst_transcripts)
@@ -3736,6 +3779,8 @@ Probiotic_dds_rlog_matrix_IAP <- C_vir_rtracklayer_apop_product_final[C_vir_rtra
 ROD_Susceptible_dds_rlog_matrix_IAP <- C_vir_rtracklayer_apop_product_final[C_vir_rtracklayer_apop_product_final$ID %in% ROD_Susceptible_dds_rlog_matrix_IAP,]
 ROD_Resistant_dds_rlog_matrix_IAP <- C_vir_rtracklayer_apop_product_final[C_vir_rtracklayer_apop_product_final$ID %in% ROD_Resistant_dds_rlog_matrix_IAP,]
 Pro_RE22_dds_rlog_matrix_IAP <- C_vir_rtracklayer_apop_product_final[C_vir_rtracklayer_apop_product_final$ID %in% Pro_RE22_dds_rlog_matrix_IAP,]
+nrow(Pro_RE22_dds_rlog_matrix_IAP) # 76 
+nrow(Dermo_Tolerant_dds_vst_matrix_IAP) # 77
 
 Dermo_Tolerant_dds_vst_matrix_IAP$exp <- "Dermo_Tolerant"
 Dermo_Susceptible_dds_vst_matrix_IAP$exp <- "Dermo_Susceptible"
@@ -3774,6 +3819,9 @@ Probiotic_dds_rlog_matrix_IMAP <- C_vir_rtracklayer_apop_product_final[C_vir_rtr
 ROD_Susceptible_dds_rlog_matrix_IMAP <- C_vir_rtracklayer_apop_product_final[C_vir_rtracklayer_apop_product_final$ID %in% ROD_Susceptible_dds_rlog_matrix_IMAP,]
 ROD_Resistant_dds_rlog_matrix_IMAP <- C_vir_rtracklayer_apop_product_final[C_vir_rtracklayer_apop_product_final$ID %in% ROD_Resistant_dds_rlog_matrix_IMAP,]
 Pro_RE22_dds_rlog_matrix_IMAP <- C_vir_rtracklayer_apop_product_final[C_vir_rtracklayer_apop_product_final$ID %in% Pro_RE22_dds_rlog_matrix_IMAP,]
+nrow(Pro_RE22_dds_rlog_matrix_IMAP) # 39
+nrow(Dermo_Tolerant_dds_vst_matrix_IMAP ) # 48
+
 
 Dermo_Tolerant_dds_vst_matrix_IMAP$exp <- "Dermo_Tolerant"
 Dermo_Susceptible_dds_vst_matrix_IMAP$exp <- "Dermo_Susceptible"
