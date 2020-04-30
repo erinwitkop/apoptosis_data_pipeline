@@ -3481,16 +3481,25 @@ Dermo_Tol_full_modTOM = Dermo_Tol_full_TOM[Dermo_Tol_full_inModule, Dermo_Tol_fu
 
 dimnames(Dermo_Tol_full_modTOM) = list(Dermo_Tol_full_modProbes, Dermo_Tol_full_modProbes)
 # Export the network into edge and node list files Cytoscape can read
-Dermo_Tol_full_cyt = exportNetworkToCytoscape(Dermo_Tol_full_modTOM,
-                               edgeFile = paste("CytoscapeInput-edges-", paste(Dermo_Tol_full_modules, collapse="-"), ".txt", sep=""),
-                               nodeFile = paste("CytoscapeInput-nodes-", paste(Dermo_Tol_full_modules, collapse="-"), ".txt", sep=""),
-                               weighted = TRUE,
-                               threshold = 0.02,
-                               nodeNames = Dermo_Tol_full_modProbes,
-                               altNodeNames = Dermo_Tol_full_modGenes,
-                               nodeAttr = Dermo_Tol_full_moduleColors[Dermo_Tol_full_inModule])
+#Dermo_Tol_full_cyt = exportNetworkToCytoscape(Dermo_Tol_full_modTOM,
+#                               edgeFile = paste("CytoscapeInput-edges-", paste(Dermo_Tol_full_modules, collapse="-"), ".txt", sep=""),
+#                               nodeFile = paste("CytoscapeInput-nodes-", paste(Dermo_Tol_full_modules, collapse="-"), ".txt", sep=""),
+#                               weighted = TRUE,
+#                               threshold = 0.02,
+#                               nodeNames = Dermo_Tol_full_modProbes,
+#                               altNodeNames = Dermo_Tol_full_modGenes,
+#                               nodeAttr = Dermo_Tol_full_moduleColors[Dermo_Tol_full_inModule])
+#
 
+## Upload finished cytoscape network node file so that annotation information can be added
+Dermo_Tol_full_cyt_node <- read.table(file="/Volumes/My Passport for Mac/Chapter1_Apoptosis_Paper_Saved_DESeq_WGCNA_Data/CytoscapeInput-nodes-Dermo_Tull_fulldarkslateblue-turquoise-greenyellow-skyblue3-cyan-red-tan.txt",
+                                      sep="\t", skip=1) # skip the first line because it has the original column names
+# original col names were : nodeName  altName nodeAttr[nodesPresent, ]
 
+colnames(Dermo_Tol_full_cyt_node)[c(1:3)] <- c("ID","altName","nodesPresent")
+Dermo_Tol_full_cyt_node <- left_join(Dermo_Tol_full_cyt_node, C_vir_rtracklayer_apop_product_final[,c("product","gene","ID","transcript_id")], by ="ID")
+
+write.table(Dermo_Tol_full_cyt_node, sep = " ", quote= FALSE, row.names=FALSE, file="/Volumes/My Passport for Mac/Chapter1_Apoptosis_Paper_Saved_DESeq_WGCNA_Data/CytoscapeInput-nodes-Dermo_Tull_fulldarkslateblue-turquoise-greenyellow-skyblue3-cyan-red-tan_ANNOT.txt")
 ## Compare IAPs and GIMAPs between Consensus set and Full set
 
 # Consensus set in significant modules
@@ -3719,8 +3728,8 @@ Pro_RE22_RE22_full_modTOM = Pro_RE22_RE22_full_TOM[Pro_RE22_RE22_full_inModule, 
 dimnames(Pro_RE22_RE22_full_modTOM ) = list(Pro_RE22_RE22_full_modProbes, Pro_RE22_RE22_full_modProbes)
 # Export the network into edge and node list files Cytoscape can read
 Pro_RE22_RE22_full_cyt = exportNetworkToCytoscape(Pro_RE22_RE22_full_modTOM,
-                                              edgeFile = paste("CytoscapeInput-edges-", paste(Pro_RE22_RE22_full_modules, collapse="-"), ".txt", sep=""),
-                                              nodeFile = paste("CytoscapeInput-nodes-", paste(Pro_RE22_RE22_full_modules, collapse="-"), ".txt", sep=""),
+                                              edgeFile = paste("CytoscapeInput-edges-Pro_RE22_RE22_full", paste(Pro_RE22_RE22_full_modules, collapse="-"), ".txt", sep=""),
+                                              nodeFile = paste("CytoscapeInput-nodes-Pro_RE22_RE22_full", paste(Pro_RE22_RE22_full_modules, collapse="-"), ".txt", sep=""),
                                               weighted = TRUE,
                                               threshold = 0.02,
                                               nodeNames = Pro_RE22_RE22_full_modProbes,
@@ -3740,6 +3749,26 @@ Pro_RE22_RE22_full_module_apop_df_IAP <-  Pro_RE22_RE22_full_module_apop_df[grep
 Pro_RE22_RE22_full_module_apop_df_IAP <-  Pro_RE22_RE22_full_module_apop_df_IAP[order(Pro_RE22_RE22_full_module_apop_df_IAP$product),]
 Pro_RE22_RE22_full_module_apop_df_GIMAP <-Pro_RE22_RE22_full_module_apop_df[grepl("IMAP", Pro_RE22_RE22_full_module_apop_df$product, ignore.case = TRUE),]
 Pro_RE22_RE22_full_module_apop_df_GIMAP <-Pro_RE22_RE22_full_module_apop_df_GIMAP[order(Pro_RE22_RE22_full_module_apop_df_GIMAP$product),]
+
+## Compare FULL IAPs and GIMAPS from sig modules with the DEGs 
+# Merge tables
+Pro_RE22_RE22_full_module_apop_df_IAP 
+C_vir_apop_LFC_Pro_RE22_RE22 <- C_vir_apop_LFC %>% filter(experiment == "Pro_RE22" & group_by_sim == "RE22")
+C_vir_apop_LFC_Pro_RE22_RE22_IAP <- C_vir_apop_LFC_Pro_RE22_RE22 [grepl("IAP", C_vir_apop_LFC_Pro_RE22_RE22 $product),]
+setdiff(Pro_RE22_RE22_full_module_apop_df_IAP$gene , C_vir_apop_LFC_Pro_RE22_RE22_IAP$gene)
+
+Pro_RE22_RE22_full_DEG_IAP_join <- full_join(Pro_RE22_RE22_full_module_apop_df_IAP, C_vir_apop_LFC_Pro_RE22_RE22_IAP)
+  # some shared genes though
+View(full_join(Pro_RE22_RE22_full_module_apop_df_IAP, C_vir_apop_LFC_Pro_RE22_RE22_IAP, by = "gene"))
+  # LOC111103392, LOC111099688
+
+Pro_RE22_RE22_full_module_apop_df_GIMAP
+C_vir_apop_LFC_Pro_RE22_RE22_GIMAP <- C_vir_apop_LFC_Pro_RE22_RE22 [grepl("IMAP", C_vir_apop_LFC_Pro_RE22_RE22$product),]
+Pro_RE22_RE22_full_DEG_GIMAP_join <- full_join(Pro_RE22_RE22_full_module_apop_df_GIMAP, C_vir_apop_LFC_Pro_RE22_RE22_GIMAP)
+  # the one DEG is shared in the modules 
+
+
+#### COMPARE DERMO_TOL_FULL AND PRO_RE22_RE22_FULL IAPS AND GIMAPS
 
 
 

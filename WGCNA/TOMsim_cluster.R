@@ -69,10 +69,10 @@ Dermo_Tol_full_modTOM = Dermo_Tol_full_TOM[Dermo_Tol_full_inModule, Dermo_Tol_fu
 dimnames(Dermo_Tol_full_modTOM) = list(Dermo_Tol_full_modProbes, Dermo_Tol_full_modProbes)
 # Export the network into edge and node list files Cytoscape can read
 Dermo_Tol_full_cyt = exportNetworkToCytoscape(Dermo_Tol_full_modTOM,
- # make more informative names next time   edgeFile = paste("CytoscapeInput-edges-", paste(Dermo_Tol_full_modules, collapse="-"), ".txt", sep=""),
-                                              nodeFile = paste("CytoscapeInput-nodes-", paste(Dermo_Tol_full_modules, collapse="-"), ".txt", sep=""),
+  edgeFile = paste("CytoscapeInput-edges-Dermo_Tol_full", paste(Dermo_Tol_full_modules, collapse="-"), ".txt", sep=""),
+                                              nodeFile = paste("CytoscapeInput-nodes-Dermo_Tol_full", paste(Dermo_Tol_full_modules, collapse="-"), ".txt", sep=""),
                                               weighted = TRUE,
-                                              threshold = 0.02,
+                                              threshold = 0.00, # using 0 threshold so no genes are subset out 
                                               nodeNames = Dermo_Tol_full_modProbes,
                                               altNodeNames = Dermo_Tol_full_modGenes,
                                               nodeAttr = Dermo_Tol_full_moduleColors[Dermo_Tol_full_inModule])
@@ -106,10 +106,10 @@ Pro_RE22_RE22_full_modTOM = Pro_RE22_RE22_full_TOM[Pro_RE22_RE22_full_inModule, 
 dimnames(Pro_RE22_RE22_full_modTOM ) = list(Pro_RE22_RE22_full_modProbes, Pro_RE22_RE22_full_modProbes)
 # Export the network into edge and node list files Cytoscape can read
 Pro_RE22_RE22_full_cyt = exportNetworkToCytoscape(Pro_RE22_RE22_full_modTOM,
-                                                  edgeFile = paste("CytoscapeInput-edges-", paste(Pro_RE22_RE22_full_modules, collapse="-"), ".txt", sep=""),
-                                                  nodeFile = paste("CytoscapeInput-nodes-", paste(Pro_RE22_RE22_full_modules, collapse="-"), ".txt", sep=""),
+                                                  edgeFile = paste("CytoscapeInput-edges-Pro_RE22_RE22_full", paste(Pro_RE22_RE22_full_modules, collapse="-"), ".txt", sep=""),
+                                                  nodeFile = paste("CytoscapeInput-nodes-Pro_RE22_RE22_full", paste(Pro_RE22_RE22_full_modules, collapse="-"), ".txt", sep=""),
                                                   weighted = TRUE,
-                                                  threshold = 0.02,
+                                                  threshold = 0.00, # use zero threshold so no genes are subset out 
                                                   nodeNames = Pro_RE22_RE22_full_modProbes,
                                                   altNodeNames = Pro_RE22_RE22_full_modGenes,
                                                   nodeAttr = Pro_RE22_RE22_full_net_moduleColors[Pro_RE22_RE22_full_inModule])
