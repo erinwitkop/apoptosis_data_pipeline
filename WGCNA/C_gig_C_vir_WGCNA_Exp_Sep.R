@@ -19,6 +19,9 @@ library(magicfor)
 cor <- WGCNA::cor # run every time
 library(UpSetR)
 library(reshape2)
+library(RColorBrewer)
+library(cowplot)
+library(VennDiagram)
 # Using R version 3.6.1 
 
 # source("https://horvath.genetics.ucla.edu/html/CoexpressionNetwork/GeneAnnotation/installAnRichment.R"); installAnRichment(); 
@@ -7637,8 +7640,7 @@ C_vir_all_exp_mod_sig_apop_IMAP_upset_wide_GROUP <- upset(C_vir_all_exp_mod_sig_
 #C_vir_apop_LFC_notshared  <- C_vir_apop_LFC[!(duplicated(C_vir_apop_LFC$transcript_id) | duplicated(C_vir_apop_LFC$transcript_id, fromLast = TRUE)), ]
 #C_gig_apop_LFC_notshared <- C_gig_apop_LFC[!(duplicated(C_gig_apop_LFC$Name) | duplicated(C_gig_apop_LFC$Name, fromLast = TRUE)), ]
 
-
-#### SIGNIFICANT MODULES: GENE LEVEL FREQUENCY PLOT IAP AND GIMAP ####
+#### SIGNIFICANT MODULES: GENE LEVEL FREQUENCY PLOT AND HEATMAP IAP AND GIMAP ####
 
 C_vir_all_exp_mod_sig_apop_IAP_GENE_upset <- C_vir_all_exp_mod_sig_apop_IAP [,c("gene","exp", "product")]
 C_gig_all_exp_mod_sig_apop_IAP_GENE_upset <- C_gig_all_exp_mod_sig_apop_IAP [,c("gene","exp", "product")]
@@ -7685,22 +7687,218 @@ C_gig_all_exp_mod_sig_apop_IMAP_GENE_upset$product <- str_remove(C_gig_all_exp_m
 C_gig_all_exp_mod_sig_apop_IMAP_GENE_upset$product <- str_remove(C_gig_all_exp_mod_sig_apop_IMAP_GENE_upset$product, ", transcript variant X4")
 
 # plot frequency across experiments
-ggplot( C_vir_all_exp_mod_sig_apop_IAP_GENE_upset, aes(x=product, y =value, fill=exp)) + geom_col() + coord_flip() + theme(axis.text.x = element_text(hjust=1.0, angle=90))  + ylab("number of genes") + xlab("gene ID") + ggtitle("C_vir IAP shared genes across transcriptomes")
-ggplot( C_vir_all_exp_mod_sig_apop_IAP_GENE_upset, aes(x=gene, y =value, fill=type)) + geom_col() + coord_flip() + theme(axis.text.x = element_text(hjust=1.0, angle=90))  + ylab("number of genes") + xlab("gene ID") + ggtitle("C_vir IAP shared genes across transcriptomes")
+C_vir_all_exp_mod_sig_apop_IAP_GENE_upset_freq_plot <- ggplot( C_vir_all_exp_mod_sig_apop_IAP_GENE_upset, aes(x=product, y =value, fill=exp)) + geom_col() + coord_flip() + theme(axis.text.x = element_text(hjust=1.0, angle=90))  + ylab("number of genes") + xlab("gene ID") + ggtitle("C_vir IAP shared genes across transcriptomes")
+#ggplot( C_vir_all_exp_mod_sig_apop_IAP_GENE_upset, aes(x=gene, y =value, fill=type)) + geom_col() + coord_flip() + theme(axis.text.x = element_text(hjust=1.0, angle=90))  + ylab("number of genes") + xlab("gene ID") + ggtitle("C_vir IAP shared genes across transcriptomes")
 
-ggplot( C_gig_all_exp_mod_sig_apop_IAP_GENE_upset, aes(x=product, y =value, fill=exp)) + geom_col() + coord_flip() + theme(axis.text.x = element_text(hjust=1.0, angle=90))  + ylab("number of genes") + xlab("gene ID") + ggtitle("C_gig IAP shared genes across transcriptomes")
-ggplot( C_gig_all_exp_mod_sig_apop_IAP_GENE_upset, aes(x=gene, y =value, fill=type)) + geom_col() + coord_flip() + theme(axis.text.x = element_text(hjust=1.0, angle=90))  + ylab("number of genes") + xlab("gene ID") + ggtitle("C_gig IAP shared genes across transcriptomes")
+C_gig_all_exp_mod_sig_apop_IAP_GENE_upset_freq_plot <- ggplot( C_gig_all_exp_mod_sig_apop_IAP_GENE_upset, aes(x=product, y =value, fill=exp)) + geom_col() + coord_flip() + theme(axis.text.x = element_text(hjust=1.0, angle=90))  + ylab("number of genes") + xlab("gene ID") + ggtitle("C_gig IAP shared genes across transcriptomes")
+#ggplot( C_gig_all_exp_mod_sig_apop_IAP_GENE_upset, aes(x=gene, y =value, fill=type)) + geom_col() + coord_flip() + theme(axis.text.x = element_text(hjust=1.0, angle=90))  + ylab("number of genes") + xlab("gene ID") + ggtitle("C_gig IAP shared genes across transcriptomes")
 
-ggplot( C_vir_all_exp_mod_sig_apop_IMAP_GENE_upset, aes(x=product, y =value, fill=exp)) + geom_col() + coord_flip() + theme(axis.text.x = element_text(hjust=1.0, angle=90)) + ylab("number of genes") + xlab("gene ID") + ggtitle("C_vir GIMAP shared genes across transcriptomes")
-ggplot( C_vir_all_exp_mod_sig_apop_IMAP_GENE_upset, aes(x=gene, y =value, fill=type)) + geom_col() + coord_flip() + theme(axis.text.x = element_text(hjust=1.0, angle=90)) + ylab("number of genes") + xlab("gene ID") + ggtitle("C_vir GIMAP shared genes across transcriptomes")
+C_vir_all_exp_mod_sig_apop_IMAP_GENE_upset_freq_plot <- ggplot( C_vir_all_exp_mod_sig_apop_IMAP_GENE_upset, aes(x=product, y =value, fill=exp)) + geom_col() + coord_flip() + theme(axis.text.x = element_text(hjust=1.0, angle=90)) + ylab("number of genes") + xlab("gene ID") + ggtitle("C_vir GIMAP shared genes across transcriptomes")
+#ggplot( C_vir_all_exp_mod_sig_apop_IMAP_GENE_upset, aes(x=gene, y =value, fill=type)) + geom_col() + coord_flip() + theme(axis.text.x = element_text(hjust=1.0, angle=90)) + ylab("number of genes") + xlab("gene ID") + ggtitle("C_vir GIMAP shared genes across transcriptomes")
 
-ggplot( C_gig_all_exp_mod_sig_apop_IMAP_GENE_upset, aes(x=product, y =value, fill=exp)) + geom_col() + coord_flip() + theme(axis.text.x = element_text(hjust=1.0, angle=90)) + ylab("number of genes") + xlab("gene ID") + ggtitle("C_gig GIMAP shared genes across transcriptomes")
-ggplot( C_gig_all_exp_mod_sig_apop_IMAP_GENE_upset, aes(x=gene, y =value, fill=type)) + geom_col() + coord_flip() + theme(axis.text.x = element_text(hjust=1.0, angle=90)) + ylab("number of genes") + xlab("gene ID") + ggtitle("C_gig GIMAP shared genes across transcriptomes")
+C_gig_all_exp_mod_sig_apop_IMAP_GENE_upset_freq_plot <-ggplot( C_gig_all_exp_mod_sig_apop_IMAP_GENE_upset, aes(x=product, y =value, fill=exp)) + geom_col() + coord_flip() + theme(axis.text.x = element_text(hjust=1.0, angle=90)) + ylab("number of genes") + xlab("gene ID") + ggtitle("C_gig GIMAP shared genes across transcriptomes")
+#ggplot( C_gig_all_exp_mod_sig_apop_IMAP_GENE_upset, aes(x=gene, y =value, fill=type)) + geom_col() + coord_flip() + theme(axis.text.x = element_text(hjust=1.0, angle=90)) + ylab("number of genes") + xlab("gene ID") + ggtitle("C_gig GIMAP shared genes across transcriptomes")
 
-C_gig_GIMAP_shared_genes_plot_by_exp
+### PLOT AS HEATMAP ###
+C_vir_all_exp_mod_sig_apop_IAP_GENE_upset$gene <- factor(C_vir_all_exp_mod_sig_apop_IAP_GENE_upset$gene , levels=unique((C_vir_all_exp_mod_sig_apop_IAP_GENE_upset$gene )[order(C_vir_all_exp_mod_sig_apop_IAP_GENE_upset$product)]))
+C_gig_all_exp_mod_sig_apop_IAP_GENE_upset$gene <- factor(C_gig_all_exp_mod_sig_apop_IAP_GENE_upset$gene, levels=unique((C_gig_all_exp_mod_sig_apop_IAP_GENE_upset$gene)[order(C_gig_all_exp_mod_sig_apop_IAP_GENE_upset$product)]))
+C_vir_all_exp_mod_sig_apop_IMAP_GENE_upset$gene <- factor(C_vir_all_exp_mod_sig_apop_IMAP_GENE_upset$gene, levels=unique((C_vir_all_exp_mod_sig_apop_IMAP_GENE_upset$gene)[order(C_vir_all_exp_mod_sig_apop_IMAP_GENE_upset$product)]))
+C_gig_all_exp_mod_sig_apop_IMAP_GENE_upset$gene <- factor(C_gig_all_exp_mod_sig_apop_IMAP_GENE_upset$gene, levels=unique((C_gig_all_exp_mod_sig_apop_IMAP_GENE_upset$gene)[order(C_gig_all_exp_mod_sig_apop_IMAP_GENE_upset$product)]))
+
+C_vir_all_exp_mod_sig_apop_IAP_GENE_upset$exp <- factor(C_vir_all_exp_mod_sig_apop_IAP_GENE_upset$exp, levels=c("Probiotic","Pro_RE22_Pro_S4","Pro_RE22_Pro_RI","Pro_RE22_RE22","ROD_Res","ROD_Sus","Dermo_Tol","Dermo_Sus"))
+C_gig_all_exp_mod_sig_apop_IAP_GENE_upset$exp <- factor(C_gig_all_exp_mod_sig_apop_IAP_GENE_upset$exp,   levels=c("Zhang_LPS","Zhang_Vibrio","Rubio_NV","Rubio_V","deLorg_Res","deLorg_Sus","He"))
+C_vir_all_exp_mod_sig_apop_IMAP_GENE_upset$exp <- factor(C_vir_all_exp_mod_sig_apop_IMAP_GENE_upset$exp, levels=c("Probiotic","Pro_RE22_Pro_S4","Pro_RE22_Pro_RI","Pro_RE22_RE22","ROD_Res","ROD_Sus","Dermo_Tol","Dermo_Sus"))
+C_gig_all_exp_mod_sig_apop_IMAP_GENE_upset$exp <- factor(C_gig_all_exp_mod_sig_apop_IMAP_GENE_upset$exp, levels=c("Zhang_LPS","Zhang_Vibrio","Rubio_NV","Rubio_V","deLorg_Res","deLorg_Sus","He"))
+
+C_vir_all_exp_mod_sig_apop_IAP_GENE_upset_tile <- ggplot(C_vir_all_exp_mod_sig_apop_IAP_GENE_upset, aes(x=gene, y =exp, fill=product)) + 
+  geom_tile()  + 
+  coord_flip() + 
+  scale_fill_brewer(palette = "PiYG")+
+  theme_minimal() +
+  labs(y="Experiment", x="Gene ID",
+         title ="C. virginica IAP Gene Significance Across Experiments")
+  
+C_gig_all_exp_mod_sig_apop_IAP_GENE_upset_tile <- ggplot(C_gig_all_exp_mod_sig_apop_IAP_GENE_upset, aes(x=gene, y =exp, fill=product)) + 
+  geom_tile()  + 
+  coord_flip() + 
+  scale_fill_brewer(palette = "PiYG")+
+  theme_minimal() +
+  labs(y="Experiment", x="Gene ID",
+         title="C. gigas IAP Gene Significance Across Experiments")
+
+C_vir_all_exp_mod_sig_apop_IMAP_GENE_upset_tile <- ggplot(C_vir_all_exp_mod_sig_apop_IMAP_GENE_upset, aes(x=gene, y =exp, fill=product)) + 
+  geom_tile()  + 
+  coord_flip() + 
+  scale_fill_brewer(palette = "PiYG")+
+  theme_minimal() +
+  labs(y="Experiment", x="Gene ID",
+         title="C. virginica GIMAP Gene Significance Across Experiments")
+
+C_gig_all_exp_mod_sig_apop_IMAP_GENE_upset_tile <- ggplot(C_gig_all_exp_mod_sig_apop_IMAP_GENE_upset, aes(x=gene, y =exp, fill=product)) + 
+  geom_tile()  + 
+  coord_flip() + 
+  scale_fill_brewer(palette = "PiYG")+
+  theme_minimal() +
+  labs(y="Experiment", x="Gene ID",
+         title="C. gigas GIMAP Gene Significance Across Experiments")
+# IAP compare
+cowplot::plot_grid(C_vir_all_exp_mod_sig_apop_IAP_GENE_upset_tile, C_gig_all_exp_mod_sig_apop_IAP_GENE_upset_tile,
+                   align="hv", nrow=2)
+# GIMAP compare 
+cowplot::plot_grid(C_vir_all_exp_mod_sig_apop_IMAP_GENE_upset_tile,C_gig_all_exp_mod_sig_apop_IMAP_GENE_upset_tile,
+                   align="hv", nrow=2)
+
+#### REPEAT ABOVE WITH THE DESEQ DATA 
+C_vir_apop_LFC_IAP <- C_vir_apop_LFC[grepl("IAP",C_vir_apop_LFC$product, ignore.case = TRUE),]
+C_gig_apop_LFC_IAP <- C_gig_apop_LFC[grepl("IAP",C_gig_apop_LFC$product, ignore.case = TRUE),]
+C_vir_apop_LFC_IMAP <- C_vir_apop_LFC[grepl("IMAP",C_vir_apop_LFC$product, ignore.case = TRUE),]
+C_gig_apop_LFC_IMAP <- C_gig_apop_LFC[grepl("IMAP",C_gig_apop_LFC$product, ignore.case = TRUE),]
+
+C_vir_apop_LFC_IAP_upset <- C_vir_apop_LFC_IAP [,c("gene","experiment",  "product","group_by_sim")]
+C_gig_apop_LFC_IAP_upset <- C_gig_apop_LFC_IAP [,c("gene","experiment",  "product","group_by_sim")]
+C_vir_apop_LFC_IMAP_upset <-C_vir_apop_LFC_IMAP[,c("gene","experiment",  "product","group_by_sim")]
+C_gig_apop_LFC_IMAP_upset <-C_gig_apop_LFC_IMAP[,c("gene","experiment",  "product","group_by_sim")]
+
+C_vir_apop_LFC_IAP_upset $value <- as.numeric(c("1"))
+C_gig_apop_LFC_IAP_upset $value <- as.numeric(c("1"))
+C_vir_apop_LFC_IMAP_upset$value <- as.numeric(c("1"))
+C_gig_apop_LFC_IMAP_upset$value <- as.numeric(c("1"))
+
+## Condense product name so I can plot by it
+C_vir_apop_LFC_IAP_upset $product <- gsub("\\,.*","", C_vir_apop_LFC_IAP_upset $product )
+C_gig_apop_LFC_IAP_upset $product <- gsub("\\,.*","", C_gig_apop_LFC_IAP_upset $product )
+C_vir_apop_LFC_IMAP_upset$product <- gsub("\\,.*","", C_vir_apop_LFC_IMAP_upset$product )
+C_gig_apop_LFC_IMAP_upset$product <- gsub("\\,.*","", C_gig_apop_LFC_IMAP_upset$product )
+
+# Plot as frequency table and compare with WGCNA
+## General frequency patterns seem the same 
+C_vir_apop_LFC_IAP_upset_freq_plot <- ggplot( C_vir_apop_LFC_IAP_upset, aes(x=product, y =value, fill=group_by_sim)) + geom_col() + coord_flip() + 
+theme(axis.text.x = element_text(hjust=1.0, angle=90))  + ylab("number of genes") + xlab("gene ID") + ggtitle("C_vir IAP shared genes across transcriptomes DESeq")
+cowplot::plot_grid(C_vir_all_exp_mod_sig_apop_IAP_GENE_upset_freq_plot , C_vir_apop_LFC_IAP_upset_freq_plot, align ="hv",nrow=2)
+
+C_gig_apop_LFC_IAP_upset_freq_plot <- ggplot( C_gig_apop_LFC_IAP_upset, aes(x=product, y =value, fill=group_by_sim)) + geom_col() + coord_flip() + 
+  theme(axis.text.x = element_text(hjust=1.0, angle=90))  + ylab("number of genes") + xlab("gene ID") + ggtitle("C_gig IAP shared genes across transcriptomes DESeq")
+cowplot::plot_grid(C_gig_all_exp_mod_sig_apop_IAP_GENE_upset_freq_plot , C_gig_apop_LFC_IAP_upset_freq_plot, align ="hv",nrow=2)
+
+C_gig_apop_LFC_GIMAP_upset_freq_plot <- ggplot( C_gig_apop_LFC_IMAP_upset, aes(x=product, y =value, fill=group_by_sim)) + geom_col() + coord_flip() + 
+  theme(axis.text.x = element_text(hjust=1.0, angle=90))  + ylab("number of genes") + xlab("gene ID") + ggtitle("C_gig GIMAP shared genes across transcriptomes DESeq")
+cowplot::plot_grid(C_gig_all_exp_mod_sig_apop_IMAP_GENE_upset_freq_plot , C_gig_apop_LFC_GIMAP_upset_freq_plot, align ="hv",nrow=2)
+
+C_vir_apop_LFC_GIMAP_upset_freq_plot <- ggplot( C_vir_apop_LFC_IMAP_upset, aes(x=product, y =value, fill=group_by_sim)) + geom_col() + coord_flip() + 
+  theme(axis.text.x = element_text(hjust=1.0, angle=90))  + ylab("number of genes") + xlab("gene ID") + ggtitle("C_vir GIMAP shared genes across transcriptomes DESeq")
+cowplot::plot_grid(C_vir_all_exp_mod_sig_apop_IMAP_GENE_upset_freq_plot , C_vir_apop_LFC_GIMAP_upset_freq_plot, align ="hv",nrow=2)
+
+## Percentage plot 
+C_vir_apop_LFC_IAP_upset_percent_plot <- ggplot( C_vir_apop_LFC_IAP_upset, aes(x=group_by_sim, y =value, fill=product)) + geom_bar(position="fill", stat="identity") +
+  theme(axis.text.x = element_text(hjust=1.0, angle=90))  + ylab("number of genes") + xlab("gene ID") + ggtitle("C_vir IAP shared genes across transcriptomes DESeq")
+
+cowplot::plot_grid(C_vir_all_exp_mod_sig_apop_IAP_GENE_upset_freq_plot , C_vir_apop_LFC_IAP_upset_freq_plot, align ="hv",nrow=2)
+
+C_gig_apop_LFC_IAP_upset_percent_plot <- ggplot( C_gig_apop_LFC_IAP_upset, aes(x=product, y =value, fill=group_by_sim)) + geom_col() + coord_flip() + 
+  theme(axis.text.x = element_text(hjust=1.0, angle=90))  + ylab("number of genes") + xlab("gene ID") + ggtitle("C_gig IAP shared genes across transcriptomes DESeq")
+cowplot::plot_grid(C_gig_all_exp_mod_sig_apop_IAP_GENE_upset_freq_plot , C_gig_apop_LFC_IAP_upset_freq_plot, align ="hv",nrow=2)
+
+C_gig_apop_LFC_GIMAP_percent_freq_plot <- ggplot( C_gig_apop_LFC_IMAP_upset, aes(x=product, y =value, fill=group_by_sim)) + geom_col() + coord_flip() + 
+  theme(axis.text.x = element_text(hjust=1.0, angle=90))  + ylab("number of genes") + xlab("gene ID") + ggtitle("C_gig GIMAP shared genes across transcriptomes DESeq")
+cowplot::plot_grid(C_gig_all_exp_mod_sig_apop_IMAP_GENE_upset_freq_plot , C_gig_apop_LFC_GIMAP_upset_freq_plot, align ="hv",nrow=2)
+
+C_vir_apop_LFC_GIMAP_percent_freq_plot <- ggplot( C_vir_apop_LFC_IMAP_upset, aes(x=product, y =value, fill=group_by_sim)) + geom_col() + coord_flip() + 
+  theme(axis.text.x = element_text(hjust=1.0, angle=90))  + ylab("number of genes") + xlab("gene ID") + ggtitle("C_vir GIMAP shared genes across transcriptomes DESeq")
+cowplot::plot_grid(C_vir_all_exp_mod_sig_apop_IMAP_GENE_upset_freq_plot , C_vir_apop_LFC_GIMAP_upset_freq_plot, align ="hv",nrow=2)
+
+
+# refactor data so I can plot as heatmap
+C_vir_apop_LFC_IAP_upset$gene <- factor(C_vir_apop_LFC_IAP_upset$gene , levels=unique((C_vir_apop_LFC_IAP_upset$gene )[order(C_vir_apop_LFC_IAP_upset$product)]))
+C_gig_apop_LFC_IAP_upset $gene <- factor(C_gig_apop_LFC_IAP_upset $gene, levels=unique((C_gig_apop_LFC_IAP_upset $gene)[order(C_gig_apop_LFC_IAP_upset $product)]))
+C_vir_apop_LFC_IMAP_upset$gene <- factor(C_vir_apop_LFC_IMAP_upset$gene, levels=unique((C_vir_apop_LFC_IMAP_upset$gene)[order(C_vir_apop_LFC_IMAP_upset$product)]))
+C_gig_apop_LFC_IMAP_upset$gene <- factor(C_gig_apop_LFC_IMAP_upset$gene, levels=unique((C_gig_apop_LFC_IMAP_upset$gene)[order(C_gig_apop_LFC_IMAP_upset$product)]))
+
+## need to reorder the experiments here
+
+C_vir_apop_LFC_IAP_upset_tile <- ggplot(C_vir_apop_LFC_IAP_upset, aes(x=gene, y =group_by_sim, fill=product)) + 
+  geom_tile()  + 
+  coord_flip() + 
+  scale_fill_brewer(palette = "PiYG")+
+  theme_minimal() +
+  labs(y="Experiment", x="Gene ID",
+       title ="C. virginica IAP Gene Significance Across Experiments DESeq")+theme(axis.text.x = element_text(hjust=1.0, angle=90))
+
+C_gig_apop_LFC_IAP_upset_tile <- ggplot(C_gig_apop_LFC_IAP_upset, aes(x=gene, y =group_by_sim, fill=product)) + 
+  geom_tile()  + 
+  coord_flip() + 
+  scale_fill_brewer(palette = "PiYG")+
+  theme_minimal() +
+  labs(y="Experiment", x="Gene ID",
+       title="C. gigas IAP Gene Significance Across Experiments DESeq") + theme(axis.text.x = element_text(hjust=1.0, angle=90))
+
+C_vir_apop_LFC_IMAP_upset_tile <- ggplot(C_vir_apop_LFC_IMAP_upset, aes(x=gene, y =group_by_sim, fill=product)) + 
+  geom_tile()  + 
+  coord_flip() + 
+  scale_fill_brewer(palette = "PiYG")+
+  theme_minimal() +
+  labs(y="Experiment", x="Gene ID",
+       title="C. virginica GIMAP Gene Significance Across Experiments DESeq") +theme(axis.text.x = element_text(hjust=1.0, angle=90))
+
+C_gig_apop_LFC_IMAP_upset_tile <- ggplot(C_gig_apop_LFC_IMAP_upset, aes(x=gene, y =group_by_sim, fill=product)) + 
+  geom_tile()  + 
+  coord_flip() + 
+  scale_fill_brewer(palette = "PiYG")+
+  theme_minimal() +
+  labs(y="Experiment", x="Gene ID",
+       title="C. gigas GIMAP Gene Significance Across Experiments DESeq") + theme(axis.text.x = element_text(hjust=1.0, angle=90))
+# IAP compare
+cowplot::plot_grid(C_vir_apop_LFC_IAP_upset_tile, C_gig_apop_LFC_IAP_upset_tile ,
+                   align="hv", nrow=2)
+# GIMAP compare 
+cowplot::plot_grid(C_vir_apop_LFC_IMAP_upset_tile,C_gig_apop_LFC_IMAP_upset_tile,
+                   align="hv", nrow=2)
+
+## COMPARE WGCNA AND DESEQ2 ##
+cowplot::plot_grid( C_vir_all_exp_mod_sig_apop_IAP_GENE_upset_tile,C_vir_apop_LFC_IAP_upset_tile,
+                   align="hv", nrow=2)
+# GIMAP compare 
+cowplot::plot_grid( C_vir_all_exp_mod_sig_apop_IMAP_GENE_upset_tile,C_vir_apop_LFC_IMAP_upset_tile,
+                   align="hv", nrow=2)
+
+cowplot::plot_grid(C_gig_all_exp_mod_sig_apop_IAP_GENE_upset_tile, C_gig_apop_LFC_IAP_upset_tile,
+                   align="hv", nrow=2)
+# GIMAP compare 
+cowplot::plot_grid(C_gig_all_exp_mod_sig_apop_IMAP_GENE_upset_tile,C_gig_apop_LFC_IMAP_upset_tile,
+                   align="hv", nrow=2)
+
+#### VENNDIAGRAM OF GENES BETWEEN WGCNA AND DESEQ2 DATA ####
+
+## COMPARE SIGNIFICANT GENES BETWEEN WGNCA AND IAP
+C_vir_apop_LFC_IAP_upset
+C_gig_apop_LFC_IAP_upset
+C_vir_apop_LFC_IMAP_upset
+C_gig_apop_LFC_IMAP_upset
+C_vir_all_exp_mod_sig_apop_IAP_GENE_upset
+C_gig_all_exp_mod_sig_apop_IAP_GENE_upset
+C_vir_all_exp_mod_sig_apop_IMAP_GENE_upset
+C_gig_all_exp_mod_sig_apop_IMAP_GENE_upset
+
+# Basic Venndiagram 
+venn.diagram(
+  x = list(unique(C_vir_apop_LFC_IAP$gene), unique(C_vir_all_exp_mod_sig_apop_IAP_GENE_upset$gene)),
+  category.names = c("C_vir IAP DESeq" , "C_vir IAP WGCNA"),
+  filename="C_vir_IAP_DESeq_WGCNA_comparison.png"
+)
+
+#### PERCENTAGE PLOT OF SIGNIFICANT GENES FOR EACH GENE MEMBER ####
+
+C_vir_apop_LFC_IAP_upset
+C_gig_apop_LFC_IAP_upset
+C_vir_apop_LFC_IMAP_upset
+C_gig_apop_LFC_IMAP_upset
+C_vir_all_exp_mod_sig_apop_IAP_GENE_upset
+C_gig_all_exp_mod_sig_apop_IAP_GENE_upset
+C_vir_all_exp_mod_sig_apop_IMAP_GENE_upset
+C_gig_all_exp_mod_sig_apop_IMAP_GENE_upset
 
 ### FRACTION OF IAP AND GIMAP GENES SIGNIFICANT WITH CHALLENGE ####
 
+## For WGCNA data
 C_gig_sig_apop_fraction_IAP <- C_gig_rtracklayer_apop_product_final_IAP_list[(C_gig_rtracklayer_apop_product_final_IAP_list$gene %in%  C_gig_all_exp_mod_sig_apop_IAP_GENE_upset$gene),]
 length(unique(C_gig_sig_apop_fraction_IAP$gene)) # 23
 
@@ -7713,6 +7911,18 @@ length(unique(C_gig_sig_apop_fraction_GIMAP$gene)) # 11
 C_vir_sig_apop_fraction_GIMAP <- C_vir_rtracklayer_apop_product_final_IMAP_list[(C_vir_rtracklayer_apop_product_final_IMAP_list$gene %in%  C_vir_all_exp_mod_sig_apop_IMAP_GENE_upset$gene),]
 length(unique(C_vir_sig_apop_fraction_GIMAP$gene)) # 16
 
+## For DESeq2 data
+C_gig_apop_LFC_IAP_fraction <- C_gig_rtracklayer_apop_product_final_IAP_list[(C_gig_rtracklayer_apop_product_final_IAP_list$gene %in%  C_gig_apop_LFC_IAP$gene),]
+length(unique(C_gig_apop_LFC_IAP_fraction$gene)) #18
+
+C_vir_apop_LFC_IAP_fraction <- C_vir_rtracklayer_apop_product_final_IAP_list[(C_vir_rtracklayer_apop_product_final_IAP_list$gene %in%  C_vir_apop_LFC_IAP$gene),]
+length(unique(C_vir_apop_LFC_IAP_fraction$gene)) # 20
+
+C_gig_apop_LFC_GIMAP_fraction <- C_gig_rtracklayer_apop_product_final_IMAP_list[(C_gig_rtracklayer_apop_product_final_IMAP_list$gene %in%  C_gig_apop_LFC_IMAP$gene),]
+length(unique(C_gig_apop_LFC_GIMAP_fraction$gene)) # 12
+
+C_vir_apop_LFC_GIMAP_fraction <- C_vir_rtracklayer_apop_product_final_IMAP_list[(C_vir_rtracklayer_apop_product_final_IMAP_list$gene %in%  C_vir_apop_LFC_IMAP$gene),]
+length(unique(C_vir_apop_LFC_GIMAP_fraction$gene)) # 5
 
 ####  COMPARING SIGNIFICANT IAP AND GIMAP GENES BETWEEN EXPERIMENTS ####
 
@@ -7847,8 +8057,6 @@ Pro_RE22_RE22_full_module_apop_df_GIMAP[!(Pro_RE22_RE22_full_module_apop_df_GIMA
 #102 GTPase IMAP family member 4-like XM_022445423.1 LOC111109343 MEturquoise                                                                 0.9581529 0.002590135
 #21  GTPase IMAP family member 8-like XM_022461041.1 LOC111120314       MEtan                                                                -0.9311959 0.006938151
 
-# Combine all unique 
-
 
 ### FIND UNIQUE IAP AND GIMAP ACROSS EXPERIMENT TYPE
 
@@ -7881,15 +8089,6 @@ View(C_gig_all_exp_mod_sig_apop[C_gig_all_exp_mod_sig_apop$gene %in% C_gig_IMAP_
 
 
 ### FIND UNIQUE IAP AND GIMAP IN EACH EXPERIMENT 
-
-C_gig_full_all_exp_mod_sig_apop <- rbind(Zhang_LPS_full_module_apop_df,
-                                         Zhang_full_module_Vibrio_apop_df,
-                                         Rubio_NV_full_module_apop_df  ,
-                                         Rubio_V_full_module_apop_df   ,
-                                         deLorg_Res_full_module_apop_df,
-                                         deLorg_Sus_full_module_apop_df,
-                                         He_full_module_apop_df)
-
 # table of total per experiment
 View(C_gig_full_all_exp_mod_sig_apop_IAP %>% group_by(exp) %>% distinct(gene) %>%  dplyr::summarise(n=n()))
 View(C_gig_full_all_exp_mod_sig_apop_GIMAP %>% group_by(exp) %>% distinct(gene) %>%  dplyr::summarise(n=n()))
@@ -7974,9 +8173,8 @@ He_full_module_apop_df_GIMAP[!(He_full_module_apop_df_GIMAP$gene %in%           
 #92  GTPase IMAP family member 4-like XM_011424091.2 LOC105324868   ME45311         NA     NA  He
 #144 GTPase IMAP family member 4-like XM_011429379.2 LOC105328481     ME809         NA     NA  He
 
-
-
 ### FIND UNIQUE IAP AND GIMAP ACROSS EXPERIMENT TYPE
+# can do later 
 
 
 #### ANNOTATION DATA: GENE LEVEL IAP GIMAP SUMMARY PLOT####
