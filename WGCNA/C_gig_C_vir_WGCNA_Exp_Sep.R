@@ -7699,6 +7699,19 @@ C_vir_all_exp_mod_sig_apop_IMAP_GENE_upset_freq_plot <- ggplot( C_vir_all_exp_mo
 C_gig_all_exp_mod_sig_apop_IMAP_GENE_upset_freq_plot <-ggplot( C_gig_all_exp_mod_sig_apop_IMAP_GENE_upset, aes(x=product, y =value, fill=exp)) + geom_col() + coord_flip() + theme(axis.text.x = element_text(hjust=1.0, angle=90)) + ylab("number of genes") + xlab("gene ID") + ggtitle("C_gig GIMAP shared genes across transcriptomes")
 #ggplot( C_gig_all_exp_mod_sig_apop_IMAP_GENE_upset, aes(x=gene, y =value, fill=type)) + geom_col() + coord_flip() + theme(axis.text.x = element_text(hjust=1.0, angle=90)) + ylab("number of genes") + xlab("gene ID") + ggtitle("C_gig GIMAP shared genes across transcriptomes")
 
+## Percentage plot 
+C_vir_all_exp_mod_sig_apop_IAP_GENE_upset_percent_plot <- ggplot( C_vir_all_exp_mod_sig_apop_IAP_GENE_upset, aes(x=exp, y =value, fill=product)) + geom_bar(position="fill", stat="identity") +
+  theme(axis.text.x = element_text(hjust=1.0, angle=90))  + ylab("number of genes") + xlab("gene ID") + ggtitle("C_vir IAP shared genes across transcriptomes WGCNA")
+
+C_gig_all_exp_mod_sig_apop_IAP_GENE_upset_percent_plot <- ggplot(C_gig_all_exp_mod_sig_apop_IAP_GENE_upset, aes(x=exp, y =value, fill=product)) + geom_bar(position="fill", stat="identity") + 
+  theme(axis.text.x = element_text(hjust=1.0, angle=90))  + ylab("number of genes") + xlab("gene ID") + ggtitle("C_gig IAP shared genes across transcriptomes WGCNA")
+
+C_vir_all_exp_mod_sig_apop_IMAP_GENE_upset_percent_plot <- ggplot( C_vir_all_exp_mod_sig_apop_IMAP_GENE_upset, aes(x=exp, y =value, fill=product)) + geom_bar(position="fill", stat="identity") + 
+  theme(axis.text.x = element_text(hjust=1.0, angle=90))  + ylab("number of genes") + xlab("gene ID") + ggtitle("C_vir GIMAP shared genes across transcriptomes WGCNA")
+
+C_gig_all_exp_mod_sig_apop_IMAP_GENE_upset_percent_plot <- ggplot( C_gig_all_exp_mod_sig_apop_IMAP_GENE_upset, aes(x=exp, y =value, fill=product)) + geom_bar(position="fill", stat="identity") + 
+  theme(axis.text.x = element_text(hjust=1.0, angle=90))  + ylab("number of genes") + xlab("gene ID") + ggtitle("C_gig GIMAP shared genes across transcriptomes WGCNA")
+
 ### PLOT AS HEATMAP ###
 C_vir_all_exp_mod_sig_apop_IAP_GENE_upset$gene <- factor(C_vir_all_exp_mod_sig_apop_IAP_GENE_upset$gene , levels=unique((C_vir_all_exp_mod_sig_apop_IAP_GENE_upset$gene )[order(C_vir_all_exp_mod_sig_apop_IAP_GENE_upset$product)]))
 C_gig_all_exp_mod_sig_apop_IAP_GENE_upset$gene <- factor(C_gig_all_exp_mod_sig_apop_IAP_GENE_upset$gene, levels=unique((C_gig_all_exp_mod_sig_apop_IAP_GENE_upset$gene)[order(C_gig_all_exp_mod_sig_apop_IAP_GENE_upset$product)]))
@@ -7789,23 +7802,24 @@ C_vir_apop_LFC_GIMAP_upset_freq_plot <- ggplot( C_vir_apop_LFC_IMAP_upset, aes(x
 cowplot::plot_grid(C_vir_all_exp_mod_sig_apop_IMAP_GENE_upset_freq_plot , C_vir_apop_LFC_GIMAP_upset_freq_plot, align ="hv",nrow=2)
 
 ## Percentage plot 
+# Need to go back in and explicitly set colors 
 C_vir_apop_LFC_IAP_upset_percent_plot <- ggplot( C_vir_apop_LFC_IAP_upset, aes(x=group_by_sim, y =value, fill=product)) + geom_bar(position="fill", stat="identity") +
   theme(axis.text.x = element_text(hjust=1.0, angle=90))  + ylab("number of genes") + xlab("gene ID") + ggtitle("C_vir IAP shared genes across transcriptomes DESeq")
 
-cowplot::plot_grid(C_vir_all_exp_mod_sig_apop_IAP_GENE_upset_freq_plot , C_vir_apop_LFC_IAP_upset_freq_plot, align ="hv",nrow=2)
+cowplot::plot_grid(C_vir_apop_LFC_IAP_upset_percent_plot , C_vir_all_exp_mod_sig_apop_IAP_GENE_upset_percent_plot , align ="hv",nrow=2)
 
-C_gig_apop_LFC_IAP_upset_percent_plot <- ggplot( C_gig_apop_LFC_IAP_upset, aes(x=product, y =value, fill=group_by_sim)) + geom_col() + coord_flip() + 
+C_gig_apop_LFC_IAP_upset_percent_plot <- ggplot( C_gig_apop_LFC_IAP_upset, aes(x=group_by_sim, y =value, fill=product)) + geom_bar(position="fill", stat="identity") + 
   theme(axis.text.x = element_text(hjust=1.0, angle=90))  + ylab("number of genes") + xlab("gene ID") + ggtitle("C_gig IAP shared genes across transcriptomes DESeq")
-cowplot::plot_grid(C_gig_all_exp_mod_sig_apop_IAP_GENE_upset_freq_plot , C_gig_apop_LFC_IAP_upset_freq_plot, align ="hv",nrow=2)
+cowplot::plot_grid(C_gig_apop_LFC_IAP_upset_percent_plot , C_gig_all_exp_mod_sig_apop_IAP_GENE_upset_percent_plot , align ="hv",nrow=2)
 
-C_gig_apop_LFC_GIMAP_percent_freq_plot <- ggplot( C_gig_apop_LFC_IMAP_upset, aes(x=product, y =value, fill=group_by_sim)) + geom_col() + coord_flip() + 
+C_gig_apop_LFC_GIMAP_upset_percent_plot <- ggplot( C_gig_apop_LFC_IMAP_upset, aes(x=group_by_sim, y =value, fill=product)) + geom_bar(position="fill", stat="identity") + 
   theme(axis.text.x = element_text(hjust=1.0, angle=90))  + ylab("number of genes") + xlab("gene ID") + ggtitle("C_gig GIMAP shared genes across transcriptomes DESeq")
-cowplot::plot_grid(C_gig_all_exp_mod_sig_apop_IMAP_GENE_upset_freq_plot , C_gig_apop_LFC_GIMAP_upset_freq_plot, align ="hv",nrow=2)
 
-C_vir_apop_LFC_GIMAP_percent_freq_plot <- ggplot( C_vir_apop_LFC_IMAP_upset, aes(x=product, y =value, fill=group_by_sim)) + geom_col() + coord_flip() + 
+cowplot::plot_grid(C_gig_apop_LFC_GIMAP_upset_percent_plot  ,  C_gig_all_exp_mod_sig_apop_IMAP_GENE_upset_percent_plot, align ="hv",nrow=2)
+
+C_vir_apop_LFC_GIMAP_upset_percent_plot <- ggplot( C_vir_apop_LFC_IMAP_upset, aes(x=group_by_sim, y =value, fill=product)) + geom_bar(position="fill", stat="identity") + 
   theme(axis.text.x = element_text(hjust=1.0, angle=90))  + ylab("number of genes") + xlab("gene ID") + ggtitle("C_vir GIMAP shared genes across transcriptomes DESeq")
-cowplot::plot_grid(C_vir_all_exp_mod_sig_apop_IMAP_GENE_upset_freq_plot , C_vir_apop_LFC_GIMAP_upset_freq_plot, align ="hv",nrow=2)
-
+cowplot::plot_grid(C_vir_apop_LFC_GIMAP_upset_percent_plot , C_vir_all_exp_mod_sig_apop_IMAP_GENE_upset_percent_plot, align ="hv",nrow=2)
 
 # refactor data so I can plot as heatmap
 C_vir_apop_LFC_IAP_upset$gene <- factor(C_vir_apop_LFC_IAP_upset$gene , levels=unique((C_vir_apop_LFC_IAP_upset$gene )[order(C_vir_apop_LFC_IAP_upset$product)]))
