@@ -10,7 +10,6 @@
 # Contains the final DEG analysis presented in publication. 
 
 #### LOAD PACKAGES ####
-
 library(DESeq2)  
 library(ggplot2)
 library(magrittr)
@@ -46,10 +45,111 @@ library(ggpubr)
 # Deseq2 Manual updated July 18th, 2019: https://www.bioconductor.org/packages/devel/bioc/manuals/DESeq2/man/DESeq2.pdf
 # the results section of this is particularly useful
 
-##### LOADING SAVED GENOME AND APOPTOSIS NAMES ##### 
+#### LOADING SAVED GENOME, APOPTOSIS NAMES, GIMAP and IAP XP LISTS ####
 
 Apoptosis_frames <- load(file="/Volumes/My Passport for Mac/Chapter1_Apoptosis_Paper_Saved_DESeq_WGCNA_Data/C_gig_C_vir_apoptosis_products.RData")
 annotations <- load(file="/Volumes/My Passport for Mac/Chapter1_Apoptosis_Paper_Saved_DESeq_WGCNA_Data/C_gig_C_vir_annotations.RData")
+
+load(file="/Users/erinroberts/Documents/PhD_Research/Chapter_1_Apoptosis Paper/Chapter_1_Apoptosis_Annotation_Data_Analyses_2019/DATA/Apoptosis_Pathway_Annotation_Comparative_Genomics/Comparative_Analysis_Apoptosis_Gene_Families_Data/BIR_XP_gff_protein_list_CG.Rdata")
+load(file="/Users/erinroberts/Documents/PhD_Research/Chapter_1_Apoptosis Paper/Chapter_1_Apoptosis_Annotation_Data_Analyses_2019/DATA/Apoptosis_Pathway_Annotation_Comparative_Genomics/Comparative_Analysis_Apoptosis_Gene_Families_Data/BIR_XP_gff_protein_list_CV.Rdata")
+load(file="/Users/erinroberts/Documents/PhD_Research/Chapter_1_Apoptosis Paper/Chapter_1_Apoptosis_Annotation_Data_Analyses_2019/DATA/Apoptosis_Pathway_Annotation_Comparative_Genomics/Comparative_Analysis_Apoptosis_Gene_Families_Data/AIG1_XP_ALL_gff_GIMAP_protein_list_CG.Rdata")
+load(file="/Users/erinroberts/Documents/PhD_Research/Chapter_1_Apoptosis Paper/Chapter_1_Apoptosis_Annotation_Data_Analyses_2019/DATA/Apoptosis_Pathway_Annotation_Comparative_Genomics/Comparative_Analysis_Apoptosis_Gene_Families_Data/AIG1_XP_ALL_gff_GIMAP_protein_list_CV.Rdata")
+
+# Join with XM information 
+BIR_XP_gff_CG_uniq_XP <- as.data.frame(BIR_XP_gff_CG_uniq_XP)
+BIR_XP_gff_CV_uniq_XP <- as.data.frame(BIR_XP_gff_CV_uniq_XP)
+AIG1_XP_ALL_gff_GIMAP_CG_uniq_XP <- as.data.frame(AIG1_XP_ALL_gff_GIMAP_CG_uniq_XP)
+AIG1_XP_ALL_gff_GIMAP_CV_uniq_XP <- as.data.frame(AIG1_XP_ALL_gff_GIMAP_CV_uniq_XP)
+
+colnames(BIR_XP_gff_CG_uniq_XP)[1] <- "protein_id" 
+colnames(BIR_XP_gff_CV_uniq_XP)[1] <- "protein_id" 
+colnames(AIG1_XP_ALL_gff_GIMAP_CG_uniq_XP)[1] <- "protein_id" 
+colnames(AIG1_XP_ALL_gff_GIMAP_CV_uniq_XP)[1] <- "protein_id" 
+
+BIR_XP_gff_CG_uniq_XP_XM <- left_join(BIR_XP_gff_CG_uniq_XP, C_gig_rtracklayer)
+BIR_XP_gff_CV_uniq_XP_XM <- left_join(BIR_XP_gff_CV_uniq_XP, C_vir_rtracklayer)
+AIG1_XP_ALL_gff_GIMAP_CG_uniq_XP_XM <- left_join(AIG1_XP_ALL_gff_GIMAP_CG_uniq_XP, C_gig_rtracklayer)
+AIG1_XP_ALL_gff_GIMAP_CV_uniq_XP_XM <- left_join(AIG1_XP_ALL_gff_GIMAP_CV_uniq_XP, C_vir_rtracklayer)
+
+BIR_XP_gff_CG_uniq_XP_XM <- BIR_XP_gff_CG_uniq_XP_XM %>% distinct(protein_id, Parent, .keep_all = TRUE)
+BIR_XP_gff_CV_uniq_XP_XM <- BIR_XP_gff_CV_uniq_XP_XM %>% distinct(protein_id, Parent, .keep_all = TRUE)
+AIG1_XP_ALL_gff_GIMAP_CG_uniq_XP_XM <- AIG1_XP_ALL_gff_GIMAP_CG_uniq_XP_XM %>% distinct(protein_id, Parent, .keep_all = TRUE)
+AIG1_XP_ALL_gff_GIMAP_CV_uniq_XP_XM <- AIG1_XP_ALL_gff_GIMAP_CV_uniq_XP_XM %>% distinct(protein_id, Parent, .keep_all = TRUE)
+
+# Remove "rna-" from Parent column for CG 
+BIR_XP_gff_CG_uniq_XP_XM$Parent <- str_remove(BIR_XP_gff_CG_uniq_XP_XM$Parent, "rna-")
+AIG1_XP_ALL_gff_GIMAP_CG_uniq_XP_XM$Parent <- str_remove(AIG1_XP_ALL_gff_GIMAP_CG_uniq_XP_XM $Parent, "rna-")
+
+colnames(BIR_XP_gff_CG_uniq_XP_XM)[20] <- "transcript_id"
+BIR_XP_gff_CG_uniq_XP_XM <- BIR_XP_gff_CG_uniq_XP_XM[,-23]
+
+BIR_XP_gff_CV_uniq_XP_XM <- BIR_XP_gff_CV_uniq_XP_XM[,-10]
+colnames(BIR_XP_gff_CV_uniq_XP_XM)[23] <- "ID"
+
+colnames(AIG1_XP_ALL_gff_GIMAP_CG_uniq_XP_XM)[20] <- "transcript_id"
+AIG1_XP_ALL_gff_GIMAP_CG_uniq_XP_XM <- AIG1_XP_ALL_gff_GIMAP_CG_uniq_XP_XM[,-23]
+
+AIG1_XP_ALL_gff_GIMAP_CV_uniq_XP_XM <- AIG1_XP_ALL_gff_GIMAP_CV_uniq_XP_XM[,-10]
+colnames(AIG1_XP_ALL_gff_GIMAP_CV_uniq_XP_XM)[23] <- "ID"
+
+#### IAP AND GIMAP COLLAPSE HAPLOTIGS ####
+
+# Create Haplotig transcript template functions
+# GIMAP Cluster 219
+# Add all counts from XP_022296317.1 (from artifact LOC111106081) were added to the counts for XP_022302183.1 
+C_vir_rtracklayer %>% filter(grepl("XP_022296317.1", protein_id) | grepl("XP_022302183.1", protein_id)) %>% distinct(Parent, .keep_all = TRUE)
+
+#df["rna56518", ] <- df["rna56371", ] + df["rna56518", ]
+#df[rownames(df) != "rna56371", ] # get rid of row with only the counts from XP_022296317.1
+
+## IAP cluster 328 2 clusters:
+# Cluster 1: LOC111114013 and it's protein XP_022308010.1 should be collapsed into LOC111132489 protein XP_022336007.1 
+C_vir_rtracklayer %>% filter(grepl("XP_022308010.1", protein_id) | grepl("XP_022336007.1", protein_id)) %>% 
+  distinct(Parent, .keep_all = TRUE)
+
+#df["rna35680", ] <- df["rna61446", ] + df["rna35680", ]
+#df[rownames(df) != "rna61446", ]
+
+# Clsuter 2:LOC111103682, LOC111132589,LOC111102106,LOC111114070 should be collapsed into this LOC111132301
+# Do any of these gene have multiple proteins? NO, each has 1 
+#Gene to collapse into LOC111132301  # one protein XP_022335805.1, rna32314 (XM_022480097.1)
+#LOC111103682 only 1 protein XP_022292821.1
+#LOC111132589 only 1 protein XP_022336127.1
+#LOC111102106 only 1 protein XP_022290466.1
+#LOC111114070 only 1 protein XP_022308067.1
+
+C_vir_rtracklayer %>% filter(grepl("XP_022292821.1", protein_id) | grepl("XP_022336127.1", protein_id)|
+                               grepl("XP_022290466.1", protein_id) | grepl("XP_022308067.1", protein_id) |
+                               grepl("XP_022335805.1", protein_id)) %>% distinct(Parent, .keep_all = TRUE)
+
+#df["rna32314", ] <- df["rna37671", ] + df["rna42347", ] + df["rna44969", ] +  df["rna6186", ] + Probiotic_counts["rna32314", ]
+#df[rownames(df) != "rna37671", ] 
+#df[rownames(df) != "rna42347", ] 
+#df[rownames(df) != "rna44969", ] 
+#df[rownames(df) != "rna6186", ] 
+
+# IAP cluster 344: The two sequences with the greatest similarity in gene sequence, LOC111116826 and LOC111111659 (XP_022304464.1), should be collapsed. LOC111111659 has extremely low coverage and its protein XP_022304464.1
+# should be collapsed into LOC111116826 (XP_022311552.1, rna66976 )
+
+C_vir_rtracklayer %>% filter(grepl("XP_022304464.1", protein_id) | grepl("XP_022311552.1", protein_id)) %>% distinct(Parent, .keep_all = TRUE)
+
+#df["rna66976", ] <- df["rna57534", ] + df["rna66976", ] 
+#df[rownames(df) != "rna57534", ] 
+
+
+## Codes compiled together
+
+#df["rna56518", ] <- df["rna56371", ] + df["rna56518", ]
+#df <- df[rownames(df) != "rna56371", ] 
+#df["rna35680", ] <- df["rna61446", ] + df["rna35680", ]
+#df <- df[rownames(df) != "rna61446", ]
+#df["rna32314", ] <- df["rna37671", ] + df["rna42347", ] + df["rna44969", ] +  df["rna6186", ] + Probiotic_counts["rna32314", ]
+#df <- df[rownames(df) != "rna37671", ] 
+#df <- df[rownames(df) != "rna42347", ] 
+#df <- df[rownames(df) != "rna44969", ] 
+#df <- df[rownames(df) != "rna6186", ] 
+#df["rna66976", ] <- df["rna57534", ] + df["rna66976", ] 
+#df <- df[rownames(df) != "rna57534", ] 
 
 #### ZHANG VIBRIO TRANSCRIPTOME ANALYSIS ####
 
@@ -409,6 +509,15 @@ Zhang_dds_deseq_res_LPS_APOP_plot <- ggplot(Zhang_dds_deseq_res_LFC_LPS_sig_APOP
 
 ggarrange(Zhang_dds_deseq_res_V_alg1_APOP_plot , Zhang_dds_deseq_res_V_tub_APOP_plot,Zhang_dds_deseq_res_LPS_APOP_plot)
 
+## Extract IAP and GIMAP specific manually curated protein lists
+Zhang_dds_deseq_res_V_alg1_LFC_sig_IAP <- merge(Zhang_dds_deseq_res_V_alg1_LFC_sig, BIR_XP_gff_CG_uniq_XP_XM, by = "transcript_id")
+Zhang_dds_deseq_res_V_alg1_LFC_sig_GIMAP <- merge(Zhang_dds_deseq_res_V_alg1_LFC_sig, AIG1_XP_ALL_gff_GIMAP_CG_uniq_XP_XM, by = "transcript_id")
+
+Zhang_dds_deseq_res_V_tub_LFC_sig_IAP <- merge(Zhang_dds_deseq_res_V_tub_LFC_sig , BIR_XP_gff_CG_uniq_XP_XM, by = "transcript_id")
+Zhang_dds_deseq_res_V_tub_LFC_sig_GIMAP <- merge(Zhang_dds_deseq_res_V_tub_LFC_sig , AIG1_XP_ALL_gff_GIMAP_CG_uniq_XP_XM, by = "transcript_id")
+
+Zhang_dds_deseq_res_LFC_LPS_sig_IAP <- merge(Zhang_dds_deseq_res_LFC_LPS_sig, BIR_XP_gff_CG_uniq_XP_XM, by = "transcript_id")
+Zhang_dds_deseq_res_LFC_LPS_sig_GIMAP <- merge(Zhang_dds_deseq_res_LFC_LPS_sig, AIG1_XP_ALL_gff_GIMAP_CG_uniq_XP_XM, by = "transcript_id")
 
 #### RUBIO VIBRIO TRANSCRIPTOME ANALYSIS ####
 
@@ -718,6 +827,27 @@ Rubio_dds_deseq_LGP32_res_LFC_sig_APOP_plot <- ggplot(Rubio_dds_deseq_LGP32_res_
 Rubio_dds_deseq_LMG20012T_res_LFC_sig_APOP_plot  <- ggplot(Rubio_dds_deseq_LMG20012T_res_LFC_sig_APOP , aes(x=product, y = log2FoldChange, fill=log2FoldChange)) + geom_col(position="dodge") +
   coord_flip() + scale_fill_gradient2(low="purple",mid = "grey", high="darkgreen") + ggtitle("LMG20012T Non-Virulent vs Control") +
   ylab("Log2 Fold Change")
+
+## Extract IAP and GIMAP specific manually curated protein lists
+Rubio_dds_deseq_J2_8_res_LFC_sig_IAP <-    merge(Rubio_dds_deseq_J2_8_res_LFC_sig , BIR_XP_gff_CG_uniq_XP_XM, by = "transcript_id")
+Rubio_dds_deseq_J2_8_res_LFC_sig_GIMAP <-    merge(Rubio_dds_deseq_J2_8_res_LFC_sig , AIG1_XP_ALL_gff_GIMAP_CG_uniq_XP_XM, by = "transcript_id")
+
+Rubio_dds_deseq_J2_9_res_LFC_sig_IAP <-    merge(Rubio_dds_deseq_J2_9_res_LFC_sig , BIR_XP_gff_CG_uniq_XP_XM, by = "transcript_id")
+Rubio_dds_deseq_J2_9_res_LFC_sig_GIMAP <-    merge(Rubio_dds_deseq_J2_9_res_LFC_sig , AIG1_XP_ALL_gff_GIMAP_CG_uniq_XP_XM, by = "transcript_id")
+
+Rubio_dds_deseq_LGP32_res_LFC_sig_IAP <-   merge(Rubio_dds_deseq_LGP32_res_LFC_sig , BIR_XP_gff_CG_uniq_XP_XM, by = "transcript_id")
+Rubio_dds_deseq_LGP32_res_LFC_sig_GIMAP <-  merge(Rubio_dds_deseq_LGP32_res_LFC_sig , AIG1_XP_ALL_gff_GIMAP_CG_uniq_XP_XM, by = "transcript_id")
+
+Rubio_dds_deseq_LMG20012T_res_LFC_sig_IAP <- merge(Rubio_dds_deseq_LMG20012T_res_LFC_sig , BIR_XP_gff_CG_uniq_XP_XM, by = "transcript_id")
+Rubio_dds_deseq_LMG20012T_res_LFC_sig_GIMAP <- merge(Rubio_dds_deseq_LMG20012T_res_LFC_sig , AIG1_XP_ALL_gff_GIMAP_CG_uniq_XP_XM, by = "transcript_id")
+
+
+BIR_XP_gff_CG_uniq_XP_XM
+AIG1_XP_ALL_gff_GIMAP_CG_uniq_XP_XM
+
+BIR_XP_gff_CV_uniq_XP_XM
+AIG1_XP_ALL_gff_GIMAP_CV_uniq_XP_XM
+
 
 #### DELORGERIL OSHV1 TRANSCRIPTOME ANALYSIS ####
 
@@ -1204,6 +1334,43 @@ deLorgeril_Susceptible_dds_res_72_LFC_sig_APOP_plot <- ggplot(deLorgeril_Suscept
   coord_flip() + scale_fill_gradient2(low="purple",mid = "grey", high="darkgreen") + ggtitle("Resistant 72hr vs Control") +
   ylab("Log2 Fold Change") 
 
+## Extract IAP and GIMAP specific manually curated protein lists
+deLorgeril_Resistant_dds_res_6_LFC_sig_IAP <-  merge(deLorgeril_Resistant_dds_res_6_LFC_sig, BIR_XP_gff_CG_uniq_XP_XM, by = "transcript_id" )
+deLorgeril_Resistant_dds_res_6_LFC_sig_GIMAP <-  merge(deLorgeril_Resistant_dds_res_6_LFC_sig, AIG1_XP_ALL_gff_GIMAP_CG_uniq_XP_XM, by = "transcript_id" )
+
+deLorgeril_Resistant_dds_res_12_LFC_sig_IAP <- merge(deLorgeril_Resistant_dds_res_12_LFC_sig, BIR_XP_gff_CG_uniq_XP_XM, by = "transcript_id" )
+deLorgeril_Resistant_dds_res_12_LFC_sig_GIMAP <- merge(deLorgeril_Resistant_dds_res_12_LFC_sig, AIG1_XP_ALL_gff_GIMAP_CG_uniq_XP_XM, by = "transcript_id" )
+
+deLorgeril_Resistant_dds_res_24_LFC_sig_IAP <- merge(deLorgeril_Resistant_dds_res_24_LFC_sig, BIR_XP_gff_CG_uniq_XP_XM, by = "transcript_id" )
+deLorgeril_Resistant_dds_res_24_LFC_sig_GIMAP <- merge(deLorgeril_Resistant_dds_res_24_LFC_sig, AIG1_XP_ALL_gff_GIMAP_CG_uniq_XP_XM, by = "transcript_id" )
+
+deLorgeril_Resistant_dds_res_48_LFC_sig_IAP <- merge(deLorgeril_Resistant_dds_res_48_LFC_sig, BIR_XP_gff_CG_uniq_XP_XM, by = "transcript_id" )
+deLorgeril_Resistant_dds_res_48_LFC_sig_GIMAP <- merge(deLorgeril_Resistant_dds_res_48_LFC_sig, AIG1_XP_ALL_gff_GIMAP_CG_uniq_XP_XM, by = "transcript_id" )
+
+deLorgeril_Resistant_dds_res_60_LFC_sig_IAP <- merge(deLorgeril_Resistant_dds_res_60_LFC_sig, BIR_XP_gff_CG_uniq_XP_XM, by = "transcript_id" )
+deLorgeril_Resistant_dds_res_60_LFC_sig_GIMAP <- merge(deLorgeril_Resistant_dds_res_60_LFC_sig, AIG1_XP_ALL_gff_GIMAP_CG_uniq_XP_XM, by = "transcript_id" )
+
+deLorgeril_Resistant_dds_res_72_LFC_sig_IAP <- merge(deLorgeril_Resistant_dds_res_72_LFC_sig, BIR_XP_gff_CG_uniq_XP_XM, by = "transcript_id" )
+deLorgeril_Resistant_dds_res_72_LFC_sig_GIMAP <- merge(deLorgeril_Resistant_dds_res_72_LFC_sig, AIG1_XP_ALL_gff_GIMAP_CG_uniq_XP_XM, by = "transcript_id" )
+
+deLorgeril_Susceptible_dds_res_6_LFC_sig_IAP <-  merge(deLorgeril_Susceptible_dds_res_6_LFC_sig, BIR_XP_gff_CG_uniq_XP_XM, by = "transcript_id")
+deLorgeril_Susceptible_dds_res_6_LFC_sig_GIMAP <-  merge(deLorgeril_Susceptible_dds_res_6_LFC_sig, AIG1_XP_ALL_gff_GIMAP_CG_uniq_XP_XM, by = "transcript_id")
+
+deLorgeril_Susceptible_dds_res_12_LFC_sig_IAP <- merge(deLorgeril_Susceptible_dds_res_12_LFC_sig, BIR_XP_gff_CG_uniq_XP_XM, by = "transcript_id")
+deLorgeril_Susceptible_dds_res_12_LFC_sig_GIMAP <- merge(deLorgeril_Susceptible_dds_res_12_LFC_sig, AIG1_XP_ALL_gff_GIMAP_CG_uniq_XP_XM, by = "transcript_id")
+
+deLorgeril_Susceptible_dds_res_24_LFC_sig_IAP <- merge(deLorgeril_Susceptible_dds_res_24_LFC_sig, BIR_XP_gff_CG_uniq_XP_XM, by = "transcript_id")
+deLorgeril_Susceptible_dds_res_24_LFC_sig_GIMAP <- merge(deLorgeril_Susceptible_dds_res_24_LFC_sig, AIG1_XP_ALL_gff_GIMAP_CG_uniq_XP_XM, by = "transcript_id")
+
+deLorgeril_Susceptible_dds_res_48_LFC_sig_IAP <- merge(deLorgeril_Susceptible_dds_res_48_LFC_sig, BIR_XP_gff_CG_uniq_XP_XM, by = "transcript_id")
+deLorgeril_Susceptible_dds_res_48_LFC_sig_GIMAP <- merge(deLorgeril_Susceptible_dds_res_48_LFC_sig, AIG1_XP_ALL_gff_GIMAP_CG_uniq_XP_XM, by = "transcript_id")
+
+deLorgeril_Susceptible_dds_res_60_LFC_sig_IAP <- merge(deLorgeril_Susceptible_dds_res_60_LFC_sig, BIR_XP_gff_CG_uniq_XP_XM, by = "transcript_id")
+deLorgeril_Susceptible_dds_res_60_LFC_sig_GIMAP <- merge(deLorgeril_Susceptible_dds_res_60_LFC_sig, AIG1_XP_ALL_gff_GIMAP_CG_uniq_XP_XM, by = "transcript_id")
+
+deLorgeril_Susceptible_dds_res_72_LFC_sig_IAP <- merge(deLorgeril_Susceptible_dds_res_72_LFC_sig, BIR_XP_gff_CG_uniq_XP_XM, by = "transcript_id")
+deLorgeril_Susceptible_dds_res_72_LFC_sig_GIMAP <- merge(deLorgeril_Susceptible_dds_res_72_LFC_sig, AIG1_XP_ALL_gff_GIMAP_CG_uniq_XP_XM, by = "transcript_id")
+
 #### HE OSHV1 TRANSCRIPTOME ANALYSIS ####
 ## LOAD DATA
 He_counts <- read.csv("/Users/erinroberts/Documents/PhD_Research/Chapter_1_Apoptosis Paper/Chapter1_Apoptosis_Transcriptome_Analyses_2019/DATA ANALYSIS/apoptosis_data_pipeline/DESeq2/2020_Transcriptome_ANALYSIS/He_transcript_count_matrix.csv", header=TRUE,
@@ -1606,6 +1773,19 @@ He_all_sig_APOP <- rbind(He_dds_res_6hr_sig_APOP[,c("product","group_by_sim","lo
 He_full_LFC_plot <- ggplot(He_all_sig_APOP , aes(x=product,y=log2FoldChange, fill=group_by_sim )) + geom_col(position="dodge") + 
   theme(axis.text.x = element_text(angle = 75, hjust = 1)) + coord_flip()
 
+## Extract IAP and GIMAP specific manually curated protein lists
+He_dds_res_6hr_sig_IAP <- merge(He_dds_res_6hr_sig,    BIR_XP_gff_CG_uniq_XP_XM, by = "transcript_id")
+He_dds_res_12hr_sig_IAP <- merge(He_dds_res_12hr_sig,  BIR_XP_gff_CG_uniq_XP_XM, by = "transcript_id")
+He_dds_res_24hr_sig_IAP <- merge(He_dds_res_24hr_sig,  BIR_XP_gff_CG_uniq_XP_XM, by = "transcript_id")
+He_dds_res_48hr_sig_IAP <- merge(He_dds_res_48hr_sig , BIR_XP_gff_CG_uniq_XP_XM, by = "transcript_id")
+He_dds_res_120hr_sig_IAP <- merge(He_dds_res_120hr_sig,BIR_XP_gff_CG_uniq_XP_XM, by = "transcript_id" )
+
+He_dds_res_6hr_sig_GIMAP <- merge(He_dds_res_6hr_sig,    AIG1_XP_ALL_gff_GIMAP_CG_uniq_XP_XM, by = "transcript_id")
+He_dds_res_12hr_sig_GIMAP <- merge(He_dds_res_12hr_sig,  AIG1_XP_ALL_gff_GIMAP_CG_uniq_XP_XM, by = "transcript_id")
+He_dds_res_24hr_sig_GIMAP <- merge(He_dds_res_24hr_sig,  AIG1_XP_ALL_gff_GIMAP_CG_uniq_XP_XM, by = "transcript_id")
+He_dds_res_48hr_sig_GIMAP <- merge(He_dds_res_48hr_sig , AIG1_XP_ALL_gff_GIMAP_CG_uniq_XP_XM, by = "transcript_id")
+He_dds_res_120hr_sig_GIMAP <- merge(He_dds_res_120hr_sig,AIG1_XP_ALL_gff_GIMAP_CG_uniq_XP_XM, by = "transcript_id" )
+
 #### PROBIOTIC TRANSCRIPTOME ANALYSIS ####
 
 ## LOAD DATA
@@ -1646,6 +1826,22 @@ all(colnames(Probiotic_counts) %in% rownames(Probiotic_coldata))
 # returns TRUE
 all(rownames(Probiotic_coldata) == colnames(Probiotic_counts))
 # returns TRUE
+
+## COLLAPSE HAPLOTIGS
+Probiotic_counts["rna56518", ] <- Probiotic_counts["rna56371", ] + Probiotic_counts["rna56518", ]
+Probiotic_counts <- Probiotic_counts[rownames(Probiotic_counts) != "rna56371", ] 
+
+Probiotic_counts["rna35680", ] <- Probiotic_counts["rna61446", ] + Probiotic_counts["rna35680", ]
+Probiotic_counts <- Probiotic_counts[rownames(Probiotic_counts) != "rna61446", ]
+
+Probiotic_counts["rna32314", ] <- Probiotic_counts["rna37671", ] + Probiotic_counts["rna42347", ] + Probiotic_counts["rna44969", ] +  Probiotic_counts["rna6186", ] + Probiotic_counts["rna32314", ]
+Probiotic_counts <- Probiotic_counts[rownames(Probiotic_counts) != "rna37671", ] 
+Probiotic_counts <- Probiotic_counts[rownames(Probiotic_counts) != "rna42347", ] 
+Probiotic_counts <- Probiotic_counts[rownames(Probiotic_counts) != "rna44969", ] 
+Probiotic_counts <- Probiotic_counts[rownames(Probiotic_counts) != "rna6186", ] 
+
+Probiotic_counts["rna66976", ] <- Probiotic_counts["rna57534", ] + Probiotic_counts["rna66976", ] 
+Probiotic_counts <- Probiotic_counts[rownames(Probiotic_counts) != "rna57534", ] 
 
 ### DATA QC PCA PLOT 
 # rlog transform data is recommended over vst for small data sets 
@@ -1768,7 +1964,7 @@ family_Probiotic_broken_mat <- assay(Probiotic_dds_rlog )[Probiotic_dds_deseq_Ch
 family_Probiotic_broken_mat <- family_Probiotic_broken_mat - rowMeans(family_Probiotic_broken_mat)
 family_Probiotic_broken_anno <- as.data.frame(colData(Probiotic_dds_rlog )[, c("Condition","Time")])
 family_Probiotic_broken_heatmap <- pheatmap(family_Probiotic_broken_mat , annotation_col = family_Probiotic_broken_anno)
-head(familyProbiotic_broken_mat) # some clustering by bacillus, still overall clustering by day
+head(family_Probiotic_broken_mat) # some clustering by bacillus, still overall clustering by day
 
 # Gene clustering heatmap with only apoptosis genes #
 # vector C_vir_apop transcript IDs
@@ -1821,6 +2017,10 @@ Probiotic_dds_deseq_Challenge_res_LFC_sig_APOP_plot <- ggplot(Probiotic_dds_dese
   ylab("Log2 Fold Change")
  # mostly downregulation of transcripts 
 
+## Extract IAP and GIMAP specific manually curated protein lists
+Probiotic_dds_deseq_Challenge_res_LFC_sig_IAP <- merge(Probiotic_dds_deseq_Challenge_res_LFC_sig, BIR_XP_gff_CV_uniq_XP_XM, by = "ID")
+Probiotic_dds_deseq_Challenge_res_LFC_sig_GIMAP <- merge(Probiotic_dds_deseq_Challenge_res_LFC_sig, AIG1_XP_ALL_gff_GIMAP_CV_uniq_XP_XM, by = "ID")
+
 #### MODAK PROBIOTIC RE22 TRANSCRIPTOME ANALYSIS ####
 
 ## LOAD DATA
@@ -1861,6 +2061,22 @@ all(colnames(Pro_RE22_counts) %in% rownames(Pro_RE22_coldata))
 # returns TRUE
 all(rownames(Pro_RE22_coldata) == colnames(Pro_RE22_counts))
 # returns TRUE
+
+## COLLAPSE HAPLOTIGS
+Pro_RE22_counts["rna56518", ] <- Pro_RE22_counts["rna56371", ] + Pro_RE22_counts["rna56518", ]
+Pro_RE22_counts <- Pro_RE22_counts[rownames(Pro_RE22_counts) != "rna56371", ] 
+
+Pro_RE22_counts["rna35680", ] <- Pro_RE22_counts["rna61446", ] + Pro_RE22_counts["rna35680", ]
+Pro_RE22_counts <- Pro_RE22_counts[rownames(Pro_RE22_counts) != "rna61446", ]
+
+Pro_RE22_counts["rna32314", ] <- Pro_RE22_counts["rna37671", ] + Pro_RE22_counts["rna42347", ] + Pro_RE22_counts["rna44969", ] +  Pro_RE22_counts["rna6186", ] + Pro_RE22_counts["rna32314", ]
+Pro_RE22_counts <- Pro_RE22_counts[rownames(Pro_RE22_counts) != "rna37671", ] 
+Pro_RE22_counts <- Pro_RE22_counts[rownames(Pro_RE22_counts) != "rna42347", ] 
+Pro_RE22_counts <- Pro_RE22_counts[rownames(Pro_RE22_counts) != "rna44969", ] 
+Pro_RE22_counts <- Pro_RE22_counts[rownames(Pro_RE22_counts) != "rna6186", ] 
+
+Pro_RE22_counts["rna66976", ] <- Pro_RE22_counts["rna57534", ] + Pro_RE22_counts["rna66976", ] 
+Pro_RE22_counts <- Pro_RE22_counts[rownames(Pro_RE22_counts) != "rna57534", ] 
 
 ### DATA QC PCA PLOT 
 # rlog transform data is recommended over vst for small data sets 
@@ -2126,7 +2342,18 @@ Pro_RE22_dds_deseq_res_S4_24h_LFC_sig_APOP_plot <- ggplot(Pro_RE22_dds_deseq_res
 Pro_RE22_dds_deseq_res_RE22_LFC_sig_APOP_plot <- ggplot(Pro_RE22_dds_deseq_res_RE22_LFC_sig_APOP, aes(x=product, y = log2FoldChange, fill= log2FoldChange)) + geom_col(position="dodge") +
   coord_flip() + scale_fill_gradient2(low="purple",mid = "grey", high="darkgreen") + ggtitle("RE22 ")
 
-
+## Extract IAP and GIMAP specific manually curated protein lists
+Pro_RE22_dds_deseq_res_RI_6h_LFC_sig_IAP <- merge(Pro_RE22_dds_deseq_res_RI_6h_LFC_sig,   BIR_XP_gff_CV_uniq_XP_XM, by = "ID")
+Pro_RE22_dds_deseq_res_RI_24h_LFC_sig_IAP <- merge(Pro_RE22_dds_deseq_res_RI_24h_LFC_sig, BIR_XP_gff_CV_uniq_XP_XM, by =  "ID")
+Pro_RE22_dds_deseq_res_S4_6h_LFC_sig_IAP <- merge(Pro_RE22_dds_deseq_res_S4_6h_LFC_sig,   BIR_XP_gff_CV_uniq_XP_XM, by = "ID")
+Pro_RE22_dds_deseq_res_S4_24h_LFC_sig_IAP <- merge(Pro_RE22_dds_deseq_res_S4_24h_LFC_sig, BIR_XP_gff_CV_uniq_XP_XM, by =  "ID")
+Pro_RE22_dds_deseq_res_RE22_LFC_sig_IAP <- merge(Pro_RE22_dds_deseq_res_RE22_LFC_sig,     BIR_XP_gff_CV_uniq_XP_XM, by = "ID")
+ 
+Pro_RE22_dds_deseq_res_RI_6h_LFC_sig_GIMAP <- merge(Pro_RE22_dds_deseq_res_RI_6h_LFC_sig,   AIG1_XP_ALL_gff_GIMAP_CV_uniq_XP_XM, by = "ID")
+Pro_RE22_dds_deseq_res_RI_24h_LFC_sig_GIMAP <- merge(Pro_RE22_dds_deseq_res_RI_24h_LFC_sig, AIG1_XP_ALL_gff_GIMAP_CV_uniq_XP_XM, by =  "ID")
+Pro_RE22_dds_deseq_res_S4_6h_LFC_sig_GIMAP <- merge(Pro_RE22_dds_deseq_res_S4_6h_LFC_sig,   AIG1_XP_ALL_gff_GIMAP_CV_uniq_XP_XM, by = "ID")
+Pro_RE22_dds_deseq_res_S4_24h_LFC_sig_GIMAP <- merge(Pro_RE22_dds_deseq_res_S4_24h_LFC_sig, AIG1_XP_ALL_gff_GIMAP_CV_uniq_XP_XM, by =  "ID")
+Pro_RE22_dds_deseq_res_RE22_LFC_sig_GIMAP <- merge(Pro_RE22_dds_deseq_res_RE22_LFC_sig,     AIG1_XP_ALL_gff_GIMAP_CV_uniq_XP_XM, by = "ID")
 
 #### ROD TRANSCRIPTOME ANALYSIS #### 
 
@@ -2171,6 +2398,38 @@ ROD_Susceptible_counts <- ROD_counts[,row.names(ROD_Susceptible_coldata )]
 colnames(ROD_Susceptible_counts)
 ROD_Resistant_coldata <- ROD_coldata %>%  subset(Breed == "GX09") # subset() keeps rownames
 ROD_Resistant_counts <- ROD_counts[,row.names(ROD_Resistant_coldata)]
+
+## COLLAPSE HAPLOTIGS
+ROD_Susceptible_counts["rna56518", ] <- ROD_Susceptible_counts["rna56371", ] + ROD_Susceptible_counts["rna56518", ]
+ROD_Susceptible_counts <- ROD_Susceptible_counts[rownames(ROD_Susceptible_counts) != "rna56371", ] 
+
+ROD_Susceptible_counts["rna35680", ] <- ROD_Susceptible_counts["rna61446", ] + ROD_Susceptible_counts["rna35680", ]
+ROD_Susceptible_counts <- ROD_Susceptible_counts[rownames(ROD_Susceptible_counts) != "rna61446", ]
+
+ROD_Susceptible_counts["rna32314", ] <- ROD_Susceptible_counts["rna37671", ] + ROD_Susceptible_counts["rna42347", ] + ROD_Susceptible_counts["rna44969", ] + ROD_Susceptible_counts["rna6186", ] + ROD_Susceptible_counts["rna32314", ]
+ROD_Susceptible_counts <- ROD_Susceptible_counts[rownames(ROD_Susceptible_counts) != "rna37671", ] 
+ROD_Susceptible_counts <- ROD_Susceptible_counts[rownames(ROD_Susceptible_counts) != "rna42347", ] 
+ROD_Susceptible_counts <- ROD_Susceptible_counts[rownames(ROD_Susceptible_counts) != "rna44969", ] 
+ROD_Susceptible_counts <- ROD_Susceptible_counts[rownames(ROD_Susceptible_counts) != "rna6186", ] 
+
+ROD_Susceptible_counts["rna66976", ] <- ROD_Susceptible_counts["rna57534", ] + ROD_Susceptible_counts["rna66976", ] 
+ROD_Susceptible_counts <- ROD_Susceptible_counts[rownames(ROD_Susceptible_counts) != "rna57534", ] 
+
+# ROD RES
+ROD_Resistant_counts["rna56518", ] <- ROD_Resistant_counts["rna56371", ] + ROD_Resistant_counts["rna56518", ]
+ROD_Resistant_counts <- ROD_Resistant_counts[rownames(ROD_Resistant_counts) != "rna56371", ] 
+
+ROD_Resistant_counts["rna35680", ] <- ROD_Resistant_counts["rna61446", ] + ROD_Resistant_counts["rna35680", ]
+ROD_Resistant_counts <- ROD_Resistant_counts[rownames(ROD_Resistant_counts) != "rna61446", ]
+
+ROD_Resistant_counts["rna32314", ] <- ROD_Resistant_counts["rna37671", ] + ROD_Resistant_counts["rna42347", ] + ROD_Resistant_counts["rna44969", ] + ROD_Resistant_counts["rna6186", ] + ROD_Resistant_counts["rna32314", ]
+ROD_Resistant_counts <- ROD_Resistant_counts[rownames(ROD_Resistant_counts) != "rna37671", ] 
+ROD_Resistant_counts <- ROD_Resistant_counts[rownames(ROD_Resistant_counts) != "rna42347", ] 
+ROD_Resistant_counts <- ROD_Resistant_counts[rownames(ROD_Resistant_counts) != "rna44969", ] 
+ROD_Resistant_counts <- ROD_Resistant_counts[rownames(ROD_Resistant_counts) != "rna6186", ] 
+
+ROD_Resistant_counts["rna66976", ] <- ROD_Resistant_counts["rna57534", ] + ROD_Resistant_counts["rna66976", ] 
+ROD_Resistant_counts <- ROD_Resistant_counts[rownames(ROD_Resistant_counts) != "rna57534", ] 
 
 ### DATA QC PCA PLOT 
 # rlog transform data is recommended over vst for small data sets 
@@ -2425,10 +2684,16 @@ ROD_Resistant_dds_res_LFC_sig_APOP_plot <- ggplot(ROD_Resistant_dds_res_LFC_sig_
   coord_flip() + scale_fill_gradient2(low="purple",mid = "grey", high="darkgreen") + ggtitle("Susceptible Early vs Late") +
   ylab("Log2 Fold Change")
 
+## Extract IAP and GIMAP specific manually curated protein lists
+ROD_Susceptible_dds_res_LFC_sig_IAP <- merge(ROD_Susceptible_dds_res_LFC_sig, BIR_XP_gff_CV_uniq_XP_XM, by = "ID")
+ROD_Resistant_dds_res_LFC_sig_IAP <- merge(ROD_Resistant_dds_res_LFC_sig,     BIR_XP_gff_CV_uniq_XP_XM, by = "ID")
+
+ROD_Susceptible_dds_res_LFC_sig_GIMAP <- merge(ROD_Susceptible_dds_res_LFC_sig, AIG1_XP_ALL_gff_GIMAP_CV_uniq_XP_XM, by = "ID")
+ROD_Resistant_dds_res_LFC_sig_GIMAP <- merge(ROD_Resistant_dds_res_LFC_sig,     AIG1_XP_ALL_gff_GIMAP_CV_uniq_XP_XM, by = "ID")
+
 ###### DERMO PROESTOU TRANSCRIPTOME ANALYSIS ####
 
 # DA is susceptible and LB is tolerant
-
 Dermo_counts <- read.csv("/Users/erinroberts/Documents/PhD_Research/Chapter_1_Apoptosis Paper/Chapter1_Apoptosis_Transcriptome_Analyses_2019/DATA ANALYSIS/apoptosis_data_pipeline/DESeq2/2020_Transcriptome_ANALYSIS/Dermo_transcript_count_matrix.csv", header=TRUE,
                        row.names = "transcript_id")
 head(Dermo_counts)
@@ -2469,6 +2734,38 @@ Dermo_Susceptible_counts <- Dermo_counts[,row.names(Dermo_Susceptible_coldata )]
 colnames(Dermo_Susceptible_counts)
 Dermo_Tolerant_coldata <- Dermo_coldata %>%  subset(Family == "LB") # subset() keeps rownames
 Dermo_Tolerant_counts <- Dermo_counts[,row.names(Dermo_Tolerant_coldata)]
+
+## COLLAPSE HAPLOTIGS
+Dermo_Susceptible_counts["rna56518", ] <- Dermo_Susceptible_counts["rna56371", ] + Dermo_Susceptible_counts["rna56518", ]
+Dermo_Susceptible_counts <- Dermo_Susceptible_counts[rownames(Dermo_Susceptible_counts) != "rna56371", ] 
+
+Dermo_Susceptible_counts["rna35680", ] <- Dermo_Susceptible_counts["rna61446", ] + Dermo_Susceptible_counts["rna35680", ]
+Dermo_Susceptible_counts <- Dermo_Susceptible_counts[rownames(Dermo_Susceptible_counts) != "rna61446", ]
+
+Dermo_Susceptible_counts["rna32314", ] <- Dermo_Susceptible_counts["rna37671", ] + Dermo_Susceptible_counts["rna42347", ] + Dermo_Susceptible_counts["rna44969", ] + Dermo_Susceptible_counts["rna6186", ] + Dermo_Susceptible_counts["rna32314", ]
+Dermo_Susceptible_counts <- Dermo_Susceptible_counts[rownames(Dermo_Susceptible_counts) != "rna37671", ] 
+Dermo_Susceptible_counts <- Dermo_Susceptible_counts[rownames(Dermo_Susceptible_counts) != "rna42347", ] 
+Dermo_Susceptible_counts <- Dermo_Susceptible_counts[rownames(Dermo_Susceptible_counts) != "rna44969", ] 
+Dermo_Susceptible_counts <- Dermo_Susceptible_counts[rownames(Dermo_Susceptible_counts) != "rna6186", ] 
+
+Dermo_Susceptible_counts["rna66976", ] <- Dermo_Susceptible_counts["rna57534", ] + Dermo_Susceptible_counts["rna66976", ] 
+Dermo_Susceptible_counts <- Dermo_Susceptible_counts[rownames(Dermo_Susceptible_counts) != "rna57534", ] 
+
+# DERMO RES
+Dermo_Tolerant_counts["rna56518", ] <- Dermo_Tolerant_counts["rna56371", ] + Dermo_Tolerant_counts["rna56518", ]
+Dermo_Tolerant_counts <- Dermo_Tolerant_counts[rownames(Dermo_Tolerant_counts) != "rna56371", ] 
+
+Dermo_Tolerant_counts["rna35680", ] <- Dermo_Tolerant_counts["rna61446", ] + Dermo_Tolerant_counts["rna35680", ]
+Dermo_Tolerant_counts <- Dermo_Tolerant_counts[rownames(Dermo_Tolerant_counts) != "rna61446", ]
+
+Dermo_Tolerant_counts["rna32314", ] <- Dermo_Tolerant_counts["rna37671", ] + Dermo_Tolerant_counts["rna42347", ] + Dermo_Tolerant_counts["rna44969", ] + Dermo_Tolerant_counts["rna6186", ] + Dermo_Tolerant_counts["rna32314", ]
+Dermo_Tolerant_counts <- Dermo_Tolerant_counts[rownames(Dermo_Tolerant_counts) != "rna37671", ] 
+Dermo_Tolerant_counts <- Dermo_Tolerant_counts[rownames(Dermo_Tolerant_counts) != "rna42347", ] 
+Dermo_Tolerant_counts <- Dermo_Tolerant_counts[rownames(Dermo_Tolerant_counts) != "rna44969", ] 
+Dermo_Tolerant_counts <- Dermo_Tolerant_counts[rownames(Dermo_Tolerant_counts) != "rna6186", ] 
+
+Dermo_Tolerant_counts["rna66976", ] <- Dermo_Tolerant_counts["rna57534", ] + Dermo_Tolerant_counts["rna66976", ] 
+Dermo_Tolerant_counts <- Dermo_Tolerant_counts[rownames(Dermo_Tolerant_counts) != "rna57534", ] 
 
 ### DATA QC PCA PLOT 
 # rlog transform data is recommended over vst for small data sets 
@@ -2767,7 +3064,6 @@ nrow(Dermo_Tolerant_dds_res_LFC_sig_APOP) # 29
 # Combined LFC plot
 Dermo_Susceptible_condition_dds_res_LFC_sig_APOP
 Dermo_Tolerant_condition_dds_dres_LFC_sig_APOP 
-
 Dermo_Susceptible_dds_res_LFC_sig_APOP
 Dermo_Tolerant_dds_res_LFC_sig_APOP 
 
@@ -2822,6 +3118,79 @@ colnames(Dermo_Tolerant_28d_counts )
 ## Check levels 
 levels(Dermo_Tolerant_36hr_coldata$Condition)
 levels(Dermo_Tolerant_36hr_coldata$Time)
+
+## COLLAPSE HAPLOTIGS
+Dermo_Susceptible_36hr_counts["rna56518", ] <- Dermo_Susceptible_36hr_counts["rna56371", ] + Dermo_Susceptible_36hr_counts["rna56518", ]
+Dermo_Susceptible_36hr_counts <- Dermo_Susceptible_36hr_counts[rownames(Dermo_Susceptible_36hr_counts) != "rna56371", ] 
+Dermo_Susceptible_36hr_counts["rna35680", ] <- Dermo_Susceptible_36hr_counts["rna61446", ] + Dermo_Susceptible_36hr_counts["rna35680", ]
+Dermo_Susceptible_36hr_counts <- Dermo_Susceptible_36hr_counts[rownames(Dermo_Susceptible_36hr_counts) != "rna61446", ]
+Dermo_Susceptible_36hr_counts["rna32314", ] <- Dermo_Susceptible_36hr_counts["rna37671", ] + Dermo_Susceptible_36hr_counts["rna42347", ] + Dermo_Susceptible_36hr_counts["rna44969", ] + Dermo_Susceptible_36hr_counts["rna6186", ] + Dermo_Susceptible_36hr_counts["rna32314", ]
+Dermo_Susceptible_36hr_counts <- Dermo_Susceptible_36hr_counts[rownames(Dermo_Susceptible_36hr_counts) != "rna37671", ] 
+Dermo_Susceptible_36hr_counts <- Dermo_Susceptible_36hr_counts[rownames(Dermo_Susceptible_36hr_counts) != "rna42347", ] 
+Dermo_Susceptible_36hr_counts <- Dermo_Susceptible_36hr_counts[rownames(Dermo_Susceptible_36hr_counts) != "rna44969", ] 
+Dermo_Susceptible_36hr_counts <- Dermo_Susceptible_36hr_counts[rownames(Dermo_Susceptible_36hr_counts) != "rna6186", ] 
+Dermo_Susceptible_36hr_counts["rna66976", ] <- Dermo_Susceptible_36hr_counts["rna57534", ] + Dermo_Susceptible_36hr_counts["rna66976", ] 
+Dermo_Susceptible_36hr_counts <- Dermo_Susceptible_36hr_counts[rownames(Dermo_Susceptible_36hr_counts) != "rna57534", ] 
+
+Dermo_Susceptible_7d_counts["rna56518", ] <- Dermo_Susceptible_7d_counts["rna56371", ] + Dermo_Susceptible_7d_counts["rna56518", ]
+Dermo_Susceptible_7d_counts <- Dermo_Susceptible_7d_counts[rownames(Dermo_Susceptible_7d_counts) != "rna56371", ] 
+Dermo_Susceptible_7d_counts["rna35680", ] <- Dermo_Susceptible_7d_counts["rna61446", ] + Dermo_Susceptible_7d_counts["rna35680", ]
+Dermo_Susceptible_7d_counts <- Dermo_Susceptible_7d_counts[rownames(Dermo_Susceptible_7d_counts) != "rna61446", ]
+Dermo_Susceptible_7d_counts["rna32314", ] <- Dermo_Susceptible_7d_counts["rna37671", ] + Dermo_Susceptible_7d_counts["rna42347", ] + Dermo_Susceptible_7d_counts["rna44969", ] + Dermo_Susceptible_7d_counts["rna6186", ] + Dermo_Susceptible_7d_counts["rna32314", ]
+Dermo_Susceptible_7d_counts <- Dermo_Susceptible_7d_counts[rownames(Dermo_Susceptible_7d_counts) != "rna37671", ] 
+Dermo_Susceptible_7d_counts <- Dermo_Susceptible_7d_counts[rownames(Dermo_Susceptible_7d_counts) != "rna42347", ] 
+Dermo_Susceptible_7d_counts <- Dermo_Susceptible_7d_counts[rownames(Dermo_Susceptible_7d_counts) != "rna44969", ] 
+Dermo_Susceptible_7d_counts <- Dermo_Susceptible_7d_counts[rownames(Dermo_Susceptible_7d_counts) != "rna6186", ] 
+Dermo_Susceptible_7d_counts["rna66976", ] <- Dermo_Susceptible_7d_counts["rna57534", ] + Dermo_Susceptible_7d_counts["rna66976", ] 
+Dermo_Susceptible_7d_counts <- Dermo_Susceptible_7d_counts[rownames(Dermo_Susceptible_7d_counts) != "rna57534", ] 
+
+Dermo_Susceptible_28d_counts["rna56518", ] <- Dermo_Susceptible_28d_counts["rna56371", ] + Dermo_Susceptible_28d_counts["rna56518", ]
+Dermo_Susceptible_28d_counts<- Dermo_Susceptible_28d_counts[rownames(Dermo_Susceptible_28d_counts) != "rna56371", ] 
+Dermo_Susceptible_28d_counts["rna35680", ] <- Dermo_Susceptible_28d_counts["rna61446", ] + Dermo_Susceptible_28d_counts["rna35680", ]
+Dermo_Susceptible_28d_counts<- Dermo_Susceptible_28d_counts[rownames(Dermo_Susceptible_28d_counts) != "rna61446", ]
+Dermo_Susceptible_28d_counts["rna32314", ] <- Dermo_Susceptible_28d_counts["rna37671", ] + Dermo_Susceptible_28d_counts["rna42347", ] + Dermo_Susceptible_28d_counts["rna44969", ] + Dermo_Susceptible_28d_counts["rna6186", ] + Dermo_Susceptible_28d_counts["rna32314", ]
+Dermo_Susceptible_28d_counts<- Dermo_Susceptible_28d_counts[rownames(Dermo_Susceptible_28d_counts) != "rna37671", ] 
+Dermo_Susceptible_28d_counts<- Dermo_Susceptible_28d_counts[rownames(Dermo_Susceptible_28d_counts) != "rna42347", ] 
+Dermo_Susceptible_28d_counts<- Dermo_Susceptible_28d_counts[rownames(Dermo_Susceptible_28d_counts) != "rna44969", ] 
+Dermo_Susceptible_28d_counts<- Dermo_Susceptible_28d_counts[rownames(Dermo_Susceptible_28d_counts) != "rna6186", ] 
+Dermo_Susceptible_28d_counts["rna66976", ] <- Dermo_Susceptible_28d_counts["rna57534", ] + Dermo_Susceptible_28d_counts["rna66976", ] 
+Dermo_Susceptible_28d_counts<- Dermo_Susceptible_28d_counts[rownames(Dermo_Susceptible_28d_counts) != "rna57534", ] 
+
+Dermo_Tolerant_36hr_counts["rna56518", ] <- Dermo_Tolerant_36hr_counts["rna56371", ] + Dermo_Tolerant_36hr_counts["rna56518", ]
+Dermo_Tolerant_36hr_counts <- Dermo_Tolerant_36hr_counts[rownames(Dermo_Tolerant_36hr_counts) != "rna56371", ] 
+Dermo_Tolerant_36hr_counts["rna35680", ] <- Dermo_Tolerant_36hr_counts["rna61446", ] + Dermo_Tolerant_36hr_counts["rna35680", ]
+Dermo_Tolerant_36hr_counts <- Dermo_Tolerant_36hr_counts[rownames(Dermo_Tolerant_36hr_counts) != "rna61446", ]
+Dermo_Tolerant_36hr_counts["rna32314", ] <- Dermo_Tolerant_36hr_counts["rna37671", ] + Dermo_Tolerant_36hr_counts["rna42347", ] + Dermo_Tolerant_36hr_counts["rna44969", ] + Dermo_Tolerant_36hr_counts["rna6186", ] + Dermo_Tolerant_36hr_counts["rna32314", ]
+Dermo_Tolerant_36hr_counts <- Dermo_Tolerant_36hr_counts[rownames(Dermo_Tolerant_36hr_counts) != "rna37671", ] 
+Dermo_Tolerant_36hr_counts <- Dermo_Tolerant_36hr_counts[rownames(Dermo_Tolerant_36hr_counts) != "rna42347", ] 
+Dermo_Tolerant_36hr_counts <- Dermo_Tolerant_36hr_counts[rownames(Dermo_Tolerant_36hr_counts) != "rna44969", ] 
+Dermo_Tolerant_36hr_counts <- Dermo_Tolerant_36hr_counts[rownames(Dermo_Tolerant_36hr_counts) != "rna6186", ] 
+Dermo_Tolerant_36hr_counts["rna66976", ] <- Dermo_Tolerant_36hr_counts["rna57534", ] + Dermo_Tolerant_36hr_counts["rna66976", ] 
+Dermo_Tolerant_36hr_counts <- Dermo_Tolerant_36hr_counts[rownames(Dermo_Tolerant_36hr_counts) != "rna57534", ] 
+
+Dermo_Tolerant_7d_counts["rna56518", ] <- Dermo_Tolerant_7d_counts["rna56371", ] + Dermo_Tolerant_7d_counts["rna56518", ]
+Dermo_Tolerant_7d_counts <- Dermo_Tolerant_7d_counts[rownames(Dermo_Tolerant_7d_counts) != "rna56371", ] 
+Dermo_Tolerant_7d_counts["rna35680", ] <- Dermo_Tolerant_7d_counts["rna61446", ] + Dermo_Tolerant_7d_counts["rna35680", ]
+Dermo_Tolerant_7d_counts <- Dermo_Tolerant_7d_counts[rownames(Dermo_Tolerant_7d_counts) != "rna61446", ]
+Dermo_Tolerant_7d_counts["rna32314", ] <- Dermo_Tolerant_7d_counts["rna37671", ] + Dermo_Tolerant_7d_counts["rna42347", ] + Dermo_Tolerant_7d_counts["rna44969", ] + Dermo_Tolerant_7d_counts["rna6186", ] + Dermo_Tolerant_7d_counts["rna32314", ]
+Dermo_Tolerant_7d_counts <- Dermo_Tolerant_7d_counts[rownames(Dermo_Tolerant_7d_counts) != "rna37671", ] 
+Dermo_Tolerant_7d_counts <- Dermo_Tolerant_7d_counts[rownames(Dermo_Tolerant_7d_counts) != "rna42347", ] 
+Dermo_Tolerant_7d_counts <- Dermo_Tolerant_7d_counts[rownames(Dermo_Tolerant_7d_counts) != "rna44969", ] 
+Dermo_Tolerant_7d_counts <- Dermo_Tolerant_7d_counts[rownames(Dermo_Tolerant_7d_counts) != "rna6186", ] 
+Dermo_Tolerant_7d_counts["rna66976", ] <- Dermo_Tolerant_7d_counts["rna57534", ] + Dermo_Tolerant_7d_counts["rna66976", ] 
+Dermo_Tolerant_7d_counts <- Dermo_Tolerant_7d_counts[rownames(Dermo_Tolerant_7d_counts) != "rna57534", ] 
+
+Dermo_Tolerant_28d_counts["rna56518", ] <- Dermo_Tolerant_28d_counts["rna56371", ] + Dermo_Tolerant_28d_counts["rna56518", ]
+Dermo_Tolerant_28d_counts<- Dermo_Tolerant_28d_counts[rownames(Dermo_Tolerant_28d_counts) != "rna56371", ] 
+Dermo_Tolerant_28d_counts["rna35680", ] <- Dermo_Tolerant_28d_counts["rna61446", ] + Dermo_Tolerant_28d_counts["rna35680", ]
+Dermo_Tolerant_28d_counts<- Dermo_Tolerant_28d_counts[rownames(Dermo_Tolerant_28d_counts) != "rna61446", ]
+Dermo_Tolerant_28d_counts["rna32314", ] <- Dermo_Tolerant_28d_counts["rna37671", ] + Dermo_Tolerant_28d_counts["rna42347", ] + Dermo_Tolerant_28d_counts["rna44969", ] + Dermo_Tolerant_28d_counts["rna6186", ] + Dermo_Tolerant_28d_counts["rna32314", ]
+Dermo_Tolerant_28d_counts<- Dermo_Tolerant_28d_counts[rownames(Dermo_Tolerant_28d_counts) != "rna37671", ] 
+Dermo_Tolerant_28d_counts<- Dermo_Tolerant_28d_counts[rownames(Dermo_Tolerant_28d_counts) != "rna42347", ] 
+Dermo_Tolerant_28d_counts<- Dermo_Tolerant_28d_counts[rownames(Dermo_Tolerant_28d_counts) != "rna44969", ] 
+Dermo_Tolerant_28d_counts<- Dermo_Tolerant_28d_counts[rownames(Dermo_Tolerant_28d_counts) != "rna6186", ] 
+Dermo_Tolerant_28d_counts["rna66976", ] <- Dermo_Tolerant_28d_counts["rna57534", ] + Dermo_Tolerant_28d_counts["rna66976", ] 
+Dermo_Tolerant_28d_counts<- Dermo_Tolerant_28d_counts[rownames(Dermo_Tolerant_28d_counts) != "rna57534", ] 
 
 ## Creating two data set from matrix, one for each family  
 Dermo_Tolerant_36hr_dds <- DESeqDataSetFromMatrix(countData =Dermo_Tolerant_36hr_counts,
@@ -2971,6 +3340,21 @@ Dermo_separated_all_sig_APOP <- rbind(
 # Make plot
 Dermo_separated_all_sig_APOP_plot <- ggplot(Dermo_separated_all_sig_APOP, aes(x=product,y=log2FoldChange, fill=group_by_sim )) + geom_col(position="dodge") + 
   theme(axis.text.x = element_text(angle = 75, hjust = 1)) + coord_flip()
+
+## Extract IAP and GIMAP specific manually curated protein lists
+Dermo_Susceptible_36hr_dds_res_LFC_sig_IAP <- merge(Dermo_Susceptible_36hr_dds_res_LFC_sig, BIR_XP_gff_CV_uniq_XP_XM, by = "ID")
+Dermo_Susceptible_7d_dds_res_LFC_sig_IAP <- merge(Dermo_Susceptible_7d_dds_res_LFC_sig,     BIR_XP_gff_CV_uniq_XP_XM, by = "ID")
+Dermo_Susceptible_28d_dds_res_LFC_sig_IAP <- merge(Dermo_Susceptible_28d_dds_res_LFC_sig,   BIR_XP_gff_CV_uniq_XP_XM, by = "ID")
+Dermo_Tolerant_36hr_dds_res_LFC_sig_IAP <- merge(Dermo_Tolerant_36hr_dds_res_LFC_sig,       BIR_XP_gff_CV_uniq_XP_XM, by = "ID")
+Dermo_Tolerant_7d_dds_res_LFC_sig_IAP <- merge(Dermo_Tolerant_7d_dds_res_LFC_sig,           BIR_XP_gff_CV_uniq_XP_XM, by = "ID")
+Dermo_Tolerant_28d_dds_res_LFC_sig_IAP <- merge(Dermo_Tolerant_28d_dds_res_LFC_sig,         BIR_XP_gff_CV_uniq_XP_XM, by = "ID")
+
+Dermo_Susceptible_36hr_dds_res_LFC_sig_GIMAP <- merge(Dermo_Susceptible_36hr_dds_res_LFC_sig, AIG1_XP_ALL_gff_GIMAP_CV_uniq_XP_XM, by = "ID")
+Dermo_Susceptible_7d_dds_res_LFC_sig_GIMAP <- merge(Dermo_Susceptible_7d_dds_res_LFC_sig,     AIG1_XP_ALL_gff_GIMAP_CV_uniq_XP_XM, by = "ID")
+Dermo_Susceptible_28d_dds_res_LFC_sig_GIMAP <- merge(Dermo_Susceptible_28d_dds_res_LFC_sig,   AIG1_XP_ALL_gff_GIMAP_CV_uniq_XP_XM, by = "ID")
+Dermo_Tolerant_36hr_dds_res_LFC_sig_GIMAP <- merge(Dermo_Tolerant_36hr_dds_res_LFC_sig,       AIG1_XP_ALL_gff_GIMAP_CV_uniq_XP_XM, by = "ID")
+Dermo_Tolerant_7d_dds_res_LFC_sig_GIMAP <- merge(Dermo_Tolerant_7d_dds_res_LFC_sig,           AIG1_XP_ALL_gff_GIMAP_CV_uniq_XP_XM, by = "ID")
+Dermo_Tolerant_28d_dds_res_LFC_sig_GIMAP <- merge(Dermo_Tolerant_28d_dds_res_LFC_sig,         AIG1_XP_ALL_gff_GIMAP_CV_uniq_XP_XM, by = "ID")
 
 #### LFC PLOTS BY SPECIES ####
 
@@ -3530,6 +3914,128 @@ C_gig_apop_APOP_upregulated_plot <- ggplot(C_gig_apop_APOP_upregulated , aes(x=p
   theme(axis.text.x = element_text(angle = 75, hjust = 1)) + coord_flip()
 C_gig_apop_APOP_plot <- ggplot(C_gig_apop_LFC  , aes(x=product,y=log2FoldChange, fill=experiment )) + geom_col(position="dodge") + 
   theme(axis.text.x = element_text(angle = 75, hjust = 1)) + coord_flip()
+
+#### IAP AND GIMAP LFC PLOTS BY SPECIES ####
+
+
+
+
+#### LFC PLOTS BY SPECIES ####
+
+ROD_Susceptible_dds_res_LFC_sig_APOP$group_by_sim <- "ROD_susceptible"
+ROD_Resistant_dds_res_LFC_sig_APOP$group_by_sim <- "ROD_resistant"
+ROD_Susceptible_dds_res_LFC_sig_APOP$experiment <- "ROD"
+ROD_Resistant_dds_res_LFC_sig_APOP$experiment <- "ROD"
+
+Probiotic_dds_deseq_Challenge_res_LFC_sig_APOP$group_by_sim <- "Probiotic"
+Probiotic_dds_deseq_Challenge_res_LFC_sig_APOP$experiment <- "Probiotic"
+
+Dermo_Susceptible_36hr_dds_res_LFC_sig_APOP $experiment <- "Dermo"
+Dermo_Susceptible_7d_dds_res_LFC_sig_APOP$experiment <- "Dermo"
+Dermo_Susceptible_28d_dds_res_LFC_sig_APOP$experiment <- "Dermo"
+Dermo_Tolerant_36hr_dds_res_LFC_sig_APOP$experiment <- "Dermo"
+Dermo_Tolerant_7d_dds_res_LFC_sig_APOP$experiment <- "Dermo"
+Dermo_Tolerant_28d_dds_res_LFC_sig_APOP $experiment <- "Dermo"
+Dermo_Susceptible_36hr_dds_res_LFC_sig_APOP $group_by_sim <- "Susceptible_36hr"
+Dermo_Susceptible_7d_dds_res_LFC_sig_APOP   $group_by_sim <- "Susceptible_7d"
+Dermo_Susceptible_28d_dds_res_LFC_sig_APOP  $group_by_sim <- "Susceptible_28d"
+Dermo_Tolerant_36hr_dds_res_LFC_sig_APOP    $group_by_sim <- "Tolerant_36hr"
+Dermo_Tolerant_7d_dds_res_LFC_sig_APOP      $group_by_sim <- "Tolerant_7d"
+Dermo_Tolerant_28d_dds_res_LFC_sig_APOP     $group_by_sim <- "Tolerant_28d"
+
+Pro_RE22_dds_deseq_res_RI_6h_LFC_sig_APOP$experiment <- "Pro_RE22"
+Pro_RE22_dds_deseq_res_RI_24h_LFC_sig_APOP$experiment <- "Pro_RE22"
+Pro_RE22_dds_deseq_res_S4_6h_LFC_sig_APOP$experiment <- "Pro_RE22"
+Pro_RE22_dds_deseq_res_S4_24h_LFC_sig_APOP$experiment <- "Pro_RE22"
+Pro_RE22_dds_deseq_res_RE22_LFC_sig_APOP$experiment <- "Pro_RE22"
+
+# combine all data , add in the gene and XM info. The XM lines don't also contain the XP
+C_vir_apop_LFC <- rbind(
+  ROD_Susceptible_dds_res_LFC_sig_APOP[,c("product","group_by_sim","log2FoldChange","experiment", "gene","transcript_id","padj")],
+  ROD_Resistant_dds_res_LFC_sig_APOP[,c("product","group_by_sim","log2FoldChange","experiment", "gene","transcript_id","padj")],
+  Probiotic_dds_deseq_Challenge_res_LFC_sig_APOP[,c("product","group_by_sim","log2FoldChange","experiment", "gene","transcript_id","padj")],
+  Dermo_Susceptible_36hr_dds_res_LFC_sig_APOP[,c("product","group_by_sim","log2FoldChange","experiment", "gene","transcript_id","padj")],
+  Dermo_Susceptible_7d_dds_res_LFC_sig_APOP[,c("product","group_by_sim","log2FoldChange","experiment", "gene","transcript_id","padj")],
+  Dermo_Susceptible_28d_dds_res_LFC_sig_APOP[,c("product","group_by_sim","log2FoldChange","experiment", "gene","transcript_id","padj")],
+  Dermo_Tolerant_36hr_dds_res_LFC_sig_APOP[,c("product","group_by_sim","log2FoldChange","experiment", "gene","transcript_id","padj")],
+  Dermo_Tolerant_7d_dds_res_LFC_sig_APOP[,c("product","group_by_sim","log2FoldChange","experiment", "gene","transcript_id","padj")],
+  Dermo_Tolerant_28d_dds_res_LFC_sig_APOP [,c("product","group_by_sim","log2FoldChange","experiment", "gene","transcript_id","padj")],
+  Pro_RE22_dds_deseq_res_RI_6h_LFC_sig_APOP[,c("product","group_by_sim","log2FoldChange","experiment", "gene","transcript_id","padj")],
+  Pro_RE22_dds_deseq_res_RI_24h_LFC_sig_APOP[,c("product","group_by_sim","log2FoldChange","experiment", "gene","transcript_id","padj")],
+  Pro_RE22_dds_deseq_res_S4_6h_LFC_sig_APOP[,c("product","group_by_sim","log2FoldChange","experiment", "gene","transcript_id","padj")],
+  Pro_RE22_dds_deseq_res_S4_24h_LFC_sig_APOP[,c("product","group_by_sim","log2FoldChange","experiment", "gene","transcript_id","padj")],
+  Pro_RE22_dds_deseq_res_RE22_LFC_sig_APOP[,c("product","group_by_sim","log2FoldChange","experiment", "gene","transcript_id","padj")])
+nrow(C_vir_apop_LFC ) #427
+View(arrange(C_vir_apop_LFC, -log2FoldChange) )
+
+
+Zhang_dds_deseq_res_V_alg1_LFC_sig_APOP$experiment <- "Zhang"
+Zhang_dds_deseq_res_V_tub_LFC_sig_APOP$experiment <- "Zhang"
+Zhang_dds_deseq_res_LFC_LPS_sig_APOP$experiment <- "Zhang"
+
+Rubio_dds_deseq_J2_8_res_LFC_sig_APOP$experiment <- "Rubio"
+Rubio_dds_deseq_J2_9_res_LFC_sig_APOP$experiment <- "Rubio"
+Rubio_dds_deseq_LGP32_res_LFC_sig_APOP$experiment <- "Rubio"
+Rubio_dds_deseq_LMG20012T_res_LFC_sig_APOP$experiment <- "Rubio"
+
+He_dds_res_6hr_sig_APOP$experiment <- "He"
+He_dds_res_12hr_sig_APOP$experiment <- "He"
+He_dds_res_24hr_sig_APOP$experiment <- "He"
+He_dds_res_48hr_sig_APOP$experiment <- "He"
+He_dds_res_120hr_sig_APOP$experiment <- "He"
+
+deLorgeril_Resistant_dds_res_6_LFC_sig_APOP  $experiment <- "deLorgeril"
+deLorgeril_Resistant_dds_res_12_LFC_sig_APOP  $experiment <- "deLorgeril"
+deLorgeril_Resistant_dds_res_24_LFC_sig_APOP  $experiment <- "deLorgeril"
+deLorgeril_Resistant_dds_res_48_LFC_sig_APOP  $experiment <- "deLorgeril"
+deLorgeril_Resistant_dds_res_60_LFC_sig_APOP  $experiment <- "deLorgeril"
+deLorgeril_Resistant_dds_res_72_LFC_sig_APOP  $experiment <- "deLorgeril"
+deLorgeril_Susceptible_dds_res_6_LFC_sig_APOP$experiment <- "deLorgeril"
+deLorgeril_Susceptible_dds_res_12_LFC_sig_APOP$experiment <- "deLorgeril"
+deLorgeril_Susceptible_dds_res_24_LFC_sig_APOP$experiment <- "deLorgeril"
+deLorgeril_Susceptible_dds_res_48_LFC_sig_APOP$experiment <- "deLorgeril"
+deLorgeril_Susceptible_dds_res_60_LFC_sig_APOP$experiment <- "deLorgeril"
+deLorgeril_Susceptible_dds_res_72_LFC_sig_APOP$experiment <- "deLorgeril"
+
+# add in protein, gene and XM info for merging with ortholog information 
+C_gig_apop_LFC <- rbind(Zhang_dds_deseq_res_V_alg1_LFC_sig_APOP       [,c("product","group_by_sim","log2FoldChange","experiment", "gene","transcript_id","padj")],
+                        Zhang_dds_deseq_res_V_tub_LFC_sig_APOP        [,c("product","group_by_sim","log2FoldChange","experiment", "gene","transcript_id","padj")],
+                        Zhang_dds_deseq_res_LFC_LPS_sig_APOP          [,c("product","group_by_sim","log2FoldChange","experiment", "gene","transcript_id","padj")],
+                        Rubio_dds_deseq_J2_8_res_LFC_sig_APOP         [,c("product","group_by_sim","log2FoldChange","experiment", "gene","transcript_id","padj")],
+                        Rubio_dds_deseq_J2_9_res_LFC_sig_APOP         [,c("product","group_by_sim","log2FoldChange","experiment", "gene","transcript_id","padj")],
+                        Rubio_dds_deseq_LGP32_res_LFC_sig_APOP        [,c("product","group_by_sim","log2FoldChange","experiment", "gene","transcript_id","padj")],
+                        Rubio_dds_deseq_LMG20012T_res_LFC_sig_APOP    [,c("product","group_by_sim","log2FoldChange","experiment", "gene","transcript_id","padj")],
+                        He_dds_res_6hr_sig_APOP                       [,c("product","group_by_sim","log2FoldChange","experiment", "gene","transcript_id","padj")],
+                        He_dds_res_12hr_sig_APOP                      [,c("product","group_by_sim","log2FoldChange","experiment", "gene","transcript_id","padj")],
+                        He_dds_res_24hr_sig_APOP                      [,c("product","group_by_sim","log2FoldChange","experiment", "gene","transcript_id","padj")],
+                        He_dds_res_48hr_sig_APOP                      [,c("product","group_by_sim","log2FoldChange","experiment", "gene","transcript_id","padj")],
+                        He_dds_res_120hr_sig_APOP                     [,c("product","group_by_sim","log2FoldChange","experiment", "gene","transcript_id","padj")],
+                        deLorgeril_Resistant_dds_res_6_LFC_sig_APOP   [,c("product","group_by_sim","log2FoldChange","experiment", "gene","transcript_id","padj")],
+                        deLorgeril_Resistant_dds_res_12_LFC_sig_APOP  [,c("product","group_by_sim","log2FoldChange","experiment", "gene","transcript_id","padj")],
+                        deLorgeril_Resistant_dds_res_24_LFC_sig_APOP  [,c("product","group_by_sim","log2FoldChange","experiment", "gene","transcript_id","padj")],
+                        deLorgeril_Resistant_dds_res_48_LFC_sig_APOP  [,c("product","group_by_sim","log2FoldChange","experiment", "gene","transcript_id","padj")],
+                        deLorgeril_Resistant_dds_res_60_LFC_sig_APOP  [,c("product","group_by_sim","log2FoldChange","experiment", "gene","transcript_id","padj")],
+                        deLorgeril_Resistant_dds_res_72_LFC_sig_APOP  [,c("product","group_by_sim","log2FoldChange","experiment", "gene","transcript_id","padj")],
+                        deLorgeril_Susceptible_dds_res_6_LFC_sig_APOP [,c("product","group_by_sim","log2FoldChange","experiment", "gene","transcript_id","padj")],
+                        deLorgeril_Susceptible_dds_res_12_LFC_sig_APOP[,c("product","group_by_sim","log2FoldChange","experiment", "gene","transcript_id","padj")],
+                        deLorgeril_Susceptible_dds_res_24_LFC_sig_APOP[,c("product","group_by_sim","log2FoldChange","experiment", "gene","transcript_id","padj")],
+                        deLorgeril_Susceptible_dds_res_48_LFC_sig_APOP[,c("product","group_by_sim","log2FoldChange","experiment", "gene","transcript_id","padj")],
+                        deLorgeril_Susceptible_dds_res_60_LFC_sig_APOP[,c("product","group_by_sim","log2FoldChange","experiment", "gene","transcript_id","padj")],
+                        deLorgeril_Susceptible_dds_res_72_LFC_sig_APOP[,c("product","group_by_sim","log2FoldChange","experiment", "gene","transcript_id","padj")])
+nrow(C_gig_apop_LFC) # 1613
+
+# Make plot for up and downregulated
+C_gig_apop_APOP_downregulated <- C_gig_apop_LFC %>% filter(log2FoldChange <= 0)
+C_gig_apop_APOP_upregulated <- C_gig_apop_LFC %>% filter(log2FoldChange > 0)
+
+# Make plot
+C_gig_apop_APOP_downregulated_plot <- ggplot(C_gig_apop_APOP_downregulated , aes(x=product,y=log2FoldChange, fill=experiment )) + geom_col(position="dodge") + 
+  theme(axis.text.x = element_text(angle = 75, hjust = 1)) + coord_flip()
+C_gig_apop_APOP_upregulated_plot <- ggplot(C_gig_apop_APOP_upregulated , aes(x=product,y=log2FoldChange, fill=experiment )) + geom_col(position="dodge") + 
+  theme(axis.text.x = element_text(angle = 75, hjust = 1)) + coord_flip()
+C_gig_apop_APOP_plot <- ggplot(C_gig_apop_LFC  , aes(x=product,y=log2FoldChange, fill=experiment )) + geom_col(position="dodge") + 
+  theme(axis.text.x = element_text(angle = 75, hjust = 1)) + coord_flip()
+
 
 
 #### COMPARING APOPTOSIS TRANSCRIPT EXPRESSION BETWEEN EXPERIMENTS PCA HEATMAPS VST ON APOP SUBSET ALONE ####
