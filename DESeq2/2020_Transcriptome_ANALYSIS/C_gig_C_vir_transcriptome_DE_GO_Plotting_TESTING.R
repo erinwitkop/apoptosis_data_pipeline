@@ -34,6 +34,7 @@ library(ggfortify)
 library(ggpubr)
 library(viridis)
 library(extrafont)
+library(limma)
 
 # VERSIONS (see sessionInfo at bottom of script for full information)
 # R version 3.6.1 (2019-07-05)
@@ -4621,6 +4622,11 @@ top_Var_C_gig_assay_mat_prot_annot <- left_join(top_Var_C_gig_apop_assay_mat_pro
 
 #### COMPARING IAP AND GIMAP EXPRESSION BETWEEN EXPERIMENTS, HEATMAPS METHODS REDO OF ABOVE ####
 
+# Plan: use the same procedure I used for the WGCNA data, which was to use the individual variance stabilizing transformation data sets for each experiment, perform the unique batch effect corrections 
+    # warranted for within those experiments. In WGCNA I did create a consensus transcript list, but I just used this to subset my individual transcript sets. 
+  # In this analysis I'm going to actually only use the consensus transcript set. Then I am going to perform batch effect correction on the whole consensus set to correct for between experiment effects. 
+  # Going to keep the ROD families and the Dermo families separate also. 
+
 ###  DATA FORMATTING, BATCH EFFECT REMOVAL ###
 #Dermo_counts: Keep the following as two separate networks, correct for library prep date 
 #Dermo_Tolerant_dds_vst
@@ -4689,8 +4695,8 @@ Pro_RE22_dds_rlog_matrix <- t(Pro_RE22_dds_rlog_matrix)
 ncol(Dermo_Tolerant_dds_vst_matrix) #49995
 ncol(Dermo_Susceptible_dds_vst_matrix) # 49634
 ncol(Probiotic_dds_rlog_matrix) # 51052
-ncol(ROD_Resistant_dds_rlog_matrix) # 47205
-ncol(ROD_Susceptible_dds_rlog_matrix)
+ncol(ROD_Resistant_dds_rlog_matrix) # 47202
+ncol(ROD_Susceptible_dds_rlog_matrix) # 42544
 ncol(Pro_RE22_dds_rlog_matrix) # 44221
 
 Dermo_Tolerant_dds_vst_matrix_colnames <- colnames(Dermo_Tolerant_dds_vst_matrix)
@@ -4723,28 +4729,164 @@ ncol(ROD_Susceptible_dds_rlog_matrix_common)
 Pro_RE22_dds_rlog_matrix_common <- Pro_RE22_dds_rlog_matrix[,C_vir_common_vst_transcripts]
 ncol(Pro_RE22_dds_rlog_matrix_common )
 
-# Split Pro_RE22 also into  Probiotic and RE22 so both can be run
-# subset the Pro_RE22 experiment
-print(Pro_RE22_coldata %>% rownames_to_column("sample") %>% filter(Condition == "Control_no_treatment" | Condition == "Vibrio_coralliilyticus_RE22_exposure_6h"))
-
-Pro_RE22_coldata_RE22 <- Pro_RE22_coldata %>% rownames_to_column("sample") %>% filter(Condition == "Control_no_treatment" | Condition == "Vibrio_coralliilyticus_RE22_exposure_6h")
-Pro_RE22_coldata_Pro <-  Pro_RE22_coldata %>% rownames_to_column("sample") %>% filter(Condition == "Control_no_treatment" | Condition == "Phaeobacter_inhibens_S4_exposure_6h" |
-                                                                                        Condition == "Phaeobacter_inhibens_S4_exposure_24h" | Condition == "Bacillus_pumilus_RI06_95_exposure_6h" | Condition == "Bacillus_pumilus_RI06_95_exposure_24h")     
-
-Pro_RE22_dds_rlog_matrix_common_Pro <- Pro_RE22_dds_rlog_matrix_common[Pro_RE22_coldata_Pro$sample,]
-Pro_RE22_dds_rlog_matrix_common_RE22 <- Pro_RE22_dds_rlog_matrix_common[Pro_RE22_coldata_RE22$sample,]
-
-Pro_RE22_dds_rlog_matrix_Pro <- Pro_RE22_dds_rlog_matrix[Pro_RE22_coldata_Pro$sample,]
-Pro_RE22_dds_rlog_matrix_RE22 <- Pro_RE22_dds_rlog_matrix[Pro_RE22_coldata_RE22$sample,]
-
-# Save these
-write.table(Pro_RE22_dds_rlog_matrix_Pro , file="/Volumes/My Passport for Mac/Chapter1_Apoptosis_Paper_Saved_DESeq_WGCNA_Data/Pro_RE22_dds_rlog_matrix_Pro.table")
-write.table(Pro_RE22_dds_rlog_matrix_RE22, file="/Volumes/My Passport for Mac/Chapter1_Apoptosis_Paper_Saved_DESeq_WGCNA_Data/Pro_RE22_dds_rlog_matrix_RE22.table")
-
 # Do column names agree between all?
 all(colnames(Dermo_Tolerant_dds_vst_matrix_common ) %in% colnames(Probiotic_dds_rlog_matrix_common)) # TRUE
 all(colnames(Dermo_Tolerant_dds_vst_matrix_common ) == colnames(Probiotic_dds_rlog_matrix_common)) # TRUE 
 
+# Transpose all the matrices, save as df, and full join each together 
+Dermo_Tolerant_dds_vst_matrix_common_df <- as.data.frame(Dermo_Tolerant_dds_vst_matrix_common)
+Dermo_Susceptible_dds_vst_matrix_common_df <- as.data.frame(Dermo_Susceptible_dds_vst_matrix_common)
+Probiotic_dds_rlog_matrix_common_df <- as.data.frame(Probiotic_dds_rlog_matrix_common)
+ROD_Resistant_dds_rlog_matrix_common_df <- as.data.frame(ROD_Resistant_dds_rlog_matrix_common)
+ROD_Susceptible_dds_rlog_matrix_common_df <- as.data.frame(ROD_Susceptible_dds_rlog_matrix_common)
+Pro_RE22_dds_rlog_matrix_common_df <- as.data.frame(Pro_RE22_dds_rlog_matrix_common )
+
+C_vir_vst_common_df_all <- t(rbind(Dermo_Tolerant_dds_vst_matrix_common_df,
+                                 Dermo_Susceptible_dds_vst_matrix_common_df,
+                                 Probiotic_dds_rlog_matrix_common_df,
+                                 ROD_Resistant_dds_rlog_matrix_common_df,
+                                 ROD_Susceptible_dds_rlog_matrix_common_df ,
+                                 Pro_RE22_dds_rlog_matrix_common_df))
+
+# Correct for between experiment batch effects
+colnames(C_vir_vst_common_df_all)
+View(C_vir_coldata)
+nrow(Dermo_Tolerant_dds_vst_matrix_common_df) # 30
+nrow(Dermo_Susceptible_dds_vst_matrix_common_df) # 32
+row.names(Probiotic_dds_rlog_matrix_common_df) # 6
+row.names(ROD_Resistant_dds_rlog_matrix_common_df) # 8
+row.names(ROD_Susceptible_dds_rlog_matrix_common_df) # 4 
+row.names(Pro_RE22_dds_rlog_matrix_common_df)
+
+C_vir_batch <- c("Dermo_Tolerant","Dermo_Tolerant","Dermo_Tolerant","Dermo_Tolerant","Dermo_Tolerant","Dermo_Tolerant","Dermo_Tolerant","Dermo_Tolerant" ,"Dermo_Tolerant","Dermo_Tolerant",    
+                 "Dermo_Tolerant","Dermo_Tolerant","Dermo_Tolerant","Dermo_Tolerant","Dermo_Tolerant","Dermo_Tolerant","Dermo_Tolerant","Dermo_Tolerant" ,"Dermo_Tolerant","Dermo_Tolerant",    
+                 "Dermo_Tolerant","Dermo_Tolerant","Dermo_Tolerant","Dermo_Tolerant","Dermo_Tolerant","Dermo_Tolerant","Dermo_Tolerant","Dermo_Tolerant" ,"Dermo_Tolerant","Dermo_Tolerant",  
+                   "Dermo_Susceptible","Dermo_Susceptible","Dermo_Susceptible","Dermo_Susceptible","Dermo_Susceptible","Dermo_Susceptible","Dermo_Susceptible","Dermo_Susceptible","Dermo_Susceptible","Dermo_Susceptible",     
+                   "Dermo_Susceptible","Dermo_Susceptible","Dermo_Susceptible","Dermo_Susceptible","Dermo_Susceptible","Dermo_Susceptible","Dermo_Susceptible","Dermo_Susceptible","Dermo_Susceptible","Dermo_Susceptible",     
+                   "Dermo_Susceptible","Dermo_Susceptible","Dermo_Susceptible","Dermo_Susceptible","Dermo_Susceptible","Dermo_Susceptible","Dermo_Susceptible","Dermo_Susceptible","Dermo_Susceptible","Dermo_Susceptible",      
+                   "Dermo_Susceptible","Dermo_Susceptible",        
+                   "Hatchery_Probiotic"  ,"Hatchery_Probiotic" , "Hatchery_Probiotic" , "Hatchery_Probiotic",  "Hatchery_Probiotic",  "Hatchery_Probiotic",  
+                   "ROD_Resistant",  "ROD_Resistant",  "ROD_Resistant",  "ROD_Resistant",  "ROD_Resistant",  "ROD_Resistant",  "ROD_Resistant",  "ROD_Resistant",  
+                   "ROD_Susceptible",  "ROD_Susceptible",  "ROD_Susceptible",  "ROD_Susceptible" ,
+                   "Pro_RE22", "Pro_RE22", "Pro_RE22", "Pro_RE22", "Pro_RE22", "Pro_RE22", "Pro_RE22", "Pro_RE22", "Pro_RE22", "Pro_RE22",
+                   "Pro_RE22", "Pro_RE22", "Pro_RE22", "Pro_RE22", "Pro_RE22", "Pro_RE22", "Pro_RE22", "Pro_RE22" )
+C_vir_vst_common_df_all_mat <- as.matrix(C_vir_vst_common_df_all)
+
+C_vir_vst_common_df_all_mat_limma <- limma::removeBatchEffect(C_vir_vst_common_df_all_mat, C_vir_batch)
+
+boxplot(as.data.frame(C_vir_vst_common_df_all_mat),main="Original")
+boxplot(as.data.frame(C_vir_vst_common_df_all_mat_limma),main="Batch corrected") # Looks way better!
+
+## Performing overall batch effect correction for C. gigas samples 
+#### DATA FORMATTING, BATCH EFFECT REMOVAL ####
+
+## ZHANG, no batch effect removal  
+
+# save as matrix with assay and transform
+Zhang_dds_rlog_matrix <- assay(Zhang_dds_rlog)
+class(Zhang_dds_rlog_matrix)
+Zhang_dds_rlog_matrix  <- t(Zhang_dds_rlog_matrix) 
+
+## Rubio, no batch effect removal
+Rubio_dds_rlog_matrix <- assay(Rubio_dds_rlog)
+class(Rubio_dds_rlog_matrix)
+Rubio_dds_rlog_matrix <- t(Rubio_dds_rlog_matrix)
+
+## DeLorgeril, no batch effect correction  
+deLorgeril_Resistant_dds_vst_matrix   <- assay(deLorgeril_Resistant_dds_vst)
+deLorgeril_Susceptible_dds_vst_matrix <-  assay(deLorgeril_Susceptible_dds_vst)
+class(deLorgeril_Resistant_dds_vst_matrix  )
+class(deLorgeril_Susceptible_dds_vst_matrix)
+
+deLorgeril_Resistant_dds_vst_matrix  <- t(deLorgeril_Resistant_dds_vst_matrix  )
+deLorgeril_Susceptible_dds_vst_matrix <- t(deLorgeril_Susceptible_dds_vst_matrix)
+
+## He, no batch effect correction 
+He_dds_vst_matrix <- assay(He_dds_vst)
+class(He_dds_vst_matrix)
+He_dds_vst_matrix <- t(He_dds_vst_matrix)
+
+## LIMIT ANALYSIS TO TRANSCRIPTS EXPRESSED IN ALL EXPERIMENTS
+ncol(Zhang_dds_rlog_matrix) # 33418
+ncol(Rubio_dds_rlog_matrix)  # 44705
+ncol(deLorgeril_Resistant_dds_vst_matrix) # 44415
+ncol(deLorgeril_Susceptible_dds_vst_matrix) # 44817
+ncol(He_dds_vst_matrix) # 38633
+
+Zhang_dds_rlog_matrix_colnames <- colnames(Zhang_dds_rlog_matrix)
+Rubio_dds_rlog_matrix_colnames <- colnames(Rubio_dds_rlog_matrix)
+deLorgeril_Resistant_dds_vst_matrix_colnames <- colnames(deLorgeril_Resistant_dds_vst_matrix)
+deLorgeril_Susceptible_dds_vst_matrix_colnames <- colnames(deLorgeril_Susceptible_dds_vst_matrix)
+He_dds_vst_matrix_colnames <- colnames(He_dds_vst_matrix)
+
+C_gig_common_vst_transcripts <- Reduce(intersect, list(Zhang_dds_rlog_matrix_colnames,
+                                                       Rubio_dds_rlog_matrix_colnames,
+                                                       deLorgeril_Resistant_dds_vst_matrix_colnames,
+                                                       deLorgeril_Susceptible_dds_vst_matrix_colnames,
+                                                       He_dds_vst_matrix_colnames))
+head(C_gig_common_vst_transcripts)
+length(C_gig_common_vst_transcripts) #27678
+
+Zhang_dds_rlog_matrix_common <- Zhang_dds_rlog_matrix[, C_gig_common_vst_transcripts]
+Rubio_dds_rlog_matrix_common <- Rubio_dds_rlog_matrix [, C_gig_common_vst_transcripts]
+deLorgeril_Resistant_dds_vst_matrix_common <- deLorgeril_Resistant_dds_vst_matrix[, C_gig_common_vst_transcripts]
+deLorgeril_Susceptible_dds_vst_matrix_common <- deLorgeril_Susceptible_dds_vst_matrix[, C_gig_common_vst_transcripts]
+He_dds_vst_matrix_common <- He_dds_vst_matrix[, C_gig_common_vst_transcripts]
+
+ncol(Zhang_dds_rlog_matrix_common) # 27678
+ncol(Rubio_dds_rlog_matrix_common) # 27678
+ncol(deLorgeril_Resistant_dds_vst_matrix_common) # 27678
+ncol(deLorgeril_Susceptible_dds_vst_matrix_common) # 27678
+ncol(He_dds_vst_matrix_common) # 27678
+
+# Do column names agree between all?
+all(colnames(Zhang_dds_rlog_matrix_common ) %in% colnames(He_dds_vst_matrix_common)) # TRUE
+all(colnames(Zhang_dds_rlog_matrix_common) == colnames(He_dds_vst_matrix_common)) # TRUE 
+
+# Transpose all the matrices, save as df, and full join each together 
+Zhang_dds_rlog_matrix_common_df <- as.data.frame(Zhang_dds_rlog_matrix_common)
+Rubio_dds_rlog_matrix_common_df <- as.data.frame(Rubio_dds_rlog_matrix_common)
+deLorgeril_Resistant_dds_vst_matrix_common_df <- as.data.frame(deLorgeril_Resistant_dds_vst_matrix_common)
+deLorgeril_Susceptible_dds_vst_matrix_common_df <- as.data.frame(deLorgeril_Susceptible_dds_vst_matrix_common)
+He_dds_vst_matrix_common_df <- as.data.frame(He_dds_vst_matrix_common)
+
+C_gig_vst_common_df_all <- t(rbind(Zhang_dds_rlog_matrix_common_df,
+        Rubio_dds_rlog_matrix_common_df,
+        deLorgeril_Resistant_dds_vst_matrix_common_df,
+        deLorgeril_Susceptible_dds_vst_matrix_common_df,
+        He_dds_vst_matrix_common_df))
+
+
+# Correct for between experiment batch effects
+colnames(C_gig_vst_common_df_all)
+row.names(Zhang_dds_rlog_matrix_common_df)
+row.names(Rubio_dds_rlog_matrix_common_df) 
+row.names(deLorgeril_Resistant_dds_vst_matrix_common_df) 
+row.names(deLorgeril_Susceptible_dds_vst_matrix_common_df) 
+row.names(He_dds_vst_matrix_common_df)
+
+C_gig_batch <- c("Zhang", "Zhang", "Zhang", "Zhang","Zhang", "Zhang", "Zhang", "Zhang", "Zhang", 
+                   "Rubio", "Rubio", "Rubio", "Rubio", "Rubio", "Rubio", "Rubio", "Rubio", "Rubio","Rubio", "Rubio", "Rubio", "Rubio",
+                  "Rubio",  "Rubio", "Rubio", "Rubio", "Rubio", 
+                  "deLorgeril_Resistant", "deLorgeril_Resistant", "deLorgeril_Resistant", "deLorgeril_Resistant", "deLorgeril_Resistant", "deLorgeril_Resistant", "deLorgeril_Resistant", "deLorgeril_Resistant", "deLorgeril_Resistant",
+                  "deLorgeril_Resistant", "deLorgeril_Resistant", "deLorgeril_Resistant", "deLorgeril_Resistant", "deLorgeril_Resistant", "deLorgeril_Resistant", "deLorgeril_Resistant", "deLorgeril_Resistant",
+                  "deLorgeril_Resistant", "deLorgeril_Resistant", "deLorgeril_Resistant", "deLorgeril_Resistant",
+                  "deLorgeril_Susceptible", "deLorgeril_Susceptible", "deLorgeril_Susceptible", "deLorgeril_Susceptible", "deLorgeril_Susceptible", "deLorgeril_Susceptible", "deLorgeril_Susceptible",
+                  "deLorgeril_Susceptible", "deLorgeril_Susceptible", "deLorgeril_Susceptible", "deLorgeril_Susceptible", "deLorgeril_Susceptible", "deLorgeril_Susceptible", "deLorgeril_Susceptible",
+                  "deLorgeril_Susceptible", "deLorgeril_Susceptible", "deLorgeril_Susceptible", "deLorgeril_Susceptible",
+                  "deLorgeril_Susceptible", "deLorgeril_Susceptible", "deLorgeril_Susceptible",
+                  "He", "He", "He", "He", "He", "He", "He", "He",
+                  "He", "He", "He", "He", "He", "He", "He", "He", "He", "He", "He",
+                  "He", "He", "He", "He", "He", "He", "He", "He", "He", "He", "He",
+                  "He", "He")
+C_gig_vst_common_df_all_mat <- as.matrix(C_gig_vst_common_df_all)
+
+C_gig_vst_common_df_all_mat_limma <- limma::removeBatchEffect(C_gig_vst_common_df_all_mat, C_gig_batch)
+
+boxplot(as.data.frame(C_gig_vst_common_df_all_mat),main="Original")
+boxplot(as.data.frame(C_gig_vst_common_df_all_mat_limma),main="Batch corrected") # Looks way better!!
+
+### EXTRACT IAP AND GIMAP TRANSCRIPTS FROM EADH DATA SET
 
 
 #### DESCRIPTIVE TABLES ####
