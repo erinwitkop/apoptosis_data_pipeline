@@ -32,6 +32,8 @@ library(purrr)
 library(tibble)
 library(ggfortify)
 library(ggpubr)
+library(viridis)
+library(extrafont)
 
 # VERSIONS (see sessionInfo at bottom of script for full information)
 # R version 3.6.1 (2019-07-05)
@@ -840,14 +842,6 @@ Rubio_dds_deseq_LGP32_res_LFC_sig_GIMAP <-  merge(Rubio_dds_deseq_LGP32_res_LFC_
 
 Rubio_dds_deseq_LMG20012T_res_LFC_sig_IAP <- merge(Rubio_dds_deseq_LMG20012T_res_LFC_sig , BIR_XP_gff_CG_uniq_XP_XM, by = "transcript_id")
 Rubio_dds_deseq_LMG20012T_res_LFC_sig_GIMAP <- merge(Rubio_dds_deseq_LMG20012T_res_LFC_sig , AIG1_XP_ALL_gff_GIMAP_CG_uniq_XP_XM, by = "transcript_id")
-
-
-BIR_XP_gff_CG_uniq_XP_XM
-AIG1_XP_ALL_gff_GIMAP_CG_uniq_XP_XM
-
-BIR_XP_gff_CV_uniq_XP_XM
-AIG1_XP_ALL_gff_GIMAP_CV_uniq_XP_XM
-
 
 #### DELORGERIL OSHV1 TRANSCRIPTOME ANALYSIS ####
 
@@ -3357,7 +3351,6 @@ Dermo_Tolerant_7d_dds_res_LFC_sig_GIMAP <- merge(Dermo_Tolerant_7d_dds_res_LFC_s
 Dermo_Tolerant_28d_dds_res_LFC_sig_GIMAP <- merge(Dermo_Tolerant_28d_dds_res_LFC_sig,         AIG1_XP_ALL_gff_GIMAP_CV_uniq_XP_XM, by = "ID")
 
 #### LFC PLOTS BY SPECIES ####
-
 ROD_Susceptible_dds_res_LFC_sig_APOP$group_by_sim <- "ROD_susceptible"
 ROD_Resistant_dds_res_LFC_sig_APOP$group_by_sim <- "ROD_resistant"
 ROD_Susceptible_dds_res_LFC_sig_APOP$experiment <- "ROD"
@@ -3917,282 +3910,498 @@ C_gig_apop_APOP_plot <- ggplot(C_gig_apop_LFC  , aes(x=product,y=log2FoldChange,
 
 #### IAP AND GIMAP LFC PLOTS BY SPECIES ####
 
+ROD_Susceptible_dds_res_LFC_sig_IAP$group_by_sim <- "ROD_susceptible_seed"
+ # ROD_Resistant_dds_res_LFC_sig_IAP$group_by_sim <- "ROD_resistant_seed"
+ROD_Susceptible_dds_res_LFC_sig_IAP$experiment <- "ROD"
+#  ROD_Resistant_dds_res_LFC_sig_IAP$experiment <- "ROD"
+  
+ROD_Susceptible_dds_res_LFC_sig_GIMAP$group_by_sim <- "ROD_susceptible_seed"
+#  ROD_Resistant_dds_res_LFC_sig_GIMAP$group_by_sim <- "ROD_resistant_seed"
+ROD_Susceptible_dds_res_LFC_sig_GIMAP$experiment <- "ROD"
+#  ROD_Resistant_dds_res_LFC_sig_GIMAP$experiment <- "ROD"
 
+Probiotic_dds_deseq_Challenge_res_LFC_sig_IAP$group_by_sim <- "Hatchery_Probiotic_RI"
+Probiotic_dds_deseq_Challenge_res_LFC_sig_IAP$experiment <- "Hatchery_Probiotic_RI"
+#Probiotic_dds_deseq_Challenge_res_LFC_sig_GIMAP$group_by_sim <- "Probiotic"
+#Probiotic_dds_deseq_Challenge_res_LFC_sig_GIMAP$experiment <- "Probiotic"
 
+Dermo_Susceptible_36hr_dds_res_LFC_sig_IAP$experiment <- "Dermo"
+Dermo_Susceptible_7d_dds_res_LFC_sig_IAP$experiment <- "Dermo"
+Dermo_Susceptible_28d_dds_res_LFC_sig_IAP$experiment <- "Dermo"
+Dermo_Tolerant_36hr_dds_res_LFC_sig_IAP$experiment <- "Dermo"
+Dermo_Tolerant_7d_dds_res_LFC_sig_IAP$experiment <- "Dermo"
+Dermo_Tolerant_28d_dds_res_LFC_sig_IAP $experiment <- "Dermo"
+Dermo_Susceptible_36hr_dds_res_LFC_sig_IAP $group_by_sim <- "Dermo_Susceptible_36hr"
+Dermo_Susceptible_7d_dds_res_LFC_sig_IAP   $group_by_sim <- "Dermo_Susceptible_7d"
+Dermo_Susceptible_28d_dds_res_LFC_sig_IAP  $group_by_sim <- "Dermo_Susceptible_28d"
+Dermo_Tolerant_36hr_dds_res_LFC_sig_IAP    $group_by_sim <- "Dermo_Tolerant_36hr"
+Dermo_Tolerant_7d_dds_res_LFC_sig_IAP      $group_by_sim <- "Dermo_Tolerant_7d"
+Dermo_Tolerant_28d_dds_res_LFC_sig_IAP     $group_by_sim <- "Dermo_Tolerant_28d"
 
-#### LFC PLOTS BY SPECIES ####
+Dermo_Susceptible_36hr_dds_res_LFC_sig_GIMAP $experiment <- "Dermo"
+#Dermo_Susceptible_7d_dds_res_LFC_sig_GIMAP$experiment <- "Dermo"
+Dermo_Susceptible_28d_dds_res_LFC_sig_GIMAP$experiment <- "Dermo"
+Dermo_Tolerant_36hr_dds_res_LFC_sig_GIMAP$experiment <- "Dermo"
+Dermo_Tolerant_7d_dds_res_LFC_sig_GIMAP$experiment <- "Dermo"
+#Dermo_Tolerant_28d_dds_res_LFC_sig_GIMAP $experiment <- "Dermo"
+Dermo_Susceptible_36hr_dds_res_LFC_sig_GIMAP $group_by_sim <- "Dermo_Susceptible_36hr"
+#Dermo_Susceptible_7d_dds_res_LFC_sig_GIMAP   $group_by_sim <- "Dermo_Susceptible_7d"
+Dermo_Susceptible_28d_dds_res_LFC_sig_GIMAP  $group_by_sim <- "Dermo_Susceptible_28d"
+Dermo_Tolerant_36hr_dds_res_LFC_sig_GIMAP    $group_by_sim <- "Dermo_Tolerant_36hr"
+Dermo_Tolerant_7d_dds_res_LFC_sig_GIMAP      $group_by_sim <- "Dermo_Tolerant_7d"
+#Dermo_Tolerant_28d_dds_res_LFC_sig_GIMAP     $group_by_sim <- "Dermo_Tolerant_28d"
 
-ROD_Susceptible_dds_res_LFC_sig_APOP$group_by_sim <- "ROD_susceptible"
-ROD_Resistant_dds_res_LFC_sig_APOP$group_by_sim <- "ROD_resistant"
-ROD_Susceptible_dds_res_LFC_sig_APOP$experiment <- "ROD"
-ROD_Resistant_dds_res_LFC_sig_APOP$experiment <- "ROD"
+Pro_RE22_dds_deseq_res_RI_6h_LFC_sig_IAP$experiment <- "Lab_Pro_RE22"
+Pro_RE22_dds_deseq_res_RI_24h_LFC_sig_IAP$experiment <- "Lab_Pro_RE22"
+Pro_RE22_dds_deseq_res_S4_6h_LFC_sig_IAP$experiment <- "Lab_Pro_RE22"
+Pro_RE22_dds_deseq_res_S4_24h_LFC_sig_IAP$experiment <- "Lab_Pro_RE22"
+Pro_RE22_dds_deseq_res_RE22_LFC_sig_IAP$experiment <- "Lab_Pro_RE22"
 
-Probiotic_dds_deseq_Challenge_res_LFC_sig_APOP$group_by_sim <- "Probiotic"
-Probiotic_dds_deseq_Challenge_res_LFC_sig_APOP$experiment <- "Probiotic"
+Pro_RE22_dds_deseq_res_RI_6h_LFC_sig_IAP$group_by_sim <- "Lab_RI_6hr"
+Pro_RE22_dds_deseq_res_RI_24h_LFC_sig_IAP$group_by_sim <- "Lab_RI_RI_24hr"
+Pro_RE22_dds_deseq_res_S4_6h_LFC_sig_IAP$group_by_sim <- "Lab_S4_6hr"
+Pro_RE22_dds_deseq_res_S4_24h_LFC_sig_IAP$group_by_sim <- "Lab_S4_24hr"
+Pro_RE22_dds_deseq_res_RE22_LFC_sig_IAP$group_by_sim <- "Lab_RE22"
 
-Dermo_Susceptible_36hr_dds_res_LFC_sig_APOP $experiment <- "Dermo"
-Dermo_Susceptible_7d_dds_res_LFC_sig_APOP$experiment <- "Dermo"
-Dermo_Susceptible_28d_dds_res_LFC_sig_APOP$experiment <- "Dermo"
-Dermo_Tolerant_36hr_dds_res_LFC_sig_APOP$experiment <- "Dermo"
-Dermo_Tolerant_7d_dds_res_LFC_sig_APOP$experiment <- "Dermo"
-Dermo_Tolerant_28d_dds_res_LFC_sig_APOP $experiment <- "Dermo"
-Dermo_Susceptible_36hr_dds_res_LFC_sig_APOP $group_by_sim <- "Susceptible_36hr"
-Dermo_Susceptible_7d_dds_res_LFC_sig_APOP   $group_by_sim <- "Susceptible_7d"
-Dermo_Susceptible_28d_dds_res_LFC_sig_APOP  $group_by_sim <- "Susceptible_28d"
-Dermo_Tolerant_36hr_dds_res_LFC_sig_APOP    $group_by_sim <- "Tolerant_36hr"
-Dermo_Tolerant_7d_dds_res_LFC_sig_APOP      $group_by_sim <- "Tolerant_7d"
-Dermo_Tolerant_28d_dds_res_LFC_sig_APOP     $group_by_sim <- "Tolerant_28d"
+Pro_RE22_dds_deseq_res_RI_6h_LFC_sig_GIMAP$experiment <- "Lab_Pro_RE22"
+Pro_RE22_dds_deseq_res_RI_24h_LFC_sig_GIMAP$experiment <- "Lab_Pro_RE22"
+#Pro_RE22_dds_deseq_res_S4_6h_LFC_sig_GIMAP$experiment <- "Pro_RE22"
+#Pro_RE22_dds_deseq_res_S4_24h_LFC_sig_GIMAP$experiment <- "Pro_RE22"
+#Pro_RE22_dds_deseq_res_RE22_LFC_sig_GIMAP$experiment <- "Pro_RE22"
 
-Pro_RE22_dds_deseq_res_RI_6h_LFC_sig_APOP$experiment <- "Pro_RE22"
-Pro_RE22_dds_deseq_res_RI_24h_LFC_sig_APOP$experiment <- "Pro_RE22"
-Pro_RE22_dds_deseq_res_S4_6h_LFC_sig_APOP$experiment <- "Pro_RE22"
-Pro_RE22_dds_deseq_res_S4_24h_LFC_sig_APOP$experiment <- "Pro_RE22"
-Pro_RE22_dds_deseq_res_RE22_LFC_sig_APOP$experiment <- "Pro_RE22"
+Pro_RE22_dds_deseq_res_RI_6h_LFC_sig_GIMAP$group_by_sim <-   "Lab_RI_6hr"
+Pro_RE22_dds_deseq_res_RI_24h_LFC_sig_GIMAP$group_by_sim <- "Lab_RI_24hr"
 
-# combine all data , add in the gene and XM info. The XM lines don't also contain the XP
-C_vir_apop_LFC <- rbind(
-  ROD_Susceptible_dds_res_LFC_sig_APOP[,c("product","group_by_sim","log2FoldChange","experiment", "gene","transcript_id","padj")],
-  ROD_Resistant_dds_res_LFC_sig_APOP[,c("product","group_by_sim","log2FoldChange","experiment", "gene","transcript_id","padj")],
-  Probiotic_dds_deseq_Challenge_res_LFC_sig_APOP[,c("product","group_by_sim","log2FoldChange","experiment", "gene","transcript_id","padj")],
-  Dermo_Susceptible_36hr_dds_res_LFC_sig_APOP[,c("product","group_by_sim","log2FoldChange","experiment", "gene","transcript_id","padj")],
-  Dermo_Susceptible_7d_dds_res_LFC_sig_APOP[,c("product","group_by_sim","log2FoldChange","experiment", "gene","transcript_id","padj")],
-  Dermo_Susceptible_28d_dds_res_LFC_sig_APOP[,c("product","group_by_sim","log2FoldChange","experiment", "gene","transcript_id","padj")],
-  Dermo_Tolerant_36hr_dds_res_LFC_sig_APOP[,c("product","group_by_sim","log2FoldChange","experiment", "gene","transcript_id","padj")],
-  Dermo_Tolerant_7d_dds_res_LFC_sig_APOP[,c("product","group_by_sim","log2FoldChange","experiment", "gene","transcript_id","padj")],
-  Dermo_Tolerant_28d_dds_res_LFC_sig_APOP [,c("product","group_by_sim","log2FoldChange","experiment", "gene","transcript_id","padj")],
-  Pro_RE22_dds_deseq_res_RI_6h_LFC_sig_APOP[,c("product","group_by_sim","log2FoldChange","experiment", "gene","transcript_id","padj")],
-  Pro_RE22_dds_deseq_res_RI_24h_LFC_sig_APOP[,c("product","group_by_sim","log2FoldChange","experiment", "gene","transcript_id","padj")],
-  Pro_RE22_dds_deseq_res_S4_6h_LFC_sig_APOP[,c("product","group_by_sim","log2FoldChange","experiment", "gene","transcript_id","padj")],
-  Pro_RE22_dds_deseq_res_S4_24h_LFC_sig_APOP[,c("product","group_by_sim","log2FoldChange","experiment", "gene","transcript_id","padj")],
-  Pro_RE22_dds_deseq_res_RE22_LFC_sig_APOP[,c("product","group_by_sim","log2FoldChange","experiment", "gene","transcript_id","padj")])
-nrow(C_vir_apop_LFC ) #427
-View(arrange(C_vir_apop_LFC, -log2FoldChange) )
+# combine all data , add in the gene and XM info. 
+C_vir_apop_LFC_IAP <- rbind(
+  ROD_Susceptible_dds_res_LFC_sig_IAP[,c("product","group_by_sim","log2FoldChange","experiment", "gene","transcript_id","padj","protein_id")],
+  Probiotic_dds_deseq_Challenge_res_LFC_sig_IAP[,c("product","group_by_sim","log2FoldChange","experiment", "gene","transcript_id","padj","protein_id")],
+  Dermo_Susceptible_36hr_dds_res_LFC_sig_IAP[,c("product","group_by_sim","log2FoldChange","experiment", "gene","transcript_id","padj","protein_id")],
+  Dermo_Susceptible_7d_dds_res_LFC_sig_IAP[,c("product","group_by_sim","log2FoldChange","experiment", "gene","transcript_id","padj","protein_id")],
+  Dermo_Susceptible_28d_dds_res_LFC_sig_IAP[,c("product","group_by_sim","log2FoldChange","experiment", "gene","transcript_id","padj","protein_id")],
+  Dermo_Tolerant_36hr_dds_res_LFC_sig_IAP[,c("product","group_by_sim","log2FoldChange","experiment", "gene","transcript_id","padj","protein_id")],
+  Dermo_Tolerant_7d_dds_res_LFC_sig_IAP[,c("product","group_by_sim","log2FoldChange","experiment", "gene","transcript_id","padj","protein_id")],
+  Dermo_Tolerant_28d_dds_res_LFC_sig_IAP[,c("product","group_by_sim","log2FoldChange","experiment", "gene","transcript_id","padj","protein_id")],
+  Pro_RE22_dds_deseq_res_RI_6h_LFC_sig_IAP[,c("product","group_by_sim","log2FoldChange","experiment", "gene","transcript_id","padj","protein_id")],
+  Pro_RE22_dds_deseq_res_RI_24h_LFC_sig_IAP[,c("product","group_by_sim","log2FoldChange","experiment", "gene","transcript_id","padj","protein_id")],
+  Pro_RE22_dds_deseq_res_S4_6h_LFC_sig_IAP[,c("product","group_by_sim","log2FoldChange","experiment", "gene","transcript_id","padj","protein_id")],
+  Pro_RE22_dds_deseq_res_S4_24h_LFC_sig_IAP[,c("product","group_by_sim","log2FoldChange","experiment", "gene","transcript_id","padj","protein_id")],
+  Pro_RE22_dds_deseq_res_RE22_LFC_sig_IAP[,c("product","group_by_sim","log2FoldChange","experiment", "gene","transcript_id","padj","protein_id")])
+nrow(C_vir_apop_LFC_IAP ) #60
 
+# Add back in empty rows for missing groups that should still be plotted
+C_vir_apop_LFC_IAP[nrow(C_vir_apop_LFC_IAP)+1,] <- NA
+C_vir_apop_LFC_IAP$group_by_sim <- as.character(C_vir_apop_LFC_IAP$group_by_sim )
+C_vir_apop_LFC_IAP$experiment <- as.character(C_vir_apop_LFC_IAP$experiment )
+C_vir_apop_LFC_IAP[61,1] <- as.character("None significant")
+C_vir_apop_LFC_IAP[61,2] <- as.character("ROD_resistant_seed")
+C_vir_apop_LFC_IAP[61,4] <- as.character("ROD")
 
-Zhang_dds_deseq_res_V_alg1_LFC_sig_APOP$experiment <- "Zhang"
-Zhang_dds_deseq_res_V_tub_LFC_sig_APOP$experiment <- "Zhang"
-Zhang_dds_deseq_res_LFC_LPS_sig_APOP$experiment <- "Zhang"
+# save list as Rdata
+save(C_vir_apop_LFC_IAP,file="/Users/erinroberts/Documents/PhD_Research/Chapter_1_Apoptosis Paper/Chapter1_Apoptosis_Transcriptome_Analyses_2019/DATA ANALYSIS/apoptosis_data_pipeline/DESeq2/C_vir_apop_LFC_IAP.Rdata")
 
-Rubio_dds_deseq_J2_8_res_LFC_sig_APOP$experiment <- "Rubio"
-Rubio_dds_deseq_J2_9_res_LFC_sig_APOP$experiment <- "Rubio"
-Rubio_dds_deseq_LGP32_res_LFC_sig_APOP$experiment <- "Rubio"
-Rubio_dds_deseq_LMG20012T_res_LFC_sig_APOP$experiment <- "Rubio"
+C_vir_apop_LFC_GIMAP <- rbind(ROD_Susceptible_dds_res_LFC_sig_GIMAP[,c("product","group_by_sim","log2FoldChange","experiment", "gene","transcript_id","padj","protein_id")],
+                              Dermo_Susceptible_36hr_dds_res_LFC_sig_GIMAP[,c("product","group_by_sim","log2FoldChange","experiment", "gene","transcript_id","padj","protein_id")],
+                              Dermo_Susceptible_28d_dds_res_LFC_sig_GIMAP[,c("product","group_by_sim","log2FoldChange","experiment", "gene","transcript_id","padj","protein_id")],
+                              Dermo_Tolerant_36hr_dds_res_LFC_sig_GIMAP[,c("product","group_by_sim","log2FoldChange","experiment", "gene","transcript_id","padj","protein_id")],
+                              Dermo_Tolerant_7d_dds_res_LFC_sig_GIMAP[,c("product","group_by_sim","log2FoldChange","experiment", "gene","transcript_id","padj","protein_id")],
+                              Pro_RE22_dds_deseq_res_RI_6h_LFC_sig_GIMAP[,c("product","group_by_sim","log2FoldChange","experiment", "gene","transcript_id","padj","protein_id")],
+                              Pro_RE22_dds_deseq_res_RI_24h_LFC_sig_GIMAP[,c("product","group_by_sim","log2FoldChange","experiment", "gene","transcript_id","padj","protein_id")])
+nrow(C_vir_apop_LFC_GIMAP) # 11
 
-He_dds_res_6hr_sig_APOP$experiment <- "He"
-He_dds_res_12hr_sig_APOP$experiment <- "He"
-He_dds_res_24hr_sig_APOP$experiment <- "He"
-He_dds_res_48hr_sig_APOP$experiment <- "He"
-He_dds_res_120hr_sig_APOP$experiment <- "He"
+# Add back in empty rows for missing groups that should still be plotted
+C_vir_apop_LFC_GIMAP[nrow(C_vir_apop_LFC_GIMAP)+7,] <- NA
+C_vir_apop_LFC_GIMAP$group_by_sim <- as.character(C_vir_apop_LFC_GIMAP$group_by_sim )
+C_vir_apop_LFC_GIMAP$experiment <- as.character(C_vir_apop_LFC_GIMAP$experiment )
+C_vir_apop_LFC_GIMAP[12,2] <- as.character("ROD_resistant_seed")
+C_vir_apop_LFC_GIMAP[12,4] <- as.character("ROD")
+C_vir_apop_LFC_GIMAP[13,2] <- as.character("Hatchery_Probiotic_RI")
+C_vir_apop_LFC_GIMAP[13,4] <- as.character("Hatchery_Probiotic_RI")
+C_vir_apop_LFC_GIMAP[14,2] <- as.character("Dermo_Susceptible_7d")
+C_vir_apop_LFC_GIMAP[14,4] <- as.character("Dermo")
+C_vir_apop_LFC_GIMAP[15,2] <- as.character("Dermo_Susceptible_28d")
+C_vir_apop_LFC_GIMAP[15,4] <- as.character("Dermo")
+C_vir_apop_LFC_GIMAP[16,2] <- as.character("Lab_S4_6hr")
+C_vir_apop_LFC_GIMAP[16,4] <- as.character("Lab_Pro_RE22")
+C_vir_apop_LFC_GIMAP[17,2] <- as.character("Lab_S4_24hr")
+C_vir_apop_LFC_GIMAP[17,4] <- as.character("Lab_Pro_RE22")
+C_vir_apop_LFC_GIMAP[18,2] <- as.character("Lab_RE22")
+C_vir_apop_LFC_GIMAP[18,4] <- as.character("Lab_Pro_RE22")
 
-deLorgeril_Resistant_dds_res_6_LFC_sig_APOP  $experiment <- "deLorgeril"
-deLorgeril_Resistant_dds_res_12_LFC_sig_APOP  $experiment <- "deLorgeril"
-deLorgeril_Resistant_dds_res_24_LFC_sig_APOP  $experiment <- "deLorgeril"
-deLorgeril_Resistant_dds_res_48_LFC_sig_APOP  $experiment <- "deLorgeril"
-deLorgeril_Resistant_dds_res_60_LFC_sig_APOP  $experiment <- "deLorgeril"
-deLorgeril_Resistant_dds_res_72_LFC_sig_APOP  $experiment <- "deLorgeril"
-deLorgeril_Susceptible_dds_res_6_LFC_sig_APOP$experiment <- "deLorgeril"
-deLorgeril_Susceptible_dds_res_12_LFC_sig_APOP$experiment <- "deLorgeril"
-deLorgeril_Susceptible_dds_res_24_LFC_sig_APOP$experiment <- "deLorgeril"
-deLorgeril_Susceptible_dds_res_48_LFC_sig_APOP$experiment <- "deLorgeril"
-deLorgeril_Susceptible_dds_res_60_LFC_sig_APOP$experiment <- "deLorgeril"
-deLorgeril_Susceptible_dds_res_72_LFC_sig_APOP$experiment <- "deLorgeril"
+C_vir_apop_LFC_GIMAP[12,1] <- as.character("None significant")
+C_vir_apop_LFC_GIMAP[13,1] <- as.character("None significant")
+C_vir_apop_LFC_GIMAP[14,1] <- as.character("None significant")
+C_vir_apop_LFC_GIMAP[15,1] <- as.character("None significant")
+C_vir_apop_LFC_GIMAP[16,1] <- as.character("None significant")
+C_vir_apop_LFC_GIMAP[17,1] <- as.character("None significant")
+C_vir_apop_LFC_GIMAP[18,1] <- as.character("None significant")
 
-# add in protein, gene and XM info for merging with ortholog information 
-C_gig_apop_LFC <- rbind(Zhang_dds_deseq_res_V_alg1_LFC_sig_APOP       [,c("product","group_by_sim","log2FoldChange","experiment", "gene","transcript_id","padj")],
-                        Zhang_dds_deseq_res_V_tub_LFC_sig_APOP        [,c("product","group_by_sim","log2FoldChange","experiment", "gene","transcript_id","padj")],
-                        Zhang_dds_deseq_res_LFC_LPS_sig_APOP          [,c("product","group_by_sim","log2FoldChange","experiment", "gene","transcript_id","padj")],
-                        Rubio_dds_deseq_J2_8_res_LFC_sig_APOP         [,c("product","group_by_sim","log2FoldChange","experiment", "gene","transcript_id","padj")],
-                        Rubio_dds_deseq_J2_9_res_LFC_sig_APOP         [,c("product","group_by_sim","log2FoldChange","experiment", "gene","transcript_id","padj")],
-                        Rubio_dds_deseq_LGP32_res_LFC_sig_APOP        [,c("product","group_by_sim","log2FoldChange","experiment", "gene","transcript_id","padj")],
-                        Rubio_dds_deseq_LMG20012T_res_LFC_sig_APOP    [,c("product","group_by_sim","log2FoldChange","experiment", "gene","transcript_id","padj")],
-                        He_dds_res_6hr_sig_APOP                       [,c("product","group_by_sim","log2FoldChange","experiment", "gene","transcript_id","padj")],
-                        He_dds_res_12hr_sig_APOP                      [,c("product","group_by_sim","log2FoldChange","experiment", "gene","transcript_id","padj")],
-                        He_dds_res_24hr_sig_APOP                      [,c("product","group_by_sim","log2FoldChange","experiment", "gene","transcript_id","padj")],
-                        He_dds_res_48hr_sig_APOP                      [,c("product","group_by_sim","log2FoldChange","experiment", "gene","transcript_id","padj")],
-                        He_dds_res_120hr_sig_APOP                     [,c("product","group_by_sim","log2FoldChange","experiment", "gene","transcript_id","padj")],
-                        deLorgeril_Resistant_dds_res_6_LFC_sig_APOP   [,c("product","group_by_sim","log2FoldChange","experiment", "gene","transcript_id","padj")],
-                        deLorgeril_Resistant_dds_res_12_LFC_sig_APOP  [,c("product","group_by_sim","log2FoldChange","experiment", "gene","transcript_id","padj")],
-                        deLorgeril_Resistant_dds_res_24_LFC_sig_APOP  [,c("product","group_by_sim","log2FoldChange","experiment", "gene","transcript_id","padj")],
-                        deLorgeril_Resistant_dds_res_48_LFC_sig_APOP  [,c("product","group_by_sim","log2FoldChange","experiment", "gene","transcript_id","padj")],
-                        deLorgeril_Resistant_dds_res_60_LFC_sig_APOP  [,c("product","group_by_sim","log2FoldChange","experiment", "gene","transcript_id","padj")],
-                        deLorgeril_Resistant_dds_res_72_LFC_sig_APOP  [,c("product","group_by_sim","log2FoldChange","experiment", "gene","transcript_id","padj")],
-                        deLorgeril_Susceptible_dds_res_6_LFC_sig_APOP [,c("product","group_by_sim","log2FoldChange","experiment", "gene","transcript_id","padj")],
-                        deLorgeril_Susceptible_dds_res_12_LFC_sig_APOP[,c("product","group_by_sim","log2FoldChange","experiment", "gene","transcript_id","padj")],
-                        deLorgeril_Susceptible_dds_res_24_LFC_sig_APOP[,c("product","group_by_sim","log2FoldChange","experiment", "gene","transcript_id","padj")],
-                        deLorgeril_Susceptible_dds_res_48_LFC_sig_APOP[,c("product","group_by_sim","log2FoldChange","experiment", "gene","transcript_id","padj")],
-                        deLorgeril_Susceptible_dds_res_60_LFC_sig_APOP[,c("product","group_by_sim","log2FoldChange","experiment", "gene","transcript_id","padj")],
-                        deLorgeril_Susceptible_dds_res_72_LFC_sig_APOP[,c("product","group_by_sim","log2FoldChange","experiment", "gene","transcript_id","padj")])
-nrow(C_gig_apop_LFC) # 1613
-
-# Make plot for up and downregulated
-C_gig_apop_APOP_downregulated <- C_gig_apop_LFC %>% filter(log2FoldChange <= 0)
-C_gig_apop_APOP_upregulated <- C_gig_apop_LFC %>% filter(log2FoldChange > 0)
+# save list as Rdata
+save(C_vir_apop_LFC_GIMAP,file="/Users/erinroberts/Documents/PhD_Research/Chapter_1_Apoptosis Paper/Chapter1_Apoptosis_Transcriptome_Analyses_2019/DATA ANALYSIS/apoptosis_data_pipeline/DESeq2/C_vir_apop_LFC_GIMAP.Rdata")
 
 # Make plot
-C_gig_apop_APOP_downregulated_plot <- ggplot(C_gig_apop_APOP_downregulated , aes(x=product,y=log2FoldChange, fill=experiment )) + geom_col(position="dodge") + 
+# set order of factor levels for group_by_sim
+unique(C_vir_apop_LFC_IAP$group_by_sim)
+sort(unique(C_vir_apop_LFC_IAP$product))
+C_vir_apop_LFC_IAP$group_by_sim <- factor(C_vir_apop_LFC_IAP$group_by_sim, levels=c("Hatchery_Probiotic_RI" ,"Lab_RI_6hr", "Lab_RI_24hr", "Lab_S4_6hr","Lab_S4_24hr", "Lab_RE22" ,
+                                                                                    "ROD_susceptible_seed","ROD_resistant_seed", "Dermo_Susceptible_36hr", "Dermo_Susceptible_7d", "Dermo_Susceptible_28d","Dermo_Tolerant_36hr",   
+                                                                                    "Dermo_Tolerant_7d","Dermo_Tolerant_28d" ))
+C_vir_apop_LFC_IAP_plot <- ggplot(C_vir_apop_LFC_IAP, aes(x=product,y=log2FoldChange, fill=experiment )) + geom_col(position="dodge") + 
   theme(axis.text.x = element_text(angle = 75, hjust = 1)) + coord_flip()
-C_gig_apop_APOP_upregulated_plot <- ggplot(C_gig_apop_APOP_upregulated , aes(x=product,y=log2FoldChange, fill=experiment )) + geom_col(position="dodge") + 
+C_vir_apop_LFC_IAP_tile_plot <- ggplot(C_vir_apop_LFC_IAP, aes(x=product,y=experiment, fill=log2FoldChange)) + geom_tile()  + 
+  coord_flip() + scale_fill_viridis_c(breaks = seq(min(C_vir_apop_LFC_IAP$log2FoldChange),max(C_vir_apop_LFC_IAP$log2FoldChange),length.out = 10), option="plasma")
+
+C_vir_apop_LFC_IAP_tile_group_plot <- ggplot(C_vir_apop_LFC_IAP, aes(x=group_by_sim, y = product, fill=log2FoldChange)) + 
+  geom_tile()  + 
+  #scale_fill_viridis_c(breaks = seq(min(C_vir_apop_LFC_IAP$log2FoldChange, na.rm = TRUE),max(C_vir_apop_LFC_IAP$log2FoldChange, na.rm=TRUE),length.out = 15), 
+  #                     option="plasma", guide=guide_legend()) +
+  scale_fill_viridis_c(breaks = c(-11,-10,-9,-8,-7,-6,-5,-4,-3,-2,-1,0,1,2,3,4,5,6,7,8,9,10), 
+                       option="plasma", guide=guide_legend(), na.value = "transparent") +
+  labs(x="Treatment", y ="Product") +
+  theme(axis.text.x.top = element_text(size=10, family="sans"),
+        axis.text.y.right = element_text(family ="sans"),
+        axis.title = element_text(size=12, family="sans"),
+        legend.position = "bottom",
+        panel.background = element_rect(fill = "transparent"),
+        panel.grid.major.x = element_line(size=0.2, color="gray"),
+        panel.grid.major.y = element_line(size=0.2, color="gray")) +
+  #remove the NA label from the plot and change the order
+  scale_y_discrete(position = "right", limits=c("baculoviral IAP repeat-containing protein 2-like"              ,"baculoviral IAP repeat-containing protein 2-like isoform X1"  ,
+                                                "baculoviral IAP repeat-containing protein 3-like"              ,"baculoviral IAP repeat-containing protein 3-like isoform X1"  ,
+                                                "baculoviral IAP repeat-containing protein 3-like isoform X2"   ,"baculoviral IAP repeat-containing protein 5-like"             ,
+                                                "baculoviral IAP repeat-containing protein 6-like isoform X3"   ,"baculoviral IAP repeat-containing protein 6-like isoform X4"  ,
+                                                "baculoviral IAP repeat-containing protein 6-like isoform X5"   ,"baculoviral IAP repeat-containing protein 7-A-like isoform X2",
+                                                 "baculoviral IAP repeat-containing protein 7-like"             , "baculoviral IAP repeat-containing protein 7-like isoform X2" , 
+                                                 "E3 ubiquitin-protein ligase XIAP-like"                       ,                  
+                                                 "putative inhibitor of apoptosis"                              , "uncharacterized protein LOC111100400 isoform X2" ,             
+                                                 "uncharacterized protein LOC111100402"                         , "uncharacterized protein LOC111100407 isoform X2" ,             
+                                                 "uncharacterized protein LOC111100858 isoform X1"              , "uncharacterized protein LOC111100858 isoform X2" ,             
+                                                 "uncharacterized protein LOC111100858 isoform X4"              , "uncharacterized protein LOC111122723"             ),
+                   labels=c("baculoviral IAP repeat-containing protein 2-like"              ,"baculoviral IAP repeat-containing protein 2-like isoform X1"  ,
+                            "baculoviral IAP repeat-containing protein 3-like"              ,"baculoviral IAP repeat-containing protein 3-like isoform X1"  ,
+                            "baculoviral IAP repeat-containing protein 3-like isoform X2"   ,"baculoviral IAP repeat-containing protein 5-like"             ,
+                            "baculoviral IAP repeat-containing protein 6-like isoform X3"   ,"baculoviral IAP repeat-containing protein 6-like isoform X4"  ,
+                            "baculoviral IAP repeat-containing protein 6-like isoform X5"   ,"baculoviral IAP repeat-containing protein 7-A-like isoform X2",
+                            "baculoviral IAP repeat-containing protein 7-like"             , "baculoviral IAP repeat-containing protein 7-like isoform X2" , 
+                            "E3 ubiquitin-protein ligase XIAP-like"                       ,                  
+                            "putative inhibitor of apoptosis"                              , "uncharacterized protein LOC111100400 isoform X2" ,             
+                            "uncharacterized protein LOC111100402"                         , "uncharacterized protein LOC111100407 isoform X2" ,             
+                            "uncharacterized protein LOC111100858 isoform X1"              , "uncharacterized protein LOC111100858 isoform X2" ,             
+                            "uncharacterized protein LOC111100858 isoform X4"              , "uncharacterized protein LOC111122723"             )) +
+  scale_x_discrete(limits = c("Hatchery_Probiotic_RI" ,"Lab_RI_6hr" , "Lab_RI_RI_24hr", "Lab_S4_6hr","Lab_S4_24hr", "Lab_RE22" ,
+                              "ROD_susceptible_seed","ROD_resistant_seed", "Dermo_Susceptible_36hr", "Dermo_Susceptible_7d", "Dermo_Susceptible_28d","Dermo_Tolerant_36hr",   
+                              "Dermo_Tolerant_7d","Dermo_Tolerant_28d" ), 
+                   labels= c("Hatchery\n Probiotic RI" ,"Lab RI 6hr", "Lab RI 24hr", "Lab S4 6hr","Lab S4 24hr", "Lab RE22" ,
+                             "ROD Sus.\n seed","ROD Res.\n seed", "Dermo\n Sus. 36hr", "Dermo\n Sus. 7d", "Dermo\n Sus. 28d","Dermo\n Tol. 36hr",   
+                             "Dermo\n Tol. 7d","Dermo\n Tol. 28d"), position="top")
+
+# Set factor levels 
+unique(C_vir_apop_LFC_GIMAP$group_by_sim)
+unique(C_vir_apop_LFC_GIMAP$product)
+C_vir_apop_LFC_GIMAP$group_by_sim <- factor(C_vir_apop_LFC_GIMAP$group_by_sim, levels=c("Hatchery_Probiotic_RI" ,"Lab_RI_6hr", "Lab_RI_24hr", "Lab_S4_6hr","Lab_S4_24hr", "Lab_RE22" ,
+                                                                                    "ROD_susceptible_seed","ROD_resistant_seed", "Dermo_Susceptible_36hr", "Dermo_Susceptible_7d", "Dermo_Susceptible_28d","Dermo_Tolerant_36hr",   
+                                                                                    "Dermo_Tolerant_7d","Dermo_Tolerant_28d" ))
+
+C_vir_apop_LFC_GIMAP_plot <- ggplot(C_vir_apop_LFC_GIMAP, aes(x=product,y=log2FoldChange, fill=experiment )) + geom_col(position="dodge") + 
   theme(axis.text.x = element_text(angle = 75, hjust = 1)) + coord_flip()
-C_gig_apop_APOP_plot <- ggplot(C_gig_apop_LFC  , aes(x=product,y=log2FoldChange, fill=experiment )) + geom_col(position="dodge") + 
+
+C_vir_apop_LFC_GIMAP_tile_plot <- ggplot(C_vir_apop_LFC_GIMAP, aes(x=group_by_sim, y = product, fill=log2FoldChange, na.rm= TRUE)) + 
+  geom_tile()  + 
+  #scale_fill_viridis_c(breaks = seq(min(C_vir_apop_LFC_IAP$log2FoldChange, na.rm = TRUE),max(C_vir_apop_LFC_IAP$log2FoldChange, na.rm=TRUE),length.out = 15), 
+  #                   option="plasma", guide=guide_legend()) +
+  scale_fill_viridis_c(breaks = c(-11,-10,-9,-8,-7,-6,-5,-4,-3,-2,-1,0,1,2,3,4,5,6,7,8,9,10), 
+                       option="plasma", guide=guide_legend(), na.value = "transparent") +
+  labs(x="Treatment", y ="Product") +
+  theme(axis.text.x.top = element_text(size=10, family="sans"),
+        axis.text.y.right = element_text(family ="sans"),
+        axis.title = element_text(size=12, family="sans"),
+        legend.position = "bottom",
+        panel.background = element_rect(fill = "transparent"),
+        panel.grid.major.x = element_line(size=0.2, color="gray"),
+        panel.grid.major.y = element_line(size=0.2, color="gray")) +
+  # remove non significant from the list 
+  scale_y_discrete(position = "right", limits=c("GTPase IMAP family member 4-like","GTPase IMAP family member 4-like isoform X2", "GTPase IMAP family member 4-like isoform X3",  
+                                                "GTPase IMAP family member 7-like isoform X2","immune-associated nucleotide-binding protein 9-like",   
+                                                "uncharacterized protein LOC111110237",   "uncharacterized protein LOC111111774"),
+                                                labels=c("GTPase IMAP family member 4-like","GTPase IMAP family member 4-like isoform X2", "GTPase IMAP family member 4-like isoform X3",  
+                                                         "GTPase IMAP family member 7-like isoform X2","immune-associated nucleotide-binding protein 9-like",   
+                                                "uncharacterized protein LOC111110237",   "uncharacterized protein LOC111111774")) +
+  scale_x_discrete(limits = c("Hatchery_Probiotic_RI" ,"Lab_RI_6hr" , "Lab_RI_RI_24hr", "Lab_S4_6hr","Lab_S4_24hr", "Lab_RE22" ,
+                              "ROD_susceptible_seed","ROD_resistant_seed", "Dermo_Susceptible_36hr", "Dermo_Susceptible_7d", "Dermo_Susceptible_28d","Dermo_Tolerant_36hr",   
+                              "Dermo_Tolerant_7d","Dermo_Tolerant_28d" ), 
+                   labels= c("Hatchery\n Probiotic RI" ,"Lab RI 6hr", "Lab RI 24hr", "Lab S4 6hr","Lab S4 24hr", "Lab RE22" ,
+                             "ROD Sus.\n seed","ROD Res.\n seed", "Dermo\n Sus. 36hr", "Dermo\n Sus. 7d", "Dermo\n Sus. 28d","Dermo\n Tol. 36hr",   
+                             "Dermo\n Tol. 7d","Dermo\n Tol. 28d"), position="top")
+  
+# C. gigas
+Zhang_dds_deseq_res_V_alg1_LFC_sig_IAP$experiment <- "Zhang"
+Zhang_dds_deseq_res_V_tub_LFC_sig_IAP$experiment <- "Zhang"
+Zhang_dds_deseq_res_LFC_LPS_sig_IAP$experiment <- "Zhang"
+
+Zhang_dds_deseq_res_V_alg1_LFC_sig_IAP$group_by_sim <- "Zhang_Valg"
+Zhang_dds_deseq_res_V_tub_LFC_sig_IAP$group_by_sim <- "Zhang_Vtub"
+Zhang_dds_deseq_res_LFC_LPS_sig_IAP$group_by_sim <- "Zhang_LPS"
+
+Zhang_dds_deseq_res_V_alg1_LFC_sig_GIMAP$experiment <- "Zhang"
+Zhang_dds_deseq_res_V_tub_LFC_sig_GIMAP$experiment <- "Zhang"
+Zhang_dds_deseq_res_LFC_LPS_sig_GIMAP$experiment <- "Zhang"
+
+Zhang_dds_deseq_res_V_alg1_LFC_sig_GIMAP$group_by_sim <- "Zhang_Valg"
+Zhang_dds_deseq_res_V_tub_LFC_sig_GIMAP$group_by_sim <- "Zhang_Vtub"
+Zhang_dds_deseq_res_LFC_LPS_sig_GIMAP$group_by_sim <- "Zhang_LPS"
+
+Rubio_dds_deseq_J2_8_res_LFC_sig_IAP$experiment <- "Rubio"
+Rubio_dds_deseq_J2_9_res_LFC_sig_IAP$experiment <- "Rubio"
+Rubio_dds_deseq_LGP32_res_LFC_sig_IAP$experiment <- "Rubio"
+Rubio_dds_deseq_LMG20012T_res_LFC_sig_IAP$experiment <- "Rubio"
+Rubio_dds_deseq_J2_8_res_LFC_sig_IAP$group_by_sim <- "Rubio_J2_8"
+Rubio_dds_deseq_J2_9_res_LFC_sig_IAP$group_by_sim <- "Rubio_J2_9"
+Rubio_dds_deseq_LGP32_res_LFC_sig_IAP$group_by_sim <- "Rubio_LGP32"
+Rubio_dds_deseq_LMG20012T_res_LFC_sig_IAP$group_by_sim <- "Rubio_LMG20012T"
+
+Rubio_dds_deseq_J2_8_res_LFC_sig_GIMAP$experiment <- "Rubio"
+Rubio_dds_deseq_J2_9_res_LFC_sig_GIMAP$experiment <- "Rubio"
+Rubio_dds_deseq_LGP32_res_LFC_sig_GIMAP$experiment <- "Rubio"
+Rubio_dds_deseq_LMG20012T_res_LFC_sig_GIMAP$experiment <- "Rubio"
+Rubio_dds_deseq_J2_8_res_LFC_sig_GIMAP$group_by_sim <- "Rubio_J2_8"
+Rubio_dds_deseq_J2_9_res_LFC_sig_GIMAP$group_by_sim <- "Rubio_J2_9"
+Rubio_dds_deseq_LGP32_res_LFC_sig_GIMAP$group_by_sim <- "Rubio_LGP32"
+Rubio_dds_deseq_LMG20012T_res_LFC_sig_GIMAP$group_by_sim <- "Rubio_LMG20012T"
+
+He_dds_res_6hr_sig_IAP$experiment <- "He"
+He_dds_res_12hr_sig_IAP$experiment <- "He"
+He_dds_res_24hr_sig_IAP$experiment <- "He"
+He_dds_res_48hr_sig_IAP$experiment <- "He"
+He_dds_res_120hr_sig_IAP$experiment <- "He"
+He_dds_res_6hr_sig_IAP$group_by_sim <- "He_6hr"
+He_dds_res_12hr_sig_IAP$group_by_sim <- "He_12hr"
+He_dds_res_24hr_sig_IAP$group_by_sim <- "He_24hr"
+He_dds_res_48hr_sig_IAP$group_by_sim <- "He_48hr"
+He_dds_res_120hr_sig_IAP$group_by_sim <- "He_120hr"
+
+# He_dds_res_6hr_sig_GIMAP$experiment <- "He"
+#He_dds_res_12hr_sig_GIMAP$experiment <- "He"
+He_dds_res_24hr_sig_GIMAP$experiment <- "He"
+He_dds_res_48hr_sig_GIMAP$experiment <- "He"
+He_dds_res_120hr_sig_GIMAP$experiment <- "He"
+He_dds_res_24hr_sig_GIMAP$group_by_sim <- "He_24hr"
+He_dds_res_48hr_sig_GIMAP$group_by_sim <- "He_48hr"
+He_dds_res_120hr_sig_GIMAP$group_by_sim <- "He_120hr"
+
+ deLorgeril_Resistant_dds_res_6_LFC_sig_IAP$experiment <- "deLorgeril_res"
+deLorgeril_Resistant_dds_res_12_LFC_sig_IAP$experiment <- "deLorgeril_res"
+deLorgeril_Resistant_dds_res_24_LFC_sig_IAP$experiment <- "deLorgeril_res"
+deLorgeril_Resistant_dds_res_48_LFC_sig_IAP$experiment <- "deLorgeril_res"
+deLorgeril_Resistant_dds_res_60_LFC_sig_IAP$experiment <- "deLorgeril_res"
+deLorgeril_Resistant_dds_res_72_LFC_sig_IAP$experiment <- "deLorgeril_res"
+ deLorgeril_Susceptible_dds_res_6_LFC_sig_IAP$experiment <- "deLorgeril_sus"
+deLorgeril_Susceptible_dds_res_12_LFC_sig_IAP$experiment <- "deLorgeril_sus"
+deLorgeril_Susceptible_dds_res_24_LFC_sig_IAP$experiment <- "deLorgeril_sus"
+deLorgeril_Susceptible_dds_res_48_LFC_sig_IAP$experiment <- "deLorgeril_sus"
+deLorgeril_Susceptible_dds_res_60_LFC_sig_IAP$experiment <- "deLorgeril_sus"
+deLorgeril_Susceptible_dds_res_72_LFC_sig_IAP$experiment <- "deLorgeril_sus"
+
+deLorgeril_Resistant_dds_res_6_LFC_sig_IAP$group_by_sim <- "deLorgeril_res_6hr"
+deLorgeril_Resistant_dds_res_12_LFC_sig_IAP$group_by_sim <- "deLorgeril_res_12hr"
+deLorgeril_Resistant_dds_res_24_LFC_sig_IAP$group_by_sim <- "deLorgeril_res_24hr"
+deLorgeril_Resistant_dds_res_48_LFC_sig_IAP$group_by_sim <- "deLorgeril_res_48hr"
+deLorgeril_Resistant_dds_res_60_LFC_sig_IAP$group_by_sim <- "deLorgeril_res_60hr"
+deLorgeril_Resistant_dds_res_72_LFC_sig_IAP$group_by_sim <- "deLorgeril_res_72hr"
+deLorgeril_Susceptible_dds_res_6_LFC_sig_IAP$group_by_sim <- "deLorgeril_sus_6hr"
+deLorgeril_Susceptible_dds_res_12_LFC_sig_IAP$group_by_sim <- "deLorgeril_sus_12hr"
+deLorgeril_Susceptible_dds_res_24_LFC_sig_IAP$group_by_sim <- "deLorgeril_sus_24hr"
+deLorgeril_Susceptible_dds_res_48_LFC_sig_IAP$group_by_sim <- "deLorgeril_sus_48hr"
+deLorgeril_Susceptible_dds_res_60_LFC_sig_IAP$group_by_sim <- "deLorgeril_sus_60hr"
+deLorgeril_Susceptible_dds_res_72_LFC_sig_IAP$group_by_sim <- "deLorgeril_sus_72hr"
+
+ deLorgeril_Resistant_dds_res_6_LFC_sig_GIMAP  $experiment <- "deLorgeril_res"
+deLorgeril_Resistant_dds_res_12_LFC_sig_GIMAP  $experiment <- "deLorgeril_res"
+deLorgeril_Resistant_dds_res_24_LFC_sig_GIMAP  $experiment <- "deLorgeril_res"
+deLorgeril_Resistant_dds_res_48_LFC_sig_GIMAP  $experiment <- "deLorgeril_res"
+deLorgeril_Resistant_dds_res_60_LFC_sig_GIMAP  $experiment <- "deLorgeril_res"
+deLorgeril_Resistant_dds_res_72_LFC_sig_GIMAP  $experiment <- "deLorgeril_res"
+ deLorgeril_Susceptible_dds_res_6_LFC_sig_GIMAP$experiment <- "deLorgeril_sus"
+deLorgeril_Susceptible_dds_res_12_LFC_sig_GIMAP$experiment <- "deLorgeril_sus"
+deLorgeril_Susceptible_dds_res_24_LFC_sig_GIMAP$experiment <- "deLorgeril_sus"
+deLorgeril_Susceptible_dds_res_48_LFC_sig_GIMAP$experiment <- "deLorgeril_sus"
+deLorgeril_Susceptible_dds_res_60_LFC_sig_GIMAP$experiment <- "deLorgeril_sus"
+deLorgeril_Susceptible_dds_res_72_LFC_sig_GIMAP$experiment <- "deLorgeril_sus"
+
+deLorgeril_Resistant_dds_res_6_LFC_sig_GIMAP$group_by_sim <- "deLorgeril_res_6hr"
+deLorgeril_Resistant_dds_res_12_LFC_sig_GIMAP$group_by_sim <- "deLorgeril_res_12hr"
+deLorgeril_Resistant_dds_res_24_LFC_sig_GIMAP$group_by_sim <- "deLorgeril_res_24hr"
+deLorgeril_Resistant_dds_res_48_LFC_sig_GIMAP$group_by_sim <- "deLorgeril_res_48hr"
+deLorgeril_Resistant_dds_res_60_LFC_sig_GIMAP$group_by_sim <- "deLorgeril_res_60hr"
+deLorgeril_Resistant_dds_res_72_LFC_sig_GIMAP$group_by_sim <- "deLorgeril_res_72hr"
+deLorgeril_Susceptible_dds_res_6_LFC_sig_GIMAP$group_by_sim <- "deLorgeril_sus_6hr"
+deLorgeril_Susceptible_dds_res_12_LFC_sig_GIMAP$group_by_sim <- "deLorgeril_sus_12hr"
+deLorgeril_Susceptible_dds_res_24_LFC_sig_GIMAP$group_by_sim <- "deLorgeril_sus_24hr"
+deLorgeril_Susceptible_dds_res_48_LFC_sig_GIMAP$group_by_sim <- "deLorgeril_sus_48hr"
+deLorgeril_Susceptible_dds_res_60_LFC_sig_GIMAP$group_by_sim <- "deLorgeril_sus_60hr"
+deLorgeril_Susceptible_dds_res_72_LFC_sig_GIMAP$group_by_sim <- "deLorgeril_sus_72hr"
+
+# put together
+C_gig_apop_LFC_IAP <- rbind(Zhang_dds_deseq_res_V_alg1_LFC_sig_IAP[,c("product","group_by_sim","log2FoldChange","experiment", "gene","transcript_id","padj","protein_id")],
+                            Zhang_dds_deseq_res_V_tub_LFC_sig_IAP[,c("product","group_by_sim","log2FoldChange","experiment", "gene","transcript_id","padj","protein_id")],
+                            Zhang_dds_deseq_res_LFC_LPS_sig_IAP[,c("product","group_by_sim","log2FoldChange","experiment", "gene","transcript_id","padj","protein_id")],
+                            Rubio_dds_deseq_J2_8_res_LFC_sig_IAP[,c("product","group_by_sim","log2FoldChange","experiment", "gene","transcript_id","padj","protein_id")],
+                            Rubio_dds_deseq_J2_9_res_LFC_sig_IAP[,c("product","group_by_sim","log2FoldChange","experiment", "gene","transcript_id","padj","protein_id")],
+                            Rubio_dds_deseq_LGP32_res_LFC_sig_IAP[,c("product","group_by_sim","log2FoldChange","experiment", "gene","transcript_id","padj","protein_id")],
+                            Rubio_dds_deseq_LMG20012T_res_LFC_sig_IAP[,c("product","group_by_sim","log2FoldChange","experiment", "gene","transcript_id","padj","protein_id")],
+                            He_dds_res_6hr_sig_IAP[,c("product","log2FoldChange","group_by_sim","experiment", "gene","transcript_id","padj","protein_id")],
+                            He_dds_res_12hr_sig_IAP[,c("product","log2FoldChange","group_by_sim","experiment", "gene","transcript_id","padj","protein_id")],
+                            He_dds_res_24hr_sig_IAP[,c("product","log2FoldChange","group_by_sim","experiment", "gene","transcript_id","padj","protein_id")],
+                            He_dds_res_48hr_sig_IAP[,c("product","log2FoldChange","group_by_sim","experiment", "gene","transcript_id","padj","protein_id")],
+                            He_dds_res_120hr_sig_IAP[,c("product","log2FoldChange","group_by_sim","experiment", "gene","transcript_id","padj","protein_id")],
+                            deLorgeril_Resistant_dds_res_6_LFC_sig_IAP[,c("product","group_by_sim","log2FoldChange","experiment", "gene","transcript_id","padj","protein_id")],
+                            deLorgeril_Resistant_dds_res_12_LFC_sig_IAP[,c("product","group_by_sim","log2FoldChange","experiment", "gene","transcript_id","padj","protein_id")],
+                            deLorgeril_Resistant_dds_res_24_LFC_sig_IAP[,c("product","group_by_sim","log2FoldChange","experiment", "gene","transcript_id","padj","protein_id")],
+                            deLorgeril_Resistant_dds_res_48_LFC_sig_IAP[,c("product","group_by_sim","log2FoldChange","experiment", "gene","transcript_id","padj","protein_id")],
+                            deLorgeril_Resistant_dds_res_60_LFC_sig_IAP[,c("product","group_by_sim","log2FoldChange","experiment", "gene","transcript_id","padj","protein_id")],
+                            deLorgeril_Resistant_dds_res_72_LFC_sig_IAP[,c("product","group_by_sim","log2FoldChange","experiment", "gene","transcript_id","padj","protein_id")],
+                            deLorgeril_Susceptible_dds_res_6_LFC_sig_IAP[,c("product","group_by_sim","log2FoldChange","experiment", "gene","transcript_id","padj","protein_id")],
+                            deLorgeril_Susceptible_dds_res_12_LFC_sig_IAP[,c("product","group_by_sim","log2FoldChange","experiment", "gene","transcript_id","padj","protein_id")],
+                            deLorgeril_Susceptible_dds_res_24_LFC_sig_IAP[,c("product","group_by_sim","log2FoldChange","experiment", "gene","transcript_id","padj","protein_id")],
+                            deLorgeril_Susceptible_dds_res_48_LFC_sig_IAP[,c("product","group_by_sim","log2FoldChange","experiment", "gene","transcript_id","padj","protein_id")],
+                            deLorgeril_Susceptible_dds_res_60_LFC_sig_IAP[,c("product","group_by_sim","log2FoldChange","experiment", "gene","transcript_id","padj","protein_id")],
+                            deLorgeril_Susceptible_dds_res_72_LFC_sig_IAP[,c("product","group_by_sim","log2FoldChange","experiment", "gene","transcript_id","padj","protein_id")])
+nrow(C_gig_apop_LFC_IAP) # 162
+
+# No experiments had 0 significant IAPs
+
+# save list as Rdata
+save(C_gig_apop_LFC_IAP,file="/Users/erinroberts/Documents/PhD_Research/Chapter_1_Apoptosis Paper/Chapter1_Apoptosis_Transcriptome_Analyses_2019/DATA ANALYSIS/apoptosis_data_pipeline/DESeq2/C_gig_apop_LFC_IAP.Rdata")
+
+C_gig_apop_LFC_GIMAP <- rbind(Zhang_dds_deseq_res_V_alg1_LFC_sig_GIMAP[,c("product","group_by_sim","log2FoldChange","experiment", "gene","transcript_id","padj","protein_id")],
+                            Zhang_dds_deseq_res_V_tub_LFC_sig_GIMAP[,c("product","group_by_sim","log2FoldChange","experiment", "gene","transcript_id","padj","protein_id")],
+                            Zhang_dds_deseq_res_LFC_LPS_sig_GIMAP[,c("product","group_by_sim","log2FoldChange","experiment", "gene","transcript_id","padj","protein_id")],
+                            Rubio_dds_deseq_J2_8_res_LFC_sig_GIMAP[,c("product","group_by_sim","log2FoldChange","experiment", "gene","transcript_id","padj","protein_id")],
+                            Rubio_dds_deseq_J2_9_res_LFC_sig_GIMAP[,c("product","group_by_sim","log2FoldChange","experiment", "gene","transcript_id","padj","protein_id")],
+                            Rubio_dds_deseq_LGP32_res_LFC_sig_GIMAP[,c("product","group_by_sim","log2FoldChange","experiment", "gene","transcript_id","padj","protein_id")],
+                            Rubio_dds_deseq_LMG20012T_res_LFC_sig_GIMAP[,c("product","group_by_sim","log2FoldChange","experiment", "gene","transcript_id","padj","protein_id")],
+                            He_dds_res_24hr_sig_GIMAP[,c("product","group_by_sim","log2FoldChange","experiment", "gene","transcript_id","padj","protein_id")],
+                            He_dds_res_48hr_sig_GIMAP[,c("product","group_by_sim","log2FoldChange","experiment", "gene","transcript_id","padj","protein_id")],
+                            He_dds_res_120hr_sig_GIMAP[,c("product","group_by_sim","log2FoldChange","experiment", "gene","transcript_id","padj","protein_id")],
+                            deLorgeril_Resistant_dds_res_6_LFC_sig_GIMAP[,c("product","group_by_sim","log2FoldChange","experiment", "gene","transcript_id","padj","protein_id")],
+                            deLorgeril_Resistant_dds_res_12_LFC_sig_GIMAP[,c("product","group_by_sim","log2FoldChange","experiment", "gene","transcript_id","padj","protein_id")],
+                            deLorgeril_Resistant_dds_res_24_LFC_sig_GIMAP[,c("product","group_by_sim","log2FoldChange","experiment", "gene","transcript_id","padj","protein_id")],
+                            deLorgeril_Resistant_dds_res_48_LFC_sig_GIMAP[,c("product","group_by_sim","log2FoldChange","experiment", "gene","transcript_id","padj","protein_id")],
+                            deLorgeril_Resistant_dds_res_60_LFC_sig_GIMAP[,c("product","group_by_sim","log2FoldChange","experiment", "gene","transcript_id","padj","protein_id")],
+                            deLorgeril_Resistant_dds_res_72_LFC_sig_GIMAP[,c("product","group_by_sim","log2FoldChange","experiment", "gene","transcript_id","padj","protein_id")],
+                            deLorgeril_Susceptible_dds_res_6_LFC_sig_GIMAP[,c("product","group_by_sim","log2FoldChange","experiment", "gene","transcript_id","padj","protein_id")],
+                            deLorgeril_Susceptible_dds_res_12_LFC_sig_GIMAP[,c("product","group_by_sim","log2FoldChange","experiment", "gene","transcript_id","padj","protein_id")],
+                            deLorgeril_Susceptible_dds_res_24_LFC_sig_GIMAP[,c("product","group_by_sim","log2FoldChange","experiment", "gene","transcript_id","padj","protein_id")],
+                            deLorgeril_Susceptible_dds_res_48_LFC_sig_GIMAP[,c("product","group_by_sim","log2FoldChange","experiment", "gene","transcript_id","padj","protein_id")],
+                            deLorgeril_Susceptible_dds_res_60_LFC_sig_GIMAP[,c("product","group_by_sim","log2FoldChange","experiment", "gene","transcript_id","padj","protein_id")],
+                            deLorgeril_Susceptible_dds_res_72_LFC_sig_GIMAP[,c("product","group_by_sim","log2FoldChange","experiment", "gene","transcript_id","padj","protein_id")])
+nrow(C_gig_apop_LFC_GIMAP) # 49
+
+# Add in rows for experiments with no significant GIMAPS
+# Add back in empty rows for missing groups that should still be plotted
+C_gig_apop_LFC_GIMAP[nrow(C_gig_apop_LFC_GIMAP)+2,] <- NA
+C_gig_apop_LFC_GIMAP$group_by_sim <- as.character(C_gig_apop_LFC_GIMAP$group_by_sim )
+C_gig_apop_LFC_GIMAP$experiment <- as.character(C_gig_apop_LFC_GIMAP$experiment )
+C_gig_apop_LFC_GIMAP[50,1] <- as.character("None significant")
+C_gig_apop_LFC_GIMAP[50,2] <- as.character("He_6hr")
+C_gig_apop_LFC_GIMAP[50,4] <- as.character("He")
+
+C_gig_apop_LFC_GIMAP[51,1] <- as.character("None significant")
+C_gig_apop_LFC_GIMAP[51,2] <- as.character("HE_12hr")
+C_gig_apop_LFC_GIMAP[51,4] <- as.character("He")
+
+# save list as Rdata
+save(C_gig_apop_LFC_GIMAP,file="/Users/erinroberts/Documents/PhD_Research/Chapter_1_Apoptosis Paper/Chapter1_Apoptosis_Transcriptome_Analyses_2019/DATA ANALYSIS/apoptosis_data_pipeline/DESeq2/C_gig_apop_LFC_GIMAP.Rdata")
+
+# Make plot
+sort(unique(C_gig_apop_LFC_IAP$product))
+unique(C_gig_apop_LFC_IAP$group_by_sim)
+C_gig_apop_LFC_IAP_plot <- ggplot(C_gig_apop_LFC_IAP, aes(x=product,y=log2FoldChange, fill=experiment )) + geom_col(position="dodge") + 
   theme(axis.text.x = element_text(angle = 75, hjust = 1)) + coord_flip()
 
+C_gig_apop_LFC_IAP_tile_plot <- ggplot(C_gig_apop_LFC_IAP, aes(x=group_by_sim,y=product, fill=log2FoldChange)) + geom_tile()  +
+  #scale_fill_viridis_c(breaks = seq(min(C_gig_apop_LFC_IAP$log2FoldChange, na.rm = TRUE),max(C_gig_apop_LFC_IAP$log2FoldChange, na.rm=TRUE),length.out = 15), 
+  #                   option="plasma", guide=guide_legend()) +
+  scale_fill_viridis_c(breaks = c(-5,-4,-3,-2,-1,0,1,2,3,4,5,6,7,8,9,10,11,12,13,14), 
+                       option="plasma", guide=guide_legend(), na.value = "transparent") +
+  labs(x="Treatment", y ="Product") +
+  theme(axis.text.x.top = element_text(size=10, family="sans"),
+        axis.text.y.right = element_text(family ="sans"),
+        axis.title = element_text(size=12, family="sans"),
+        legend.position = "bottom",
+        panel.background = element_rect(fill = "transparent"),
+        panel.grid.major.x = element_line(size=0.2, color="gray"),
+        panel.grid.major.y = element_line(size=0.2, color="gray")) +
+  # remove non significant from the list 
+  scale_y_discrete(position = "right", limits=c("baculoviral IAP repeat-containing protein 2"            ,"baculoviral IAP repeat-containing protein 2 isoform X3" ,"baculoviral IAP repeat-containing protein 3 isoform X1",
+                                                "baculoviral IAP repeat-containing protein 3 isoform X2" ,"baculoviral IAP repeat-containing protein 3-like"       ,"baculoviral IAP repeat-containing protein 5"           ,
+                                                "baculoviral IAP repeat-containing protein 6 isoform X1" ,"baculoviral IAP repeat-containing protein 6 isoform X2" ,"baculoviral IAP repeat-containing protein 6 isoform X3",
+                                                  "baculoviral IAP repeat-containing protein 6 isoform X4", "baculoviral IAP repeat-containing protein 6 isoform X5", "baculoviral IAP repeat-containing protein 7"           ,
+                                                  "baculoviral IAP repeat-containing protein 7-A"         , "baculoviral IAP repeat-containing protein 7-B"         , "putative inhibitor of apoptosis"                       ,
+                                                  "uncharacterized protein LOC105321414"                  , "uncharacterized protein LOC105321986 isoform X2"       , "uncharacterized protein LOC105325768 isoform X1"       ,
+                                                  "uncharacterized protein LOC105325768 isoform X3"       , "uncharacterized protein LOC105340029"                  , "uncharacterized protein LOC105343630" ),
+                   labels=c("baculoviral IAP repeat-containing protein 2"            ,"baculoviral IAP repeat-containing protein 2 isoform X3" ,"baculoviral IAP repeat-containing protein 3 isoform X1",
+                            "baculoviral IAP repeat-containing protein 3 isoform X2" ,"baculoviral IAP repeat-containing protein 3-like"       ,"baculoviral IAP repeat-containing protein 5"           ,
+                            "baculoviral IAP repeat-containing protein 6 isoform X1" ,"baculoviral IAP repeat-containing protein 6 isoform X2" ,"baculoviral IAP repeat-containing protein 6 isoform X3",
+                            "baculoviral IAP repeat-containing protein 6 isoform X4", "baculoviral IAP repeat-containing protein 6 isoform X5", "baculoviral IAP repeat-containing protein 7"           ,
+                            "baculoviral IAP repeat-containing protein 7-A"         , "baculoviral IAP repeat-containing protein 7-B"         , "putative inhibitor of apoptosis"                       ,
+                            "uncharacterized protein LOC105321414"                  , "uncharacterized protein LOC105321986 isoform X2"       , "uncharacterized protein LOC105325768 isoform X1"       ,
+                            "uncharacterized protein LOC105325768 isoform X3"       , "uncharacterized protein LOC105340029"                  , "uncharacterized protein LOC105343630")) +
+  scale_x_discrete(limits = c("Zhang_Valg"          ,"Zhang_Vtub"          ,"Zhang_LPS"          , "Rubio_J2_8"          ,"Rubio_J2_9"          ,"Rubio_LGP32"         ,"Rubio_LMG20012T"     ,"He_6hr"             ,
+                              "He_12hr"             ,"He_24hr"             ,"He_48hr"            , "He_120hr"            ,"deLorgeril_res_6hr"  ,"deLorgeril_res_12hr" ,"deLorgeril_res_24hr" ,"deLorgeril_res_48hr",
+                              "deLorgeril_res_60hr" ,"deLorgeril_res_72hr" ,"deLorgeril_sus_6hr" , "deLorgeril_sus_12hr" ,"deLorgeril_sus_24hr" ,"deLorgeril_sus_48hr" ,"deLorgeril_sus_60hr" ,"deLorgeril_sus_72hr"), 
+                   labels= c("Zhang\n V. alg","Zhang\n V.tub","Zhang\n LPS", "Rubio\nV. crass\n J2_8\n NVir","Rubio\nV. crass\n J2_9\n Vir" ,"Rubio\nV. tasma\n LGP32\n Vir","Rubio\nV. tasma\n LMG20012T\n NVir","He OsHv-1\n 6hr",
+                             "He OsHv-1\n 12hr", "He OsHv-1\n24hr", "He OsHv-1\n48hr", "He OsHv-1\n 120hr","deLorgeril\nOsHV-1\n Res. 6hr","deLorgeril\nOsHV-1\n Res. 12hr","deLorgeril\nOsHV-1\n Res. 24hr" ,"deLorgeril\nOsHV-1\n Res. 48hr",
+                             "deLorgeril\nOsHV-1\n Res. 60hr","deLorgeril\nOsHV-1\n Res. 72hr" ,"deLorgeril\nOsHV-1\n Sus. 6hr", "deLorgeril\nOsHV-1\n Sus. 12hr","deLorgeril\nOsHV-1\n Sus. 24hr","deLorgeril\nOsHV-1\n Sus. 48hr" ,
+                             "deLorgeril\nOsHV-1\n Sus. 60hr","deLorgeril\nOsHV-1\n Sus. 72hr"), position="top")
+
+sort(unique(C_gig_apop_LFC_GIMAP$product))
+C_gig_apop_LFC_GIMAP_plot <- ggplot(C_gig_apop_LFC_GIMAP, aes(x=product,y=log2FoldChange, fill=experiment )) + geom_col(position="dodge") + 
+  theme(axis.text.x = element_text(angle = 75, hjust = 1)) + coord_flip()
+
+C_gig_apop_LFC_GIMAP_tile_plot <- ggplot(C_gig_apop_LFC_GIMAP, aes(x=group_by_sim, y=product, fill=log2FoldChange)) + 
+  geom_tile() + 
+  #scale_fill_viridis_c(breaks = seq(min(C_gig_apop_LFC_GIMAP$log2FoldChange, na.rm = TRUE),max(C_gig_apop_LFC_GIMAP$log2FoldChange, na.rm=TRUE),length.out = 15), 
+  #                     option="plasma", guide=guide_legend()) +
+  scale_fill_viridis_c(breaks = c(-5,-4,-3,-2,-1,0,1,2,3,4,5,6,7,8,9,10,11,12,13,14), 
+                       option="plasma", guide=guide_legend(), na.value = "transparent") +
+  labs(x="Treatment", y ="Product") +
+  theme(axis.text.x.top = element_text(size=10, family="sans"),
+        axis.text.y.right = element_text(family ="sans"),
+        axis.title = element_text(size=12, family="sans"),
+        legend.position = "bottom",
+        panel.background = element_rect(fill = "transparent"),
+        panel.grid.major.x = element_line(size=0.2, color="gray"),
+        panel.grid.major.y = element_line(size=0.2, color="gray")) +
+  # remove non significant from the list 
+  scale_y_discrete(position = "right", limits=c("GTPase IMAP family member 2"                         ,"GTPase IMAP family member 4"          ,"GTPase IMAP family member 4 isoform X2"           , 
+                                                 "GTPase IMAP family member 4 isoform X3"             , "GTPase IMAP family member 4-like"    , "GTPase IMAP family member 7"                     ,  
+                                                 "GTPase IMAP family member 7-like"                   , "GTPase IMAP family member 8-like"    ,
+                                                 "reticulocyte-binding protein 2 homolog a isoform X2", "uncharacterized protein LOC105334629", "uncharacterized protein LOC105343525 isoform X1"),
+                   labels=c("GTPase IMAP family member 2","GTPase IMAP family member 4","GTPase IMAP family member 4 isoform X2",
+ "GTPase IMAP family member 4 isoform X3", "GTPase IMAP family member 4-like", "GTPase IMAP family member 7",
+                            "GTPase IMAP family member 7-like", "GTPase IMAP family member 8-like"    ,
+                            "reticulocyte-binding protein 2 homolog a isoform X2", "uncharacterized protein LOC105334629", "uncharacterized protein LOC105343525 isoform X1")) +
+  scale_x_discrete(limits = c("Zhang_Valg"          ,"Zhang_Vtub"          ,"Zhang_LPS"          , "Rubio_J2_8"          ,"Rubio_J2_9"          ,"Rubio_LGP32"         ,"Rubio_LMG20012T"     ,"He_6hr"             ,
+                              "He_12hr"             ,"He_24hr"             ,"He_48hr"            , "He_120hr"            ,"deLorgeril_res_6hr"  ,"deLorgeril_res_12hr" ,"deLorgeril_res_24hr" ,"deLorgeril_res_48hr",
+                              "deLorgeril_res_60hr" ,"deLorgeril_res_72hr" ,"deLorgeril_sus_6hr" , "deLorgeril_sus_12hr" ,"deLorgeril_sus_24hr" ,"deLorgeril_sus_48hr" ,"deLorgeril_sus_60hr" ,"deLorgeril_sus_72hr"), 
+                   labels= c("Zhang\n V. alg","Zhang\n V.tub","Zhang\n LPS", "Rubio\nV. crass\n J2_8\n NVir","Rubio\nV. crass\n J2_9\n Vir" ,"Rubio\nV. tasma\n LGP32\n Vir","Rubio\nV. tasma\n LMG20012T\n NVir","He OsHv-1\n 6hr",
+                             "He OsHv-1\n 12hr", "He OsHv-1\n24hr", "He OsHv-1\n48hr", "He OsHv-1\n 120hr","deLorgeril\nOsHV-1\n Res. 6hr","deLorgeril\nOsHV-1\n Res. 12hr","deLorgeril\nOsHV-1\n Res. 24hr" ,"deLorgeril\nOsHV-1\n Res. 48hr",
+                             "deLorgeril\nOsHV-1\n Res. 60hr","deLorgeril\nOsHV-1\n Res. 72hr" ,"deLorgeril\nOsHV-1\n Sus. 6hr", "deLorgeril\nOsHV-1\n Sus. 12hr","deLorgeril\nOsHV-1\n Sus. 24hr","deLorgeril\nOsHV-1\n Sus. 48hr" ,
+                             "deLorgeril\nOsHV-1\n Sus. 60hr","deLorgeril\nOsHV-1\n Sus. 72hr"), position="top")
 
 
-#### COMPARING APOPTOSIS TRANSCRIPT EXPRESSION BETWEEN EXPERIMENTS PCA HEATMAPS VST ON APOP SUBSET ALONE ####
-# some helpful forum posts on the topic: https://www.biostars.org/p/364768/
-# Suggest combining, using limma to remove batch effects for each experiment, and then calculate the rlog all together
-# Could combine pvalues from DEseq for comparison using metaRNAseq R package to compare p values with a Fisher method
+# Export DESeq information with IAP and GIMAP transcripts and place on the tree from ggtree 
 
-# Load allcoldata.csv 
-All_coldata <- read.csv("/Users/erinroberts/Documents/PhD_Research/Chapter_1_Apoptosis Paper/Chapter1_Apoptosis_Transcriptome_Analyses_2019/DATA ANALYSIS/apoptosis_data_pipeline/DESeq2/2020_Transcriptome_ANALYSIS/All_coldata.csv", row.names = 1 )
-View(All_coldata)  
-C_vir_coldata <- subset(All_coldata, Species =="C_vir")
-C_gig_coldata <-  subset(All_coldata, Species =="C_gig")
 
-## Combine raw counts data frames from C. virginica
-# All the rows should be in the same order because I used the same apoptosis data frame to join them
-all(rownames(Dermo_Susceptible_counts_apop) == rownames(Dermo_Tolerant_counts_apop)) # TRUE
-all(rownames(Dermo_Susceptible_counts_apop) %in% rownames(Dermo_Tolerant_counts_apop)) # TRUE
 
-# Check probiotic table order
-all(rownames(Probiotic_counts_apop) == rownames(Dermo_Tolerant_counts_apop)) # TRUE
-all(rownames(Probiotic_counts_apop) %in% rownames(Dermo_Tolerant_counts_apop)) # TRUE
-Probiotic_counts_apop <- Probiotic_counts_apop[row.names(Dermo_Tolerant_counts_apop),]
-all(rownames(Probiotic_counts_apop) == rownames(Dermo_Tolerant_counts_apop)) # TRUE
-
-# Check ROD order and change if necessary 
-all(rownames(ROD_Resistant_counts_apop) == rownames(Dermo_Tolerant_counts_apop)) # TRUE
-all(rownames(ROD_Resistant_counts_apop) %in% rownames(Dermo_Tolerant_counts_apop)) # TRUE
-ROD_Resistant_counts_apop <- ROD_Resistant_counts_apop[row.names(Dermo_Tolerant_counts_apop),]
-ROD_Susceptible_counts_apop <-  ROD_Susceptible_counts_apop[row.names(Dermo_Tolerant_counts_apop),]
-all(rownames(ROD_Resistant_counts_apop) == rownames(Dermo_Tolerant_counts_apop)) # TRUE
-all(rownames(ROD_Susceptible_counts_apop) == rownames(Dermo_Tolerant_counts_apop)) # TRUE
-all(rownames(ROD_Susceptible_counts_apop) == rownames(ROD_Resistant_counts_apop)) # TRUE
-
-# Colbind all C. virginica tables
-C_virginica_apop_counts <- cbind(Dermo_Susceptible_counts_apop,Dermo_Tolerant_counts_apop,
-                                 Probiotic_counts_apop,Pro_RE22_counts_apop, ROD_Resistant_counts_apop,
-                                 ROD_Susceptible_counts_apop)
-
-# Set equal the rownames and colnames of the coldata and count data
-all(rownames(C_vir_coldata ) %in% colnames(C_virginica_apop_counts))  #Should return TRUE
-# returns TRUE
-all(colnames(C_virginica_apop_counts) %in% rownames(C_vir_coldata  ))  
-# returns TRUE
-all(rownames(C_vir_coldata ) == colnames(C_virginica_apop_counts)) # FALSE
-
-# Fix the order
-C_virginica_apop_counts <- C_virginica_apop_counts[,row.names(C_vir_coldata)]
-
-all(rownames(C_vir_coldata ) %in% colnames(C_virginica_apop_counts))  #Should return TRUE
-# returns TRUE
-all(colnames(C_virginica_apop_counts) %in% rownames(C_vir_coldata  ))  
-# returns TRUE
-all(rownames(C_vir_coldata ) == colnames(C_virginica_apop_counts))  # TRUE
-
-# Make DEseq data set from matrix so that the coldata gets attached
-C_virginica_apop_counts_dds <- DESeqDataSetFromMatrix(countData = C_virginica_apop_counts,
-                                                      colData= C_vir_coldata,
-                                                      design = ~Condition)
-# Collapse technical replicates 
-C_virginica_apop_counts_dds <- collapseReplicates(C_virginica_apop_counts_dds, C_virginica_apop_counts_dds$Sample, C_virginica_apop_counts_dds$TechRep)
-
-# Calculate the vst
-C_virginica_apop_counts_vst <- varianceStabilizingTransformation(C_virginica_apop_counts_dds)
-
-## Combine C_gig data frame
-# Check row order before combining
-all(rownames(Zhang_counts_apop) == rownames(Rubio_counts_apop)) # TRUE
-all(rownames(Zhang_counts_apop) %in% rownames(Rubio_counts_apop)) # TRUE
-Zhang_counts_apop <- Zhang_counts_apop[row.names(Rubio_counts_apop),]
-all(rownames(Zhang_counts_apop) == rownames(Rubio_counts_apop)) # TRUE
-
-deLorgeril_Susceptible_counts_apop <- deLorgeril_Susceptible_counts_apop[row.names(Rubio_counts_apop),]
-deLorgeril_Resistant_counts_apop <- deLorgeril_Resistant_counts_apop[row.names(Rubio_counts_apop),]
-He_counts_apop <- He_counts_apop[row.names(Rubio_counts_apop),]
-all(rownames(deLorgeril_Susceptible_counts_apop) == rownames(Zhang_counts_apop)) # TRUE
-all(rownames(deLorgeril_Resistant_counts_apop) == rownames(Zhang_counts_apop)) # TRUE
-all(rownames(He_counts_apop) == rownames(Zhang_counts_apop)) # TRUE
-
-C_gigas_apop_counts <- cbind(Zhang_counts_apop,Rubio_counts_apop,deLorgeril_Susceptible_counts_apop,
-                             deLorgeril_Resistant_counts_apop,He_counts_apop)
-# Set equal the rownames and colnames of the coldata and count data
-all(rownames(C_gig_coldata ) %in% colnames(C_gigas_apop_counts))  #Should return TRUE
-# returns TRUE
-all(colnames(C_gigas_apop_counts) %in% rownames(C_gig_coldata  ))  
-# returns TRUE
-all(rownames(C_gig_coldata ) == colnames(C_gigas_apop_counts)) # FALSE
-
-# Fix the order
-C_gigas_apop_counts <- C_gigas_apop_counts[,row.names(C_gig_coldata)]
-
-all(rownames(C_gig_coldata ) %in% colnames(C_gigas_apop_counts))  #Should return TRUE
-# returns TRUE
-all(colnames(C_gigas_apop_counts) %in% rownames(C_gig_coldata  ))  
-# returns TRUE
-all(rownames(C_gig_coldata ) == colnames(C_gigas_apop_counts))  # TRUE
-
-# Make DEseq data set from matrix so that the coldata gets attached
-C_gigas_apop_dds <- DESeqDataSetFromMatrix(countData = C_gigas_apop_counts ,
-                                           colData = C_gig_coldata,
-                                           design = ~Condition)
-# Calculate the vst
-C_gigas_apop_counts_vst <- varianceStabilizingTransformation(C_gigas_apop_dds)
-
-## Remove Batch effects from experiment for C_vir
-plotPCA(C_virginica_apop_counts_vst, "Experiment") # grouping by experiment
-mat_C_vir <- assay(C_virginica_apop_counts_vst)
-mat_C_vir <- limma::removeBatchEffect(mat_C_vir, C_virginica_apop_counts_vst$Experiment)
-assay(C_virginica_apop_counts_vst) <- mat_C_vir
-plotPCA(C_virginica_apop_counts_vst, "Experiment") # Probiotic and ROD now cluster together
-plotPCA(C_virginica_apop_counts_vst, "Sample")
-plotPCA(C_virginica_apop_counts_vst, "Time") # no clustering by time
-plotPCA(C_virginica_apop_counts_vst, "Family")
-
-## Remove Batch effects from experiment for C_vir
-plotPCA(C_gigas_apop_counts_vst, "Experiment") # grouping by experiment, but He and Zhang also cluster
-mat_C_gig <- assay(C_gigas_apop_counts_vst)
-mat_C_gig <- limma::removeBatchEffect(mat_C_gig, C_gigas_apop_counts_vst$Experiment)
-assay(C_gigas_apop_counts_vst) <- mat_C_gig
-plotPCA(C_gigas_apop_counts_vst, "Experiment") # He and deLorgeril cluster some, Rubio and Zhang definitely cluster
-plotPCA(C_gigas_apop_counts_vst, "Sample")
-plotPCA(C_gigas_apop_counts_vst, "Time") # no clustering by time
-plotPCA(C_gigas_apop_counts_vst, "Family")
-
-### Heatmaps of apoptosis gene vsts ###
-
-# heatmap of all apoptosis genes 
-C_virginica_apop_counts_assay <-  assay(C_virginica_apop_counts_vst)[,]
-C_virginica_apop_counts_assay_mat <- C_virginica_apop_counts_assay - rowMeans(C_virginica_apop_counts_assay)
-C_virginica_apop_counts_assay_anno <- as.data.frame(colData(C_virginica_apop_counts_vst)[, c("Condition","Time","Experiment")])
-C_virginica_apop_counts_assay_heatmap <- pheatmap(C_virginica_apop_counts_assay_mat  , annotation_col = C_virginica_apop_counts_assay_anno)
-
-C_gigas_apop_counts_assay <-  assay(C_gigas_apop_counts_vst)[,]
-C_gigas_apop_counts_assay_mat <- C_gigas_apop_counts_assay - rowMeans(C_gigas_apop_counts_assay)
-C_gigas_apop_counts_assay_anno <- as.data.frame(colData(C_gigas_apop_counts_vst)[, c("Condition","Experiment")])
-C_gigas_apop_counts_assay_heatmap <- pheatmap(C_gigas_apop_counts_assay_mat  , annotation_col = C_gigas_apop_counts_assay_anno)
-# clustering of delorgeril and HE
-
-# heatmap of most variable apoptosis genes for C_vir (this selects genes with the greatest variance in the sample)
-topVarGenes_C_virginica_apop_assay <-  head(order(rowVars(assay(C_virginica_apop_counts_vst)), decreasing = TRUE), 100) 
-top_Var_C_virginica_apop_assay_mat<- assay(C_virginica_apop_counts_vst)[topVarGenes_C_virginica_apop_assay,]
-top_Var_C_virginica_apop_assay_mat <- top_Var_C_virginica_apop_assay_mat - rowMeans(top_Var_C_virginica_apop_assay_mat)
-top_Var_C_virginica_apop_assay_anno <- as.data.frame(colData(C_virginica_apop_counts_vst)[, c("Experiment","Condition")])
-top_Var_C_virginica_apop_assay_heatmap <- pheatmap(top_Var_C_virginica_apop_assay_mat  , annotation_col = top_Var_C_virginica_apop_assay_anno)
-head(top_Var_C_virginica_apop_assay_mat ) # some ROD and probiotic clustering..dermo samples mostly cluster together
-
-topVarGenes_C_gigas_apop_assay <-  head(order(rowVars(assay(C_gigas_apop_counts_vst)), decreasing = TRUE), 100) 
-top_Var_C_gigas_apop_assay_mat<- assay(C_gigas_apop_counts_vst)[topVarGenes_C_gigas_apop_assay,]
-top_Var_C_gigas_apop_assay_mat <- top_Var_C_gigas_apop_assay_mat - rowMeans(top_Var_C_gigas_apop_assay_mat)
-top_Var_C_gigas_apop_assay_anno <- as.data.frame(colData(C_gigas_apop_counts_vst)[, c("Family", "Experiment")])
-top_Var_C_gigas_apop_assay_heatmap <- pheatmap(top_Var_C_gigas_apop_assay_mat  , annotation_col = top_Var_C_gigas_apop_assay_anno)
-head(top_Var_C_gigas_apop_assay_mat ) # OsHV1 susceptible clusters well with HE susceptible
 
 
 #### COMPARING APOPTOSIS TRANSCRIPT EXPRESSION BETWEEN EXPERIMENTS PCA HEATMAPS VST ON FULL THEN SUBSET ####
 # some helpful forum posts on the topic: https://www.biostars.org/p/364768/
 # Suggest combining, using limma to remove batch effects for each experiment, and then calculate the rlog all together
 # Could combine pvalues from DEseq for comparison using metaRNAseq R package to compare p values with a Fisher method
+
+## DECIDED I NEED TO EDIT MY METHODS ON THIS BEFORE PLOTTING HEATMAPS 
 
 # Load allcoldata.csv 
 All_coldata <- read.csv("/Users/erinroberts/Documents/PhD_Research/Chapter_1_Apoptosis Paper/Chapter1_Apoptosis_Transcriptome_Analyses_2019/DATA ANALYSIS/apoptosis_data_pipeline/DESeq2/2020_Transcriptome_ANALYSIS/All_coldata.csv", row.names = 1 )
@@ -4408,6 +4617,135 @@ top_Var_C_gig_assay_mat_prot_annot <- left_join(top_Var_C_gig_apop_assay_mat_pro
 #six_hr_comparison_cluster <- as.data.frame(six_hr_comparison_cluster)
 #colnames(six_hr_comparison_cluster)[1] <- "transcript_id"
 #six_hr_comparison_cluster_subset <- subset(Res_mat_6hr_prot_annot, transcript_id %in% six_hr_comparison_cluster$transcript_id)
+
+
+#### COMPARING IAP AND GIMAP EXPRESSION BETWEEN EXPERIMENTS, HEATMAPS METHODS REDO OF ABOVE ####
+
+###  DATA FORMATTING, BATCH EFFECT REMOVAL ###
+#Dermo_counts: Keep the following as two separate networks, correct for library prep date 
+#Dermo_Tolerant_dds_vst
+#Dermo_Susceptible_dds_vst
+# formula ~lib.prep.time + time + condition
+
+Dermo_Tolerant_dds_vst_limma <- Dermo_Tolerant_dds_vst
+Dermo_Susceptible_dds_vst_limma <- Dermo_Susceptible_dds_vst
+
+plotPCA(Dermo_Tolerant_dds_vst_limma, "Time") # large clustering by time
+plotPCA(Dermo_Tolerant_dds_vst_limma, "Lib_prep_date") # large technical batch effects here 
+plotPCA(Dermo_Susceptible_dds_vst_limma, "Lib_prep_date") # also technical batch effects here
+mat_C_vir_dermo_Tol <- assay(Dermo_Tolerant_dds_vst_limma)
+mat_C_vir_dermo_Sus <- assay(Dermo_Susceptible_dds_vst_limma)
+mat_C_vir_dermo_Tol <- limma::removeBatchEffect(mat_C_vir_dermo_Tol, Dermo_Tolerant_dds_vst_limma$Lib_prep_date)
+mat_C_vir_dermo_Sus <- limma::removeBatchEffect(mat_C_vir_dermo_Sus, Dermo_Susceptible_dds_vst_limma$Lib_prep_date)
+
+assay(Dermo_Tolerant_dds_vst_limma) <- mat_C_vir_dermo_Tol
+assay(Dermo_Susceptible_dds_vst_limma) <- mat_C_vir_dermo_Sus
+plotPCA(Dermo_Tolerant_dds_vst_limma, "Lib_prep_date") # corrected
+plotPCA(Dermo_Susceptible_dds_vst_limma, "Lib_prep_date") # corrected
+
+# save as matrix with assay and transform
+Dermo_Tolerant_dds_vst_matrix <- assay(Dermo_Tolerant_dds_vst_limma)
+Dermo_Susceptible_dds_vst_matrix <-assay(Dermo_Susceptible_dds_vst_limma) 
+class(Dermo_Tolerant_dds_vst_matrix)
+class(Dermo_Susceptible_dds_vst_matrix)
+
+Dermo_Tolerant_dds_vst_matrix  <- t(Dermo_Tolerant_dds_vst_matrix) 
+Dermo_Susceptible_dds_vst_matrix <- t(Dermo_Susceptible_dds_vst_matrix)
+
+#Probiotic_counts: no batch effect correction 
+# Probiotic_dds_rlog , ~Time + condition
+plotPCA(Probiotic_dds_rlog, "Time") # large clustering by time
+Probiotic_dds_rlog_matrix <- assay(Probiotic_dds_rlog)
+class(Probiotic_dds_rlog_matrix)
+Probiotic_dds_rlog_matrix <- t(Probiotic_dds_rlog_matrix)
+head(Probiotic_dds_rlog_matrix)
+ncol(Probiotic_dds_rlog_matrix) 
+
+#ROD_counts: no batch effect correction 
+# ROD_Resistant_dds_rlog ~time+condition
+# ROD_Susceptible_dds_rlog ~condition (no time)
+plotPCA(ROD_Resistant_dds_rlog, "Time") # clustering by time
+plotPCA(ROD_Susceptible_dds_rlog, "Time") 
+
+ROD_Resistant_dds_rlog_matrix   <- assay(ROD_Resistant_dds_rlog)
+ROD_Susceptible_dds_rlog_matrix <-  assay(ROD_Susceptible_dds_rlog)
+ROD_Resistant_dds_rlog_matrix  <- t(ROD_Resistant_dds_rlog_matrix)
+ROD_Susceptible_dds_rlog_matrix <- t(ROD_Susceptible_dds_rlog_matrix)
+
+#Pro_RE22_counts : batch effect correction for "Family", which is the different larval sources used on different days
+# Pro_RE22_dds_rlog  ~Time+ condition
+plotPCA(Pro_RE22_dds_rlog, "Family") 
+Pro_RE22_dds_rlog_limma <- Pro_RE22_dds_rlog
+
+mat_C_vir_dermo_Pro_RE22 <- assay(Pro_RE22_dds_rlog_limma)
+mat_C_vir_dermo_Pro_RE22 <- limma::removeBatchEffect(mat_C_vir_dermo_Pro_RE22, Pro_RE22_dds_rlog_limma$Family)
+assay(Pro_RE22_dds_rlog_limma) <- mat_C_vir_dermo_Pro_RE22
+plotPCA(Pro_RE22_dds_rlog_limma, "Family") # corrected
+
+Pro_RE22_dds_rlog_matrix <- assay(Pro_RE22_dds_rlog_limma)
+Pro_RE22_dds_rlog_matrix <- t(Pro_RE22_dds_rlog_matrix)
+
+## LIMIT ANALYSIS TO TRANSCRIPTS EXPRESSED IN ALL EXPERIMENTS
+ncol(Dermo_Tolerant_dds_vst_matrix) #49995
+ncol(Dermo_Susceptible_dds_vst_matrix) # 49634
+ncol(Probiotic_dds_rlog_matrix) # 51052
+ncol(ROD_Resistant_dds_rlog_matrix) # 47205
+ncol(ROD_Susceptible_dds_rlog_matrix)
+ncol(Pro_RE22_dds_rlog_matrix) # 44221
+
+Dermo_Tolerant_dds_vst_matrix_colnames <- colnames(Dermo_Tolerant_dds_vst_matrix)
+Dermo_Susceptible_dds_vst_matrix_colnames <- colnames(Dermo_Susceptible_dds_vst_matrix)
+Probiotic_dds_rlog_matrix_colnames <- colnames(Probiotic_dds_rlog_matrix)
+ROD_Resistant_dds_rlog_matrix_colnames <- colnames(ROD_Resistant_dds_rlog_matrix)
+ROD_Susceptible_dds_rlog_matrix_colnames <- colnames(ROD_Susceptible_dds_rlog_matrix)
+Pro_RE22_dds_rlog_matrix_colnames  <- colnames(Pro_RE22_dds_rlog_matrix)
+
+C_vir_common_vst_transcripts <- Reduce(intersect, list(Dermo_Tolerant_dds_vst_matrix_colnames, Dermo_Susceptible_dds_vst_matrix_colnames,
+                                                       Probiotic_dds_rlog_matrix_colnames,ROD_Resistant_dds_rlog_matrix_colnames,ROD_Susceptible_dds_rlog_matrix_colnames, Pro_RE22_dds_rlog_matrix_colnames))
+head(C_vir_common_vst_transcripts)
+length(C_vir_common_vst_transcripts) # 29440
+
+Dermo_Tolerant_dds_vst_matrix_common <- Dermo_Tolerant_dds_vst_matrix[, C_vir_common_vst_transcripts]
+ncol(Dermo_Tolerant_dds_vst_matrix_common)
+
+Dermo_Susceptible_dds_vst_matrix_common <- Dermo_Susceptible_dds_vst_matrix[,C_vir_common_vst_transcripts]
+ncol(Dermo_Susceptible_dds_vst_matrix_common)
+
+Probiotic_dds_rlog_matrix_common <- Probiotic_dds_rlog_matrix[,C_vir_common_vst_transcripts]
+ncol(Probiotic_dds_rlog_matrix_common)
+
+ROD_Resistant_dds_rlog_matrix_common <- ROD_Resistant_dds_rlog_matrix[,C_vir_common_vst_transcripts]
+ncol(ROD_Resistant_dds_rlog_matrix_common)
+
+ROD_Susceptible_dds_rlog_matrix_common <- ROD_Susceptible_dds_rlog_matrix[,C_vir_common_vst_transcripts]
+ncol(ROD_Susceptible_dds_rlog_matrix_common)
+
+Pro_RE22_dds_rlog_matrix_common <- Pro_RE22_dds_rlog_matrix[,C_vir_common_vst_transcripts]
+ncol(Pro_RE22_dds_rlog_matrix_common )
+
+# Split Pro_RE22 also into  Probiotic and RE22 so both can be run
+# subset the Pro_RE22 experiment
+print(Pro_RE22_coldata %>% rownames_to_column("sample") %>% filter(Condition == "Control_no_treatment" | Condition == "Vibrio_coralliilyticus_RE22_exposure_6h"))
+
+Pro_RE22_coldata_RE22 <- Pro_RE22_coldata %>% rownames_to_column("sample") %>% filter(Condition == "Control_no_treatment" | Condition == "Vibrio_coralliilyticus_RE22_exposure_6h")
+Pro_RE22_coldata_Pro <-  Pro_RE22_coldata %>% rownames_to_column("sample") %>% filter(Condition == "Control_no_treatment" | Condition == "Phaeobacter_inhibens_S4_exposure_6h" |
+                                                                                        Condition == "Phaeobacter_inhibens_S4_exposure_24h" | Condition == "Bacillus_pumilus_RI06_95_exposure_6h" | Condition == "Bacillus_pumilus_RI06_95_exposure_24h")     
+
+Pro_RE22_dds_rlog_matrix_common_Pro <- Pro_RE22_dds_rlog_matrix_common[Pro_RE22_coldata_Pro$sample,]
+Pro_RE22_dds_rlog_matrix_common_RE22 <- Pro_RE22_dds_rlog_matrix_common[Pro_RE22_coldata_RE22$sample,]
+
+Pro_RE22_dds_rlog_matrix_Pro <- Pro_RE22_dds_rlog_matrix[Pro_RE22_coldata_Pro$sample,]
+Pro_RE22_dds_rlog_matrix_RE22 <- Pro_RE22_dds_rlog_matrix[Pro_RE22_coldata_RE22$sample,]
+
+# Save these
+write.table(Pro_RE22_dds_rlog_matrix_Pro , file="/Volumes/My Passport for Mac/Chapter1_Apoptosis_Paper_Saved_DESeq_WGCNA_Data/Pro_RE22_dds_rlog_matrix_Pro.table")
+write.table(Pro_RE22_dds_rlog_matrix_RE22, file="/Volumes/My Passport for Mac/Chapter1_Apoptosis_Paper_Saved_DESeq_WGCNA_Data/Pro_RE22_dds_rlog_matrix_RE22.table")
+
+# Do column names agree between all?
+all(colnames(Dermo_Tolerant_dds_vst_matrix_common ) %in% colnames(Probiotic_dds_rlog_matrix_common)) # TRUE
+all(colnames(Dermo_Tolerant_dds_vst_matrix_common ) == colnames(Probiotic_dds_rlog_matrix_common)) # TRUE 
+
+
 
 #### DESCRIPTIVE TABLES ####
 
@@ -4773,3 +5111,207 @@ save(C_gig_apop_LFC, C_vir_apop_LFC, file="/Volumes/My Passport for Mac/Chapter1
 #### SESSION INFO FOR RUNNING SCRIPTS Spring 2020 ####
 
 sessionInfo()
+#R version 3.6.1 (2019-07-05)
+#Platform: x86_64-apple-darwin15.6.0 (64-bit)
+#Running under: macOS Mojave 10.14
+#
+#Matrix products: default
+#BLAS:   /System/Library/Frameworks/Accelerate.framework/Versions/A/Frameworks/vecLib.framework/Versions/A/libBLAS.dylib
+#LAPACK: /Library/Frameworks/R.framework/Versions/3.6/Resources/lib/libRlapack.dylib
+#
+#locale:
+#  [1] en_US.UTF-8/en_US.UTF-8/en_US.UTF-8/C/en_US.UTF-8/en_US.UTF-8
+#
+#attached base packages:
+#  [1] grid      parallel  stats4    stats     graphics  grDevices utils     datasets  methods   base     
+#
+#other attached packages:
+#  [1] extrafont_0.17              viridis_0.5.1               viridisLite_0.3.0           ggpubr_0.3.0                ggfortify_0.4.10           
+#[6] tibble_3.0.1                purrr_0.3.4                 Repitools_1.30.0            plyr_1.8.6                  reshape2_1.4.4             
+#[11] ComplexHeatmap_2.0.0        UpSetR_1.4.0                rtracklayer_1.44.4          stringr_1.4.0               tidyr_1.1.0                
+#[16] fission_1.4.0               genefilter_1.66.0           apeglm_1.6.0                questionr_0.7.1             RColorBrewer_1.1-2         
+#[21] pheatmap_1.0.12             dplyr_1.0.0                 magrittr_1.5                ggplot2_3.3.2               DESeq2_1.24.0              
+#[26] SummarizedExperiment_1.14.1 DelayedArray_0.10.0         BiocParallel_1.18.1         matrixStats_0.56.0          Biobase_2.44.0             
+#[31] GenomicRanges_1.36.1        GenomeInfoDb_1.20.0         IRanges_2.18.3              S4Vectors_0.22.1            BiocGenerics_0.30.0        
+#
+#loaded via a namespace (and not attached):
+#  [1] R.utils_2.9.2            tidyselect_1.1.0         robust_0.5-0.0           RSQLite_2.2.0            AnnotationDbi_1.46.1     htmlwidgets_1.5.1       
+#[7] aroma.core_3.2.1         munsell_0.5.0            codetools_0.2-16         preprocessCore_1.46.0    future_1.17.0            miniUI_0.1.1.1          
+#[13] withr_2.2.0              colorspace_1.4-1         highr_0.8                knitr_1.29               rstudioapi_0.11          robustbase_0.93-6       
+#[19] ggsignif_0.6.0           Rttf2pt1_1.3.8           listenv_0.8.0            bbmle_1.0.23.1           GenomeInfoDbData_1.2.1   bit64_0.9-7             
+#[25] coda_0.19-3              vctrs_0.3.1              generics_0.0.2           xfun_0.15                fastcluster_1.1.25       R6_2.4.1                
+#[31] doParallel_1.0.15        clue_0.3-57              locfit_1.5-9.4           bitops_1.0-6             assertthat_0.2.1         Ringo_1.48.0            
+#[37] promises_1.1.1           scales_1.1.1             nnet_7.3-14              gtable_0.3.0             affy_1.62.0              globals_0.12.5          
+#[43] WGCNA_1.68               rlang_0.4.6              GlobalOptions_0.1.2      splines_3.6.1            extrafontdb_1.0          rstatix_0.6.0           
+#[49] magicfor_0.1.0           acepack_1.4.1            impute_1.58.0            broom_0.5.6              checkmate_2.0.0          abind_1.4-5             
+#[55] BiocManager_1.30.10      yaml_2.2.1               backports_1.1.8          httpuv_1.5.4             Hmisc_4.4-0              tools_3.6.1             
+#[61] affyio_1.54.0            ellipsis_0.3.1           gplots_3.0.3             Rsolnp_1.16              DNAcopy_1.58.0           dynamicTreeCut_1.63-1   
+#[67] Rcpp_1.0.3               base64enc_0.1-3          zlibbioc_1.30.0          RCurl_1.98-1.2           rpart_4.1-15             GetoptLong_1.0.0        
+#[73] haven_2.3.1              cluster_2.1.0            data.table_1.12.8        openxlsx_4.1.5           circlize_0.4.10          truncnorm_1.0-8         
+#[79] mvtnorm_1.1-1            aroma.apd_0.6.0          R.cache_0.14.0           aroma.light_3.14.0       hms_0.5.3                mime_0.9                
+#[85] xtable_1.8-4             XML_3.99-0.3             rio_0.5.16               emdbook_1.3.12           jpeg_0.1-8.1             readxl_1.3.1            
+#[91] gridExtra_2.3            shape_1.4.4              compiler_3.6.1           bdsmatrix_1.3-4          KernSmooth_2.23-17       crayon_1.3.4            
+#[97] R.filesets_2.13.0        R.oo_1.23.0              htmltools_0.5.0          pcaPP_1.9-73             later_1.1.0.1            Formula_1.2-3           
+#[103] geneplotter_1.62.0       rrcov_1.5-2              DBI_1.1.0                MASS_7.3-51.6            car_3.0-8                Matrix_1.2-18           
+#[109] cli_2.0.2                vsn_3.52.0               R.methodsS3_1.8.0        gdata_2.18.0             forcats_0.5.0            pkgconfig_2.0.3         
+#[115] fit.models_0.63          GenomicAlignments_1.20.1 numDeriv_2016.8-1.1      foreign_0.8-72           foreach_1.5.0            annotate_1.62.0         
+#[121] XVector_0.24.0           PSCBS_0.65.0             R.rsp_0.43.2             digest_0.6.25            Biostrings_2.52.0        cellranger_1.1.0        
+#[127] htmlTable_2.0.0          edgeR_3.26.8             curl_4.3                 shiny_1.5.0              Rsamtools_2.0.3          gtools_3.8.2            
+#[133] rjson_0.2.20             nlme_3.1-148             lifecycle_0.2.0          carData_3.0-4            limma_3.40.6             BSgenome_1.52.0         
+#[139] fansi_0.4.1              labelled_2.5.0           pillar_1.4.4             lattice_0.20-41          R.devices_2.16.1         fastmap_1.0.1           
+#[145] DEoptimR_1.0-8           survival_3.2-3           GO.db_3.8.2              glue_1.4.1               zip_2.0.4                png_0.1-7               
+#[151] iterators_1.0.12         aroma.affymetrix_3.2.0   bit_1.1-15.2             stringi_1.4.6            blob_1.2.1               caTools_1.18.0          
+#[157] latticeExtra_0.6-29      memoise_1.1.0            gsmoothr_0.1.7           R.huge_0.9.0 
+
+#### SCRAP CODE SECTIONS REMOVE LATER ####
+#### COMPARING APOPTOSIS TRANSCRIPT EXPRESSION BETWEEN EXPERIMENTS PCA HEATMAPS VST ON APOP SUBSET ALONE ####
+# some helpful forum posts on the topic: https://www.biostars.org/p/364768/
+# Suggest combining, using limma to remove batch effects for each experiment, and then calculate the rlog all together
+
+## I'VE DECIDED THAT THIS SEQUENCE OF THIS METHODS WHERE I RUN VST ON EVERYTHING DOESN'T MAKE SENSE
+
+# Load allcoldata.csv 
+All_coldata <- read.csv("/Users/erinroberts/Documents/PhD_Research/Chapter_1_Apoptosis Paper/Chapter1_Apoptosis_Transcriptome_Analyses_2019/DATA ANALYSIS/apoptosis_data_pipeline/DESeq2/2020_Transcriptome_ANALYSIS/All_coldata.csv", row.names = 1 )
+View(All_coldata)  
+C_vir_coldata <- subset(All_coldata, Species =="C_vir")
+C_gig_coldata <-  subset(All_coldata, Species =="C_gig")
+
+## Combine raw counts data frames from C. virginica
+# All the rows should be in the same order because I used the same apoptosis data frame to join them
+all(rownames(Dermo_Susceptible_counts_apop) == rownames(Dermo_Tolerant_counts_apop)) # TRUE
+all(rownames(Dermo_Susceptible_counts_apop) %in% rownames(Dermo_Tolerant_counts_apop)) # TRUE
+
+# Check probiotic table order
+all(rownames(Probiotic_counts_apop) == rownames(Dermo_Tolerant_counts_apop)) # TRUE
+all(rownames(Probiotic_counts_apop) %in% rownames(Dermo_Tolerant_counts_apop)) # TRUE
+Probiotic_counts_apop <- Probiotic_counts_apop[row.names(Dermo_Tolerant_counts_apop),]
+all(rownames(Probiotic_counts_apop) == rownames(Dermo_Tolerant_counts_apop)) # TRUE
+
+# Check ROD order and change if necessary 
+all(rownames(ROD_Resistant_counts_apop) == rownames(Dermo_Tolerant_counts_apop)) # TRUE
+all(rownames(ROD_Resistant_counts_apop) %in% rownames(Dermo_Tolerant_counts_apop)) # TRUE
+ROD_Resistant_counts_apop <- ROD_Resistant_counts_apop[row.names(Dermo_Tolerant_counts_apop),]
+ROD_Susceptible_counts_apop <-  ROD_Susceptible_counts_apop[row.names(Dermo_Tolerant_counts_apop),]
+all(rownames(ROD_Resistant_counts_apop) == rownames(Dermo_Tolerant_counts_apop)) # TRUE
+all(rownames(ROD_Susceptible_counts_apop) == rownames(Dermo_Tolerant_counts_apop)) # TRUE
+all(rownames(ROD_Susceptible_counts_apop) == rownames(ROD_Resistant_counts_apop)) # TRUE
+
+# Colbind all C. virginica tables
+C_virginica_apop_counts <- cbind(Dermo_Susceptible_counts_apop,Dermo_Tolerant_counts_apop,
+                                 Probiotic_counts_apop,Pro_RE22_counts_apop, ROD_Resistant_counts_apop,
+                                 ROD_Susceptible_counts_apop)
+
+# Set equal the rownames and colnames of the coldata and count data
+all(rownames(C_vir_coldata ) %in% colnames(C_virginica_apop_counts))  #Should return TRUE
+# returns TRUE
+all(colnames(C_virginica_apop_counts) %in% rownames(C_vir_coldata  ))  
+# returns TRUE
+all(rownames(C_vir_coldata ) == colnames(C_virginica_apop_counts)) # FALSE
+
+# Fix the order
+C_virginica_apop_counts <- C_virginica_apop_counts[,row.names(C_vir_coldata)]
+
+all(rownames(C_vir_coldata ) %in% colnames(C_virginica_apop_counts))  #Should return TRUE
+# returns TRUE
+all(colnames(C_virginica_apop_counts) %in% rownames(C_vir_coldata  ))  
+# returns TRUE
+all(rownames(C_vir_coldata ) == colnames(C_virginica_apop_counts))  # TRUE
+
+# Make DEseq data set from matrix so that the coldata gets attached
+C_virginica_apop_counts_dds <- DESeqDataSetFromMatrix(countData = C_virginica_apop_counts,
+                                                      colData= C_vir_coldata,
+                                                      design = ~Condition)
+# Collapse technical replicates 
+C_virginica_apop_counts_dds <- collapseReplicates(C_virginica_apop_counts_dds, C_virginica_apop_counts_dds$Sample, C_virginica_apop_counts_dds$TechRep)
+
+# Calculate the vst
+C_virginica_apop_counts_vst <- varianceStabilizingTransformation(C_virginica_apop_counts_dds)
+
+## Combine C_gig data frame
+# Check row order before combining
+all(rownames(Zhang_counts_apop) == rownames(Rubio_counts_apop)) # TRUE
+all(rownames(Zhang_counts_apop) %in% rownames(Rubio_counts_apop)) # TRUE
+Zhang_counts_apop <- Zhang_counts_apop[row.names(Rubio_counts_apop),]
+all(rownames(Zhang_counts_apop) == rownames(Rubio_counts_apop)) # TRUE
+
+deLorgeril_Susceptible_counts_apop <- deLorgeril_Susceptible_counts_apop[row.names(Rubio_counts_apop),]
+deLorgeril_Resistant_counts_apop <- deLorgeril_Resistant_counts_apop[row.names(Rubio_counts_apop),]
+He_counts_apop <- He_counts_apop[row.names(Rubio_counts_apop),]
+all(rownames(deLorgeril_Susceptible_counts_apop) == rownames(Zhang_counts_apop)) # TRUE
+all(rownames(deLorgeril_Resistant_counts_apop) == rownames(Zhang_counts_apop)) # TRUE
+all(rownames(He_counts_apop) == rownames(Zhang_counts_apop)) # TRUE
+
+C_gigas_apop_counts <- cbind(Zhang_counts_apop,Rubio_counts_apop,deLorgeril_Susceptible_counts_apop,
+                             deLorgeril_Resistant_counts_apop,He_counts_apop)
+# Set equal the rownames and colnames of the coldata and count data
+all(rownames(C_gig_coldata ) %in% colnames(C_gigas_apop_counts))  #Should return TRUE
+# returns TRUE
+all(colnames(C_gigas_apop_counts) %in% rownames(C_gig_coldata  ))  
+# returns TRUE
+all(rownames(C_gig_coldata ) == colnames(C_gigas_apop_counts)) # FALSE
+
+# Fix the order
+C_gigas_apop_counts <- C_gigas_apop_counts[,row.names(C_gig_coldata)]
+
+all(rownames(C_gig_coldata ) %in% colnames(C_gigas_apop_counts))  #Should return TRUE
+# returns TRUE
+all(colnames(C_gigas_apop_counts) %in% rownames(C_gig_coldata  ))  
+# returns TRUE
+all(rownames(C_gig_coldata ) == colnames(C_gigas_apop_counts))  # TRUE
+
+# Make DEseq data set from matrix so that the coldata gets attached
+C_gigas_apop_dds <- DESeqDataSetFromMatrix(countData = C_gigas_apop_counts ,
+                                           colData = C_gig_coldata,
+                                           design = ~Condition)
+# Calculate the vst
+C_gigas_apop_counts_vst <- varianceStabilizingTransformation(C_gigas_apop_dds)
+
+## Remove Batch effects from experiment for C_vir
+plotPCA(C_virginica_apop_counts_vst, "Experiment") # grouping by experiment
+mat_C_vir <- assay(C_virginica_apop_counts_vst)
+mat_C_vir <- limma::removeBatchEffect(mat_C_vir, C_virginica_apop_counts_vst$Experiment)
+assay(C_virginica_apop_counts_vst) <- mat_C_vir
+plotPCA(C_virginica_apop_counts_vst, "Experiment") # Probiotic and ROD now cluster together
+plotPCA(C_virginica_apop_counts_vst, "Sample")
+plotPCA(C_virginica_apop_counts_vst, "Time") # no clustering by time
+plotPCA(C_virginica_apop_counts_vst, "Family")
+
+## Remove Batch effects from experiment for C_vir
+plotPCA(C_gigas_apop_counts_vst, "Experiment") # grouping by experiment, but He and Zhang also cluster
+mat_C_gig <- assay(C_gigas_apop_counts_vst)
+mat_C_gig <- limma::removeBatchEffect(mat_C_gig, C_gigas_apop_counts_vst$Experiment)
+assay(C_gigas_apop_counts_vst) <- mat_C_gig
+plotPCA(C_gigas_apop_counts_vst, "Experiment") # He and deLorgeril cluster some, Rubio and Zhang definitely cluster
+plotPCA(C_gigas_apop_counts_vst, "Sample")
+plotPCA(C_gigas_apop_counts_vst, "Time") # no clustering by time
+plotPCA(C_gigas_apop_counts_vst, "Family")
+
+### Heatmaps of apoptosis gene vsts ###
+
+# heatmap of all apoptosis genes 
+C_virginica_apop_counts_assay <-  assay(C_virginica_apop_counts_vst)[,]
+C_virginica_apop_counts_assay_mat <- C_virginica_apop_counts_assay - rowMeans(C_virginica_apop_counts_assay)
+C_virginica_apop_counts_assay_anno <- as.data.frame(colData(C_virginica_apop_counts_vst)[, c("Condition","Time","Experiment")])
+C_virginica_apop_counts_assay_heatmap <- pheatmap(C_virginica_apop_counts_assay_mat  , annotation_col = C_virginica_apop_counts_assay_anno)
+
+C_gigas_apop_counts_assay <-  assay(C_gigas_apop_counts_vst)[,]
+C_gigas_apop_counts_assay_mat <- C_gigas_apop_counts_assay - rowMeans(C_gigas_apop_counts_assay)
+C_gigas_apop_counts_assay_anno <- as.data.frame(colData(C_gigas_apop_counts_vst)[, c("Condition","Experiment")])
+C_gigas_apop_counts_assay_heatmap <- pheatmap(C_gigas_apop_counts_assay_mat  , annotation_col = C_gigas_apop_counts_assay_anno)
+# clustering of delorgeril and HE
+
+# heatmap of most variable apoptosis genes for C_vir (this selects genes with the greatest variance in the sample)
+topVarGenes_C_virginica_apop_assay <-  head(order(rowVars(assay(C_virginica_apop_counts_vst)), decreasing = TRUE), 100) 
+top_Var_C_virginica_apop_assay_mat<- assay(C_virginica_apop_counts_vst)[topVarGenes_C_virginica_apop_assay,]
+top_Var_C_virginica_apop_assay_mat <- top_Var_C_virginica_apop_assay_mat - rowMeans(top_Var_C_virginica_apop_assay_mat)
+top_Var_C_virginica_apop_assay_anno <- as.data.frame(colData(C_virginica_apop_counts_vst)[, c("Experiment","Condition")])
+top_Var_C_virginica_apop_assay_heatmap <- pheatmap(top_Var_C_virginica_apop_assay_mat  , annotation_col = top_Var_C_virginica_apop_assay_anno)
+head(top_Var_C_virginica_apop_assay_mat ) # some ROD and probiotic clustering..dermo samples mostly cluster together
+
+topVarGenes_C_gigas_apop_assay <-  head(order(rowVars(assay(C_gigas_apop_counts_vst)), decreasing = TRUE), 100) 
+top_Var_C_gigas_apop_assay_mat<- assay(C_gigas_apop_counts_vst)[topVarGenes_C_gigas_apop_assay,]
+top_Var_C_gigas_apop_assay_mat <- top_Var_C_gigas_apop_assay_mat - rowMeans(top_Var_C_gigas_apop_assay_mat)
+top_Var_C_gigas_apop_assay_anno <- as.data.frame(colData(C_gigas_apop_counts_vst)[, c("Family", "Experiment")])
+top_Var_C_gigas_apop_assay_heatmap <- pheatmap(top_Var_C_gigas_apop_assay_mat  , annotation_col = top_Var_C_gigas_apop_assay_anno)
+head(top_Var_C_gigas_apop_assay_mat ) # OsHV1 susceptible clusters well with HE susceptible
+
