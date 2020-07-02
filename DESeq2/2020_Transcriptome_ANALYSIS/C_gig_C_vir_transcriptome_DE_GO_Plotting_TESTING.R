@@ -35,6 +35,7 @@ library(ggpubr)
 library(viridis)
 library(extrafont)
 library(limma)
+library(data.table)
 
 # VERSIONS (see sessionInfo at bottom of script for full information)
 # R version 3.6.1 (2019-07-05)
@@ -4750,6 +4751,7 @@ C_vir_vst_common_df_all <- t(rbind(Dermo_Tolerant_dds_vst_matrix_common_df,
 
 # Correct for between experiment batch effects
 colnames(C_vir_vst_common_df_all)
+
 View(C_vir_coldata)
 nrow(Dermo_Tolerant_dds_vst_matrix_common_df) # 30
 nrow(Dermo_Susceptible_dds_vst_matrix_common_df) # 32
@@ -4758,18 +4760,11 @@ row.names(ROD_Resistant_dds_rlog_matrix_common_df) # 8
 row.names(ROD_Susceptible_dds_rlog_matrix_common_df) # 4 
 row.names(Pro_RE22_dds_rlog_matrix_common_df)
 
-C_vir_batch <- c("Dermo_Tolerant","Dermo_Tolerant","Dermo_Tolerant","Dermo_Tolerant","Dermo_Tolerant","Dermo_Tolerant","Dermo_Tolerant","Dermo_Tolerant" ,"Dermo_Tolerant","Dermo_Tolerant",    
-                 "Dermo_Tolerant","Dermo_Tolerant","Dermo_Tolerant","Dermo_Tolerant","Dermo_Tolerant","Dermo_Tolerant","Dermo_Tolerant","Dermo_Tolerant" ,"Dermo_Tolerant","Dermo_Tolerant",    
-                 "Dermo_Tolerant","Dermo_Tolerant","Dermo_Tolerant","Dermo_Tolerant","Dermo_Tolerant","Dermo_Tolerant","Dermo_Tolerant","Dermo_Tolerant" ,"Dermo_Tolerant","Dermo_Tolerant",  
-                   "Dermo_Susceptible","Dermo_Susceptible","Dermo_Susceptible","Dermo_Susceptible","Dermo_Susceptible","Dermo_Susceptible","Dermo_Susceptible","Dermo_Susceptible","Dermo_Susceptible","Dermo_Susceptible",     
-                   "Dermo_Susceptible","Dermo_Susceptible","Dermo_Susceptible","Dermo_Susceptible","Dermo_Susceptible","Dermo_Susceptible","Dermo_Susceptible","Dermo_Susceptible","Dermo_Susceptible","Dermo_Susceptible",     
-                   "Dermo_Susceptible","Dermo_Susceptible","Dermo_Susceptible","Dermo_Susceptible","Dermo_Susceptible","Dermo_Susceptible","Dermo_Susceptible","Dermo_Susceptible","Dermo_Susceptible","Dermo_Susceptible",      
-                   "Dermo_Susceptible","Dermo_Susceptible",        
-                   "Hatchery_Probiotic"  ,"Hatchery_Probiotic" , "Hatchery_Probiotic" , "Hatchery_Probiotic",  "Hatchery_Probiotic",  "Hatchery_Probiotic",  
-                   "ROD_Resistant",  "ROD_Resistant",  "ROD_Resistant",  "ROD_Resistant",  "ROD_Resistant",  "ROD_Resistant",  "ROD_Resistant",  "ROD_Resistant",  
-                   "ROD_Susceptible",  "ROD_Susceptible",  "ROD_Susceptible",  "ROD_Susceptible" ,
-                   "Pro_RE22", "Pro_RE22", "Pro_RE22", "Pro_RE22", "Pro_RE22", "Pro_RE22", "Pro_RE22", "Pro_RE22", "Pro_RE22", "Pro_RE22",
-                   "Pro_RE22", "Pro_RE22", "Pro_RE22", "Pro_RE22", "Pro_RE22", "Pro_RE22", "Pro_RE22", "Pro_RE22" )
+C_vir_coldata_exp_con_challenge <- read.csv("C_vir_coldata_exp_con_chall.csv", header=TRUE)
+row.names(C_vir_coldata_exp_con_challenge) <- C_vir_coldata_exp_con_challenge$Sample_ID
+
+C_vir_batch <- C_vir_coldata_exp_con_challenge$Experiment
+
 C_vir_vst_common_df_all_mat <- as.matrix(C_vir_vst_common_df_all)
 
 C_vir_vst_common_df_all_mat_limma <- limma::removeBatchEffect(C_vir_vst_common_df_all_mat, C_vir_batch)
@@ -4778,7 +4773,7 @@ boxplot(as.data.frame(C_vir_vst_common_df_all_mat),main="Original")
 boxplot(as.data.frame(C_vir_vst_common_df_all_mat_limma),main="Batch corrected") # Looks way better!
 
 ## Performing overall batch effect correction for C. gigas samples 
-#### DATA FORMATTING, BATCH EFFECT REMOVAL ####
+### DATA FORMATTING, BATCH EFFECT REMOVAL ###
 
 ## ZHANG, no batch effect removal  
 
@@ -4856,7 +4851,6 @@ C_gig_vst_common_df_all <- t(rbind(Zhang_dds_rlog_matrix_common_df,
         deLorgeril_Susceptible_dds_vst_matrix_common_df,
         He_dds_vst_matrix_common_df))
 
-
 # Correct for between experiment batch effects
 colnames(C_gig_vst_common_df_all)
 row.names(Zhang_dds_rlog_matrix_common_df)
@@ -4865,20 +4859,11 @@ row.names(deLorgeril_Resistant_dds_vst_matrix_common_df)
 row.names(deLorgeril_Susceptible_dds_vst_matrix_common_df) 
 row.names(He_dds_vst_matrix_common_df)
 
-C_gig_batch <- c("Zhang", "Zhang", "Zhang", "Zhang","Zhang", "Zhang", "Zhang", "Zhang", "Zhang", 
-                   "Rubio", "Rubio", "Rubio", "Rubio", "Rubio", "Rubio", "Rubio", "Rubio", "Rubio","Rubio", "Rubio", "Rubio", "Rubio",
-                  "Rubio",  "Rubio", "Rubio", "Rubio", "Rubio", 
-                  "deLorgeril_Resistant", "deLorgeril_Resistant", "deLorgeril_Resistant", "deLorgeril_Resistant", "deLorgeril_Resistant", "deLorgeril_Resistant", "deLorgeril_Resistant", "deLorgeril_Resistant", "deLorgeril_Resistant",
-                  "deLorgeril_Resistant", "deLorgeril_Resistant", "deLorgeril_Resistant", "deLorgeril_Resistant", "deLorgeril_Resistant", "deLorgeril_Resistant", "deLorgeril_Resistant", "deLorgeril_Resistant",
-                  "deLorgeril_Resistant", "deLorgeril_Resistant", "deLorgeril_Resistant", "deLorgeril_Resistant",
-                  "deLorgeril_Susceptible", "deLorgeril_Susceptible", "deLorgeril_Susceptible", "deLorgeril_Susceptible", "deLorgeril_Susceptible", "deLorgeril_Susceptible", "deLorgeril_Susceptible",
-                  "deLorgeril_Susceptible", "deLorgeril_Susceptible", "deLorgeril_Susceptible", "deLorgeril_Susceptible", "deLorgeril_Susceptible", "deLorgeril_Susceptible", "deLorgeril_Susceptible",
-                  "deLorgeril_Susceptible", "deLorgeril_Susceptible", "deLorgeril_Susceptible", "deLorgeril_Susceptible",
-                  "deLorgeril_Susceptible", "deLorgeril_Susceptible", "deLorgeril_Susceptible",
-                  "He", "He", "He", "He", "He", "He", "He", "He",
-                  "He", "He", "He", "He", "He", "He", "He", "He", "He", "He", "He",
-                  "He", "He", "He", "He", "He", "He", "He", "He", "He", "He", "He",
-                  "He", "He")
+C_gig_batch_exp_con_challenge <- read.csv("C_gig_coldata_exp_con_challenge.csv",header=TRUE)
+row.names(C_gig_batch_exp_con_challenge) <- C_gig_batch_exp_con_challenge$Sample_ID
+
+C_gig_batch <- C_gig_batch_exp_con_challenge$Experiment
+
 C_gig_vst_common_df_all_mat <- as.matrix(C_gig_vst_common_df_all)
 
 C_gig_vst_common_df_all_mat_limma <- limma::removeBatchEffect(C_gig_vst_common_df_all_mat, C_gig_batch)
@@ -4886,8 +4871,279 @@ C_gig_vst_common_df_all_mat_limma <- limma::removeBatchEffect(C_gig_vst_common_d
 boxplot(as.data.frame(C_gig_vst_common_df_all_mat),main="Original")
 boxplot(as.data.frame(C_gig_vst_common_df_all_mat_limma),main="Batch corrected") # Looks way better!!
 
-### EXTRACT IAP AND GIMAP TRANSCRIPTS FROM EADH DATA SET
+### EXTRACT IAP AND GIMAP TRANSCRIPTS FROM EACH DATA SET
+C_gig_vst_common_df_all_mat_limma <- as.data.frame(C_gig_vst_common_df_all_mat_limma)
+C_vir_vst_common_df_all_mat_limma <- as.data.frame(C_vir_vst_common_df_all_mat_limma) 
 
+# extract C gig
+nrow(AIG1_XP_ALL_gff_GIMAP_CG_uniq_XP_XM) # 31
+nrow(BIR_XP_gff_CG_uniq_XP_XM) # 74
+
+C_gig_vst_common_df_all_mat_limma_GIMAP <- C_gig_vst_common_df_all_mat_limma[row.names(C_gig_vst_common_df_all_mat_limma) %in% AIG1_XP_ALL_gff_GIMAP_CG_uniq_XP_XM$transcript_id,]
+nrow(C_gig_vst_common_df_all_mat_limma_GIMAP) # only 15 out of 31 total transcripts are expressed across all experiments
+
+C_gig_vst_common_df_all_mat_limma_IAP <- C_gig_vst_common_df_all_mat_limma[row.names(C_gig_vst_common_df_all_mat_limma) %in% BIR_XP_gff_CG_uniq_XP_XM$transcript_id,]
+nrow(C_gig_vst_common_df_all_mat_limma_IAP) # 41 out of all 74 transcript are expressed across all experiments. 
+
+# extract C vir
+nrow(AIG1_XP_ALL_gff_GIMAP_CV_uniq_XP_XM) # 109 total transcripts
+nrow(BIR_XP_gff_CV_uniq_XP_XM) # 164 total transcripts
+C_vir_vst_common_df_all_mat_limma_GIMAP <-  C_vir_vst_common_df_all_mat_limma[row.names(C_vir_vst_common_df_all_mat_limma) %in% AIG1_XP_ALL_gff_GIMAP_CV_uniq_XP_XM$ID,]
+nrow(C_vir_vst_common_df_all_mat_limma_GIMAP) # 28 out of 109 transcripts expressed across all 
+
+C_vir_vst_common_df_all_mat_limma_IAP <- C_vir_vst_common_df_all_mat_limma[row.names(C_vir_vst_common_df_all_mat_limma) %in% BIR_XP_gff_CV_uniq_XP_XM$ID,]
+nrow(C_vir_vst_common_df_all_mat_limma_IAP) # 64 total transcripts expressed across all experiments 
+
+# Gather data and calculate the average counts for each transcript across control and challenge for each experiment
+C_gig_vst_common_df_all_mat_limma_GIMAP_gather <- rownames_to_column(C_gig_vst_common_df_all_mat_limma_GIMAP, 'transcript_id') %>% gather(Sample_ID, vst_counts, -transcript_id) 
+C_gig_vst_common_df_all_mat_limma_IAP_gather <- rownames_to_column(C_gig_vst_common_df_all_mat_limma_IAP, 'transcript_id') %>% gather(Sample_ID, vst_counts, -transcript_id) 
+C_vir_vst_common_df_all_mat_limma_GIMAP_gather <- rownames_to_column(C_vir_vst_common_df_all_mat_limma_GIMAP, 'transcript_id') %>% gather(Sample_ID, vst_counts, -transcript_id) 
+C_vir_vst_common_df_all_mat_limma_IAP_gather <- rownames_to_column(C_vir_vst_common_df_all_mat_limma_IAP, 'transcript_id') %>% gather(Sample_ID, vst_counts, -transcript_id) 
+
+# join experiment 
+C_gig_vst_common_df_all_mat_limma_GIMAP_gather  <- left_join(C_gig_vst_common_df_all_mat_limma_GIMAP_gather, C_gig_batch_exp_con_challenge)
+C_gig_vst_common_df_all_mat_limma_IAP_gather  <-   left_join(C_gig_vst_common_df_all_mat_limma_IAP_gather , C_gig_batch_exp_con_challenge)
+C_vir_vst_common_df_all_mat_limma_GIMAP_gather <-  left_join(C_vir_vst_common_df_all_mat_limma_GIMAP_gather,C_vir_coldata_exp_con_challenge)
+C_vir_vst_common_df_all_mat_limma_IAP_gather  <-   left_join(C_vir_vst_common_df_all_mat_limma_IAP_gather , C_vir_coldata_exp_con_challenge)
+
+# Average counts for each experiment across each treatment within experiment
+C_gig_vst_common_df_all_mat_limma_GIMAP_gather_avg <- C_gig_vst_common_df_all_mat_limma_GIMAP_gather %>% group_by(Experiment,Condition, transcript_id) %>% mutate(avg_vst_counts_per_treatment = mean(vst_counts)) %>% distinct(transcript_id, .keep_all = TRUE)
+C_gig_vst_common_df_all_mat_limma_IAP_gather_avg   <- C_gig_vst_common_df_all_mat_limma_IAP_gather   %>% group_by(Experiment,Condition, transcript_id) %>% mutate(avg_vst_counts_per_treatment = mean(vst_counts)) %>% distinct(transcript_id, .keep_all = TRUE)
+
+C_vir_vst_common_df_all_mat_limma_GIMAP_gather_avg <- C_vir_vst_common_df_all_mat_limma_GIMAP_gather %>% group_by(Experiment,Condition, transcript_id) %>% mutate(avg_vst_counts_per_treatment = mean(vst_counts)) %>% distinct(transcript_id, .keep_all = TRUE)
+C_vir_vst_common_df_all_mat_limma_IAP_gather_avg   <- C_vir_vst_common_df_all_mat_limma_IAP_gather   %>% group_by(Experiment,Condition, transcript_id) %>% mutate(avg_vst_counts_per_treatment = mean(vst_counts)) %>% distinct(transcript_id, .keep_all = TRUE)
+colnames(C_vir_vst_common_df_all_mat_limma_GIMAP_gather_avg)[1] <- "ID"
+colnames(C_vir_vst_common_df_all_mat_limma_IAP_gather_avg)[1] <- "ID"
+
+AIG1_XP_ALL_gff_GIMAP_CV_uniq_XP_XM$ID <- as.character(unlist(AIG1_XP_ALL_gff_GIMAP_CV_uniq_XP_XM$ID))
+BIR_XP_gff_CV_uniq_XP_XM$ID <- as.character(unlist(BIR_XP_gff_CV_uniq_XP_XM$ID))
+
+# Join product and protein info
+C_gig_vst_common_df_all_mat_limma_GIMAP_gather_avg <- left_join(C_gig_vst_common_df_all_mat_limma_GIMAP_gather_avg, AIG1_XP_ALL_gff_GIMAP_CG_uniq_XP_XM[,c("product","gene","protein_id","transcript_id")])
+C_gig_vst_common_df_all_mat_limma_IAP_gather_avg  <-  left_join(C_gig_vst_common_df_all_mat_limma_IAP_gather_avg, BIR_XP_gff_CG_uniq_XP_XM[,c("product","gene","protein_id","transcript_id")])
+C_vir_vst_common_df_all_mat_limma_GIMAP_gather_avg <-  left_join(C_vir_vst_common_df_all_mat_limma_GIMAP_gather_avg, AIG1_XP_ALL_gff_GIMAP_CV_uniq_XP_XM[,c("product","gene","protein_id","ID")])
+C_vir_vst_common_df_all_mat_limma_IAP_gather_avg  <- left_join(C_vir_vst_common_df_all_mat_limma_IAP_gather_avg, BIR_XP_gff_CV_uniq_XP_XM[,c("product","gene","protein_id","ID")])
+
+# Remove proteins that have significant Log fold change in any experiment from the plot 
+#C_vir_apop_LFC_IAP
+#C_gig_apop_LFC_IAP
+#C_vir_apop_LFC_GIMAP
+#C_gig_apop_LFC_GIMAP
+
+C_gig_vst_common_df_all_mat_limma_GIMAP_gather_avg <- C_gig_vst_common_df_all_mat_limma_GIMAP_gather_avg[!(C_gig_vst_common_df_all_mat_limma_GIMAP_gather_avg$protein_id %in% C_gig_apop_LFC_GIMAP$protein_id),]
+C_gig_vst_common_df_all_mat_limma_IAP_gather_avg   <- C_gig_vst_common_df_all_mat_limma_IAP_gather_avg  [!(C_gig_vst_common_df_all_mat_limma_IAP_gather_avg  $protein_id %in% C_gig_apop_LFC_IAP$protein_id),]
+C_vir_vst_common_df_all_mat_limma_GIMAP_gather_avg <- C_vir_vst_common_df_all_mat_limma_GIMAP_gather_avg[!(C_vir_vst_common_df_all_mat_limma_GIMAP_gather_avg$protein_id %in% C_vir_apop_LFC_GIMAP$protein_id),]
+C_vir_vst_common_df_all_mat_limma_IAP_gather_avg   <- C_vir_vst_common_df_all_mat_limma_IAP_gather_avg  [!(C_vir_vst_common_df_all_mat_limma_IAP_gather_avg  $protein_id %in% C_vir_apop_LFC_IAP$protein_id),]
+
+# Set factor order
+C_gig_vst_common_df_all_mat_limma_GIMAP_gather_avg$Condition <- factor(C_gig_vst_common_df_all_mat_limma_GIMAP_gather_avg$Condition, levels=unique(C_gig_vst_common_df_all_mat_limma_GIMAP_gather_avg$Condition))
+C_gig_vst_common_df_all_mat_limma_IAP_gather_avg  $Condition <- factor(C_gig_vst_common_df_all_mat_limma_IAP_gather_avg  $Condition, levels=unique(C_gig_vst_common_df_all_mat_limma_IAP_gather_avg  $Condition))
+C_vir_vst_common_df_all_mat_limma_GIMAP_gather_avg$Condition <- factor(C_vir_vst_common_df_all_mat_limma_GIMAP_gather_avg$Condition, levels=unique(C_vir_vst_common_df_all_mat_limma_GIMAP_gather_avg$Condition))
+C_vir_vst_common_df_all_mat_limma_IAP_gather_avg  $Condition <- factor(C_vir_vst_common_df_all_mat_limma_IAP_gather_avg  $Condition, levels=unique(C_vir_vst_common_df_all_mat_limma_IAP_gather_avg  $Condition))
+
+C_gig_vst_common_df_all_mat_limma_GIMAP_gather_avg$transcript_id <- factor(C_gig_vst_common_df_all_mat_limma_GIMAP_gather_avg$transcript_id, levels=unique(C_gig_vst_common_df_all_mat_limma_GIMAP_gather_avg$transcript_id))
+C_gig_vst_common_df_all_mat_limma_IAP_gather_avg  $transcript_id <- factor(C_gig_vst_common_df_all_mat_limma_IAP_gather_avg  $transcript_id, levels=unique(C_gig_vst_common_df_all_mat_limma_IAP_gather_avg  $transcript_id))
+C_vir_vst_common_df_all_mat_limma_GIMAP_gather_avg$ID <- factor(C_vir_vst_common_df_all_mat_limma_GIMAP_gather_avg$ID, levels=unique(C_vir_vst_common_df_all_mat_limma_GIMAP_gather_avg$ID))
+C_vir_vst_common_df_all_mat_limma_IAP_gather_avg  $ID <- factor(C_vir_vst_common_df_all_mat_limma_IAP_gather_avg  $ID, levels=unique(C_vir_vst_common_df_all_mat_limma_IAP_gather_avg  $ID))
+
+# plot heatmap of vst counts for each treatment 
+C_gig_vst_common_df_all_mat_limma_GIMAP_gather_avg_tile_plot <- ggplot(C_gig_vst_common_df_all_mat_limma_GIMAP_gather_avg, aes(x=Condition, y=transcript_id, fill=avg_vst_counts_per_treatment)) + 
+  geom_tile() + 
+  scale_fill_viridis_c(name = "Avg. Read Count", breaks = c(3,4,5,6,7,8,9,10,11), 
+                       option="plasma", guide=guide_legend(), na.value = "transparent") +
+  labs(x="Treatment", y =NULL) +
+  theme(#axis.ticks.y = element_blank(), 
+        #axis.text.y = element_blank(),
+        axis.text.x.top = element_text(size=8, family="sans"),
+        axis.title.x.top = element_text(size=12, family="sans"),
+        legend.position = "bottom",
+        legend.title = element_text(size=12, family="sans"), 
+        legend.text = element_text(size=8, family="sans"),
+        panel.background = element_rect(fill = "transparent"),
+        panel.grid.major.x = element_line(size=0.2, color="gray"),
+        panel.grid.major.y = element_line(size=0.2, color="gray")) +
+  # put in the product name # Labels need to be edited since the genes that were also LFC were removed from the plot
+ # scale_y_discrete(limits=c("XM_011426626.1","XM_011424142.2","XM_011443127.2","XM_011445481.2","XM_011435754.2","XM_011416333.2","XM_011456756.2",
+ #                           "XM_011458237.2","XM_011424091.2","XM_011429379.2","XM_011456754.2","XM_011450917.2","XM_011440705.2","XM_011455053.2","XM_011456757.2"),
+#                   labels=c("GTPase IMAP family member 4","GTPase IMAP family member 7","GTPase IMAP family member 4","immune-associated nucleotide-binding protein 9","GTPase IMAP family member 4",
+#                            "GTPase IMAP family member 8","GTPase IMAP family member 4 isoform X2","GTPase IMAP family member 2","GTPase IMAP family member 4-like","GTPase IMAP family member 4-like",
+#                            "GTPase IMAP family member 4 isoform X1","reticulocyte-binding protein 2 homolog a isoform X2","GTPase IMAP family member 7","GTPase IMAP family member 7",
+#                            "GTPase IMAP family member 4 isoform X3")) +
+  # put X limits in the same order as limits from the LFC plots 
+  scale_x_discrete(limits = c( "Zhang_Control","V_aes_V_alg1_V_alg2","V_tub_V_ang","LPS_M_lut","Rubio_Control","Vcrass_J2_8","Vcrass_J2_9","Vtasma_LGP32",
+                               "Vtasma_LMG20012T","Time0_control","6h_control","6h_OsHV1","12h_control","12h_OsHV1","24h_control","24h_OsHV1","48h_control",
+                               "48h_OsHV1","120hr_control","120hr_OsHV1","AF21_Resistant_control_0h","AF21_Resistant_6h","AF21_Resistant_12h","AF21_Resistant_24h",
+                               "AF21_Resistant_48h","AF21_Resistant_60h","AF21_Resistant_72h","AF11_Susceptible_control_0h","AF11_Susceptible_6h","AF11_Susceptible_12h","AF11_Susceptible_24h","AF11_Susceptible_48h","AF11_Susceptible_60h","AF11_Susceptible_72h"), 
+                   labels= c("Zhang\n Control","Zhang\n V. alg","Zhang\n V.tub\n V. ang","Zhang\n LPS\nM. Lut", "Rubio\nControl","Rubio\nV. crass\n J2_8\n NVir","Rubio\nV. crass\n J2_9\n Vir" ,"Rubio\nV. tasma\n LGP32\n Vir","Rubio\nV. tasma\n LMG20012T\n NVir",
+                             "He Time 0\n Control","He 6hr\n Control", "He OsHv-1\n 6hr","He 12hr\n Control","He OsHv-1\n 12hr", "He 24hr\n Control","He OsHv-1\n24hr",
+                             "He 48hr\n Control","He OsHv-1\n48hr","He 120hr\n Control", "He OsHv-1\n 120hr","deLorg\nOsHV-1\n Res.Con 0hr","deLorg\nOsHV-1\n Res. 6hr","deLorg\nOsHV-1\n Res. 12hr","deLorg\nOsHV-1\n Res. 24hr" ,"deLorg\nOsHV-1\n Res. 48hr",
+                             "deLorg\nOsHV-1\n Res. 60hr","deLorg\nOsHV-1\n Res. 72hr" ,"deLorg\nOsHV-1\n Sus. Con 0hr","deLorg\nOsHV-1\n Sus. 6hr", "deLorg\nOsHV-1\n Sus. 12hr","deLorg\nOsHV-1\n Sus. 24hr","deLorg\nOsHV-1\n Sus. 48hr" ,
+                             "deLorg\nOsHV-1\n Sus. 60hr","deLorg\nOsHV-1\n Sus. 72hr"), position="top") +
+  guides(fill=guide_legend(ncol=3, title.position="top"))
+
+C_vir_vst_common_df_all_mat_limma_GIMAP_gather_avg_tile_plot <- ggplot(C_vir_vst_common_df_all_mat_limma_GIMAP_gather_avg, aes(x=Condition, y=ID, fill=avg_vst_counts_per_treatment)) + 
+  geom_tile() + 
+  scale_fill_viridis_c(name = "Avg. Read Count", breaks = c(3,4,5,6,7,8,9,10,11), 
+                       option="plasma", guide=guide_legend(), na.value = "transparent") +
+  labs(x="Treatment", y =NULL) +
+  theme(#axis.ticks.y = element_blank(), 
+    #axis.text.y = element_blank(),
+    axis.text.x.top = element_text(size=8, family="sans"),
+    axis.title.x.top = element_text(size=12, family="sans"),
+    legend.position = "bottom",
+    legend.title = element_text(size=12, family="sans"), 
+    legend.text = element_text(size=8, family="sans"),
+    panel.background = element_rect(fill = "transparent"),
+    panel.grid.major.x = element_line(size=0.2, color="gray"),
+    panel.grid.major.y = element_line(size=0.2, color="gray")) +
+  # change to product name 
+ # scale_y_discrete(limits=c("rna56370","rna55966","rna55964","rna55965","rna55963","rna55598","rna50230","rna50228","rna26927","rna56112","rna56498",
+ #                           "rna50229","rna26928","rna26929","rna56110","rna56111","rna51104","rna42333","rna53845","rna51292","rna55599","rna55597",
+ #                           "rna55596","rna55595","rna47692","rna47688","rna47685","rna56369"),
+ #                  labels=c("GTPase IMAP family member 4-like","immune-associated nucleotide-binding protein 9-like","GTPase IMAP family member 7-like",
+ #                           "calponin homology domain-containing protein DDB_G0272472-like","reticulocyte-binding protein 2 homolog a-like",
+ #                           "GTPase IMAP family member 7-like isoform X1","GTPase IMAP family member 4-like","GTPase IMAP family member 4-like",
+ #                           "uncharacterized protein LOC111130156 isoform X1","immune-associated nucleotide-binding protein 12-like",
+ #                           "uncharacterized protein LOC111108757","GTPase IMAP family member 4-like","uncharacterized protein LOC111130156 isoform X2",
+ #                           "uncharacterized protein LOC111130156 isoform X2","GTPase IMAP family member 4-like","uncharacterized protein LOC111109315",
+ #                           "uncharacterized protein LOC111110237","uncharacterized protein LOC111102099","GTPase IMAP family member 7-like",
+ #                           "immune-associated nucleotide-binding protein 9-like","GTPase IMAP family member 7-like isoform X2",
+ #                           "GTPase IMAP family member 7-like isoform X1","GTPase IMAP family member 7-like isoform X2","GTPase IMAP family member 4-like",
+ #                           "GTPase IMAP family member 4-like isoform X1","GTPase IMAP family member 4-like isoform X2",
+ #                           "GTPase IMAP family member 4-like isoform X3","GTPase IMAP family member 4-like")) +
+  # put X limits in the same order as limits from the LFC plots 
+  scale_x_discrete(limits =  c("Untreated_control","Bacillus_pumilus_RI0695", "Pro_RE22_Control_no_treatment", "Bacillus_pumilus_RI06_95_exposure_6h","Bacillus_pumilus_RI06_95_exposure_24h",
+                    "Phaeobacter_inhibens_S4_exposure_6h", "Phaeobacter_inhibens_S4_exposure_24h", "Vibrio_coralliilyticus_RE22_exposure_6h",
+                    "ROD_Res_Control","ROD_Res_Challenge","ROD_Sus_Control","ROD_Sus_Challenge","Dermo_Sus_36h_Control","Dermo_Sus_28d_Control",
+                    "Dermo_Sus_7d_Control","Dermo_Sus_36h_Injected","Dermo_Sus_7d_Injected","Dermo_Sus_28d_Injected","Dermo_Tol_36h_Control",
+                    "Dermo_Tol_7d_Control","Dermo_Tol_28d_Control","Dermo_Tol_36h_Injected","Dermo_Tol_7d_Injected","Dermo_Tol_28d_Injected"), 
+                   labels= c("Hatchery\n RI Con." , "Hatchery\n RI Chall.", "Lab\n Control","Lab RI 6hr", "Lab RI 24hr", "Lab S4 6hr","Lab S4 24hr", "Lab RE22" ,
+                             "ROD Sus.\n Control", "ROD Sus.\n seed", "ROD Res.\n Control","ROD Res.\n seed", "Dermo\n Sus. Con.\n 36hr", "Dermo\n Sus.Con.\n 7d", "Dermo\n Sus. Con.\n 28d", 
+                             "Dermo\n Sus. 36hr", "Dermo\n Sus. 7d", "Dermo\n Sus. 28d", "Dermo\n Tol. Con.\n 36hr", "Dermo\n Tol. Con.\n 7d","Dermo\n Tol. Con.\n 28d",
+                             "Dermo\n Tol. 36hr", "Dermo\n Tol. 7d","Dermo\n Tol. 28d"), position="top") +
+  guides(fill=guide_legend(ncol=3, title.position="top"))
+
+# plot heatmap of vst counts for each treatment 
+C_gig_vst_common_df_all_mat_limma_IAP_gather_avg_tile_plot <- ggplot(C_gig_vst_common_df_all_mat_limma_IAP_gather_avg, aes(x=Condition, y=transcript_id, fill=avg_vst_counts_per_treatment)) + 
+  geom_tile() + 
+  scale_fill_viridis_c(name = "Avg. Read Count", breaks = c(3,4,5,6,7,8,9,10,11), 
+                       option="plasma", guide=guide_legend(), na.value = "transparent") +
+  labs(x="Treatment", y =NULL) +
+  theme(#axis.ticks.y = element_blank(), 
+    #axis.text.y = element_blank(),
+    axis.text.x.top = element_text(size=8, family="sans"),
+    axis.title.x.top = element_text(size=12, family="sans"),
+    legend.position = "bottom",
+    legend.title = element_text(size=12, family="sans"), 
+    legend.text = element_text(size=8, family="sans"),
+    panel.background = element_rect(fill = "transparent"),
+    panel.grid.major.x = element_line(size=0.2, color="gray"),
+    panel.grid.major.y = element_line(size=0.2, color="gray")) +
+  # put in the product name
+#  scale_y_discrete(limits=c("XM_011415288.2","XM_020067152.1","XM_011447079.2","XM_011451064.2","XM_011438506.2","XM_011422959.2","XM_011435155.2","XM_011439117.2","XM_020067151.1",
+#                            "XM_011428813.2","XM_011454143.2","XM_011457290.2","XM_020067153.1","XM_011447078.2","XM_011439118.2","XM_020065104.1","XM_020067156.1","XM_011439143.1",
+#                            "XM_020067155.1","XM_011456705.2","XM_011439116.2","XM_011428814.2","XM_011414624.2","XM_011430085.2","XM_011416128.2","XM_020069953.1","XM_020064340.1",
+#                            "XM_011418121.2","XM_011438295.2","XM_011425462.2","XM_011454001.1","XM_011430082.2","XM_011447080.2","XM_020069921.1","XM_020064544.1","XM_011447081.2",
+#                            "XM_011433678.2","XM_020068541.1","XM_011430083.2","XM_020069924.1","XM_011437323.2"),
+#                   labels=c("baculoviral IAP repeat-containing protein 7-B","baculoviral IAP repeat-containing protein 2 isoform X1","baculoviral IAP repeat-containing protein 3-like",
+#                            "uncharacterized protein LOC105343630","baculoviral IAP repeat-containing protein 2","baculoviral IAP repeat-containing protein 7","E3 ubiquitin-protein ligase XIAP",
+#                            "putative inhibitor of apoptosis","death-associated inhibitor of apoptosis 2 isoform X2","baculoviral IAP repeat-containing protein 2","baculoviral IAP repeat-containing protein 2",
+#                            "putative inhibitor of apoptosis","baculoviral IAP repeat-containing protein 3 isoform X2","baculoviral IAP repeat-containing protein 3-like","uncharacterized protein LOC105335294",
+#                            "baculoviral IAP repeat-containing protein 3-like","baculoviral IAP repeat-containing protein 2 isoform X5","baculoviral IAP repeat-containing protein 2","baculoviral IAP repeat-containing protein 3 isoform X4",
+#                            "baculoviral IAP repeat-containing protein 7-A","putative inhibitor of apoptosis","baculoviral IAP repeat-containing protein 7-A","baculoviral IAP repeat-containing protein 7-A",
+#                            "baculoviral IAP repeat-containing protein 7-B","baculoviral IAP repeat-containing protein 2-like isoform X3","baculoviral IAP repeat-containing protein 3 isoform X1","baculoviral IAP repeat-containing protein 7",
+#                            "baculoviral IAP repeat-containing protein 7-B","baculoviral IAP repeat-containing protein 6 isoform X1","uncharacterized protein LOC105325768 isoform X2","E3 ubiquitin-protein ligase XIAP-like",
+#                            "putative inhibitor of apoptosis","baculoviral IAP repeat-containing protein 3-like","baculoviral IAP repeat-containing protein 6 isoform X2","uncharacterized protein LOC105321414","baculoviral IAP repeat-containing protein 3-like",
+#                            "baculoviral IAP repeat-containing protein 7","baculoviral IAP repeat-containing protein 7","putative inhibitor of apoptosis","baculoviral IAP repeat-containing protein 6 isoform X5",
+#                            "baculoviral IAP repeat-containing protein 5")) +
+  # put X limits in the same order as limits from the LFC plots 
+  scale_x_discrete(limits = c( "Zhang_Control","V_aes_V_alg1_V_alg2","V_tub_V_ang","LPS_M_lut","Rubio_Control","Vcrass_J2_8","Vcrass_J2_9","Vtasma_LGP32",
+                               "Vtasma_LMG20012T","Time0_control","6h_control","6h_OsHV1","12h_control","12h_OsHV1","24h_control","24h_OsHV1","48h_control",
+                               "48h_OsHV1","120hr_control","120hr_OsHV1","AF21_Resistant_control_0h","AF21_Resistant_6h","AF21_Resistant_12h","AF21_Resistant_24h",
+                               "AF21_Resistant_48h","AF21_Resistant_60h","AF21_Resistant_72h","AF11_Susceptible_control_0h","AF11_Susceptible_6h","AF11_Susceptible_12h","AF11_Susceptible_24h","AF11_Susceptible_48h","AF11_Susceptible_60h","AF11_Susceptible_72h"), 
+                   labels= c("Zhang\n Control","Zhang\n V. alg","Zhang\n V.tub\n V. ang","Zhang\n LPS\nM. Lut", "Rubio\nControl","Rubio\nV. crass\n J2_8\n NVir","Rubio\nV. crass\n J2_9\n Vir" ,"Rubio\nV. tasma\n LGP32\n Vir","Rubio\nV. tasma\n LMG20012T\n NVir",
+                             "He Time 0\n Control","He 6hr\n Control", "He OsHv-1\n 6hr","He 12hr\n Control","He OsHv-1\n 12hr", "He 24hr\n Control","He OsHv-1\n24hr",
+                             "He 48hr\n Control","He OsHv-1\n48hr","He 120hr\n Control", "He OsHv-1\n 120hr","deLorg\nOsHV-1\n Res.Con 0hr","deLorg\nOsHV-1\n Res. 6hr","deLorg\nOsHV-1\n Res. 12hr","deLorg\nOsHV-1\n Res. 24hr" ,"deLorg\nOsHV-1\n Res. 48hr",
+                             "deLorg\nOsHV-1\n Res. 60hr","deLorg\nOsHV-1\n Res. 72hr" ,"deLorg\nOsHV-1\n Sus. Con 0hr","deLorg\nOsHV-1\n Sus. 6hr", "deLorg\nOsHV-1\n Sus. 12hr","deLorg\nOsHV-1\n Sus. 24hr","deLorg\nOsHV-1\n Sus. 48hr" ,
+                             "deLorg\nOsHV-1\n Sus. 60hr","deLorg\nOsHV-1\n Sus. 72hr"), position="top") +
+  guides(fill=guide_legend(ncol=3, title.position="top"))
+
+C_vir_vst_common_df_all_mat_limma_IAP_gather_avg_tile_plot <- ggplot(C_vir_vst_common_df_all_mat_limma_IAP_gather_avg, aes(x=Condition, y=ID, fill=avg_vst_counts_per_treatment)) + 
+  geom_tile() + 
+  scale_fill_viridis_c(name = "Avg. Read Count", breaks = c(3,4,5,6,7,8,9,10,11), 
+                       option="plasma", guide=guide_legend(), na.value = "transparent") +
+  labs(x="Treatment", y =NULL) +
+  theme(#axis.ticks.y = element_blank(), 
+    #axis.text.y = element_blank(),
+    axis.text.x.top = element_text(size=8, family="sans"),
+    axis.title.x.top = element_text(size=12, family="sans"),
+    legend.position = "bottom",
+    legend.title = element_text(size=12, family="sans"), 
+    legend.text = element_text(size=8, family="sans"),
+    panel.background = element_rect(fill = "transparent"),
+    panel.grid.major.x = element_line(size=0.2, color="gray"),
+    panel.grid.major.y = element_line(size=0.2, color="gray")) +
+  # change to product name 
+  #scale_y_discrete(limits=c("rna42043","rna42044","rna45541","rna43033","rna44387","rna30178","rna46033","rna40982","rna44363","rna44364",
+  #                          "rna42281","rna42280","rna47231","rna47232","rna7051","rna41167","rna25472","rna25470","rna41254","rna45438",
+  #                          "rna44359","rna48894","rna48890","rna49189","rna46892","rna46890","rna46891","rna49130","rna49131","rna41241","rna48999",
+  #                          "rna48998","rna48996","rna46879","rna47230","rna41185","rna41184","rna17492","rna40986","rna42283","rna47121","rna47120",
+  #                          "rna41263","rna25473","rna47133","rna17404","rna40961","rna18814","rna45606","rna41209","rna44382","rna48787","rna47119",
+  #                          "rna41238","rna32314","rna49014","rna44355","rna25382","rna25385","rna47131","rna45539","rna45449","rna41226","rna42094"),
+  #                 labels=c("putative inhibitor of apoptosis","baculoviral IAP repeat-containing protein 3-like","E3 ubiquitin-protein ligase XIAP-like",
+  #                          "baculoviral IAP repeat-containing protein 2-like","putative inhibitor of apoptosis","inhibitor of apoptosis protein-like",
+  #                          "putative inhibitor of apoptosis","uncharacterized protein LOC111100858 isoform X1","baculoviral IAP repeat-containing protein 3-like isoform X1",
+  #                          "baculoviral IAP repeat-containing protein 3-like isoform X1","E3 ubiquitin-protein ligase XIAP-like","E3 ubiquitin-protein ligase XIAP-like",
+  #                          "baculoviral IAP repeat-containing protein 3-like","baculoviral IAP repeat-containing protein 2-like","baculoviral IAP repeat-containing protein 5-like",
+  #                          "baculoviral IAP repeat-containing protein 7-like","baculoviral IAP repeat-containing protein 6-like isoform X1","baculoviral IAP repeat-containing protein 6-like isoform X4",
+  #                          "baculoviral IAP repeat-containing protein 2-like isoform X1","putative inhibitor of apoptosis","baculoviral IAP repeat-containing protein 3-like isoform X1",
+  #                          "baculoviral IAP repeat-containing protein 7-B-like","baculoviral IAP repeat-containing protein 3-like isoform X1","baculoviral IAP repeat-containing protein 2-like",
+  #                          "baculoviral IAP repeat-containing protein 2-like isoform X1","baculoviral IAP repeat-containing protein 3-like","baculoviral IAP repeat-containing protein 7-A-like isoform X2",
+  #                          "baculoviral IAP repeat-containing protein 7-A-like","baculoviral IAP repeat-containing protein 7-A-like","uncharacterized protein LOC111100414","baculoviral IAP repeat-containing protein 7-A-like",
+  #                          "baculoviral IAP repeat-containing protein 3-like","baculoviral IAP repeat-containing protein 7-A-like","baculoviral IAP repeat-containing protein 2-like","baculoviral IAP repeat-containing protein 3-like",
+  #                          "uncharacterized protein LOC111100407 isoform X1","uncharacterized protein LOC111100407 isoform X1","uncharacterized protein LOC111122723","uncharacterized protein LOC111100858 isoform X2",
+  #                          "E3 ubiquitin-protein ligase XIAP-like","baculoviral IAP repeat-containing protein 8-like","E3 ubiquitin-protein ligase XIAP-like",
+  #                          "uncharacterized protein LOC111100400 isoform X1","baculoviral IAP repeat-containing protein 6-like isoform X2","baculoviral IAP repeat-containing protein 3-like isoform X1",
+  #                          "uncharacterized protein LOC111122858","uncharacterized protein LOC111100019","baculoviral IAP repeat-containing protein 2-like isoform X1","baculoviral IAP repeat-containing protein 3-like isoform X2",
+  #                          "baculoviral IAP repeat-containing protein 7-like","baculoviral IAP repeat-containing protein 3-like","baculoviral IAP repeat-containing protein 2-like","E3 ubiquitin-protein ligase XIAP-like",
+  #                          "baculoviral IAP repeat-containing protein 7-A-like","putative inhibitor of apoptosis","baculoviral IAP repeat-containing protein 3-like","baculoviral IAP repeat-containing protein 3-like",
+  #                          "baculoviral IAP repeat-containing protein 6-like isoform X1","baculoviral IAP repeat-containing protein 6-like isoform X2","uncharacterized protein LOC111103391","E3 ubiquitin-protein ligase XIAP-like",
+  #                          "putative inhibitor of apoptosis isoform X1","baculoviral IAP repeat-containing protein 2-like","baculoviral IAP repeat-containing protein 2-like")) +
+  # put X limits in the same order as limits from the LFC plots 
+  scale_x_discrete(limits =  c("Untreated_control","Bacillus_pumilus_RI0695", "Pro_RE22_Control_no_treatment", "Bacillus_pumilus_RI06_95_exposure_6h","Bacillus_pumilus_RI06_95_exposure_24h",
+                               "Phaeobacter_inhibens_S4_exposure_6h", "Phaeobacter_inhibens_S4_exposure_24h", "Vibrio_coralliilyticus_RE22_exposure_6h",
+                               "ROD_Res_Control","ROD_Res_Challenge","ROD_Sus_Control","ROD_Sus_Challenge","Dermo_Sus_36h_Control","Dermo_Sus_28d_Control",
+                               "Dermo_Sus_7d_Control","Dermo_Sus_36h_Injected","Dermo_Sus_7d_Injected","Dermo_Sus_28d_Injected","Dermo_Tol_36h_Control",
+                               "Dermo_Tol_7d_Control","Dermo_Tol_28d_Control","Dermo_Tol_36h_Injected","Dermo_Tol_7d_Injected","Dermo_Tol_28d_Injected"), 
+                   labels= c("Hatchery\n Probiotic\n RI Con." , "Hatchery\n Probiotic\n RI Chall.", "Lab Probiotic/RE22\n Control","Lab RI 6hr", "Lab RI 24hr", "Lab S4 6hr","Lab S4 24hr", "Lab RE22" ,
+                             "ROD Sus.\n Control", "ROD Sus.\n seed", "ROD Res.\n Control","ROD Res.\n seed", "Dermo\n Sus. Con.\n 36hr", "Dermo\n Sus.Con.\n 7d", "Dermo\n Sus. Con.\n 28d", 
+                             "Dermo\n Sus. 36hr", "Dermo\n Sus. 7d", "Dermo\n Sus. 28d", "Dermo\n Tol. Con.\n 36hr", "Dermo\n Tol. Con.\n 7d","Dermo\n Tol. Con.\n 28d",
+                             "Dermo\n Tol. 36hr", "Dermo\n Tol. 7d","Dermo\n Tol. 28d"), position="top") +
+  guides(fill=guide_legend(ncol=3, title.position="top"))
+
+
+## Export the dataframes
+save(C_gig_vst_common_df_all_mat_limma_GIMAP_gather_avg, file="C_gig_vst_common_df_all_mat_limma_GIMAP_gather_avg.RData")
+save(C_gig_vst_common_df_all_mat_limma_IAP_gather_avg,  file="C_gig_vst_common_df_all_mat_limma_IAP_gather_avg.RData")
+save(C_vir_vst_common_df_all_mat_limma_GIMAP_gather_avg, file="C_vir_vst_common_df_all_mat_limma_GIMAP_gather_avg.RData")
+save(C_vir_vst_common_df_all_mat_limma_IAP_gather_avg ,  file="C_vir_vst_common_df_all_mat_limma_IAP_gather_avg.RData")
+
+### Use pheatmap to look at sample clustering 
+# first need to convert to matrix 
+C_gig_vst_common_df_all_mat_limma_GIMAP_mat <- as.matrix(C_gig_vst_common_df_all_mat_limma_GIMAP)
+C_gig_vst_common_df_all_mat_limma_IAP_mat <- as.matrix(C_gig_vst_common_df_all_mat_limma_IAP)
+C_vir_vst_common_df_all_mat_limma_GIMAP_mat <- as.matrix(C_vir_vst_common_df_all_mat_limma_GIMAP )
+C_vir_vst_common_df_all_mat_limma_IAP_mat <- as.matrix(C_vir_vst_common_df_all_mat_limma_IAP )
+
+#GIMAP
+pheatmap(C_gig_vst_common_df_all_mat_limma_GIMAP_mat, annotation_col = C_gig_batch_exp_con_challenge[,c("Experiment","Condition")])
+
+pheatmap(C_vir_vst_common_df_all_mat_limma_GIMAP_mat, annotation_col = C_vir_coldata_exp_con_challenge[,c("Experiment","Condition")])
+  # very distinct clusters of up and down regulated 
+
+#IAP
+pheatmap(C_gig_vst_common_df_all_mat_limma_IAP_mat, annotation_col = C_gig_batch_exp_con_challenge[,c("Experiment","Condition")])
+pheatmap(C_vir_vst_common_df_all_mat_limma_IAP_mat, annotation_col = C_vir_coldata_exp_con_challenge[,c("Experiment","Condition")])
 
 #### DESCRIPTIVE TABLES ####
 
