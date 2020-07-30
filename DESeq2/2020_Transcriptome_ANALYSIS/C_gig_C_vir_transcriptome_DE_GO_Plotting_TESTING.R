@@ -3664,28 +3664,25 @@ C_vir_apop_APOP_plot <- ggplot(C_vir_apop_LFC, aes(x=product,y=log2FoldChange, f
 
 
 # C_gig
-Zhang_dds_deseq_res_V_alg1_LFC_sig_APOP$experiment <- "Zhang"
-Zhang_dds_deseq_res_V_tub_LFC_sig_APOP$experiment <- "Zhang"
-Zhang_dds_deseq_res_LFC_LPS_sig_APOP$experiment <- "Zhang"
-
-Rubio_dds_deseq_J2_8_res_LFC_sig_APOP$experiment <- "Rubio"
-Rubio_dds_deseq_J2_9_res_LFC_sig_APOP$experiment <- "Rubio"
-Rubio_dds_deseq_LGP32_res_LFC_sig_APOP$experiment <- "Rubio"
-Rubio_dds_deseq_LMG20012T_res_LFC_sig_APOP$experiment <- "Rubio"
-
-He_dds_res_6hr_sig_APOP$experiment <- "He"
-He_dds_res_12hr_sig_APOP$experiment <- "He"
-He_dds_res_24hr_sig_APOP$experiment <- "He"
-He_dds_res_48hr_sig_APOP$experiment <- "He"
-He_dds_res_120hr_sig_APOP$experiment <- "He"
-
-deLorgeril_Resistant_dds_res_6_LFC_sig_APOP  $experiment <- "deLorgeril"
+ Zhang_dds_deseq_res_V_alg1_LFC_sig_APOP$experiment       <- "Zhang"
+ Zhang_dds_deseq_res_V_tub_LFC_sig_APOP$experiment        <- "Zhang"
+ Zhang_dds_deseq_res_LFC_LPS_sig_APOP$experiment          <- "Zhang"
+ Rubio_dds_deseq_J2_8_res_LFC_sig_APOP$experiment         <- "Rubio"
+ Rubio_dds_deseq_J2_9_res_LFC_sig_APOP$experiment         <- "Rubio"
+ Rubio_dds_deseq_LGP32_res_LFC_sig_APOP$experiment        <- "Rubio"
+ Rubio_dds_deseq_LMG20012T_res_LFC_sig_APOP$experiment    <- "Rubio"
+He_dds_res_6hr_sig_APOP$experiment    <- "He"
+He_dds_res_12hr_sig_APOP$experiment   <- "He"
+He_dds_res_24hr_sig_APOP$experiment   <- "He"
+He_dds_res_48hr_sig_APOP$experiment   <- "He"
+He_dds_res_120hr_sig_APOP$experiment  <- "He"
+deLorgeril_Resistant_dds_res_6_LFC_sig_APOP  $experiment  <- "deLorgeril"
 deLorgeril_Resistant_dds_res_12_LFC_sig_APOP  $experiment <- "deLorgeril"
 deLorgeril_Resistant_dds_res_24_LFC_sig_APOP  $experiment <- "deLorgeril"
 deLorgeril_Resistant_dds_res_48_LFC_sig_APOP  $experiment <- "deLorgeril"
 deLorgeril_Resistant_dds_res_60_LFC_sig_APOP  $experiment <- "deLorgeril"
 deLorgeril_Resistant_dds_res_72_LFC_sig_APOP  $experiment <- "deLorgeril"
-deLorgeril_Susceptible_dds_res_6_LFC_sig_APOP$experiment <- "deLorgeril"
+deLorgeril_Susceptible_dds_res_6_LFC_sig_APOP$experiment  <- "deLorgeril"
 deLorgeril_Susceptible_dds_res_12_LFC_sig_APOP$experiment <- "deLorgeril"
 deLorgeril_Susceptible_dds_res_24_LFC_sig_APOP$experiment <- "deLorgeril"
 deLorgeril_Susceptible_dds_res_48_LFC_sig_APOP$experiment <- "deLorgeril"
@@ -3718,6 +3715,118 @@ C_gig_apop_LFC <- rbind(Zhang_dds_deseq_res_V_alg1_LFC_sig_APOP       [,c("produ
                         deLorgeril_Susceptible_dds_res_60_LFC_sig_APOP[,c("product","group_by_sim","log2FoldChange","experiment", "gene","transcript_id","padj")],
                         deLorgeril_Susceptible_dds_res_72_LFC_sig_APOP[,c("product","group_by_sim","log2FoldChange","experiment", "gene","transcript_id","padj")])
 nrow(C_gig_apop_LFC) # 1613
+
+# combine all non apop transcripts to get number of total DEGs for each 
+Zhang_dds_deseq_res_V_alg1_LFC_sig_num        <- Zhang_dds_deseq_res_V_alg1_LFC_sig     
+Zhang_dds_deseq_res_V_tub_LFC_sig_num         <- Zhang_dds_deseq_res_V_tub_LFC_sig        
+Zhang_dds_deseq_res_LFC_LPS_sig_num           <- Zhang_dds_deseq_res_LFC_LPS_sig          
+Rubio_dds_deseq_J2_8_res_LFC_sig_num          <- Rubio_dds_deseq_J2_8_res_LFC_sig         
+Rubio_dds_deseq_J2_9_res_LFC_sig_num          <- Rubio_dds_deseq_J2_9_res_LFC_sig         
+Rubio_dds_deseq_LGP32_res_LFC_sig_num         <- Rubio_dds_deseq_LGP32_res_LFC_sig      
+Rubio_dds_deseq_LMG20012T_res_LFC_sig_num    <- Rubio_dds_deseq_LMG20012T_res_LFC_sig    
+He_dds_res_6hr_sig_num                       <- He_dds_res_6hr_sig                       
+He_dds_res_12hr_sig_num                      <- He_dds_res_12hr_sig                      
+He_dds_res_24hr_sig_num                      <- He_dds_res_24hr_sig                      
+He_dds_res_48hr_sig_num                      <- He_dds_res_48hr_sig                      
+He_dds_res_120hr_sig_num                     <- He_dds_res_120hr_sig                     
+deLorgeril_Resistant_dds_res_6_LFC_sig_num   <- deLorgeril_Resistant_dds_res_6_LFC_sig   
+deLorgeril_Resistant_dds_res_12_LFC_sig_num  <- deLorgeril_Resistant_dds_res_12_LFC_sig  
+deLorgeril_Resistant_dds_res_24_LFC_sig_num  <- deLorgeril_Resistant_dds_res_24_LFC_sig  
+deLorgeril_Resistant_dds_res_48_LFC_sig_num  <- deLorgeril_Resistant_dds_res_48_LFC_sig  
+deLorgeril_Resistant_dds_res_60_LFC_sig_num   <- deLorgeril_Resistant_dds_res_60_LFC_sig  
+deLorgeril_Resistant_dds_res_72_LFC_sig_num   <- deLorgeril_Resistant_dds_res_72_LFC_sig  
+deLorgeril_Susceptible_dds_res_6_LFC_sig_num  <- deLorgeril_Susceptible_dds_res_6_LFC_sig
+deLorgeril_Susceptible_dds_res_12_LFC_sig_num <- deLorgeril_Susceptible_dds_res_12_LFC_sig
+deLorgeril_Susceptible_dds_res_24_LFC_sig_num <- deLorgeril_Susceptible_dds_res_24_LFC_sig
+deLorgeril_Susceptible_dds_res_48_LFC_sig_num <- deLorgeril_Susceptible_dds_res_48_LFC_sig
+deLorgeril_Susceptible_dds_res_60_LFC_sig_num <- deLorgeril_Susceptible_dds_res_60_LFC_sig
+deLorgeril_Susceptible_dds_res_72_LFC_sig_num <- deLorgeril_Susceptible_dds_res_72_LFC_sig
+
+Zhang_dds_deseq_res_V_alg1_LFC_sig_num       $group_by_sim <- unique(Zhang_dds_deseq_res_V_alg1_LFC_sig_APOP       $group_by_sim) 
+Zhang_dds_deseq_res_V_tub_LFC_sig_num        $group_by_sim <- unique(Zhang_dds_deseq_res_V_tub_LFC_sig_APOP        $group_by_sim) 
+Zhang_dds_deseq_res_LFC_LPS_sig_num          $group_by_sim <- unique(Zhang_dds_deseq_res_LFC_LPS_sig_APOP          $group_by_sim) 
+Rubio_dds_deseq_J2_8_res_LFC_sig_num         $group_by_sim <- unique(Rubio_dds_deseq_J2_8_res_LFC_sig_APOP         $group_by_sim) 
+Rubio_dds_deseq_J2_9_res_LFC_sig_num         $group_by_sim <- unique(Rubio_dds_deseq_J2_9_res_LFC_sig_APOP         $group_by_sim) 
+Rubio_dds_deseq_LGP32_res_LFC_sig_num        $group_by_sim <- unique(Rubio_dds_deseq_LGP32_res_LFC_sig_APOP        $group_by_sim) 
+Rubio_dds_deseq_LMG20012T_res_LFC_sig_num    $group_by_sim <- unique(Rubio_dds_deseq_LMG20012T_res_LFC_sig_APOP    $group_by_sim) 
+He_dds_res_6hr_sig_num                       $group_by_sim <- unique(He_dds_res_6hr_sig_APOP                       $group_by_sim) 
+He_dds_res_12hr_sig_num                      $group_by_sim <- unique(He_dds_res_12hr_sig_APOP                      $group_by_sim) 
+He_dds_res_24hr_sig_num                      $group_by_sim <- unique(He_dds_res_24hr_sig_APOP                      $group_by_sim) 
+He_dds_res_48hr_sig_num                      $group_by_sim <- unique(He_dds_res_48hr_sig_APOP                      $group_by_sim) 
+He_dds_res_120hr_sig_num                     $group_by_sim <- unique(He_dds_res_120hr_sig_APOP                     $group_by_sim) 
+deLorgeril_Resistant_dds_res_6_LFC_sig_num   $group_by_sim <- unique(deLorgeril_Resistant_dds_res_6_LFC_sig_APOP   $group_by_sim) 
+deLorgeril_Resistant_dds_res_12_LFC_sig_num  $group_by_sim <- unique(deLorgeril_Resistant_dds_res_12_LFC_sig_APOP  $group_by_sim) 
+deLorgeril_Resistant_dds_res_24_LFC_sig_num  $group_by_sim <- unique(deLorgeril_Resistant_dds_res_24_LFC_sig_APOP  $group_by_sim) 
+deLorgeril_Resistant_dds_res_48_LFC_sig_num  $group_by_sim <- unique(deLorgeril_Resistant_dds_res_48_LFC_sig_APOP  $group_by_sim) 
+deLorgeril_Resistant_dds_res_60_LFC_sig_num  $group_by_sim <- unique(deLorgeril_Resistant_dds_res_60_LFC_sig_APOP  $group_by_sim) 
+deLorgeril_Resistant_dds_res_72_LFC_sig_num  $group_by_sim <- unique(deLorgeril_Resistant_dds_res_72_LFC_sig_APOP  $group_by_sim) 
+deLorgeril_Susceptible_dds_res_6_LFC_sig_num $group_by_sim <- unique(deLorgeril_Susceptible_dds_res_6_LFC_sig_APOP $group_by_sim) 
+deLorgeril_Susceptible_dds_res_12_LFC_sig_num$group_by_sim <- unique(deLorgeril_Susceptible_dds_res_12_LFC_sig_APOP$group_by_sim) 
+deLorgeril_Susceptible_dds_res_24_LFC_sig_num$group_by_sim <- unique(deLorgeril_Susceptible_dds_res_24_LFC_sig_APOP$group_by_sim) 
+deLorgeril_Susceptible_dds_res_48_LFC_sig_num$group_by_sim <- unique(deLorgeril_Susceptible_dds_res_48_LFC_sig_APOP$group_by_sim) 
+deLorgeril_Susceptible_dds_res_60_LFC_sig_num$group_by_sim <- unique(deLorgeril_Susceptible_dds_res_60_LFC_sig_APOP$group_by_sim) 
+deLorgeril_Susceptible_dds_res_72_LFC_sig_num$group_by_sim <- unique(deLorgeril_Susceptible_dds_res_72_LFC_sig_APOP$group_by_sim) 
+
+Zhang_dds_deseq_res_V_alg1_LFC_sig_num       <- Zhang_dds_deseq_res_V_alg1_LFC_sig_num        %>% select(transcript_id, group_by_sim)
+Zhang_dds_deseq_res_V_tub_LFC_sig_num        <- Zhang_dds_deseq_res_V_tub_LFC_sig_num         %>% select(transcript_id, group_by_sim)
+Zhang_dds_deseq_res_LFC_LPS_sig_num          <- Zhang_dds_deseq_res_LFC_LPS_sig_num           %>% select(transcript_id, group_by_sim)
+Rubio_dds_deseq_J2_8_res_LFC_sig_num         <- Rubio_dds_deseq_J2_8_res_LFC_sig_num          %>% select(transcript_id, group_by_sim)
+Rubio_dds_deseq_J2_9_res_LFC_sig_num         <- Rubio_dds_deseq_J2_9_res_LFC_sig_num          %>% select(transcript_id, group_by_sim)
+Rubio_dds_deseq_LGP32_res_LFC_sig_num        <- Rubio_dds_deseq_LGP32_res_LFC_sig_num         %>% select(transcript_id, group_by_sim)
+Rubio_dds_deseq_LMG20012T_res_LFC_sig_num    <- Rubio_dds_deseq_LMG20012T_res_LFC_sig_num     %>% select(transcript_id, group_by_sim)
+He_dds_res_6hr_sig_num                       <- He_dds_res_6hr_sig_num                        %>% select(transcript_id, group_by_sim)
+He_dds_res_12hr_sig_num                      <- He_dds_res_12hr_sig_num                       %>% select(transcript_id, group_by_sim)
+He_dds_res_24hr_sig_num                      <- He_dds_res_24hr_sig_num                       %>% select(transcript_id, group_by_sim)
+He_dds_res_48hr_sig_num                      <- He_dds_res_48hr_sig_num                       %>% select(transcript_id, group_by_sim)
+He_dds_res_120hr_sig_num                     <- He_dds_res_120hr_sig_num                      %>% select(transcript_id, group_by_sim)
+deLorgeril_Resistant_dds_res_6_LFC_sig_num   <- deLorgeril_Resistant_dds_res_6_LFC_sig_num    %>% select(transcript_id, group_by_sim)
+deLorgeril_Resistant_dds_res_12_LFC_sig_num  <- deLorgeril_Resistant_dds_res_12_LFC_sig_num   %>% select(transcript_id, group_by_sim)
+deLorgeril_Resistant_dds_res_24_LFC_sig_num  <- deLorgeril_Resistant_dds_res_24_LFC_sig_num   %>% select(transcript_id, group_by_sim)
+deLorgeril_Resistant_dds_res_48_LFC_sig_num  <- deLorgeril_Resistant_dds_res_48_LFC_sig_num   %>% select(transcript_id, group_by_sim)
+deLorgeril_Resistant_dds_res_60_LFC_sig_num  <- deLorgeril_Resistant_dds_res_60_LFC_sig_num   %>% select(transcript_id, group_by_sim)
+deLorgeril_Resistant_dds_res_72_LFC_sig_num  <- deLorgeril_Resistant_dds_res_72_LFC_sig_num   %>% select(transcript_id, group_by_sim)
+deLorgeril_Susceptible_dds_res_6_LFC_sig_num <- deLorgeril_Susceptible_dds_res_6_LFC_sig_num  %>% select(transcript_id, group_by_sim)
+deLorgeril_Susceptible_dds_res_12_LFC_sig_num<- deLorgeril_Susceptible_dds_res_12_LFC_sig_num %>% select(transcript_id, group_by_sim)
+deLorgeril_Susceptible_dds_res_24_LFC_sig_num<- deLorgeril_Susceptible_dds_res_24_LFC_sig_num %>% select(transcript_id, group_by_sim)
+deLorgeril_Susceptible_dds_res_48_LFC_sig_num<- deLorgeril_Susceptible_dds_res_48_LFC_sig_num %>% select(transcript_id, group_by_sim)
+deLorgeril_Susceptible_dds_res_60_LFC_sig_num<- deLorgeril_Susceptible_dds_res_60_LFC_sig_num %>% select(transcript_id, group_by_sim)
+deLorgeril_Susceptible_dds_res_72_LFC_sig_num<- deLorgeril_Susceptible_dds_res_72_LFC_sig_num %>% select(transcript_id, group_by_sim)
+
+C_gig_all_sig_count <- rbind(Zhang_dds_deseq_res_V_alg1_LFC_sig_num       ,
+                             Zhang_dds_deseq_res_V_tub_LFC_sig_num        ,
+                             Zhang_dds_deseq_res_LFC_LPS_sig_num          ,
+                             Rubio_dds_deseq_J2_8_res_LFC_sig_num         ,
+                             Rubio_dds_deseq_J2_9_res_LFC_sig_num         ,
+                             Rubio_dds_deseq_LGP32_res_LFC_sig_num        ,
+                             Rubio_dds_deseq_LMG20012T_res_LFC_sig_num    ,
+                             He_dds_res_6hr_sig_num                       ,
+                             He_dds_res_12hr_sig_num                      ,
+                             He_dds_res_24hr_sig_num                      ,
+                             He_dds_res_48hr_sig_num                      ,
+                             He_dds_res_120hr_sig_num                     ,
+                             deLorgeril_Resistant_dds_res_6_LFC_sig_num   ,
+                             deLorgeril_Resistant_dds_res_12_LFC_sig_num  ,
+                             deLorgeril_Resistant_dds_res_24_LFC_sig_num  ,
+                             deLorgeril_Resistant_dds_res_48_LFC_sig_num  ,
+                             deLorgeril_Resistant_dds_res_60_LFC_sig_num  ,
+                             deLorgeril_Resistant_dds_res_72_LFC_sig_num  ,
+                             deLorgeril_Susceptible_dds_res_6_LFC_sig_num ,
+                             deLorgeril_Susceptible_dds_res_12_LFC_sig_num,
+                             deLorgeril_Susceptible_dds_res_24_LFC_sig_num,
+                             deLorgeril_Susceptible_dds_res_48_LFC_sig_num,
+                             deLorgeril_Susceptible_dds_res_60_LFC_sig_num,
+                             deLorgeril_Susceptible_dds_res_72_LFC_sig_num)
+C_gig_all_sig_count <- C_gig_all_sig_count %>% group_by(group_by_sim) %>% mutate(sig_total = n())
+C_gig_all_sig_count <- C_gig_all_sig_count[!duplicated(C_gig_all_sig_count[,c("group_by_sim","sig_total")]),]
+C_gig_all_sig_count <- C_gig_all_sig_count[,c("group_by_sim","sig_total")]
+
+# Number significant transcripts for each 
+C_gig_nsig_apop <- C_gig_apop_LFC %>% group_by(group_by_sim, experiment) %>% mutate(num_sig_apop = n())
+C_gig_nsig_apop_collapsed <- C_gig_nsig_apop %>% distinct(group_by_sim, experiment, num_sig_apop)
+
+C_gig_sig_table <- left_join(C_gig_nsig_apop_collapsed, C_gig_all_sig_count)
+C_gig_sig_table <- C_gig_sig_table %>% group_by(group_by_sim) %>% mutate(apop_percent = (num_sig_apop/sig_total)*100)  
+
 
 # assign to gene families 
 Apoptosis_names_df_CG <- data.frame(product=c(     # removing this because duplicated with bcl-2 'bcl-2-related protein A1',
@@ -3909,6 +4018,12 @@ C_gig_apop_APOP_upregulated_plot <- ggplot(C_gig_apop_APOP_upregulated , aes(x=p
   theme(axis.text.x = element_text(angle = 75, hjust = 1)) + coord_flip()
 C_gig_apop_APOP_plot <- ggplot(C_gig_apop_LFC  , aes(x=product,y=log2FoldChange, fill=experiment )) + geom_col(position="dodge") + 
   theme(axis.text.x = element_text(angle = 75, hjust = 1)) + coord_flip()
+
+
+## Combine tables with percentage of apoptosis genes 
+C_vir_gig_sig_table  <- rbind(C_gig_sig_table, C_vir_sig_table)
+# export to look at statistics with IAP genes in the Comparative analysis data frame
+save(C_vir_gig_sig_table, file = "/Users/erinroberts/Documents/PhD_Research/Chapter_1_Apoptosis Paper/Chapter1_Apoptosis_Transcriptome_Analyses_2019/DATA ANALYSIS/apoptosis_data_pipeline/DESeq2/2020_Transcriptome_ANALYSIS/C_vir_gig_sig_table.RData")
 
 #### IAP AND GIMAP LFC PLOTS BY SPECIES ####
 
