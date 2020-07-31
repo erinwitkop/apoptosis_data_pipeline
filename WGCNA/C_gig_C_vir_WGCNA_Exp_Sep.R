@@ -27,6 +27,9 @@ library(VennDiagram)
 # source("https://horvath.genetics.ucla.edu/html/CoexpressionNetwork/GeneAnnotation/installAnRichment.R"); installAnRichment(); 
 
 #### LOAD APOPTOSIS DATA FRAMES AND PACKAGES ####
+
+#### REMEMBER TO RELOAD AND REDO THIS WITH THE NEW NOW HAPLOTIG COLLAPSED C.VIRGINICA DATA 
+
 Apoptosis_frames <- load(file="/Volumes/My Passport for Mac/Chapter1_Apoptosis_Paper_Saved_DESeq_WGCNA_Data/C_gig_C_vir_apoptosis_products.RData")
 annotations <- load(file="/Volumes/My Passport for Mac/Chapter1_Apoptosis_Paper_Saved_DESeq_WGCNA_Data/C_gig_C_vir_annotations.RData")
 Apop_LFC <- load(file="/Volumes/My Passport for Mac/Chapter1_Apoptosis_Paper_Saved_DESeq_WGCNA_Data/apop_LFC.RData")
@@ -5654,7 +5657,169 @@ C_gig_all_exp_mod_sig_apop <- rbind(Zhang_LPS_module_apop_df,
 nrow(C_gig_all_exp_mod_sig_apop) # 1337
 C_gig_all_exp_mod_sig_apop_positive <- C_gig_all_exp_mod_sig_apop %>% filter(mod_signif >0)
 
+### ANALYSIS OF IAP INTERACTIONS WITH WGCNA DATA RUN FOR EACH EXPERIMENT SEPARATELY #### 
 
+# create combined sig apop modules list 
+C_gig_all_exp_mod_sig_apop$Species <- "Crassostrea_gigas"
+C_vir_all_exp_mod_sig_apop$Species <- "Crassostrea_virginica"
+
+C_vir_C_gig_all_exp_mod_sig_apop <- rbind(C_gig_all_exp_mod_sig_apop, C_vir_all_exp_mod_sig_apop)
+
+
+### Investigating apoptosis interaction partners for each domain structure type
+# Load IAP domain structure groupings with XMs joined
+# export
+load("/Users/erinroberts/Documents/PhD_Research/Chapter_1_Apoptosis Paper/Chapter_1_Apoptosis_Annotation_Data_Analyses_2019/DATA/Apoptosis_Pathway_Annotation_Comparative_Genomics/Comparative_Analysis_Apoptosis_Gene_Families_Data/IAP_domain_structure_XM_filter.RData")
+
+# create search lists for each domain structure
+IAP_domain_structure_df <- IAP_domain_structure_XM_filter %>%
+  group_by(Domain_Name) %>%
+  # put all proteins into a string
+  dplyr::summarise(transcript_id = paste0(transcript_id, collapse = ",")) %>%
+  filter(!is.na(Domain_Name)) %>% 
+  # set column names
+  column_to_rownames(., var= "Domain_Name")
+
+# split strings into vector for grepping
+IAP_domain_structure_df$transcript_id <- strsplit(IAP_domain_structure_df$transcript_id, ",")
+
+# create list of lists
+IAP_domain_structure_list <- as.list(as.data.frame(t(IAP_domain_structure_df)))
+
+C_vir_C_gig_all_exp_mod_sig_apop %>% 
+  group_by(mod_names, exp) %>%
+  filter(any(grepl(paste(IAP_domain_structure_list[[1]][[1]], collapse="|"), transcript_id)))
+
+# loop through to get list of module hits for each group of transcripts
+IAP_domain_structure_WGCNA_hits <- vector('list', length(IAP_domain_structure_list))
+names(IAP_domain_structure_WGCNA_hits) <- names(IAP_domain_structure_list) # set names
+for(i in seq_along(IAP_domain_structure_list)){
+  for(j in seq_along(IAP_domain_structure_list[[i]])){
+    IAP_domain_structure_WGCNA_hits[[i]][[j]]<- C_vir_C_gig_all_exp_mod_sig_apop %>% 
+      group_by(mod_names, exp) %>%
+      filter(any(grepl(paste(IAP_domain_structure_list[[i]][[j]], collapse="|"), transcript_id)))
+  }
+}
+# put in dataframe (using purrr yay!)
+IAP_domain_structure_WGCNA_hits_df <- map_df(IAP_domain_structure_WGCNA_hits, ~bind_rows(., .id="Domain_Name"), .id="Domain_Name") 
+
+### Compare Usage of domains between experiments ###
+# Calculate Count products per module in each experiment
+IAP_domain_structure_WGCNA_hits_exp <- IAP_domain_structure_WGCNA_hits_df %>%
+  group_by(mod_names,exp, Domain_Name) %>%
+  dplyr::summarise(products_per_mod_exp = n()) %>% 
+  distinct(mod_names, exp, Domain_Name, products_per_mod_exp) %>%
+  arrange(desc(products_per_mod_exp))
+
+# Most commonly shared exp between domain structures 
+IAP_domain_structure_WGCNA_hits_exp %>% 
+  distinct(exp, Domain_Name, .keep_all = TRUE) %>% # only want to count 1 per experiment
+  group_by(exp) %>% 
+  dplyr::summarise(times_shared = n()) %>% arrange(desc(times_shared))
+#exp             times_shared
+#<chr>                  <int>
+#  1 Pro_RE22_Pro_RI          9
+#2 Rubio_V                    9
+#3 Zhang_LPS                  8
+#4 He                         7
+#5 Pro_RE22_Pro_S4            7
+#6 deLorg_Res                 6
+#7 Rubio_NV                   5
+#8 Dermo_Tol                  4
+#9 ROD_Sus                    4
+#10 Pro_RE22_RE22             3
+#11 Zhang_Vibrio              3
+#12 deLorg_Sus                2
+#13 ROD_Res                   2
+#14 Probiotic                 1
+
+## Join experiments with challenge type: viral, bacterial, parasitic,
+challenge_type <- data.frame(exp =c(
+  "deLorg_Res",     
+  "deLorg_Sus",     
+  "Dermo_Tol",      
+  "He",             
+  "Pro_RE22_Pro_RI",
+  "Pro_RE22_Pro_S4",
+  "Pro_RE22_RE22"  ,
+  "Probiotic",      
+  "ROD_Res",        
+  "ROD_Sus",        
+  "Rubio_NV",       
+  "Rubio_V",        
+  "Zhang_LPS",      
+  "Zhang_Vibrio"),  
+  challenge_type = c(
+     "viral" ,
+     "viral",
+     "parasite",
+     "viral",
+     "bacterial",
+     "bacterial",
+     "intracellular_bacterial",
+     "bacterial",
+     "bacterial",
+     "bacterial",
+     "bacterial",
+     "intracellular_bacterial", # this one is only half right at the moment since this has both V. crass and V. tas and only V. tas is intracellular
+    "bacterial",
+    "bacterial"))
+  
+IAP_domain_structure_WGCNA_hits_df_type <- left_join(IAP_domain_structure_WGCNA_hits_df, challenge_type)
+
+### Compare most common interactions for each domain type with each challenge type ###
+# Split transcript variant info and find other proteins that show up most often as interaction partners ACROSS modules
+IAP_domain_structure_WGCNA_hits_freq <- IAP_domain_structure_WGCNA_hits_df_type %>% 
+  separate(product, into = c("product","transcript_variant"), sep = ",") %>% 
+  # add column for positive and negative association
+  #mutate(module_sign = case_when(
+  #  mod_signif >= 0 ~ "positive",   # decided to not separate by positive and negative 
+  #  TRUE ~ "negative")) %>% 
+  group_by(Domain_Name, product, challenge_type) %>%
+  dplyr::summarise(product_freq_domain_total = n()) %>% 
+  arrange(desc(product_freq_domain_total))
+  # this gives us the number of times a product is showing up across different modules of a domain type and challenge type
+
+# Goal to understand pathways involved with particular domain structures 
+# heatmap plot
+IAP_domain_structure_WGCNA_hits_freq_plot <- IAP_domain_structure_WGCNA_hits_freq %>%
+  ggplot(aes(y = product, x = Domain_Name, fill= product_freq_domain_total)) + geom_tile() + facet_grid(.~challenge_type) + 
+  scale_fill_viridis_c(option="plasma") + 
+  theme(axis.text.x = element_text(angle = 90, hjust =1))
+
+ggsave(plot = IAP_domain_structure_WGCNA_hits_freq_plot, filename = " IAP_domain_structure_WGCNA_hits_freq_plot.tiff", device = "tiff",
+       width = 30, height = 25,
+       path = "/Users/erinroberts/Documents/PhD_Research/Chapter_1_Apoptosis Paper/Chapter_1_Apoptosis_Annotation_Data_Analyses_2019/DATA/Apoptosis_Pathway_Annotation_Comparative_Genomics/Comparative_Analysis_Apoptosis_Gene_Families_Data/")
+
+# Typing my thoughts...
+  # So what I really want to isolate are those products that are doing different things across domain modules within a type
+  # products only in specific modules may help better understand specificity to particular stressors  
+  # the products that show up with all domain types speak more to a ubiquitous response to the stressor
+  # once I identify particular products and domain structures of interest and can use those to pull out specific domains 
+
+# Goal now is to identify those products with high frequency in some types but not others...
+  # count how many domain types these products are shared across. Those with less sharing are unique to particular domain structures
+IAP_domain_structure_WGCNA_hits_freq_by_domain_challenge_type <-
+  IAP_domain_structure_WGCNA_hits_freq %>% 
+  group_by(challenge_type, product) %>%
+  dplyr::summarise(number_domain_groups_shared = n()) %>%
+  arrange(desc(number_domain_groups_shared))
+ 
+# Find products unique to a particular domain in each type
+IAP_domain_structure_WGCNA_hits_freq_by_domain_challenge_type %>%
+  filter(number_domain_groups_shared ==1) %>% View()
+
+### Are there any modules that only have IAPs of one type? in other words: do any modules for same experiment have different domain ID
+IAP_domain_structure_WGCNA_hits_exp_unique <- IAP_domain_structure_WGCNA_hits_exp %>%
+  distinct(Domain_Name, mod_names, exp, .keep_all = TRUE) %>%
+  group_by(mod_names, exp, products_per_mod_exp) %>% dplyr::summarise(domains_per_mod_exp = n()) %>%
+  arrange(desc(domains_per_mod_exp))
+
+# those modules in this list that only have one domain type in a module may reveal specific pathways triggered by the domain types
+IAP_domain_structure_WGCNA_hits_exp_unique_cytoscape <- IAP_domain_structure_WGCNA_hits_exp_unique %>%
+   filter(domains_per_mod_exp ==1, products_per_mod_exp >=10) # 16 of the modules have greater than 10 products, lets focus on these
+# join back with what domain type was each one
+IAP_domain_structure_WGCNA_hits_exp_unique_cytoscape <- left_join(IAP_domain_structure_WGCNA_hits_exp_unique_cytoscape, IAP_domain_structure_WGCNA_hits_exp)
 
 #### MEASURE MODULE PRESERVATION BETWEEN C. GIGAS DIFFERENT EXPERIMENTS ####
 
