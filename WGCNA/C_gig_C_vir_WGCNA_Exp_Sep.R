@@ -22,6 +22,7 @@ library(reshape2)
 library(RColorBrewer)
 library(cowplot)
 library(VennDiagram)
+library(ComplexHeatmap)
 # Using R version 3.6.1
 
 
@@ -7371,6 +7372,11 @@ C_gig_full_all_exp_mod_sig_apop_positive <- C_gig_full_all_exp_mod_sig_apop %>% 
 C_vir_full_all_exp_mod_sig_apop$Species <- "Crassostrea_virginica"
 C_gig_full_all_exp_mod_sig_apop$Species <- "Crassostrea_gigas"
 C_vir_C_gig_full_all_exp_mod_sig_apop <- rbind(C_vir_full_all_exp_mod_sig_apop, C_gig_full_all_exp_mod_sig_apop)
+# are all experiments found?
+levels(factor(C_vir_C_gig_full_all_exp_mod_sig_apop$exp))
+#[1] "deLorg_Res"         "deLorg_Sus"         "Dermo_Sus"          "Dermo_Tol"          "He"                 "Pro_RE22_Pro_RI"    "Pro_RE22_Pro_S4"   
+#[8] "Pro_RE22_RE22_full" "Probiotic"          "ROD_Res"            "ROD_Sus"            "Rubio_NV"           "Rubio_V"            "Zhang_LPS"         
+#[15] "Zhang_Vibrio"  
 
 ### Investigating apoptosis interaction partners for each domain structure type
 # Ue dataframes for domain structure loaded at top of whole script 
@@ -7383,7 +7389,10 @@ IAP_domain_structure_XM_CV_XM <- left_join(IAP_domain_structure_XM_CV[,-26], C_v
 
 # combine data IAP_domain_name data frames, put columns in correct order and remove NA domain names
 IAP_domain_structure_XM_filter <- rbind(IAP_domain_structure_XM_CG[,c("transcript_id","Domain_Name")], IAP_domain_structure_XM_CV_XM[,c("transcript_id","Domain_Name")]) %>%
-  filter(!is.na(Domain_Name))
+  # change NA to be "not classified"
+  mutate(Domain_Name = case_when(is.na(Domain_Name) ~ "not_classified",
+                                       TRUE ~ Domain_Name))
+  
 
 # create search lists for each domain structure
 IAP_domain_structure_df <- IAP_domain_structure_XM_filter %>%
@@ -7413,8 +7422,13 @@ for(i in seq_along(IAP_domain_structure_list)){
 }
 # put in dataframe (using purrr yay!)
 IAP_domain_structure_WGCNA_hits_df <- map_df(IAP_domain_structure_WGCNA_hits, ~bind_rows(., .id="Domain_Name"), .id="Domain_Name") 
-distinct(IAP_domain_structure_WGCNA_hits_df, Domain_Name, mod_names, exp) %>% View() # 124 module hits (some duplicated because include multiple domain types)
-View(distinct(IAP_domain_structure_WGCNA_hits_df, mod_names, exp))# 67 distinct module names
+distinct(IAP_domain_structure_WGCNA_hits_df, Domain_Name, mod_names, exp) %>% View() # 150 module hits (some duplicated because include multiple domain types)
+View(distinct(IAP_domain_structure_WGCNA_hits_df, mod_names, exp))# 76 distinct module names
+# are all experiments found- YES
+levels(factor(IAP_domain_structure_WGCNA_hits_df$exp))
+# [1] "deLorg_Res"         "deLorg_Sus"         "Dermo_Sus"          "Dermo_Tol"          "He"                 "Pro_RE22_Pro_RI"    "Pro_RE22_Pro_S4"   
+# [8] "Pro_RE22_RE22_full" "Probiotic"          "ROD_Res"            "ROD_Sus"            "Rubio_NV"           "Rubio_V"            "Zhang_LPS"         
+# [15] "Zhang_Vibrio"                           
 
 # Make table with just the IAP hits for each one 
 C_vir_rtracklayer_transcripts <- C_vir_rtracklayer %>% filter(type == "mRNA")
@@ -7422,21 +7436,23 @@ IAP_domain_structure_WGCNA_hits_df_IAP <- IAP_domain_structure_WGCNA_hits_df[IAP
 
 # remove those that only contain one transcript 
 IAP_domain_structure_WGCNA_hits_df_modsize <- IAP_domain_structure_WGCNA_hits_df %>% dplyr::count(mod_names, exp) %>% arrange(desc(n)) %>% filter(n>1)
-nrow(IAP_domain_structure_WGCNA_hits_df_modsize) # 54 modules with more than 1 transcript
+nrow(IAP_domain_structure_WGCNA_hits_df_modsize) # 58 modules with more than 1 transcript
 
 ## Remove modules with only 1 transcript (an IAP) using semi_join! # 
 IAP_domain_structure_WGCNA_hits_df <- dplyr::semi_join(IAP_domain_structure_WGCNA_hits_df,  IAP_domain_structure_WGCNA_hits_df_modsize[,c("mod_names","exp")])
 # check
-distinct(IAP_domain_structure_WGCNA_hits_df, mod_names, exp) # 54 total without any module repeats
+distinct(IAP_domain_structure_WGCNA_hits_df, mod_names, exp) # 58 total without any module repeats
 View(distinct(IAP_domain_structure_WGCNA_hits_df, Domain_Name, mod_names, exp))
 
 ### FIND DOMAIN STRUCTURE SHARED ACROSS CHALLENGE TYPES AND WHICH TRANSCRIPTS COMMON TO ALL  
 # Goal is see if there is a response that might be specific to the IAP domain structure rather than a challenge specific response
 levels(factor(IAP_domain_structure_WGCNA_hits_df$Domain_Name))
-#[1] "BIR*"                  "BIR*-DD-RING"          "NZBIR-TII-UBA-DD-RING" "TI-TII-DD-RING"        "TI-TII-RING"           "TI-TII-TII-UBA-RING"   "TII"                  
-#[8] "TII-BIR6-E2"           "TII-DD"                "TII-DD-RING"           "TII-RING"              "TII-TII"               "TII-TII-RING"          "TX-TII"  
-# ALL domain structure types were 
+#[1] "BIR*"                  "BIR*-DD-RING"          "not_classified"        "NZBIR-TII-UBA-DD-RING" "TI-TII-DD-RING"        "TI-TII-RING"          
+#[7] "TI-TII-TII-UBA-RING"   "TII"                   "TII-BIR6-E2"           "TII-DD"                "TII-DD-RING"           "TII-RING"             
+#[13] "TII-TII"               "TII-TII-RING"          "TX-TII"   
+# ALL domain structure types were found
 
+# plot transcripts common across modules and experiments for a particular domain name
 IAP_domain_structure_WGCNA_hits_df %>% 
   dplyr::distinct() %>% dplyr::count(product, Domain_Name) %>% filter(n > 1) %>% 
   ggplot(aes(x = product, y = Domain_Name, fill= n)) + geom_tile() + 
@@ -7451,12 +7467,35 @@ IAP_domain_structure_WGCNA_hits_df_modules_domain_hits <- IAP_domain_structure_W
   distinct(Domain_Name, mod_names, exp) %>% 
   group_by(mod_names, exp) %>% dplyr::mutate(count = n(), comb_domain = paste(Domain_Name, collapse = ",")) %>% 
   distinct(mod_names, exp, count, comb_domain) %>% arrange(exp)
-# including modules that have multiple domain hits there are 18 groups
+
+# how many domains are there with the comb_domains
+comb_domain <-  as.data.frame(levels(factor(IAP_domain_structure_WGCNA_hits_df_modules_domain_hits$comb_domain)))
+colnames(comb_domain )[1] <- "comb_domain"
+nrow(comb_domain) # 34 total
+# any modules with only 1 domain type?
+comb_domain_unique <- comb_domain %>% filter(!grepl(",",comb_domain)) # 11 of the modules were found uniquely in a module
+    #              comb_domain
+    #1           BIR*-DD-RING
+    #2         not_classified
+    #3  NZBIR-TII-UBA-DD-RING
+    #4         TI-TII-DD-RING
+    #5            TI-TII-RING
+    #6    TI-TII-TII-UBA-RING
+    #7            TII-BIR6-E2
+    #8                 TII-DD
+    #9            TII-DD-RING
+    #10               TII-TII
+    #11          TII-TII-RING
+    #12                TX-TII
+# meaning 22 different domain combinations
+22/34
+comb_domain_unique$comb_domain_type <- "unique"
+
 # are the domain combos common across experiments?
-IAP_domain_structure_WGCNA_hits_df_modules_domain_hits %>% group_by(comb_domain) %>% dplyr::count() %>% arrange(desc(n))
+IAP_domain_structure_WGCNA_hits_df_modules_domain_hits %>% group_by(comb_domain) %>% dplyr::count() %>% arrange(desc(n)) %>% View()
 
 ## Create condensed data frame using the new comb_domain types
-IAP_domain_structure_WGCNA_hits_df_condensed <- left_join(IAP_domain_structure_WGCNA_hits_df_modules_domain_hits, unique(IAP_domain_structure_WGCNA_hits_df[,c("mod_names","exp","product")]))
+IAP_domain_structure_WGCNA_hits_df_condensed <- left_join(IAP_domain_structure_WGCNA_hits_df_modules_domain_hits, unique(IAP_domain_structure_WGCNA_hits_df[,c("mod_names","exp","product","transcript_id")]))
 
 ### Compare Usage of domains between experiments ###
 # Calculate Count products per module in each experiment
@@ -7466,6 +7505,7 @@ IAP_domain_structure_WGCNA_hits_exp <- IAP_domain_structure_WGCNA_hits_df_conden
   distinct(mod_names, exp, comb_domain, products_per_mod_exp) %>%
   arrange(desc(products_per_mod_exp))
 
+
 # Most commonly shared exp between domain structures 
 IAP_domain_structure_WGCNA_hits_exp %>% 
   distinct(exp, comb_domain, .keep_all = TRUE) %>% # only want to count 1 per experiment
@@ -7473,17 +7513,19 @@ IAP_domain_structure_WGCNA_hits_exp %>%
   dplyr::summarise(times_shared = n()) %>% arrange(desc(times_shared))
 #exp                times_shared
 #<chr>                     <int>
-#  1 Pro_RE22_Pro_RI               6
-#2 Rubio_NV                      6
-#3 Rubio_V                       6
-#4 Zhang_LPS                     5
-#5 Pro_RE22_Pro_S4               3
-#6 deLorg_Res                    2
-#7 Pro_RE22_RE22_full            2
-#8 Zhang_Vibrio                  2
-#9 Dermo_Sus                     1
-#10 Dermo_Tol                     1
-#11 ROD_Sus                       1
+#  1 Pro_RE22_Pro_RI              10
+#2 Pro_RE22_Pro_S4              10
+#3 Rubio_V                       8
+#4 Zhang_LPS                     8
+#5 Rubio_NV                      7
+#6 Dermo_Tol                     4
+#7 deLorg_Res                    2
+#8 Dermo_Sus                     2
+#9 Pro_RE22_RE22_full            2
+#10 Zhang_Vibrio                  2
+#11 Probiotic                     1
+#12 ROD_Res                       1
+#13 ROD_Sus                       1
 
 ## Join experiments with challenge type: viral, bacterial, parasitic,
 challenge_type <- data.frame(exp =c(
@@ -7494,7 +7536,7 @@ challenge_type <- data.frame(exp =c(
   "He",             
   "Pro_RE22_Pro_RI",
   "Pro_RE22_Pro_S4",
-  "Pro_RE22_RE22"  ,
+  "Pro_RE22_RE22_full"  ,
   "Probiotic",      
   "ROD_Res",        
   "ROD_Sus",        
@@ -7510,18 +7552,64 @@ challenge_type <- data.frame(exp =c(
     "viral",
     "bacterial",
     "bacterial",
-    "intracellular_bacterial",
     "bacterial",
     "bacterial",
     "bacterial",
     "bacterial",
-    "intracellular_bacterial", # this one is only half right at the moment since this has both V. crass and V. tas and only V. tas is intracellular
+    "viral",
+    "viral", # this one is only half right at the moment since this has both V. crass and V. tas and only V. tas is intracellular
     "bacterial",
     "bacterial"))
 
 IAP_domain_structure_WGCNA_hits_df_condensed_type <- left_join(IAP_domain_structure_WGCNA_hits_df_condensed, challenge_type)
+# check
+levels(factor(IAP_domain_structure_WGCNA_hits_df_condensed_type$exp)) # no NAs
 
-### Compare most common interactions for each domain type with each challenge type ###
+# classify comb_domain as unique or combo
+IAP_domain_structure_WGCNA_hits_df_condensed_type <- left_join(IAP_domain_structure_WGCNA_hits_df_condensed_type ,comb_domain_unique) %>% mutate(comb_domain_type = case_when(
+  is.na(.$comb_domain_type) ~ "combo",
+  TRUE ~ .$comb_domain_type))
+    
+### Upset (kinda) plot of domain types used across experiments
+# see https://jokergoo.github.io/ComplexHeatmap-reference/book/upset-plot.html#make-the-combination-matrix
+IAP_domain_structure_WGCNA_hits_exp_upset <- IAP_domain_structure_WGCNA_hits_df_condensed_type %>% dplyr::distinct(mod_names, exp, comb_domain, challenge_type) %>%
+  group_by(comb_domain,exp) %>% dplyr::mutate(count=n())
+
+IAP_domain_structure_WGCNA_hits_exp_upset_plot <- ggplot(IAP_domain_structure_WGCNA_hits_exp_upset, aes(y=comb_domain, x=exp, fill= count)) + geom_tile() +
+  facet_grid(.~challenge_type, scales = "free", space = "free") + 
+  theme(axis.text.x = element_text(angle = 90, hjust =1, size = 14),
+        axis.text.y = element_text(size=14),
+        plot.title = element_text(size = 16))+
+  labs(x = "Experiment", y = "Domain Name or Combination", title = "Occurence of Domain Structure Combinations Across Experiments", fill = "Modules\n Per Exp.") 
+
+ggsave(plot = IAP_domain_structure_WGCNA_hits_exp_upset_plot, filename = "IAP_domain_structure_WGCNA_hits_exp_upset_plot.tiff", device = "tiff",
+       width = 20, height = 10,
+       path = "/Users/erinroberts/Documents/PhD_Research/Chapter_1_Apoptosis Paper/Chapter_1_Apoptosis_Annotation_Data_Analyses_2019/DATA/Apoptosis_Pathway_Annotation_Comparative_Genomics/Comparative_Analysis_Apoptosis_Gene_Families_Data/")
+
+# How many IAPs hits in each of these modules
+IAP_domain_structure_WGCNA_hits_df_condensed_type_IAP <- IAP_domain_structure_WGCNA_hits_df_condensed_type[IAP_domain_structure_WGCNA_hits_df_condensed_type$transcript_id %in% IAP_domain_structure_XM_filter$transcript_id,]
+
+# plot IAP counts instead of module counts above
+IAP_domain_structure_WGCNA_hits_df_condensed_type_IAP_count <- IAP_domain_structure_WGCNA_hits_df_condensed_type_IAP %>% group_by(mod_names, exp) %>% dplyr::mutate(IAP_count = n()) %>%
+  dplyr::distinct(mod_names, exp, comb_domain,challenge_type, IAP_count, comb_domain_type) 
+
+IAP_domain_structure_WGCNA_hits_df_condensed_type_IAP_plot <- 
+  ggplot(IAP_domain_structure_WGCNA_hits_df_condensed_type_IAP_count, aes(y=comb_domain, x=exp, fill= IAP_count)) + geom_tile() +
+  facet_grid(.~challenge_type, scales = "free", space = "free") + 
+  theme(axis.text.x = element_text(angle = 90, hjust =1, size = 14),
+        axis.text.y = element_text(size=14),
+        plot.title = element_text(size = 16)) +
+  scale_fill_viridis_c(option="plasma") + 
+  labs(x = "Experiment", y = "Domain Name or Combination", title = "IAP Counts for Domain Structure Combinations Across Experiments", fill = "IAP transcripts\n Per Exp.") 
+
+ggsave(plot = IAP_domain_structure_WGCNA_hits_df_condensed_type_IAP_plot, filename = "IAP_domain_structure_WGCNA_hits_df_condensed_type_IAP_plot.tiff", device = "tiff",
+       width = 20, height = 10,
+       path = "/Users/erinroberts/Documents/PhD_Research/Chapter_1_Apoptosis Paper/Chapter_1_Apoptosis_Annotation_Data_Analyses_2019/DATA/Apoptosis_Pathway_Annotation_Comparative_Genomics/Comparative_Analysis_Apoptosis_Gene_Families_Data/")
+
+## What percent of IAPs are in unique vs. combo?
+IAP_domain_structure_WGCNA_hits_df_condensed_type_IAP_count %>% ungroup() %>% dplyr::count(comb_domain_type) %>% mutate(percent_total = n/sum(n)*100)
+
+### Compare most common transcripts across modules for each domain type with each challenge type ###
 # Split transcript variant info and find other proteins that show up most often as interaction partners ACROSS modules
 IAP_domain_structure_WGCNA_hits_freq <- IAP_domain_structure_WGCNA_hits_df_condensed_type %>% 
   separate(product, into = c("product","transcript_variant"), sep = ",") %>% 
@@ -7534,10 +7622,9 @@ IAP_domain_structure_WGCNA_hits_freq <- IAP_domain_structure_WGCNA_hits_df_conde
   arrange(desc(product_freq_domain_total))
 # this gives us the number of times a product is showing up across different modules of a domain type and challenge type
 
-# Goal to understand pathways involved with particular domain structures 
+# plot frequency of products across modules for particular domain structures 
 # heatmap plot
 IAP_domain_structure_WGCNA_hits_freq_plot <- IAP_domain_structure_WGCNA_hits_freq %>% 
-  filter(product_freq_domain_total >=2) %>%  # only look at the most common
   ggplot(aes(x = product, y = comb_domain, fill= product_freq_domain_total)) + geom_tile() + 
   #facet_grid(.~challenge_type) + 
   scale_fill_viridis_c(option="plasma") + 
@@ -7546,6 +7633,22 @@ IAP_domain_structure_WGCNA_hits_freq_plot <- IAP_domain_structure_WGCNA_hits_fre
 #ggsave(plot = IAP_domain_structure_WGCNA_hits_freq_plot, filename = " IAP_domain_structure_WGCNA_hits_freq_plot.tiff", device = "tiff",
 #       width = 30, height = 25,
 #       path = "/Users/erinroberts/Documents/PhD_Research/Chapter_1_Apoptosis Paper/Chapter_1_Apoptosis_Annotation_Data_Analyses_2019/DATA/Apoptosis_Pathway_Annotation_Comparative_Genomics/Comparative_Analysis_Apoptosis_Gene_Families_Data/")
+
+## Isolate interesting domain structures for comparison of molecules involved across each
+# top three domain structures with the greatest number of modules : TII-TII-RING : 5, BIR*-DD-RING: 4 , TII-DD-RING: 4 
+IAP_domain_structure_WGCNA_hits_freq %>% 
+  filter(comb_domain == "TII-TII-RING" | comb_domain == "BIR*-DD-RING" | comb_domain ==  "TII-DD-RING") %>% 
+  ggplot(aes(y = product, x = comb_domain, fill= product_freq_domain_total)) + geom_tile() +
+  facet_grid(.~challenge_type) + 
+  theme(axis.text.x = element_text(angle = 90, hjust =1)) 
+
+
+# unique domain structures
+IAP_domain_structure_WGCNA_hits_freq %>% 
+  filter(comb_domain == "NZBIR-TII-UBA-DD-RING" | comb_domain == "TII-BIR6-E2" | comb_domain ==  "TII-TII") %>% 
+  ggplot(aes(y = product, x = comb_domain, fill= product_freq_domain_total)) + geom_tile() +
+  facet_grid(.~challenge_type) + 
+  theme(axis.text.x = element_text(angle = 90, hjust =1)) 
 
 # Typing my thoughts...
 # So what I really want to isolate are those products that are doing different things across domain modules within a type
