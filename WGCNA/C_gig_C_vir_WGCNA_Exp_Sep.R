@@ -7584,7 +7584,7 @@ IAP_domain_structure_WGCNA_hits_exp_upset_plot <- ggplot(IAP_domain_structure_WG
 
 ggsave(plot = IAP_domain_structure_WGCNA_hits_exp_upset_plot, filename = "IAP_domain_structure_WGCNA_hits_exp_upset_plot.tiff", device = "tiff",
        width = 20, height = 10,
-       path = "/Users/erinroberts/Documents/PhD_Research/Chapter_1_Apoptosis Paper/Chapter_1_Apoptosis_Annotation_Data_Analyses_2019/DATA/Apoptosis_Pathway_Annotation_Comparative_Genomics/Comparative_Analysis_Apoptosis_Gene_Families_Data/")
+       path = "/Users/erinroberts/Documents/PhD_Research/Chapter_1_Apoptosis Paper/Chapter1_Apoptosis_Transcriptome_Analyses_2019/DATA ANALYSIS/apoptosis_data_pipeline/WGCNA/")
 
 # How many IAPs hits in each of these modules
 IAP_domain_structure_WGCNA_hits_df_condensed_type_IAP <- IAP_domain_structure_WGCNA_hits_df_condensed_type[IAP_domain_structure_WGCNA_hits_df_condensed_type$transcript_id %in% IAP_domain_structure_XM_filter$transcript_id,]
@@ -7604,7 +7604,7 @@ IAP_domain_structure_WGCNA_hits_df_condensed_type_IAP_plot <-
 
 ggsave(plot = IAP_domain_structure_WGCNA_hits_df_condensed_type_IAP_plot, filename = "IAP_domain_structure_WGCNA_hits_df_condensed_type_IAP_plot.tiff", device = "tiff",
        width = 20, height = 10,
-       path = "/Users/erinroberts/Documents/PhD_Research/Chapter_1_Apoptosis Paper/Chapter_1_Apoptosis_Annotation_Data_Analyses_2019/DATA/Apoptosis_Pathway_Annotation_Comparative_Genomics/Comparative_Analysis_Apoptosis_Gene_Families_Data/")
+       path = "/Users/erinroberts/Documents/PhD_Research/Chapter_1_Apoptosis Paper/Chapter1_Apoptosis_Transcriptome_Analyses_2019/DATA ANALYSIS/apoptosis_data_pipeline/WGCNA/")
 
 ## What percent of IAPs are in unique vs. combo?
 IAP_domain_structure_WGCNA_hits_df_condensed_type_IAP_count %>% ungroup() %>% dplyr::count(comb_domain_type) %>% mutate(percent_total = n/sum(n)*100)
@@ -7625,14 +7625,15 @@ IAP_domain_structure_WGCNA_hits_freq <- IAP_domain_structure_WGCNA_hits_df_conde
 # plot frequency of products across modules for particular domain structures 
 # heatmap plot
 IAP_domain_structure_WGCNA_hits_freq_plot <- IAP_domain_structure_WGCNA_hits_freq %>% 
+  filter(product_freq_domain_total > 2) %>% 
   ggplot(aes(x = product, y = comb_domain, fill= product_freq_domain_total)) + geom_tile() + 
-  #facet_grid(.~challenge_type) + 
   scale_fill_viridis_c(option="plasma") + 
-  theme(axis.text.x = element_text(angle = 90, hjust =1)) + coord_flip()
+  theme(axis.text.x = element_text(angle = 90, hjust =1, size = 20),
+        axis.text.y = element_text(size=20)) + coord_flip()
 
-#ggsave(plot = IAP_domain_structure_WGCNA_hits_freq_plot, filename = " IAP_domain_structure_WGCNA_hits_freq_plot.tiff", device = "tiff",
-#       width = 30, height = 25,
-#       path = "/Users/erinroberts/Documents/PhD_Research/Chapter_1_Apoptosis Paper/Chapter_1_Apoptosis_Annotation_Data_Analyses_2019/DATA/Apoptosis_Pathway_Annotation_Comparative_Genomics/Comparative_Analysis_Apoptosis_Gene_Families_Data/")
+ggsave(plot = IAP_domain_structure_WGCNA_hits_freq_plot, filename = " IAP_domain_structure_WGCNA_hits_freq_plot.tiff", device = "tiff",
+       width = 30, height = 25,
+       path = "/Users/erinroberts/Documents/PhD_Research/Chapter_1_Apoptosis Paper/Chapter1_Apoptosis_Transcriptome_Analyses_2019/DATA ANALYSIS/apoptosis_data_pipeline/WGCNA/")
 
 ## Isolate interesting domain structures for comparison of molecules involved across each
 # top three domain structures with the greatest number of modules : TII-TII-RING : 5, BIR*-DD-RING: 4 , TII-DD-RING: 4 
@@ -7698,9 +7699,9 @@ IAP_domain_structure_WGCNA_hits_freq %>% arrange(product, product_freq_domain_to
 IAP_domain_structure_WGCNA_hits_freq_caspase <- IAP_domain_structure_WGCNA_hits_freq %>% filter(grepl("caspase", product) & !(grepl("activity", product)))
 
 # plot domain usage across caspase
-ggplot(IAP_domain_structure_WGCNA_hits_freq_caspase, aes(x= product, y = product_freq_domain_total, fill=Domain_Name)) + geom_col() + theme(axis.text.x = element_text(angle = 90, hjust=1)) + coord_flip() + 
+ggplot(IAP_domain_structure_WGCNA_hits_freq_caspase, aes(x= product, y = product_freq_domain_total, fill=comb_domain)) + geom_col() + theme(axis.text.x = element_text(angle = 90, hjust=1)) + coord_flip() + 
   facet_grid(.~challenge_type)
-ggplot(IAP_domain_structure_WGCNA_hits_freq_caspase, aes(x= Domain_Name, y = product_freq_domain_total, fill=product)) + geom_col() + theme(axis.text.x = element_text(angle = 90, hjust=1)) + coord_flip()+ 
+ggplot(IAP_domain_structure_WGCNA_hits_freq_caspase, aes(x= comb_domain, y = product_freq_domain_total, fill=product)) + geom_col() + theme(axis.text.x = element_text(angle = 90, hjust=1)) + coord_flip()+ 
   facet_grid(.~challenge_type)
 
 ## PATHWAY SPECIFIC DOMAIN STRUCTURES 
@@ -7720,21 +7721,21 @@ IAP_domain_structure_WGCNA_hits_freq_caspase_pathway <- IAP_domain_structure_WGC
     product == "caspase-9-like" ~ "intrinsic"
   ))
 # plot 
-ggplot(IAP_domain_structure_WGCNA_hits_freq_caspase_pathway, aes(x= Domain_Name, y = product_freq_domain_total, fill=pathway)) + geom_col() + 
-  theme(axis.text.x = element_text(angle = 90, hjust=1)) + coord_flip() + 
+IAP_domain_structure_WGCNA_hits_freq_caspase_pathway_plot <- ggplot(IAP_domain_structure_WGCNA_hits_freq_caspase_pathway, aes(x= comb_domain, y = product_freq_domain_total, fill=pathway)) + geom_col() + 
+  theme(axis.text.x = element_text(angle = 90, hjust =1, size = 20),
+        axis.text.y = element_text(size=20),
+        legend.text = element_text(size = 20),
+        axis.title = element_text(size = 20),
+        strip.text.x = element_text(size = 25)) + coord_flip() + 
+  labs(y = "Caspase Transcript Number", x = "Domain Structure Type") + 
   facet_grid(.~challenge_type) # chan choose to split it up or not
+# export
+ggsave(plot = IAP_domain_structure_WGCNA_hits_freq_caspase_pathway_plot , filename = "IAP_domain_structure_WGCNA_hits_freq_caspase_pathway_plot.tiff", device = "tiff",
+       width = 25, height = 20,
+       path = "/Users/erinroberts/Documents/PhD_Research/Chapter_1_Apoptosis Paper/Chapter1_Apoptosis_Transcriptome_Analyses_2019/DATA ANALYSIS/apoptosis_data_pipeline/WGCNA")
+
 ## OVERALL OBSERVATIONS: 
-# - All domain structure types have some networks involving executioner caspases
-# - Modules involving execution, intrinsic AND extrinsic caspases:
 
-# Involement of intrinsic, extrinsic and executioner caspases
-  # TX-TII, TII-RING, TII-DD-RING, TI-TII-DD-RING, BIR*-DD-RING 
-# Only EXTINSIC/EXECUTION: none
-# Only INFLAMMATORY/EXECUTION: none
-# Only EXECUTION: TII-TII-RING, TII-BIR6-E2
-
-## Specific Caspase Results
- # Caspase 1 only in networks with TI-TII-DD-RING and TI-TII-UBA-RING
 
 # PATHWAY SPECIFIC CASPASES:
 # A. EXTRINSIC: Caspase 8 domain structure types:  involves ALL BUT "TII"          "TII-BIR6-E2"  "TII-TII-RING"
@@ -7784,10 +7785,24 @@ setdiff(unique(IAP_domain_structure_WGCNA_hits_df_type$Domain_Name), IAP_domain_
 IAP_domain_structure_WGCNA_hits_freq_TLR <- IAP_domain_structure_WGCNA_hits_freq %>% filter(grepl("toll", product))
 
 # plot domain usage across caspase
-ggplot(IAP_domain_structure_WGCNA_hits_freq_TLR, aes(x= product, y = product_freq_domain_total, fill=Domain_Name)) + geom_col() + theme(axis.text.x = element_text(angle = 90, hjust=1)) + coord_flip() + 
+ggplot(IAP_domain_structure_WGCNA_hits_freq_TLR, aes(x= product, y = product_freq_domain_total, fill=comb_domain)) + geom_col() + theme(axis.text.x = element_text(angle = 90, hjust=1)) + coord_flip() + 
   facet_grid(.~challenge_type)
-ggplot(IAP_domain_structure_WGCNA_hits_freq_TLR, aes(x= Domain_Name, y = product_freq_domain_total, fill=product)) + geom_col() + theme(axis.text.x = element_text(angle = 90, hjust=1)) + coord_flip()+ 
+IAP_domain_structure_WGCNA_hits_freq_TLR_all_plot <- ggplot(IAP_domain_structure_WGCNA_hits_freq_TLR, aes(x= comb_domain, y = product_freq_domain_total, fill=product)) + 
+  geom_col() + 
+  theme(axis.text.x = element_text(angle = 90, hjust =1, size = 20),
+    axis.text.y = element_text(size=20),
+    legend.text = element_text(size = 20),
+    axis.title = element_text(size = 20),
+    strip.text.x = element_text(size = 25)) + 
+  coord_flip() + 
+  labs(y = "Caspase Transcript Number", x = "Domain Structure Type") + 
   facet_grid(.~challenge_type)
+
+# export
+ggsave(plot = IAP_domain_structure_WGCNA_hits_freq_TLR_all_plot , filename = "IAP_domain_structure_WGCNA_hits_freq_TLR_all_plot.tiff", device = "tiff",
+       width = 25, height = 20,
+       path = "/Users/erinroberts/Documents/PhD_Research/Chapter_1_Apoptosis Paper/Chapter1_Apoptosis_Transcriptome_Analyses_2019/DATA ANALYSIS/apoptosis_data_pipeline/WGCNA")
+
 
 # split into intracellular and extracellular localization 
 # (Takeda and Yamamoto 2010): "TLRs can be divided into extracellular and intracellular TLRs. TLR1, TLR2, TLR4, TLR5, TLR6, and TLR11 recognize their ligands on the cell surface. 
@@ -7811,8 +7826,21 @@ IAP_domain_structure_WGCNA_hits_freq_TLR_type <- IAP_domain_structure_WGCNA_hits
   )) 
 
 # fill with intracellular vs. extracellular
-ggplot(IAP_domain_structure_WGCNA_hits_freq_TLR_type, aes(x= Domain_Name, y = product_freq_domain_total, fill=type)) + geom_col() + theme(axis.text.x = element_text(angle = 90, hjust=1)) + coord_flip()+ 
+IAP_domain_structure_WGCNA_hits_freq_TLR_type_plot <- ggplot(IAP_domain_structure_WGCNA_hits_freq_TLR_type, aes(x= comb_domain, y = product_freq_domain_total, fill=type)) +
+  geom_col() + 
+  theme(axis.text.x = element_text(angle = 90, hjust =1, size = 20),
+        axis.text.y = element_text(size=20),
+        legend.text = element_text(size = 20),
+        axis.title = element_text(size = 20),
+        strip.text.x = element_text(size = 25)) + 
+  coord_flip() + 
+  labs(y = "Caspase Transcript Number", x = "Domain Structure Type") + 
   facet_grid(.~challenge_type)
+
+# export
+ggsave(plot = IAP_domain_structure_WGCNA_hits_freq_TLR_type_plot, filename = "IAP_domain_structure_WGCNA_hits_freq_TLR_type_plot.tiff", device = "tiff",
+       width = 25, height = 20,
+       path = "/Users/erinroberts/Documents/PhD_Research/Chapter_1_Apoptosis Paper/Chapter1_Apoptosis_Transcriptome_Analyses_2019/DATA ANALYSIS/apoptosis_data_pipeline/WGCNA")
 
 # OBSERVATIONS
 # 1. DOMAIN TYPE SPECIFC TLRS 
@@ -7847,13 +7875,13 @@ setdiff(unique(IAP_domain_structure_WGCNA_hits_df_type$Domain_Name), IAP_domain_
 IAP_domain_structure_WGCNA_hits_freq_MAPK <- IAP_domain_structure_WGCNA_hits_freq %>% filter(grepl("mitogen-activated protein", product))
 
 # plot domain usage across caspase
-ggplot(IAP_domain_structure_WGCNA_hits_freq_MAPK , aes(x= product, y = product_freq_domain_total, fill=Domain_Name)) + geom_col() + theme(axis.text.x = element_text(angle = 90, hjust=1)) + coord_flip() + 
+ggplot(IAP_domain_structure_WGCNA_hits_freq_MAPK , aes(x= product, y = product_freq_domain_total, fill=comb_domain)) + geom_col() + theme(axis.text.x = element_text(angle = 90, hjust=1)) + coord_flip() + 
   facet_grid(.~challenge_type)
-ggplot(IAP_domain_structure_WGCNA_hits_freq_MAPK , aes(x= Domain_Name, y = product_freq_domain_total, fill=product)) + geom_col() + theme(axis.text.x = element_text(angle = 90, hjust=1)) + coord_flip()+ 
+ggplot(IAP_domain_structure_WGCNA_hits_freq_MAPK , aes(x= comb_domain, y = product_freq_domain_total, fill=product)) + geom_col() + theme(axis.text.x = element_text(angle = 90, hjust=1)) + coord_flip()+ 
   facet_grid(.~challenge_type)
 
 # which domain structures missing
-setdiff(unique(IAP_domain_structure_WGCNA_hits_df_type$Domain_Name), IAP_domain_structure_WGCNA_hits_freq_MAPK$Domain_Name) # "TII-TII-RING"
+setdiff(unique(IAP_domain_structure_WGCNA_hits_df_type$comb_domain), IAP_domain_structure_WGCNA_hits_freq_MAPK$Domain_Name) # "TII-TII-RING"
 
 ## Observations:
 # TII-TII-RING is only domain structure type not associated with MAPK
@@ -7863,9 +7891,9 @@ IAP_domain_structure_WGCNA_hits_freq_TNFR <- IAP_domain_structure_WGCNA_hits_fre
                                                                                                !grepl("alpha-induced",product))
 
 # plot domain usage across caspase
-ggplot(IAP_domain_structure_WGCNA_hits_freq_TNFR , aes(x= product, y = product_freq_domain_total, fill=Domain_Name)) + geom_col() + theme(axis.text.x = element_text(angle = 90, hjust=1)) + coord_flip() + 
+ggplot(IAP_domain_structure_WGCNA_hits_freq_TNFR , aes(x= product, y = product_freq_domain_total, fill=comb_domain)) + geom_col() + theme(axis.text.x = element_text(angle = 90, hjust=1)) + coord_flip() + 
   facet_grid(.~challenge_type)
-ggplot(IAP_domain_structure_WGCNA_hits_freq_TNFR , aes(x= Domain_Name, y = product_freq_domain_total, fill=product)) + geom_col() + theme(axis.text.x = element_text(angle = 90, hjust=1)) + coord_flip()+ 
+ggplot(IAP_domain_structure_WGCNA_hits_freq_TNFR , aes(x= comb_domain, y = product_freq_domain_total, fill=product)) + geom_col() + theme(axis.text.x = element_text(angle = 90, hjust=1)) + coord_flip()+ 
   facet_grid(.~challenge_type)
 
 # which domain structures missing
