@@ -31,7 +31,6 @@ library(ComplexHeatmap)
 #### LOAD APOPTOSIS DATA FRAMES AND PACKAGES ####
 
 #### REMEMBER TO RELOAD AND REDO THIS WITH THE NEW NOW HAPLOTIG COLLAPSED C.VIRGINICA DATA (DONE August 5th, 2020)
-
 Apoptosis_frames <- load(file="/Volumes/My Passport for Mac/Chapter1_Apoptosis_Paper_Saved_DESeq_WGCNA_Data/C_gig_C_vir_apoptosis_products.RData")
 annotations <- load(file="/Volumes/My Passport for Mac/Chapter1_Apoptosis_Paper_Saved_DESeq_WGCNA_Data/C_gig_C_vir_annotations.RData")
 Apop_LFC <- load(file="/Volumes/My Passport for Mac/Chapter1_Apoptosis_Paper_Saved_DESeq_WGCNA_Data/apop_LFC.RData")
@@ -7505,7 +7504,6 @@ IAP_domain_structure_WGCNA_hits_exp <- IAP_domain_structure_WGCNA_hits_df_conden
   distinct(mod_names, exp, comb_domain, products_per_mod_exp) %>%
   arrange(desc(products_per_mod_exp))
 
-
 # Most commonly shared exp between domain structures 
 IAP_domain_structure_WGCNA_hits_exp %>% 
   distinct(exp, comb_domain, .keep_all = TRUE) %>% # only want to count 1 per experiment
@@ -7557,7 +7555,7 @@ challenge_type <- data.frame(exp =c(
     "bacterial",
     "bacterial",
     "viral",
-    "viral", # this one is only half right at the moment since this has both V. crass and V. tas and only V. tas is intracellular
+    "viral", 
     "bacterial",
     "bacterial"))
 
@@ -7612,7 +7610,7 @@ IAP_domain_structure_WGCNA_hits_df_condensed_type_IAP_count %>% ungroup() %>% dp
 ### Compare most common transcripts across modules for each domain type with each challenge type ###
 # Split transcript variant info and find other proteins that show up most often as interaction partners ACROSS modules
 IAP_domain_structure_WGCNA_hits_freq <- IAP_domain_structure_WGCNA_hits_df_condensed_type %>% 
-  separate(product, into = c("product","transcript_variant"), sep = ",") %>% 
+  separate(product, into = c("product","transcript_variant"), sep = ", transcript") %>% 
   # add column for positive and negative association
   #mutate(module_sign = case_when(
   #  mod_signif >= 0 ~ "positive",   # decided to not separate by positive and negative 
@@ -7622,17 +7620,32 @@ IAP_domain_structure_WGCNA_hits_freq <- IAP_domain_structure_WGCNA_hits_df_conde
   arrange(desc(product_freq_domain_total))
 # this gives us the number of times a product is showing up across different modules of a domain type and challenge type
 
+# Create same frequency plot but for experiments rather than type (in case effect is experiment specific)
+IAP_domain_structure_WGCNA_hits_freq_exp <- IAP_domain_structure_WGCNA_hits_df_condensed_type %>% 
+  separate(product, into = c("product","transcript_variant"), sep = ", transcript") %>% 
+  # add column for positive and negative association
+  #mutate(module_sign = case_when(
+  #  mod_signif >= 0 ~ "positive",   # decided to not separate by positive and negative 
+  #  TRUE ~ "negative")) %>% 
+  group_by(comb_domain, product, challenge_type, exp) %>%
+  dplyr::summarise(product_freq_domain_total = n()) %>% 
+  arrange(desc(product_freq_domain_total))
+
+# Create list of unique products
+IAP_domain_structure_WGCNA_hits_df_condensed_type_product <- IAP_domain_structure_WGCNA_hits_freq %>% ungroup() %>% dplyr::distinct(product)
+nrow(IAP_domain_structure_WGCNA_hits_df_condensed_type_product) # 290
+
 # plot frequency of products across modules for particular domain structures 
 # heatmap plot
 IAP_domain_structure_WGCNA_hits_freq_plot <- IAP_domain_structure_WGCNA_hits_freq %>% 
-  filter(product_freq_domain_total > 2) %>% 
+  #filter(product_freq_domain_total > 2) %>% 
   ggplot(aes(x = product, y = comb_domain, fill= product_freq_domain_total)) + geom_tile() + 
   scale_fill_viridis_c(option="plasma") + 
   theme(axis.text.x = element_text(angle = 90, hjust =1, size = 20),
         axis.text.y = element_text(size=20)) + coord_flip()
 
-ggsave(plot = IAP_domain_structure_WGCNA_hits_freq_plot, filename = " IAP_domain_structure_WGCNA_hits_freq_plot.tiff", device = "tiff",
-       width = 30, height = 25,
+ggsave(plot = IAP_domain_structure_WGCNA_hits_freq_plot, filename = "IAP_domain_structure_WGCNA_hits_freq_plot.tiff", device = "tiff",
+       width = 30, height = 65, limitsize = FALSE,
        path = "/Users/erinroberts/Documents/PhD_Research/Chapter_1_Apoptosis Paper/Chapter1_Apoptosis_Transcriptome_Analyses_2019/DATA ANALYSIS/apoptosis_data_pipeline/WGCNA/")
 
 ## Isolate interesting domain structures for comparison of molecules involved across each
@@ -7803,7 +7816,6 @@ ggsave(plot = IAP_domain_structure_WGCNA_hits_freq_TLR_all_plot , filename = "IA
        width = 25, height = 20,
        path = "/Users/erinroberts/Documents/PhD_Research/Chapter_1_Apoptosis Paper/Chapter1_Apoptosis_Transcriptome_Analyses_2019/DATA ANALYSIS/apoptosis_data_pipeline/WGCNA")
 
-
 # split into intracellular and extracellular localization 
 # (Takeda and Yamamoto 2010): "TLRs can be divided into extracellular and intracellular TLRs. TLR1, TLR2, TLR4, TLR5, TLR6, and TLR11 recognize their ligands on the cell surface. 
 # On the other hand, TLR3, TLR7, TLR8, and TLR9 are intracellularly localized"
@@ -7905,6 +7917,116 @@ setdiff(unique(IAP_domain_structure_WGCNA_hits_df_type$Domain_Name), IAP_domain_
 # TII-BIR6-E2 only associated with TNFSF5
 
 ### this strategy of looking at particular molecules is not very helpful! 
+
+#### PATHWAY COMPARISON BETWEEN SIGNIFICANT WGCNA MODULES ####
+
+## note in above IAP_domain_structure_WGCNA_hits_freq and IAP_domain_structure_WGCNA_hits_freq_exp, grouping was done by name
+## grouping by name gets rid of looking at transcript diversity
+
+# Create same frequency plot but for experiments rather than type (in case effect is experiment specific)
+IAP_domain_structure_WGCNA_hits_transcript_id_freq_exp <- IAP_domain_structure_WGCNA_hits_df_condensed_type %>% 
+  separate(product, into = c("product","transcript_variant"), sep = ", transcript") %>% 
+  # add column for positive and negative association
+  #mutate(module_sign = case_when(
+  #  mod_signif >= 0 ~ "positive",   # decided to not separate by positive and negative 
+  #  TRUE ~ "negative")) %>% 
+  group_by(comb_domain, transcript_id, product, challenge_type, exp) %>%
+  dplyr::summarise(product_freq_domain_total = n()) %>% 
+  arrange(desc(product_freq_domain_total))
+
+## Join product frequency tables with products gene_name_pathway_key_merged loaded at the top of script
+# Note that in my orignal script to create this table I got rid of "like" for products so I could better compare which might be truly missing from one or the other
+combined_gene_name_org_yes_no_table_unique_pathway_joined_edited <- combined_gene_name_org_yes_no_table_unique_pathway_joined
+# change gene_name to product
+colnames(combined_gene_name_org_yes_no_table_unique_pathway_joined_edited)[2] <- "product"
+
+# join with frequence table by experiment
+IAP_domain_structure_WGCNA_hits_freq_exp_PATHWAY <- left_join(IAP_domain_structure_WGCNA_hits_transcript_id_freq_exp, combined_gene_name_org_yes_no_table_unique_pathway_joined_edited[,c("product","Sub_pathway")])
+
+# join with original table, not condensed by frequency
+IAP_domain_structure_WGCNA_hits_PATHWAY <- IAP_domain_structure_WGCNA_hits_df_condensed_type %>% 
+  separate(product, into = c("product","transcript_variant"), sep = ", transcript") %>% 
+  left_join(., combined_gene_name_org_yes_no_table_unique_pathway_joined_edited[,c("product","Sub_pathway")]) %>% dplyr::select(-transcript_variant)
+
+# check for NAs
+IAP_domain_structure_WGCNA_hits_freq_exp_PATHWAY %>% filter(is.na(Sub_pathway)) %>% View() # no NAs all have been assigned a pathway
+IAP_domain_structure_WGCNA_hits_PATHWAY %>% filter(is.na(Sub_pathway)) %>% View() # no NAs all have been assigned a pathway
+
+
+### QUESTION: WHICH PATHWAYS ARE UNIQUELY INVOLVED WITH INDIVIDUAL IAP DOMAIN TYPES: EXAMINE PATHWAYS INVOLVED IN MODULES WITH ONLY ONE IAP DOMAIN TYPE ###
+IAP_domain_structure_WGCNA_hits_PATHWAY_unique_domain <- IAP_domain_structure_WGCNA_hits_PATHWAY %>% filter(comb_domain_type == "unique")
+IAP_domain_structure_WGCNA_hits_PATHWAY_comb_domain <- IAP_domain_structure_WGCNA_hits_PATHWAY %>% filter(comb_domain_type == "combo")
+unique(IAP_domain_structure_WGCNA_hits_PATHWAY_unique_domain$comb_domain) 
+#[1] "TII-TII-RING"          "TII-TII"               "TI-TII-RING"           "TII-DD-RING"           "TX-TII"                "TII-DD"                "not_classified"        "BIR*-DD-RING"         
+#[9] "TI-TII-TII-UBA-RING"   "NZBIR-TII-UBA-DD-RING" "TII-BIR6-E2"           "TI-TII-DD-RING"  
+
+# View types one at a time
+IAP_domain_structure_WGCNA_hits_PATHWAY_unique_domain %>% filter(comb_domain == "TII-TII-RING") %>% View()
+IAP_domain_structure_WGCNA_hits_PATHWAY_unique_domain %>% filter(comb_domain == "TII-TII") %>% View()
+IAP_domain_structure_WGCNA_hits_PATHWAY_unique_domain %>% filter(comb_domain == "TI-TII-RING") %>% View()
+IAP_domain_structure_WGCNA_hits_PATHWAY_unique_domain %>% filter(comb_domain == "TII-DD-RING") %>% View()
+IAP_domain_structure_WGCNA_hits_PATHWAY_unique_domain %>% filter(comb_domain == "TX-TII") %>% View()
+IAP_domain_structure_WGCNA_hits_PATHWAY_unique_domain %>% filter(comb_domain == "TII-DD") %>% View()
+IAP_domain_structure_WGCNA_hits_PATHWAY_unique_domain %>% filter(comb_domain == "BIR*-DD-RING") %>% View()
+IAP_domain_structure_WGCNA_hits_PATHWAY_unique_domain %>% filter(comb_domain == "TI-TII-TII-UBA-RING") %>% View()
+IAP_domain_structure_WGCNA_hits_PATHWAY_unique_domain %>% filter(comb_domain == "NZBIR-TII-UBA-DD-RING") %>% View()
+IAP_domain_structure_WGCNA_hits_PATHWAY_unique_domain %>% filter(comb_domain == "TII-BIR6-E2") %>% View()
+IAP_domain_structure_WGCNA_hits_PATHWAY_unique_domain %>% filter(comb_domain == "TI-TII-DD-RING") %>% View()
+
+# Which transcripts shared between pathways?
+IAP_domain_structure_WGCNA_hits_PATHWAY_unique_domain_IAP_shared <- IAP_domain_structure_WGCNA_hits_PATHWAY_unique_domain %>% ungroup()  %>% dplyr::count(transcript_id,exp, challenge_type)
+ggplot(IAP_domain_structure_WGCNA_hits_PATHWAY_unique_domain_IAP_shared, aes(x = transcript_id, y = n, fill = exp)) + geom_col() +
+  theme(axis.text.x = element_text(angle = 90, hjust  =1 )) 
+
+# frequency of transcript experiment combos
+IAP_domain_structure_WGCNA_hits_PATHWAY_unique_domain_IAP_shared_comb <- IAP_domain_structure_WGCNA_hits_PATHWAY_unique_domain_IAP_shared %>% ungroup() %>% 
+  dplyr::group_by(transcript_id) %>% dplyr::mutate(exp_combined = paste(exp, collapse = "_")) %>% 
+  # get rid of duplicate rows so that total count isn't double or triple counting transcripts
+  distinct(transcript_id, .keep_all = TRUE) %>%
+  ungroup() %>% mutate(total = nrow(.)) %>%
+dplyr::group_by(exp_combined) %>% dplyr::mutate(count = n(), percentage = count/total*100) %>% dplyr::distinct(exp_combined, count, percentage) %>%
+  arrange(desc(percentage))
+
+#exp_combined                    count percentage
+#<chr>                           <int>      <dbl>
+# 1 Rubio_NV_Rubio_V                   65     33.0  
+#2 Pro_RE22_Pro_S4                    25     12.7  
+#3 Pro_RE22_Pro_RI                    24     12.2  
+#4 Zhang_LPS                          17      8.63 
+#5 Zhang_Vibrio                        9      4.57 
+#6 Probiotic                           9      4.57 
+#7 Rubio_V                             8      4.06 
+#8 deLorg_Res                          7      3.55 
+#9 ROD_Res                             7      3.55 
+#10 Dermo_Tol                           7      3.55 
+#11 Pro_RE22_Pro_RI_Pro_RE22_Pro_S4     5      2.54 
+#12 Dermo_Sus                           5      2.54 
+#13 Rubio_NV_Rubio_V_Zhang_LPS          3      1.52 
+#14 deLorg_Res_Rubio_NV_Rubio_V         2      1.02 
+#15 Rubio_V_Zhang_LPS                   1      0.508
+#16 Rubio_NV_Rubio_V_Zhang_Vibrio       1      0.508
+#17 Pro_RE22_Pro_RI_ROD_Res             1      0.508
+#18 Pro_RE22_Pro_S4_Probiotic           1      0.508
+
+## QUESTION: ARE THERE SPECIFIC INTERACTION PARTNERS ASSOCIATED ONLY WITH A PARTICULAR DOMAIN TYPE
+# Which products are only found once in the unique domain groups?
+IAP_domain_structure_WGCNA_hits_PATHWAY_unique_domain_uniq_product <- IAP_domain_structure_WGCNA_hits_PATHWAY_unique_domain %>% 
+  ungroup() %>% group_by(product) %>% filter(n()==1) # doing it this way ensures you're only getting things that occur once 
+
+# Are these unique molecules for each domain type also found in their respective groups with combo domains? Use semi_join so I get all rows that a match
+IAP_domain_structure_WGCNA_hits_PATHWAY_comb_domain_uniq_prod <- inner_join(IAP_domain_structure_WGCNA_hits_PATHWAY_unique_domain_uniq_product[,c("product","transcript_id", "comb_domain")], IAP_domain_structure_WGCNA_hits_PATHWAY_comb_domain, by = c("product","transcript_id")) 
+# which of these found transcripts share the same comb_domain involvement 
+    ### only lipopolysaccharide-induced tumor necrosis factor-alpha factor homolog (XM_022485954.1) and NF-kappa-B inhibitor epsilon-like (NM_001308876.1) are unique in their domain groups and also found in 
+        # the combo domain groups...indicating there are few strict, unique interaction partners with these IAP types
+    ## investigating the groups that these are in: Meturq Dermo_Tol, MEturq Pro_RE22_RE22_full, MEturq may help show specific interaction partners 
+
+
+## List of only the IAP transcripts in full table based on combined IAP list IAP_domain_structure_XM_CV_XM
+IAP_domain_structure_WGCNA_hits_PATHWAY_IAP_only <-IAP_domain_structure_WGCNA_hits_PATHWAY[(IAP_domain_structure_WGCNA_hits_PATHWAY$transcript_id %in% IAP_domain_structure_XM_CV_XM$transcript_id),]
+
+
+
+
 
 #### EXPORT MODULES TO CYTOSCAPE ####
 
