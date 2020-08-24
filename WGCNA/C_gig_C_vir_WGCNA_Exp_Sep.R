@@ -7408,14 +7408,6 @@ levels(factor(IAP_domain_structure_WGCNA_hits_df$Domain_Name))
 #[10] "TII-DD"                "TII-DD-RING"           "TII-RING"              "TII-TII"               "TII-TII-RING"          "TX-TII"     
 # ALL domain structure types were found
 
-# plot transcripts common across modules and experiments for a particular domain name
-IAP_domain_structure_WGCNA_hits_df %>% 
-  dplyr::distinct() %>% dplyr::count(product, Domain_Name) %>% filter(n > 1) %>% 
-  ggplot(aes(x = product, y = Domain_Name, fill= n)) + geom_tile() + 
-  #facet_grid(.~challenge_type) + 
-  scale_fill_viridis_c(option="plasma") + 
-  theme(axis.text.x = element_text(angle = 90, hjust =1)) + coord_flip()
-
 ### Create Comb_domains for those modules that hit to multiple domains ###
 ## Condense data frame so that module members in modules that hit to multiple domain structures don't get counted twice
 # Which domain structure types found in the same modules?
@@ -7450,6 +7442,29 @@ comb_domain_unique$comb_domain_type <- "unique"
 # are the domain combos common across experiments?
 IAP_domain_structure_WGCNA_hits_df_modules_domain_hits %>% group_by(comb_domain) %>% dplyr::count() %>% arrange(desc(n)) %>% View()
 
+# how common are the individual domain types (including both combo and unique)? Are some more specific than others?
+comb_domain_freq <- as.data.frame(str_split(comb_domain$comb_domain, ",") %>% unlist(.))
+colnames(comb_domain_freq)[1] <- "Domain_Name"
+comb_domain_freq %>% dplyr::mutate(total = nrow(.)) %>% group_by(Domain_Name) %>% dplyr::mutate(count = n(), percent = count/total*100) %>% arrange(desc(count)) %>% distinct(Domain_Name, total, count, percent)
+
+#Domain_Name           total count percent
+#<chr>                 <int> <int>   <dbl>
+#  1 not_classified           86    17   19.8 
+#2 TI-TII-DD-RING           86    11   12.8 
+#3 TII-DD-RING              86     9   10.5 
+#4 TX-TII                   86     8    9.30
+#5 BIR*                     86     6    6.98
+#6 TII-DD                   86     6    6.98
+#7 TII-TII-RING             86     6    6.98
+#8 BIR*-DD-RING             86     5    5.81
+#9 TII-BIR6-E2              86     5    5.81
+#10 TII-TII                  86     4    4.65
+#11 TI-TII-TII-UBA-RING      86     3    3.49
+#12 TII-RING                 86     3    3.49
+#13 NZBIR-TII-UBA-DD-RING    86     1    1.16
+#14 TI-TII-RING              86     1    1.16
+#15 TII                      86     1    1.16
+
 ## Create condensed data frame using the new comb_domain types
 IAP_domain_structure_WGCNA_hits_df_condensed <- left_join(IAP_domain_structure_WGCNA_hits_df_modules_domain_hits, unique(IAP_domain_structure_WGCNA_hits_df[,c("mod_names","exp","product","transcript_id")]))
 
@@ -7461,27 +7476,28 @@ IAP_domain_structure_WGCNA_hits_exp <- IAP_domain_structure_WGCNA_hits_df_conden
   distinct(mod_names, exp, comb_domain, products_per_mod_exp) %>%
   arrange(desc(products_per_mod_exp))
 
-# Most commonly shared exp between domain structures 
-IAP_domain_structure_WGCNA_hits_exp %>% 
-  distinct(exp, comb_domain, .keep_all = TRUE) %>% # only want to count 1 per experiment
-  group_by(exp) %>% 
-  dplyr::summarise(times_shared = n()) %>% arrange(desc(times_shared))
-#exp                times_shared
-#<chr>                     <int>
-#  1 Pro_RE22_Pro_RI              10
-#2 Pro_RE22_Pro_S4              10
-#3 Zhang_LPS                    10
-#4 Rubio_V                       8
-#5 Rubio_NV                      7
-#6 He                            5
-#7 Dermo_Tol                     4
-#8 Probiotic                     3
-#9 Zhang_Vibrio                  3
-#10 deLorg_Res                    2
-#11 deLorg_Sus                    2
-#12 Dermo_Sus                     2
-#13 Pro_RE22_RE22_full            2
-#14 ROD_Res                       1
+### Which experiments have the most module types involved? (to help assess whether a more broad or more specific response is elicited)
+# Calculate number of differnt modules types for each experimet 
+IAP_domain_structure_WGCNA_hits_df_condensed  %>% ungroup() %>%
+  dplyr::distinct(exp, comb_domain) %>% # only want to count 1 per experiment
+dplyr::count(exp) %>% arrange(desc(n))
+# A tibble: 14 x 2
+#exp                    n
+#<chr>              <int>
+#  1 Pro_RE22_Pro_RI       10
+#2 Pro_RE22_Pro_S4        9
+#3 Zhang_LPS              9
+#4 Rubio_V                7
+#5 Rubio_NV               6
+#6 He                     5
+#7 Dermo_Tol              4
+#8 Zhang_Vibrio           3
+#9 deLorg_Res             2
+#10 deLorg_Sus             2
+#11 Pro_RE22_RE22_full     2
+#12 Probiotic              2
+#13 Dermo_Sus              1
+#14 ROD_Res                1
 
 ## Join experiments with challenge type: viral, bacterial, parasitic,
 challenge_type <- data.frame(exp =c(
@@ -7542,6 +7558,7 @@ ggsave(plot = IAP_domain_structure_WGCNA_hits_exp_upset_plot, filename = "IAP_do
        width = 20, height = 10,
        path = "/Users/erinroberts/Documents/PhD_Research/Chapter_1_Apoptosis Paper/Chapter1_Apoptosis_Transcriptome_Analyses_2019/DATA ANALYSIS/apoptosis_data_pipeline/WGCNA/")
 
+#### Investigation of Interaction Partners ####
 ## Number of shared transcripts across particular experiment combos and domain types in all domains - 
 IAP_domain_structure_WGCNA_hits_PATHWAY_shared_between_exp_comb_domain <- IAP_domain_structure_WGCNA_hits_df_condensed_type %>% ungroup() %>% 
   dplyr::group_by(transcript_id, comb_domain) %>% dplyr::mutate(exp_combined = paste(exp, collapse = "_")) %>% 
@@ -8113,15 +8130,19 @@ dplyr::distinct(IAP_domain_structure_WGCNA_hits_PATHWAY_unique_domain[,c("mod_na
 
 IAP_domain_structure_WGCNA_hits_PATHWAY_unique_domain_uniq_product <- IAP_domain_structure_WGCNA_hits_PATHWAY_unique_domain %>% 
   ungroup() %>% group_by(product) %>% filter(n()==1) # doing it this way ensures you're only getting things that occur once 
- ### Need to fix this because for experiments like PRo_re22 and Rubio NV and V the modules have the exact same members, dont want to remove these - August 24th, 2020 decided to keep this in 
+nrow(IAP_domain_structure_WGCNA_hits_PATHWAY_unique_domain_uniq_product)
+### Need to fix this because for experiments like PRo_re22 and Rubio NV and V the modules have the exact same members, dont want to remove these - August 24th, 2020 decided to keep this in 
 
 # Are these unique molecules for each domain type also found in their respective groups with combo domains? Use semi_join so I get all rows that a match
 IAP_domain_structure_WGCNA_hits_PATHWAY_comb_domain_uniq_prod <- inner_join(IAP_domain_structure_WGCNA_hits_PATHWAY_unique_domain_uniq_product[,c("product","transcript_id", "comb_domain")], IAP_domain_structure_WGCNA_hits_PATHWAY_comb_domain, by = c("product","transcript_id")) 
-# which of these found transcripts share the same comb_domain involvement 
-    ### only lipopolysaccharide-induced tumor necrosis factor-alpha factor homolog (XM_022485954.1) and NF-kappa-B inhibitor epsilon-like (NM_001308876.1) are unique in their domain groups and also found in 
-        # the combo domain groups...indicating there are few strict, unique interaction partners with these IAP types
-    ## investigating the groups that these are in: Meturq Dermo_Tol, MEturq Pro_RE22_RE22_full, MEturq may help show specific interaction partners 
-
+# which of these found transcripts share the same comb_domain involvement: 7 transcripts
+        # - tumor necrosis factor receptor superfamily member 5	XM_011458363.2	TI-TII-DD-RING	MEturquoise	deLorg_Sus
+        # - mitogen-activated protein kinase kinase kinase 13-A	XM_011450976.2	TI-TII-DD-RING	MEturquoise	deLorg_Sus
+        # - NF-kappa-B inhibitor epsilon-like	NM_001308876.1	TI-TII-DD-RING	MEturquoise	deLorg_Res  
+        # - baculoviral IAP repeat-containing protein 6		XM_011438295.2	TII-BIR6-E2	MEpurple	He
+        # - uncharacterized LOC111122723	XM_022464605.1	BIR*	MEroyalblue	Pro_RE22_Pro_S4
+        # - dynamin-like 120 kDa protein, mitochondrial	XM_022486900.1	BIR*	MEroyalblue	Pro_RE22_Pro_S4
+        # - programmed cell death protein 6-like	XM_022483983.1	BIR*	MEturquoise	Pro_RE22_RE22_full
 
 ## Are there any unique when considering all domain groups and combo groups
 IAP_domain_structure_WGCNA_hits_PATHWAY_unique <- IAP_domain_structure_WGCNA_hits_PATHWAY %>% group_by(product) %>% filter(n() ==1)
@@ -8129,7 +8150,6 @@ nrow(IAP_domain_structure_WGCNA_hits_PATHWAY_unique) # 65 are unique
 
 ## List of only the IAP transcripts in full table based on combined IAP list IAP_domain_structure_XM_CV_XM
 IAP_domain_structure_WGCNA_hits_PATHWAY_IAP_only <-IAP_domain_structure_WGCNA_hits_PATHWAY[(IAP_domain_structure_WGCNA_hits_PATHWAY$transcript_id %in% IAP_domain_structure_XM_CV_XM$transcript_id),]
-
 
 #### EXPORT MODULES TO CYTOSCAPE ####
 
