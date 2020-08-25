@@ -7678,7 +7678,7 @@ IAP_domain_structure_WGCNA_hits_freq_heatmap_prod_exp <- spread(IAP_domain_struc
 nrow(IAP_domain_structure_WGCNA_hits_freq_heatmap_prod_exp ) # 323
 IAP_domain_structure_WGCNA_hits_freq_heatmap_prod_exp <-  column_to_rownames(IAP_domain_structure_WGCNA_hits_freq_heatmap_prod_exp, var = "product") 
 IAP_domain_structure_WGCNA_hits_freq_heatmap_prod_exp_mat <- as.matrix(IAP_domain_structure_WGCNA_hits_freq_heatmap_prod_exp)
-# make annotation dataframe 
+# make column annotation dataframe 
 IAP_domain_structure_WGCNA_hits_freq_heatmap_prod_exp_mat_annot <- data.frame(colnames(IAP_domain_structure_WGCNA_hits_freq_heatmap_prod_exp)) 
 colnames(IAP_domain_structure_WGCNA_hits_freq_heatmap_prod_exp_mat_annot)[1] <- "dom_exp"
 IAP_domain_structure_WGCNA_hits_freq_heatmap_prod_exp_mat_annot$key <- IAP_domain_structure_WGCNA_hits_freq_heatmap_prod_exp_mat_annot$dom_exp
@@ -7688,26 +7688,66 @@ IAP_domain_structure_WGCNA_hits_freq_heatmap_prod_exp_mat_annot <- separate(IAP_
     exp == "Dermo_Sus"| exp =="Dermo_Tol"| exp =="Pro_RE22_Pro_RI"| exp =="Pro_RE22_Pro_S4"| exp =="Pro_RE22_RE22_full" | exp =="Probiotic"| exp =="ROD_Res"  ~ "C_virginica",
       TRUE ~ NA_character_))
 IAP_domain_structure_WGCNA_hits_freq_heatmap_prod_exp_mat_annot <- column_to_rownames(IAP_domain_structure_WGCNA_hits_freq_heatmap_prod_exp_mat_annot, var = "dom_exp")
-IAP_domain_structure_WGCNA_hits_freq_heatmap_prod_exp_plot <- pheatmap(IAP_domain_structure_WGCNA_hits_freq_heatmap_prod_exp_mat, annotation_col = IAP_domain_structure_WGCNA_hits_freq_heatmap_prod_exp_mat_annot)
+
+# make row annotation dataframe to look at subpathway, join with subpathway
+combined_gene_name_org_yes_no_table_unique_pathway_joined_edited <- combined_gene_name_org_yes_no_table_unique_pathway_joined
+# change gene_name to product
+colnames(combined_gene_name_org_yes_no_table_unique_pathway_joined_edited)[2] <- "product"
+# join with frequence table by experiment
+IAP_domain_structure_WGCNA_hits_freq_heatmap_prod_exp_mat_annot_row <- as.data.frame(rownames(IAP_domain_structure_WGCNA_hits_freq_heatmap_prod_exp))
+colnames(IAP_domain_structure_WGCNA_hits_freq_heatmap_prod_exp_mat_annot_row)[1] <- "product"
+IAP_domain_structure_WGCNA_hits_freq_heatmap_prod_exp_mat_annot_row <- left_join(IAP_domain_structure_WGCNA_hits_freq_heatmap_prod_exp_mat_annot_row, combined_gene_name_org_yes_no_table_unique_pathway_joined_edited[,c("product","Sub_pathway")])
+IAP_domain_structure_WGCNA_hits_freq_heatmap_prod_exp_mat_annot_row[is.na(IAP_domain_structure_WGCNA_hits_freq_heatmap_prod_exp_mat_annot_row),] # check for NAs
+IAP_domain_structure_WGCNA_hits_freq_heatmap_prod_exp_mat_annot_row <- column_to_rownames(IAP_domain_structure_WGCNA_hits_freq_heatmap_prod_exp_mat_annot_row, var = "product") # make product the rownames 
+
+# generate heatmap
+IAP_domain_structure_WGCNA_hits_freq_heatmap_prod_exp_plot <- pheatmap(IAP_domain_structure_WGCNA_hits_freq_heatmap_prod_exp_mat, 
+                                                                       annotation_col = IAP_domain_structure_WGCNA_hits_freq_heatmap_prod_exp_mat_annot,
+                                                                       annotation_row = IAP_domain_structure_WGCNA_hits_freq_heatmap_prod_exp_mat_annot_row)
 
 ggsave(plot = IAP_domain_structure_WGCNA_hits_freq_heatmap_prod_exp_plot, filename = "IAP_domain_structure_WGCNA_hits_freq_heatmap_prod_exp_pheatmap.tiff", device = "tiff",
        width = 30, height = 60, limitsize = FALSE,
        path = "/Users/erinroberts/Documents/PhD_Research/Chapter_1_Apoptosis Paper/Chapter1_Apoptosis_Transcriptome_Analyses_2019/DATA ANALYSIS/apoptosis_data_pipeline/WGCNA/")
 
-## This plot reveals two clusters that have exact same domain type and similar products b/c clustering
-# Zhang_LPS, He - NZBIR-TII-UBA-DD-RING
-IAP_domain_structure_WGCNA_hits_df_condensed_type_Zhang_LPS_He <- IAP_domain_structure_WGCNA_hits_df_condensed_type %>% filter(comb_domain == "NZBIR-TII-UBA-DD-RING")
-# which products (including transcript ID) are not shared?
-IAP_domain_structure_WGCNA_hits_df_condensed_type_Zhang_LPS_He_not_shared <- IAP_domain_structure_WGCNA_hits_df_condensed_type_Zhang_LPS_He %>% group_by(transcript_id) %>% filter(n()==1) 
-      #61 transcripts are not shared
-IAP_domain_structure_WGCNA_hits_df_condensed_type_Zhang_LPS_He_shared <- IAP_domain_structure_WGCNA_hits_df_condensed_type_Zhang_LPS_He %>% filter(n()>1) %>%
-  separate(product, into = c("product","transcript_variant"), sep = ", transcript") 
-# are all product names shared 
-IAP_domain_structure_WGCNA_hits_df_condensed_type_Zhang_LPS_He_shared %>% group_by(product) %>% filter(n()==1) %>% View() # 36 product names not shared
-# join with subpathway and look at shared products
-IAP_domain_structure_WGCNA_hits_df_condensed_type_Zhang_LPS_He_shared_path <- left_join(IAP_domain_structure_WGCNA_hits_df_condensed_type_Zhang_LPS_He_shared, 
-                                                                                        combined_gene_name_org_yes_no_table_unique_pathway_joined_edited[,c("product","Sub_pathway")])  %>%
-                                                                                        ungroup() %>% dplyr::distinct(product, Sub_pathway)
+## Repeat heatmap above but remove "-like" from product names
+# create table where presence of a product is a 1
+IAP_domain_structure_WGCNA_hits_freq_heatmap_prod_exp_like <- IAP_domain_structure_WGCNA_hits_df_condensed_type %>% ungroup() %>%
+  separate(product, into = c("product","transcript_variant"), sep = ", transcript") %>% separate(product, into = c("product","like"), sep = "-like") %>% dplyr::mutate(dom_exp = paste(exp,comb_domain, sep = ":")) %>%
+  dplyr::distinct(dom_exp, product) %>% mutate(count = 1)
+IAP_domain_structure_WGCNA_hits_freq_heatmap_prod_exp_like <- spread(IAP_domain_structure_WGCNA_hits_freq_heatmap_prod_exp_like, dom_exp, count, fill = 0)
+nrow(IAP_domain_structure_WGCNA_hits_freq_heatmap_prod_exp_like) # 222
+IAP_domain_structure_WGCNA_hits_freq_heatmap_prod_exp_like <-  column_to_rownames(IAP_domain_structure_WGCNA_hits_freq_heatmap_prod_exp_like, var = "product") 
+IAP_domain_structure_WGCNA_hits_freq_heatmap_prod_exp_like_mat <- as.matrix(IAP_domain_structure_WGCNA_hits_freq_heatmap_prod_exp_like)
+# make column annotation dataframe 
+IAP_domain_structure_WGCNA_hits_freq_heatmap_prod_exp_mat_annot_like <- data.frame(colnames(IAP_domain_structure_WGCNA_hits_freq_heatmap_prod_exp_like)) 
+colnames(IAP_domain_structure_WGCNA_hits_freq_heatmap_prod_exp_mat_annot_like)[1] <- "dom_exp"
+IAP_domain_structure_WGCNA_hits_freq_heatmap_prod_exp_mat_annot_like$key <- IAP_domain_structure_WGCNA_hits_freq_heatmap_prod_exp_mat_annot_like$dom_exp
+IAP_domain_structure_WGCNA_hits_freq_heatmap_prod_exp_mat_annot_like <- separate(IAP_domain_structure_WGCNA_hits_freq_heatmap_prod_exp_mat_annot_like,key, into = c("exp", "comb_domain"),sep = ":") %>% 
+  mutate(species = case_when(
+    exp =="deLorg_Res"  | exp =="deLorg_Sus"|  exp =="He" | exp ==  "Rubio_NV"| exp =="Rubio_V"| exp =="Zhang_LPS"| exp =="Zhang_Vibrio"  ~ "C_gigas",    
+    exp == "Dermo_Sus"| exp =="Dermo_Tol"| exp =="Pro_RE22_Pro_RI"| exp =="Pro_RE22_Pro_S4"| exp =="Pro_RE22_RE22_full" | exp =="Probiotic"| exp =="ROD_Res"  ~ "C_virginica",
+    TRUE ~ NA_character_))
+IAP_domain_structure_WGCNA_hits_freq_heatmap_prod_exp_mat_annot_like <- column_to_rownames(IAP_domain_structure_WGCNA_hits_freq_heatmap_prod_exp_mat_annot_like, var = "dom_exp")
+
+# make row annotation dataframe to look at subpathway, join with subpathway
+combined_gene_name_org_yes_no_table_unique_pathway_joined_edited_like <- combined_gene_name_org_yes_no_table_unique_pathway_joined_edited %>% separate(product, into = c("product","like"), sep = "-like") %>%
+  distinct(product, Sub_pathway)
+# join with frequence table by experiment
+IAP_domain_structure_WGCNA_hits_freq_heatmap_prod_exp_mat_annot_row_like <- as.data.frame(rownames(IAP_domain_structure_WGCNA_hits_freq_heatmap_prod_exp_like))
+colnames(IAP_domain_structure_WGCNA_hits_freq_heatmap_prod_exp_mat_annot_row_like)[1] <- "product"
+IAP_domain_structure_WGCNA_hits_freq_heatmap_prod_exp_mat_annot_row_like <- left_join(IAP_domain_structure_WGCNA_hits_freq_heatmap_prod_exp_mat_annot_row_like, combined_gene_name_org_yes_no_table_unique_pathway_joined_edited_like[,c("product","Sub_pathway")])
+IAP_domain_structure_WGCNA_hits_freq_heatmap_prod_exp_mat_annot_row_like[is.na(IAP_domain_structure_WGCNA_hits_freq_heatmap_prod_exp_mat_annot_row_like),] # check for NAs
+IAP_domain_structure_WGCNA_hits_freq_heatmap_prod_exp_mat_annot_row_like <- column_to_rownames(IAP_domain_structure_WGCNA_hits_freq_heatmap_prod_exp_mat_annot_row_like, var = "product") # make product the rownames 
+
+# generate heatmap
+IAP_domain_structure_WGCNA_hits_freq_heatmap_prod_exp_like_plot <- pheatmap(IAP_domain_structure_WGCNA_hits_freq_heatmap_prod_exp_like_mat, 
+                                                                       annotation_col = IAP_domain_structure_WGCNA_hits_freq_heatmap_prod_exp_mat_annot_like,
+                                                                       annotation_row = IAP_domain_structure_WGCNA_hits_freq_heatmap_prod_exp_mat_annot_row_like)
+
+ggsave(plot = IAP_domain_structure_WGCNA_hits_freq_heatmap_prod_exp_like_plot, filename = "IAP_domain_structure_WGCNA_hits_freq_heatmap_prod_exp_like_pheatmap.tiff", device = "tiff",
+       width = 30, height = 60, limitsize = FALSE,
+       path = "/Users/erinroberts/Documents/PhD_Research/Chapter_1_Apoptosis Paper/Chapter1_Apoptosis_Transcriptome_Analyses_2019/DATA ANALYSIS/apoptosis_data_pipeline/WGCNA/")
+
 
 ## Repeat heatmap but with individual transcript_ids not the common names
 # Transform the data so that there is one row per transcript, and the columns are the experiment and comb_domain type 
@@ -7723,6 +7763,18 @@ IAP_domain_structure_WGCNA_hits_freq_transcript_heatmap_plot <- pheatmap(IAP_dom
 ggsave(plot = IAP_domain_structure_WGCNA_hits_freq_transcript_heatmap_plot, filename = "IAP_domain_structure_WGCNA_hits_freq_transcript_pheatmap.tiff", device = "tiff",
        width = 30, height = 60, limitsize = FALSE,
        path = "/Users/erinroberts/Documents/PhD_Research/Chapter_1_Apoptosis Paper/Chapter1_Apoptosis_Transcriptome_Analyses_2019/DATA ANALYSIS/apoptosis_data_pipeline/WGCNA/")
+
+# how many transcripts are shared between experiments 
+# Create same frequency plot but for transcript_id
+IAP_domain_structure_WGCNA_hits_df_condensed_type %>% 
+  dplyr::distinct(comb_domain, exp, transcript_id) %>% 
+  # nrow() # 1507
+  group_by(comb_domain, transcript_id) %>%
+  filter(n() >1) # 562 total rows
+# what percent of total WGCNA transcripts are shared
+562/1507*100 # 37.3% are shared, the rest are unique
+100-37.3 # 62.7
+
 
 # Typing my thoughts...
 # So what I really want to isolate are those products that are doing different things across domain modules within a type
@@ -8014,8 +8066,7 @@ IAP_domain_structure_WGCNA_hits_df_condensed_type_IAP_count %>% ungroup() %>% dp
 #2 unique              41          26.3
 
 # Are any IAP transcripts shared within domain type and between experiments?
-IAP_domain_structure_WGCNA_hits_df_condensed_type_IAP_shared <- IAP_domain_structure_WGCNA_hits_df_condensed_type_IAP %>% group_by(comb_domain, transcript_id) %>% filter(n()>1) %>% 
-  group_by(comb_domain, transcript_id) %>%  dplyr::mutate(shared_exp = paste(exp, collapse = "_")) %>% ungroup() %>% 
+IAP_domain_structure_WGCNA_hits_df_condensed_type_IAP_shared <- x   %>% ungroup() %>% 
   # remove rows with duplicated module name and shared_exp, these are those where the module membership was the same
   group_by(mod_names, shared_exp) %>% filter(n()==1) %>% ungroup() %>% distinct(comb_domain, transcript_id, shared_exp)
 # 3 total shared IAPs between all WGCNA modules
