@@ -7401,7 +7401,7 @@ IAP_domain_structure_WGCNA_hits_df <- dplyr::semi_join(IAP_domain_structure_WGCN
 distinct(IAP_domain_structure_WGCNA_hits_df, mod_names, exp) # 69 total without any module repeats
 View(distinct(IAP_domain_structure_WGCNA_hits_df, Domain_Name, mod_names, exp))
 
-### FIND DOMAIN STRUCTURE SHARED ACROSS CHALLENGE TYPES AND WHICH TRANSCRIPTS COMMON TO ALL  
+### FIND DOMAIN STRUCTURE SHARED ACROSS CHALLENGE TYPES 
 # Goal is see if there is a response that might be specific to the IAP domain structure rather than a challenge specific response
 levels(factor(IAP_domain_structure_WGCNA_hits_df$Domain_Name))
 #[1] "BIR*"                  "BIR*-DD-RING"          "not_classified"        "NZBIR-TII-UBA-DD-RING" "TI-TII-DD-RING"        "TI-TII-RING"           "TI-TII-TII-UBA-RING"   "TII"                   "TII-BIR6-E2"          
@@ -7410,11 +7410,15 @@ levels(factor(IAP_domain_structure_WGCNA_hits_df$Domain_Name))
 
 ### Create Comb_domains for those modules that hit to multiple domains ###
 ## Condense data frame so that module members in modules that hit to multiple domain structures don't get counted twice
-# Which domain structure types found in the same modules?
+# Which domain structure types found in the same modules? Creating combined domain 
 IAP_domain_structure_WGCNA_hits_df_modules_domain_hits <- IAP_domain_structure_WGCNA_hits_df %>% 
   distinct(Domain_Name, mod_names, exp) %>% 
+  # count the total number of modules for each domain type and create comb domain if multiple for an experiment
   group_by(mod_names, exp) %>% dplyr::mutate(count = n(), comb_domain = paste(Domain_Name, collapse = ",")) %>% 
   distinct(mod_names, exp, count, comb_domain) %>% arrange(exp)
+# join back with species for grouping in the code below
+IAP_domain_structure_WGCNA_hits_df_modules_domain_hits <- left_join(IAP_domain_structure_WGCNA_hits_df_modules_domain_hits,   unique(IAP_domain_structure_WGCNA_hits_df[,c("exp","Species")]))
+
 
 # how many domains are there with the comb_domains
 comb_domain <-  as.data.frame(levels(factor(IAP_domain_structure_WGCNA_hits_df_modules_domain_hits$comb_domain)))
@@ -7440,9 +7444,19 @@ comb_domain_unique <- comb_domain %>% filter(!grepl(",",comb_domain)) # 12 of th
 comb_domain_unique$comb_domain_type <- "unique"
 
 # are the domain combos common across experiments?
-IAP_domain_structure_WGCNA_hits_df_modules_domain_hits %>% group_by(comb_domain) %>% dplyr::count() %>% arrange(desc(n)) %>% View()
+IAP_domain_structure_WGCNA_hits_df_modules_domain_hit_common_exp_species <-IAP_domain_structure_WGCNA_hits_df_modules_domain_hits %>% group_by(comb_domain, Species) %>% 
+  dplyr::count() %>% arrange(desc(n))
+IAP_domain_structure_WGCNA_hits_df_modules_domain_hit_common_exp <-IAP_domain_structure_WGCNA_hits_df_modules_domain_hits %>% group_by(comb_domain) %>% 
+  dplyr::count() %>% arrange(desc(n))
 
-# how common are the individual domain types (including both combo and unique)? Are some more specific than others?
+# How common are the individual domain name types across experiments if you split up the combo domains within the actual data 
+IAP_domain_structure_WGCNA_hits_df_modules_domain_hit_common_exp_separate <- IAP_domain_structure_WGCNA_hits_df_modules_domain_hit_common_exp_species %>%
+  # separate into rows
+  separate_rows(comb_domain, sep = ",") %>% 
+  # add together the numbers for each type 
+  group_by(comb_domain, Species) %>% dplyr::summarize(total_times_across_exp_modules = sum(n))
+
+# how common are the individual domain types within just the names (including both combo and unique)? Are some more specific than others?
 comb_domain_freq <- as.data.frame(str_split(comb_domain$comb_domain, ",") %>% unlist(.))
 colnames(comb_domain_freq)[1] <- "Domain_Name"
 comb_domain_freq %>% dplyr::mutate(total = nrow(.)) %>% group_by(Domain_Name) %>% dplyr::mutate(count = n(), percent = count/total*100) %>% arrange(desc(count)) %>% distinct(Domain_Name, total, count, percent)
@@ -7464,6 +7478,7 @@ comb_domain_freq %>% dplyr::mutate(total = nrow(.)) %>% group_by(Domain_Name) %>
 #13 NZBIR-TII-UBA-DD-RING    86     1    1.16
 #14 TI-TII-RING              86     1    1.16
 #15 TII                      86     1    1.16
+
 
 ## Create condensed data frame using the new comb_domain types
 IAP_domain_structure_WGCNA_hits_df_condensed <- left_join(IAP_domain_structure_WGCNA_hits_df_modules_domain_hits, unique(IAP_domain_structure_WGCNA_hits_df[,c("mod_names","exp","product","transcript_id")]))
@@ -7998,8 +8013,7 @@ IAP_domain_structure_WGCNA_hits_df_condensed_type_IAP_count %>% ungroup() %>% dp
 #  1 combo              115          73.7
 #2 unique              41          26.3
 
-
-# Are IAP transcripts shared within domain type and between experiments?
+# Are any IAP transcripts shared within domain type and between experiments?
 IAP_domain_structure_WGCNA_hits_df_condensed_type_IAP_shared <- IAP_domain_structure_WGCNA_hits_df_condensed_type_IAP %>% group_by(comb_domain, transcript_id) %>% filter(n()>1) %>% 
   group_by(comb_domain, transcript_id) %>%  dplyr::mutate(shared_exp = paste(exp, collapse = "_")) %>% ungroup() %>% 
   # remove rows with duplicated module name and shared_exp, these are those where the module membership was the same
@@ -8035,6 +8049,9 @@ ggsave(plot = IAP_domain_structure_WGCNA_hits_df_condensed_type_IAP_shared_all_p
 ggsave(plot = IAP_domain_structure_WGCNA_hits_df_condensed_type_IAP_shared_all_type_domain_plot, filename = "IAP_domain_structure_WGCNA_hits_df_condensed_type_IAP_shared_all_type_domain_plot.tiff", device = "tiff",
        width = 10, height = 10,
        path = "/Users/erinroberts/Documents/PhD_Research/Chapter_1_Apoptosis Paper/Chapter1_Apoptosis_Transcriptome_Analyses_2019/DATA ANALYSIS/apoptosis_data_pipeline/WGCNA/")
+
+
+
 
 #### PATHWAY COMPARISON BETWEEN SIGNIFICANT WGCNA MODULES ####
 
