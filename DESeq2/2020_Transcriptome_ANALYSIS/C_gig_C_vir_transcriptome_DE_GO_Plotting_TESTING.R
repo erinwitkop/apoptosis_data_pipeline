@@ -53,107 +53,17 @@ library(data.table)
 
 Apoptosis_frames <- load(file="/Volumes/My Passport for Mac/Chapter1_Apoptosis_Paper_Saved_DESeq_WGCNA_Data/C_gig_C_vir_apoptosis_products.RData")
 annotations <- load(file="/Volumes/My Passport for Mac/Chapter1_Apoptosis_Paper_Saved_DESeq_WGCNA_Data/C_gig_C_vir_annotations.RData")
+# IAP lists with domain type
+load(file = "/Users/erinroberts/Documents/PhD_Research/Chapter_1_Apoptosis Paper/Chapter_1_Apoptosis_Annotation_Data_Analyses_2019/DATA/Apoptosis_Pathway_Annotation_Comparative_Genomics/Comparative_Analysis_Apoptosis_Gene_Families_Data/IAP_domain_structure_XM_CG.RData")
+load(file = "/Users/erinroberts/Documents/PhD_Research/Chapter_1_Apoptosis Paper/Chapter_1_Apoptosis_Annotation_Data_Analyses_2019/DATA/Apoptosis_Pathway_Annotation_Comparative_Genomics/Comparative_Analysis_Apoptosis_Gene_Families_Data/IAP_domain_structure_XM_CV.RData")
+# Load IAP pathway list (remove once I have my external hardrive and can reload from there)
+load(file="/Users/erinroberts/Documents/PhD_Research/Chapter_1_Apoptosis Paper/Chapter1_Apoptosis_Transcriptome_Analyses_2019/DATA ANALYSIS/apoptosis_data_pipeline/DESeq2/2020_Transcriptome_ANALYSIS/combined_gene_name_org_yes_no_table_unique_pathway_joined.RData")
 
-load(file="/Users/erinroberts/Documents/PhD_Research/Chapter_1_Apoptosis Paper/Chapter_1_Apoptosis_Annotation_Data_Analyses_2019/DATA/Apoptosis_Pathway_Annotation_Comparative_Genomics/Comparative_Analysis_Apoptosis_Gene_Families_Data/BIR_XP_gff_protein_list_CG.Rdata")
-load(file="/Users/erinroberts/Documents/PhD_Research/Chapter_1_Apoptosis Paper/Chapter_1_Apoptosis_Annotation_Data_Analyses_2019/DATA/Apoptosis_Pathway_Annotation_Comparative_Genomics/Comparative_Analysis_Apoptosis_Gene_Families_Data/BIR_XP_gff_protein_list_CV.Rdata")
-load(file="/Users/erinroberts/Documents/PhD_Research/Chapter_1_Apoptosis Paper/Chapter_1_Apoptosis_Annotation_Data_Analyses_2019/DATA/Apoptosis_Pathway_Annotation_Comparative_Genomics/Comparative_Analysis_Apoptosis_Gene_Families_Data/AIG1_XP_ALL_gff_GIMAP_protein_list_CG.Rdata")
-load(file="/Users/erinroberts/Documents/PhD_Research/Chapter_1_Apoptosis Paper/Chapter_1_Apoptosis_Annotation_Data_Analyses_2019/DATA/Apoptosis_Pathway_Annotation_Comparative_Genomics/Comparative_Analysis_Apoptosis_Gene_Families_Data/AIG1_XP_ALL_gff_GIMAP_protein_list_CV.Rdata")
-
-# Join with XM information 
-BIR_XP_gff_CG_uniq_XP <- as.data.frame(BIR_XP_gff_CG_uniq_XP)
-BIR_XP_gff_CV_uniq_XP <- as.data.frame(BIR_XP_gff_CV_uniq_XP)
-AIG1_XP_ALL_gff_GIMAP_CG_uniq_XP <- as.data.frame(AIG1_XP_ALL_gff_GIMAP_CG_uniq_XP)
-AIG1_XP_ALL_gff_GIMAP_CV_uniq_XP <- as.data.frame(AIG1_XP_ALL_gff_GIMAP_CV_uniq_XP)
-
-colnames(BIR_XP_gff_CG_uniq_XP)[1] <- "protein_id" 
-colnames(BIR_XP_gff_CV_uniq_XP)[1] <- "protein_id" 
-colnames(AIG1_XP_ALL_gff_GIMAP_CG_uniq_XP)[1] <- "protein_id" 
-colnames(AIG1_XP_ALL_gff_GIMAP_CV_uniq_XP)[1] <- "protein_id" 
-
-BIR_XP_gff_CG_uniq_XP_XM <- left_join(BIR_XP_gff_CG_uniq_XP, C_gig_rtracklayer)
-BIR_XP_gff_CV_uniq_XP_XM <- left_join(BIR_XP_gff_CV_uniq_XP, C_vir_rtracklayer)
-AIG1_XP_ALL_gff_GIMAP_CG_uniq_XP_XM <- left_join(AIG1_XP_ALL_gff_GIMAP_CG_uniq_XP, C_gig_rtracklayer)
-AIG1_XP_ALL_gff_GIMAP_CV_uniq_XP_XM <- left_join(AIG1_XP_ALL_gff_GIMAP_CV_uniq_XP, C_vir_rtracklayer)
-
-BIR_XP_gff_CG_uniq_XP_XM <- BIR_XP_gff_CG_uniq_XP_XM %>% distinct(protein_id, Parent, .keep_all = TRUE)
-BIR_XP_gff_CV_uniq_XP_XM <- BIR_XP_gff_CV_uniq_XP_XM %>% distinct(protein_id, Parent, .keep_all = TRUE)
-AIG1_XP_ALL_gff_GIMAP_CG_uniq_XP_XM <- AIG1_XP_ALL_gff_GIMAP_CG_uniq_XP_XM %>% distinct(protein_id, Parent, .keep_all = TRUE)
-AIG1_XP_ALL_gff_GIMAP_CV_uniq_XP_XM <- AIG1_XP_ALL_gff_GIMAP_CV_uniq_XP_XM %>% distinct(protein_id, Parent, .keep_all = TRUE)
-
-# Remove "rna-" from Parent column for CG 
-BIR_XP_gff_CG_uniq_XP_XM$Parent <- str_remove(BIR_XP_gff_CG_uniq_XP_XM$Parent, "rna-")
-AIG1_XP_ALL_gff_GIMAP_CG_uniq_XP_XM$Parent <- str_remove(AIG1_XP_ALL_gff_GIMAP_CG_uniq_XP_XM $Parent, "rna-")
-
-colnames(BIR_XP_gff_CG_uniq_XP_XM)[20] <- "transcript_id"
-BIR_XP_gff_CG_uniq_XP_XM <- BIR_XP_gff_CG_uniq_XP_XM[,-23]
-
-BIR_XP_gff_CV_uniq_XP_XM <- BIR_XP_gff_CV_uniq_XP_XM[,-10]
-colnames(BIR_XP_gff_CV_uniq_XP_XM)[23] <- "ID"
-
-colnames(AIG1_XP_ALL_gff_GIMAP_CG_uniq_XP_XM)[20] <- "transcript_id"
-AIG1_XP_ALL_gff_GIMAP_CG_uniq_XP_XM <- AIG1_XP_ALL_gff_GIMAP_CG_uniq_XP_XM[,-23]
-
-AIG1_XP_ALL_gff_GIMAP_CV_uniq_XP_XM <- AIG1_XP_ALL_gff_GIMAP_CV_uniq_XP_XM[,-10]
-colnames(AIG1_XP_ALL_gff_GIMAP_CV_uniq_XP_XM)[23] <- "ID"
-
-#### IAP AND GIMAP COLLAPSE HAPLOTIGS ####
-
-# Create Haplotig transcript template functions
-# GIMAP Cluster 219
-# Add all counts from XP_022296317.1 (from artifact LOC111106081) were added to the counts for XP_022302183.1 
-C_vir_rtracklayer %>% filter(grepl("XP_022296317.1", protein_id) | grepl("XP_022302183.1", protein_id)) %>% distinct(Parent, .keep_all = TRUE)
-
-#df["rna56518", ] <- df["rna56371", ] + df["rna56518", ]
-#df[rownames(df) != "rna56371", ] # get rid of row with only the counts from XP_022296317.1
-
-## IAP cluster 328 2 clusters:
-# Cluster 1: LOC111114013 and it's protein XP_022308010.1 should be collapsed into LOC111132489 protein XP_022336007.1 
-C_vir_rtracklayer %>% filter(grepl("XP_022308010.1", protein_id) | grepl("XP_022336007.1", protein_id)) %>% 
-  distinct(Parent, .keep_all = TRUE)
-
-#df["rna35680", ] <- df["rna61446", ] + df["rna35680", ]
-#df[rownames(df) != "rna61446", ]
-
-# Clsuter 2:LOC111103682, LOC111132589,LOC111102106,LOC111114070 should be collapsed into this LOC111132301
-# Do any of these gene have multiple proteins? NO, each has 1 
-#Gene to collapse into LOC111132301  # one protein XP_022335805.1, rna32314 (XM_022480097.1)
-#LOC111103682 only 1 protein XP_022292821.1
-#LOC111132589 only 1 protein XP_022336127.1
-#LOC111102106 only 1 protein XP_022290466.1
-#LOC111114070 only 1 protein XP_022308067.1
-
-C_vir_rtracklayer %>% filter(grepl("XP_022292821.1", protein_id) | grepl("XP_022336127.1", protein_id)|
-                               grepl("XP_022290466.1", protein_id) | grepl("XP_022308067.1", protein_id) |
-                               grepl("XP_022335805.1", protein_id)) %>% distinct(Parent, .keep_all = TRUE)
-
-#df["rna32314", ] <- df["rna37671", ] + df["rna42347", ] + df["rna44969", ] +  df["rna6186", ] + Probiotic_counts["rna32314", ]
-#df[rownames(df) != "rna37671", ] 
-#df[rownames(df) != "rna42347", ] 
-#df[rownames(df) != "rna44969", ] 
-#df[rownames(df) != "rna6186", ] 
-
-# IAP cluster 344: The two sequences with the greatest similarity in gene sequence, LOC111116826 and LOC111111659 (XP_022304464.1), should be collapsed. LOC111111659 has extremely low coverage and its protein XP_022304464.1
-# should be collapsed into LOC111116826 (XP_022311552.1, rna66976 )
-
-C_vir_rtracklayer %>% filter(grepl("XP_022304464.1", protein_id) | grepl("XP_022311552.1", protein_id)) %>% distinct(Parent, .keep_all = TRUE)
-
-#df["rna66976", ] <- df["rna57534", ] + df["rna66976", ] 
-#df[rownames(df) != "rna57534", ] 
-
-
-## Codes compiled together
-
-#df["rna56518", ] <- df["rna56371", ] + df["rna56518", ]
-#df <- df[rownames(df) != "rna56371", ] 
-#df["rna35680", ] <- df["rna61446", ] + df["rna35680", ]
-#df <- df[rownames(df) != "rna61446", ]
-#df["rna32314", ] <- df["rna37671", ] + df["rna42347", ] + df["rna44969", ] +  df["rna6186", ] + Probiotic_counts["rna32314", ]
-#df <- df[rownames(df) != "rna37671", ] 
-#df <- df[rownames(df) != "rna42347", ] 
-#df <- df[rownames(df) != "rna44969", ] 
-#df <- df[rownames(df) != "rna6186", ] 
-#df["rna66976", ] <- df["rna57534", ] + df["rna66976", ] 
-#df <- df[rownames(df) != "rna57534", ] 
+# load data frames with IAP and GIMAP XM and XP information with haplotigs already collapsed (no domain information)
+load(file="/Users/erinroberts/Documents/PhD_Research/Chapter_1_Apoptosis Paper/Chapter_1_Apoptosis_Annotation_Data_Analyses_2019/DATA/Apoptosis_Pathway_Annotation_Comparative_Genomics/Comparative_Analysis_Apoptosis_Gene_Families_Data/BIR_XP_gff_CG_uniq_XP_XM.Rdata")
+load(file="/Users/erinroberts/Documents/PhD_Research/Chapter_1_Apoptosis Paper/Chapter_1_Apoptosis_Annotation_Data_Analyses_2019/DATA/Apoptosis_Pathway_Annotation_Comparative_Genomics/Comparative_Analysis_Apoptosis_Gene_Families_Data/BIR_XP_gff_CV_uniq_XP_XM.Rdata")
+load(file="/Users/erinroberts/Documents/PhD_Research/Chapter_1_Apoptosis Paper/Chapter_1_Apoptosis_Annotation_Data_Analyses_2019/DATA/Apoptosis_Pathway_Annotation_Comparative_Genomics/Comparative_Analysis_Apoptosis_Gene_Families_Data/AIG1_XP_ALL_gff_GIMAP_CG_uniq_XP_XM.Rdata")
+load(file="/Users/erinroberts/Documents/PhD_Research/Chapter_1_Apoptosis Paper/Chapter_1_Apoptosis_Annotation_Data_Analyses_2019/DATA/Apoptosis_Pathway_Annotation_Comparative_Genomics/Comparative_Analysis_Apoptosis_Gene_Families_Data/AIG1_XP_ALL_gff_GIMAP_CV_uniq_XP_XM.Rdata")
 
 #### ZHANG VIBRIO TRANSCRIPTOME ANALYSIS ####
 
@@ -793,10 +703,10 @@ Rubio_dds_deseq_J2_9_res_LFC_sig_APOP_arranged <-    arrange(Rubio_dds_deseq_J2_
 Rubio_dds_deseq_LGP32_res_LFC_sig_APOP_arranged <-   arrange(Rubio_dds_deseq_LGP32_res_LFC_sig_APOP, -log2FoldChange)
 Rubio_dds_deseq_LMG20012T_res_LFC_sig_APOP_arranged<-arrange(Rubio_dds_deseq_LMG20012T_res_LFC_sig_APOP, -log2FoldChange)
 
-nrow(Rubio_dds_deseq_J2_8_res_LFC_sig_APOP_arranged ) # 80
-nrow(Rubio_dds_deseq_J2_9_res_LFC_sig_APOP_arranged  ) # 88
-nrow(Rubio_dds_deseq_LGP32_res_LFC_sig_APOP_arranged  ) #90
-nrow(Rubio_dds_deseq_LMG20012T_res_LFC_sig_APOP_arranged) # 80
+nrow(Rubio_dds_deseq_J2_8_res_LFC_sig_APOP_arranged ) # 81
+nrow(Rubio_dds_deseq_J2_9_res_LFC_sig_APOP_arranged  ) # 90
+nrow(Rubio_dds_deseq_LGP32_res_LFC_sig_APOP_arranged  ) #92
+nrow(Rubio_dds_deseq_LMG20012T_res_LFC_sig_APOP_arranged) # 81
 
 #View(Rubio_dds_deseq_J2_8_res_LFC_sig_APOP_arranged)
 #View(Rubio_dds_deseq_J2_9_res_LFC_sig_APOP_arranged)
@@ -1158,8 +1068,8 @@ C_gig_rtracklayer_apop_product_final_transcript_id
 # Search original counts table for apoptosis genes and do vst on just these
 deLorgeril_Resistant_counts_apop <- deLorgeril_Resistant_counts[row.names(deLorgeril_Resistant_counts) %in% C_gig_rtracklayer_apop_product_final_transcript_id,]
 deLorgeril_Susceptible_counts_apop <- deLorgeril_Susceptible_counts[row.names(deLorgeril_Susceptible_counts) %in% C_gig_rtracklayer_apop_product_final_transcript_id,]
-nrow(deLorgeril_Resistant_counts_apop ) #833
-nrow(deLorgeril_Susceptible_counts_apop ) #833
+nrow(deLorgeril_Resistant_counts_apop ) #844
+nrow(deLorgeril_Susceptible_counts_apop ) #844
 
 deLorgeril_Resistant_counts_apop_dds <- DESeqDataSetFromMatrix(countData = deLorgeril_Resistant_counts_apop,
                                              colData = deLorgeril_Resistant_coldata,
@@ -1250,19 +1160,19 @@ deLorgeril_Susceptible_dds_res_48_LFC_sig_APOP <- arrange(deLorgeril_Susceptible
 deLorgeril_Susceptible_dds_res_60_LFC_sig_APOP <- arrange(deLorgeril_Susceptible_dds_res_60_LFC_sig_APOP, -log2FoldChange)
 deLorgeril_Susceptible_dds_res_72_LFC_sig_APOP <- arrange(deLorgeril_Susceptible_dds_res_72_LFC_sig_APOP, -log2FoldChange)
 
-nrow(deLorgeril_Resistant_dds_res_6_LFC_sig_APOP) #30
+nrow(deLorgeril_Resistant_dds_res_6_LFC_sig_APOP) #31
 nrow(deLorgeril_Resistant_dds_res_12_LFC_sig_APOP) #68
-nrow(deLorgeril_Resistant_dds_res_24_LFC_sig_APOP) #100
-nrow(deLorgeril_Resistant_dds_res_48_LFC_sig_APOP) #30
-nrow(deLorgeril_Resistant_dds_res_60_LFC_sig_APOP) # 75
-nrow(deLorgeril_Resistant_dds_res_72_LFC_sig_APOP) # 42
+nrow(deLorgeril_Resistant_dds_res_24_LFC_sig_APOP) #101
+nrow(deLorgeril_Resistant_dds_res_48_LFC_sig_APOP) #31
+nrow(deLorgeril_Resistant_dds_res_60_LFC_sig_APOP) # 77
+nrow(deLorgeril_Resistant_dds_res_72_LFC_sig_APOP) # 43
 
 nrow(deLorgeril_Susceptible_dds_res_6_LFC_sig_APOP) #36
 nrow(deLorgeril_Susceptible_dds_res_12_LFC_sig_APOP) #110
-nrow(deLorgeril_Susceptible_dds_res_24_LFC_sig_APOP) #200
+nrow(deLorgeril_Susceptible_dds_res_24_LFC_sig_APOP) #201
 nrow(deLorgeril_Susceptible_dds_res_48_LFC_sig_APOP) #43
-nrow(deLorgeril_Susceptible_dds_res_60_LFC_sig_APOP) # 233
-nrow(deLorgeril_Susceptible_dds_res_72_LFC_sig_APOP) # 62
+nrow(deLorgeril_Susceptible_dds_res_60_LFC_sig_APOP) # 235
+nrow(deLorgeril_Susceptible_dds_res_72_LFC_sig_APOP) # 63
 
 #View(deLorgeril_Resistant_dds_res_48_LFC_sig_APOP  $product)
 #View(deLorgeril_Resistant_dds_res_60_LFC_sig_APOP  $product)
@@ -1527,7 +1437,7 @@ He_mat_prot_annot <- left_join(He_mat_prot, select(C_gig_rtracklayer_transcripts
 C_gig_rtracklayer_apop_product_final_transcript_id 
 # Search original Rubio_counts for apoptosis genes and do rlog on just these
 He_counts_apop <- He_counts[row.names(He_counts) %in% C_gig_rtracklayer_apop_product_final_transcript_id,]
-nrow(He_counts_apop ) #833
+nrow(He_counts_apop ) #844
 He_counts_apop_dds <- DESeqDataSetFromMatrix(countData = He_counts_apop,
                                                 colData = He_coldata,
                                                 design = ~ Time + Condition) # using same formula as before
@@ -1566,7 +1476,7 @@ top_Var_He_counts_apop_assay_prot_annot <- left_join(top_Var_He_counts_apop_assa
 ### Extract list of significant Apoptosis Genes (not less than or greater than 1 LFC) using merge
 He_dds_res_LFC_sig_APOP <- merge(He_dds_res_LFC_sig , C_gig_rtracklayer_apop_product_final, by = "transcript_id")
 He_dds_res_LFC_sig_arranged <-arrange(He_dds_res_LFC_sig_APOP, -log2FoldChange)
-nrow(He_dds_res_LFC_sig_arranged ) #82
+nrow(He_dds_res_LFC_sig_arranged ) #86
 View(He_dds_res_LFC_sig_arranged)
 
 ### HE SEPARATED FOR EACH TIMEPOINT ###
@@ -1747,9 +1657,9 @@ He_dds_res_48hr_sig_arranged <- arrange(He_dds_res_48hr_sig_APOP , -log2FoldChan
 He_dds_res_120hr_sig_arranged <- arrange(He_dds_res_120hr_sig_APOP, -log2FoldChange)
 
 nrow(He_dds_res_6hr_sig_arranged ) # 28
-nrow(He_dds_res_12hr_sig_arranged) # 33
-nrow(He_dds_res_24hr_sig_arranged) # 73
-nrow(He_dds_res_48hr_sig_arranged) # 27
+nrow(He_dds_res_12hr_sig_arranged) # 34
+nrow(He_dds_res_24hr_sig_arranged) # 75
+nrow(He_dds_res_48hr_sig_arranged) # 26
 nrow(He_dds_res_120hr_sig_arranged) # 21
 
 He_dds_res_6hr_sig_APOP$group_by_sim <-"He_dds_res_6hr_sig_APOP"
@@ -1967,7 +1877,7 @@ head(family_Probiotic_broken_mat) # some clustering by bacillus, still overall c
 C_vir_rtracklayer_apop_product_final_ID <- C_vir_rtracklayer_apop_product_final$ID
 # Search original Probiotic_counts for apoptosis genes and do rlog on just these
 Probiotic_counts_apop <- Probiotic_counts[row.names(Probiotic_counts) %in% C_vir_rtracklayer_apop_product_final_ID,]
-nrow(Probiotic_counts_apop) #1245
+nrow(Probiotic_counts_apop) #1284
 head(Probiotic_counts_apop)
 Probiotic_counts_apop_dds <- DESeqDataSetFromMatrix(countData = Probiotic_counts_apop,
                                                 colData = Probiotic_coldata,
@@ -2006,7 +1916,7 @@ top_Var_Probiotic_counts_apop_assay_prot_annot <- left_join(top_Var_Probiotic_co
 ### Extract list of significant Apoptosis Genes (not less than or greater than 1 LFC) using merge
 Probiotic_dds_deseq_Challenge_res_LFC_sig_APOP <- merge(Probiotic_dds_deseq_Challenge_res_LFC_sig, C_vir_rtracklayer_apop_product_final, by = "ID")
 Probiotic_dds_deseq_Challenge_res_LFC_sig_APOP_arranged <- arrange(Probiotic_dds_deseq_Challenge_res_LFC_sig_APOP, -log2FoldChange) 
-nrow(Probiotic_dds_deseq_Challenge_res_LFC_sig_APOP) # 35
+nrow(Probiotic_dds_deseq_Challenge_res_LFC_sig_APOP) # 37
 
 Probiotic_dds_deseq_Challenge_res_LFC_sig_APOP_plot <- ggplot(Probiotic_dds_deseq_Challenge_res_LFC_sig_APOP , aes(x=product, y = log2FoldChange, fill=log2FoldChange)) + geom_col(position="dodge") +
   coord_flip() + scale_fill_gradient2(low="purple",mid = "grey", high="darkgreen") + ggtitle("Bacillus pumilus vs Control") +
@@ -2254,7 +2164,7 @@ head(family_Pro_RE22_broken_mat) # mostly clustering by treatment and still some
 # Gene clustering heatmap with only apoptosis genes #
 # Search original Probiotic_counts for apoptosis genes and do rlog on just these
 Pro_RE22_counts_apop <- Pro_RE22_counts[row.names(Pro_RE22_counts) %in% C_vir_rtracklayer_apop_product_final_ID,]
-nrow(Pro_RE22_counts_apop) #1245
+nrow(Pro_RE22_counts_apop) #1284
 head(Pro_RE22_counts_apop)
 Pro_RE22_counts_apop_dds <- DESeqDataSetFromMatrix(countData = Pro_RE22_counts_apop,
                                                     colData = Pro_RE22_coldata,
@@ -2296,10 +2206,10 @@ Pro_RE22_dds_deseq_res_S4_6h_LFC_sig_APOP <- merge(Pro_RE22_dds_deseq_res_S4_6h_
 Pro_RE22_dds_deseq_res_S4_24h_LFC_sig_APOP <- merge(Pro_RE22_dds_deseq_res_S4_24h_LFC_sig, C_vir_rtracklayer_apop_product_final, by =  "ID")
 Pro_RE22_dds_deseq_res_RE22_LFC_sig_APOP <- merge(Pro_RE22_dds_deseq_res_RE22_LFC_sig, C_vir_rtracklayer_apop_product_final, by = "ID")
 
-nrow(Pro_RE22_dds_deseq_res_RI_6h_LFC_sig_APOP ) # 30
-nrow(Pro_RE22_dds_deseq_res_RI_24h_LFC_sig_APOP) # 54
-nrow(Pro_RE22_dds_deseq_res_S4_6h_LFC_sig_APOP ) # 51
-nrow(Pro_RE22_dds_deseq_res_S4_24h_LFC_sig_APOP) # 63
+nrow(Pro_RE22_dds_deseq_res_RI_6h_LFC_sig_APOP ) # 31
+nrow(Pro_RE22_dds_deseq_res_RI_24h_LFC_sig_APOP) # 57
+nrow(Pro_RE22_dds_deseq_res_S4_6h_LFC_sig_APOP ) # 52
+nrow(Pro_RE22_dds_deseq_res_S4_24h_LFC_sig_APOP) # 64
 nrow(Pro_RE22_dds_deseq_res_RE22_LFC_sig_APOP ) # 38 
 
 # Compare apoptosis genes between group_by_sim groups
@@ -2596,8 +2506,8 @@ head(ROD_Susceptible_mat) # some clustering by bacillus, still overall clusterin
 # Search original counts for apoptosis genes and do rlog on just these
 ROD_Resistant_counts_apop <- ROD_Resistant_counts[row.names(ROD_Resistant_counts) %in% C_vir_rtracklayer_apop_product_final_ID,]
 ROD_Susceptible_counts_apop <- ROD_Susceptible_counts[row.names(ROD_Susceptible_counts) %in% C_vir_rtracklayer_apop_product_final_ID,]
-nrow(ROD_Resistant_counts_apop) #1245
-nrow( ROD_Susceptible_counts_apop) # 1245
+nrow(ROD_Resistant_counts_apop) #1284
+nrow( ROD_Susceptible_counts_apop) # 1284
 
 ROD_Resistant_counts_apop_dds <- DESeqDataSetFromMatrix(countData = ROD_Resistant_counts_apop,
                                                     colData = ROD_Resistant_coldata,
@@ -2666,7 +2576,7 @@ top_Var_ROD_Susceptible_apop_assay_prot_annot <- left_join(top_Var_ROD_Susceptib
 ### Extract list of significant Apoptosis Genes (not less than or greater than 1 LFC) using merge
 ROD_Susceptible_dds_res_LFC_sig_APOP <- merge(ROD_Susceptible_dds_res_LFC_sig, C_vir_rtracklayer_apop_product_final, by = "ID")
 ROD_Susceptible_dds_res_LFC_sig_APOP_arranged <- arrange(ROD_Susceptible_dds_res_LFC_sig_APOP, -log2FoldChange) 
-nrow(ROD_Susceptible_dds_res_LFC_sig_APOP) # 49
+nrow(ROD_Susceptible_dds_res_LFC_sig_APOP) # 46
 
 ROD_Resistant_dds_res_LFC_sig_APOP <- merge(ROD_Resistant_dds_res_LFC_sig, C_vir_rtracklayer_apop_product_final, by = "ID")
 ROD_Resistant_dds_res_LFC_sig_APOP_arranged <- arrange(ROD_Resistant_dds_res_LFC_sig_APOP, -log2FoldChange) 
@@ -2974,8 +2884,8 @@ head(Dermo_Susceptible_mat) # clustering by control and injected
 # Search original counts for apoptosis genes and do rlog on just these
 Dermo_Tolerant_counts_apop <- Dermo_Tolerant_counts[row.names(Dermo_Tolerant_counts) %in% C_vir_rtracklayer_apop_product_final_ID,]
 Dermo_Susceptible_counts_apop <- Dermo_Susceptible_counts[row.names(Dermo_Susceptible_counts) %in% C_vir_rtracklayer_apop_product_final_ID,]
-nrow(Dermo_Tolerant_counts_apop) #1245
-nrow( Dermo_Susceptible_counts_apop) # 1245
+nrow(Dermo_Tolerant_counts_apop) #1284
+nrow( Dermo_Susceptible_counts_apop) # 1284
 
 Dermo_Tolerant_counts_apop_dds <- DESeqDataSetFromMatrix(countData = Dermo_Tolerant_counts_apop,
                                                         colData = Dermo_Tolerant_coldata,
@@ -3043,7 +2953,7 @@ top_Var_Dermo_Susceptible_apop_assay_prot_annot <- left_join(top_Var_Dermo_Susce
 ### Extract list of significant Apoptosis Genes (not less than or greater than 1 LFC) using merge
 Dermo_Tolerant_condition_dds_res_LFC_sig_APOP <- merge(Dermo_Tolerant_condition_dds_res_LFC_sig, C_vir_rtracklayer_apop_product_final, by = "ID")
 Dermo_Tolerant_condition_dds_res_LFC_sig_APOP_arranged <- arrange(Dermo_Tolerant_condition_dds_res_LFC_sig_APOP, -log2FoldChange) 
-nrow(Dermo_Tolerant_condition_dds_res_LFC_sig_APOP) # 29
+nrow(Dermo_Tolerant_condition_dds_res_LFC_sig_APOP) # 31
 
 Dermo_Susceptible_condition_dds_res_LFC_sig_APOP <- merge(Dermo_Susceptible_condition_dds_res_LFC_sig, C_vir_rtracklayer_apop_product_final, by = "ID")
 Dermo_Susceptible_condition_dds_res_LFC_sig_APOP_arranged <- arrange(Dermo_Susceptible_condition_dds_res_LFC_sig_APOP, -log2FoldChange) 
@@ -3055,7 +2965,7 @@ nrow(Dermo_Susceptible_dds_res_LFC_sig_APOP) # 16
 
 Dermo_Tolerant_dds_res_LFC_sig_APOP <- merge(Dermo_Tolerant_dds_res_LFC_sig, C_vir_rtracklayer_apop_product_final, by = "ID")
 Dermo_Tolerant_dds_res_LFC_sig_APOP_arranged <- arrange(Dermo_Tolerant_dds_res_LFC_sig_APOP, -log2FoldChange) 
-nrow(Dermo_Tolerant_dds_res_LFC_sig_APOP) # 29
+nrow(Dermo_Tolerant_dds_res_LFC_sig_APOP) # 31
 
 # Combined LFC plot
 Dermo_Susceptible_condition_dds_res_LFC_sig_APOP
@@ -3294,19 +3204,19 @@ nrow(Dermo_Susceptible_28d_dds_res_LFC_sig) # 2462
 ### Extract list of significant Apoptosis Genes (not less than or greater than 1 LFC) using merge
 Dermo_Susceptible_36hr_dds_res_LFC_sig_APOP <- merge(Dermo_Susceptible_36hr_dds_res_LFC_sig, C_vir_rtracklayer_apop_product_final, by = "ID")
 Dermo_Susceptible_36hr_dds_res_LFC_sig_APOP_arranged <- arrange(Dermo_Susceptible_36hr_dds_res_LFC_sig_APOP, -log2FoldChange) 
-nrow(Dermo_Susceptible_36hr_dds_res_LFC_sig_APOP) # 13
+nrow(Dermo_Susceptible_36hr_dds_res_LFC_sig_APOP) # 15
 
 Dermo_Susceptible_7d_dds_res_LFC_sig_APOP <- merge(Dermo_Susceptible_7d_dds_res_LFC_sig, C_vir_rtracklayer_apop_product_final, by = "ID")
 Dermo_Susceptible_7d_dds_res_LFC_sig_APOP_arranged <- arrange(Dermo_Susceptible_7d_dds_res_LFC_sig_APOP, -log2FoldChange) 
-nrow(Dermo_Susceptible_7d_dds_res_LFC_sig_APOP) # 3
+nrow(Dermo_Susceptible_7d_dds_res_LFC_sig_APOP) # 4
 
 Dermo_Susceptible_28d_dds_res_LFC_sig_APOP <- merge(Dermo_Susceptible_28d_dds_res_LFC_sig, C_vir_rtracklayer_apop_product_final, by = "ID")
 Dermo_Susceptible_28d_dds_res_LFC_sig_APOP_arranged <- arrange(Dermo_Susceptible_28d_dds_res_LFC_sig_APOP, -log2FoldChange) 
-nrow(Dermo_Susceptible_28d_dds_res_LFC_sig_APOP) # 37
+nrow(Dermo_Susceptible_28d_dds_res_LFC_sig_APOP) # 38
 
 Dermo_Tolerant_36hr_dds_res_LFC_sig_APOP <- merge(Dermo_Tolerant_36hr_dds_res_LFC_sig, C_vir_rtracklayer_apop_product_final, by = "ID")
 Dermo_Tolerant_36hr_dds_res_LFC_sig_APOP_arranged <- arrange(Dermo_Tolerant_36hr_dds_res_LFC_sig_APOP, -log2FoldChange) 
-nrow(Dermo_Tolerant_36hr_dds_res_LFC_sig_APOP)  # 16
+nrow(Dermo_Tolerant_36hr_dds_res_LFC_sig_APOP)  # 17
 
 Dermo_Tolerant_7d_dds_res_LFC_sig_APOP <- merge(Dermo_Tolerant_7d_dds_res_LFC_sig, C_vir_rtracklayer_apop_product_final, by = "ID")
 Dermo_Tolerant_7d_dds_res_LFC_sig_APOP_arranged <- arrange(Dermo_Tolerant_7d_dds_res_LFC_sig_APOP, -log2FoldChange) 
@@ -3314,7 +3224,7 @@ nrow(Dermo_Tolerant_7d_dds_res_LFC_sig_APOP) # 16
 
 Dermo_Tolerant_28d_dds_res_LFC_sig_APOP <- merge(Dermo_Tolerant_28d_dds_res_LFC_sig, C_vir_rtracklayer_apop_product_final, by = "ID")
 Dermo_Tolerant_28d_dds_res_LFC_sig_APOP_arranged <- arrange(Dermo_Tolerant_28d_dds_res_LFC_sig_APOP, -log2FoldChange) 
-nrow(Dermo_Tolerant_28d_dds_res_LFC_sig_APOP) # 17
+nrow(Dermo_Tolerant_28d_dds_res_LFC_sig_APOP) # 20
  
 # Compare apoptosis genes between group_by_sim groups
 Dermo_Susceptible_36hr_dds_res_LFC_sig_APOP$group_by_sim <- "Susceptible_36hr"
@@ -3396,7 +3306,7 @@ C_vir_apop_LFC <- rbind(
   Pro_RE22_dds_deseq_res_S4_6h_LFC_sig_APOP[,c("product","group_by_sim","log2FoldChange","experiment", "gene","transcript_id","padj")],
   Pro_RE22_dds_deseq_res_S4_24h_LFC_sig_APOP[,c("product","group_by_sim","log2FoldChange","experiment", "gene","transcript_id","padj")],
   Pro_RE22_dds_deseq_res_RE22_LFC_sig_APOP[,c("product","group_by_sim","log2FoldChange","experiment", "gene","transcript_id","padj")])
-  nrow(C_vir_apop_LFC ) #427
+  nrow(C_vir_apop_LFC ) #440
 View(arrange(C_vir_apop_LFC, -log2FoldChange) )
 
 # combine all non apop transcripts to get number of total DEGs for each 
@@ -3470,7 +3380,7 @@ C_vir_nsig_apop_collapsed <- C_vir_nsig_apop_collapsed[,c("group_by_sim","experi
 C_vir_sig_table <- left_join(C_vir_nsig_apop_collapsed, C_vir_all_sig_count)
 C_vir_sig_table <- C_vir_sig_table %>% group_by(group_by_sim) %>% mutate(apop_percent = (num_sig_apop/sig_total)*100)  
 
-# assign to gene families
+# assign to gene families (August 5th 2020 this needs to be fixed below)
 Apoptosis_names_df <- data.frame(product=c(# removing this because duplicated with bcl-2 'bcl-2-related protein A1',
   '^apoptosis-inducing factor 1',
   'nuclear apoptosis-inducing factor 1',
@@ -3714,7 +3624,7 @@ C_gig_apop_LFC <- rbind(Zhang_dds_deseq_res_V_alg1_LFC_sig_APOP       [,c("produ
                         deLorgeril_Susceptible_dds_res_48_LFC_sig_APOP[,c("product","group_by_sim","log2FoldChange","experiment", "gene","transcript_id","padj")],
                         deLorgeril_Susceptible_dds_res_60_LFC_sig_APOP[,c("product","group_by_sim","log2FoldChange","experiment", "gene","transcript_id","padj")],
                         deLorgeril_Susceptible_dds_res_72_LFC_sig_APOP[,c("product","group_by_sim","log2FoldChange","experiment", "gene","transcript_id","padj")])
-nrow(C_gig_apop_LFC) # 1613
+nrow(C_gig_apop_LFC) # 1632
 
 # combine all non apop transcripts to get number of total DEGs for each 
 Zhang_dds_deseq_res_V_alg1_LFC_sig_num        <- Zhang_dds_deseq_res_V_alg1_LFC_sig     
@@ -4091,19 +4001,19 @@ Pro_RE22_dds_deseq_res_RI_24h_LFC_sig_GIMAP$group_by_sim <- "Lab_RI_24hr"
 
 # combine all data , add in the gene and XM info. 
 C_vir_apop_LFC_IAP <- rbind(
-  ROD_Susceptible_dds_res_LFC_sig_IAP[,c("product","group_by_sim","log2FoldChange","experiment", "gene","transcript_id","padj","protein_id")],
-  Probiotic_dds_deseq_Challenge_res_LFC_sig_IAP[,c("product","group_by_sim","log2FoldChange","experiment", "gene","transcript_id","padj","protein_id")],
-  Dermo_Susceptible_36hr_dds_res_LFC_sig_IAP[,c("product","group_by_sim","log2FoldChange","experiment", "gene","transcript_id","padj","protein_id")],
-  Dermo_Susceptible_7d_dds_res_LFC_sig_IAP[,c("product","group_by_sim","log2FoldChange","experiment", "gene","transcript_id","padj","protein_id")],
-  Dermo_Susceptible_28d_dds_res_LFC_sig_IAP[,c("product","group_by_sim","log2FoldChange","experiment", "gene","transcript_id","padj","protein_id")],
-  Dermo_Tolerant_36hr_dds_res_LFC_sig_IAP[,c("product","group_by_sim","log2FoldChange","experiment", "gene","transcript_id","padj","protein_id")],
-  Dermo_Tolerant_7d_dds_res_LFC_sig_IAP[,c("product","group_by_sim","log2FoldChange","experiment", "gene","transcript_id","padj","protein_id")],
-  Dermo_Tolerant_28d_dds_res_LFC_sig_IAP[,c("product","group_by_sim","log2FoldChange","experiment", "gene","transcript_id","padj","protein_id")],
-  Pro_RE22_dds_deseq_res_RI_6h_LFC_sig_IAP[,c("product","group_by_sim","log2FoldChange","experiment", "gene","transcript_id","padj","protein_id")],
-  Pro_RE22_dds_deseq_res_RI_24h_LFC_sig_IAP[,c("product","group_by_sim","log2FoldChange","experiment", "gene","transcript_id","padj","protein_id")],
-  Pro_RE22_dds_deseq_res_S4_6h_LFC_sig_IAP[,c("product","group_by_sim","log2FoldChange","experiment", "gene","transcript_id","padj","protein_id")],
-  Pro_RE22_dds_deseq_res_S4_24h_LFC_sig_IAP[,c("product","group_by_sim","log2FoldChange","experiment", "gene","transcript_id","padj","protein_id")],
-  Pro_RE22_dds_deseq_res_RE22_LFC_sig_IAP[,c("product","group_by_sim","log2FoldChange","experiment", "gene","transcript_id","padj","protein_id")])
+  ROD_Susceptible_dds_res_LFC_sig_IAP          [,c("product","group_by_sim","log2FoldChange","experiment", "gene","ID","padj","protein_id")],
+  Probiotic_dds_deseq_Challenge_res_LFC_sig_IAP[,c("product","group_by_sim","log2FoldChange","experiment", "gene","ID","padj","protein_id")],
+  Dermo_Susceptible_36hr_dds_res_LFC_sig_IAP   [,c("product","group_by_sim","log2FoldChange","experiment", "gene","ID","padj","protein_id")],
+  Dermo_Susceptible_7d_dds_res_LFC_sig_IAP     [,c("product","group_by_sim","log2FoldChange","experiment", "gene","ID","padj","protein_id")],
+  Dermo_Susceptible_28d_dds_res_LFC_sig_IAP    [,c("product","group_by_sim","log2FoldChange","experiment", "gene","ID","padj","protein_id")],
+  Dermo_Tolerant_36hr_dds_res_LFC_sig_IAP      [,c("product","group_by_sim","log2FoldChange","experiment", "gene","ID","padj","protein_id")],
+  Dermo_Tolerant_7d_dds_res_LFC_sig_IAP        [,c("product","group_by_sim","log2FoldChange","experiment", "gene","ID","padj","protein_id")],
+  Dermo_Tolerant_28d_dds_res_LFC_sig_IAP       [,c("product","group_by_sim","log2FoldChange","experiment", "gene","ID","padj","protein_id")],
+  Pro_RE22_dds_deseq_res_RI_6h_LFC_sig_IAP     [,c("product","group_by_sim","log2FoldChange","experiment", "gene","ID","padj","protein_id")],
+  Pro_RE22_dds_deseq_res_RI_24h_LFC_sig_IAP    [,c("product","group_by_sim","log2FoldChange","experiment", "gene","ID","padj","protein_id")],
+  Pro_RE22_dds_deseq_res_S4_6h_LFC_sig_IAP     [,c("product","group_by_sim","log2FoldChange","experiment", "gene","ID","padj","protein_id")],
+  Pro_RE22_dds_deseq_res_S4_24h_LFC_sig_IAP    [,c("product","group_by_sim","log2FoldChange","experiment", "gene","ID","padj","protein_id")],
+  Pro_RE22_dds_deseq_res_RE22_LFC_sig_IAP      [,c("product","group_by_sim","log2FoldChange","experiment", "gene","ID","padj","protein_id")])
 nrow(C_vir_apop_LFC_IAP ) #60
 
 # Add back in empty rows for missing groups that should still be plotted
@@ -4655,7 +4565,7 @@ plotPCA(C_gig_full_counts_vst, "Family")
 
 # subset PCA for apoptosis genes
 C_vir_full_counts_apop <- C_vir_full_counts[row.names(C_vir_full_counts) %in% C_vir_rtracklayer_apop_product_final_ID,]
-nrow(C_vir_full_counts_apop) # 1026
+nrow(C_vir_full_counts_apop) # 1290
 all(row.names(C_vir_full_counts_apop) %in% C_vir_rtracklayer_apop_product_final_ID) # TRUE
 all(C_vir_rtracklayer_apop_product_final_ID %in% row.names(C_vir_full_counts_apop)) # TRUE
       
@@ -5260,7 +5170,7 @@ pheatmap(C_vir_vst_common_df_all_mat_limma_GIMAP_mat, annotation_col = C_vir_col
 pheatmap(C_gig_vst_common_df_all_mat_limma_IAP_mat, annotation_col = C_gig_batch_exp_con_challenge[,c("Experiment","Condition")])
 pheatmap(C_vir_vst_common_df_all_mat_limma_IAP_mat, annotation_col = C_vir_coldata_exp_con_challenge[,c("Experiment","Condition")])
 
-#### DESCRIPTIVE TABLES ####
+#### DESCRIPTIVE TABLES OF APOPTOSIS PATHWAYS ####
 
 ### Core set of transcripts and products across each challenge in each species
 ### Results removed Apr. 27th, need to assess whether code below is correct still
@@ -5572,6 +5482,164 @@ C_gig_apop_LFC_ApopI <- C_gig_apop_LFC[grepl("apoptosis inhibitor", C_gig_apop_L
 #is.na(Gene_family_frequency_long) <- "0"
 #Gene_family_frequency_long_plot <- ggplot(Gene_family_frequency_long, aes(x=experiment, y = value, fill=experiment)) + 
 #  geom_col(position="dodge") + facet_grid(.~variable) + theme(axis.text.x = element_text(angle = 90, hjust = 1))
+
+
+#### LFC IAP DOMAIN TYPE ANALYSIS ####
+### Import pathway information and IAP domain type list at the very top of script
+load(file = "/Users/erinroberts/Documents/PhD_Research/Chapter_1_Apoptosis Paper/Chapter_1_Apoptosis_Annotation_Data_Analyses_2019/DATA/Apoptosis_Pathway_Annotation_Comparative_Genomics/Comparative_Analysis_Apoptosis_Gene_Families_Data/IAP_domain_structure_XM_CG.RData")
+load(file = "/Users/erinroberts/Documents/PhD_Research/Chapter_1_Apoptosis Paper/Chapter_1_Apoptosis_Annotation_Data_Analyses_2019/DATA/Apoptosis_Pathway_Annotation_Comparative_Genomics/Comparative_Analysis_Apoptosis_Gene_Families_Data/IAP_domain_structure_XM_CV.RData")
+# Load IAP pathway list (remove once I have my external hardrive and can reload from there)
+load(file="/Users/erinroberts/Documents/PhD_Research/Chapter_1_Apoptosis Paper/Chapter1_Apoptosis_Transcriptome_Analyses_2019/DATA ANALYSIS/apoptosis_data_pipeline/DESeq2/2020_Transcriptome_ANALYSIS/combined_gene_name_org_yes_no_table_unique_pathway_joined.RData")
+
+# (script for putting together data frames was originally in the WGCNA script)
+# Use dataframes for domain structure loaded at top of whole script 
+IAP_domain_structure_XM_CG
+IAP_domain_structure_XM_CV
+
+# join XM onto IAP_domain_structure_XM_CV using C_vir_rtracklayer_apop_product_final
+IAP_domain_structure_XM_CV_XM <- left_join(IAP_domain_structure_XM_CV[,-26], C_vir_rtracklayer_apop_product_final[,c("ID","transcript_id")], by = "ID") 
+#get rid of IAP_domain_structure_XM_CV empty transcript_id column before joining
+
+# combine data IAP_domain_name data frames, put columns in correct order and remove NA domain names
+IAP_domain_structure_XM_filter <- rbind(IAP_domain_structure_XM_CG[,c("transcript_id","Domain_Name")], IAP_domain_structure_XM_CV_XM[,c("transcript_id","Domain_Name")]) %>%
+  # change NA to be "not classified"
+  mutate(Domain_Name = case_when(is.na(Domain_Name) ~ "not_classified",
+                                 TRUE ~ Domain_Name))
+
+# edit column name of pathway table for proper joining
+# Note that in my orignal script to create this table I got rid of transcript variant information for products so I could better compare which might be truly missing from one or the other
+combined_gene_name_org_yes_no_table_unique_pathway_joined_edited <- combined_gene_name_org_yes_no_table_unique_pathway_joined
+# change gene_name to product
+colnames(combined_gene_name_org_yes_no_table_unique_pathway_joined_edited)[2] <- "product"
+
+### Join domain type information to the apop_LFC data frames
+C_vir_apop_LFC_domain_type <- left_join(C_vir_apop_LFC, IAP_domain_structure_XM_filter)
+C_gig_apop_LFC_domain_type <- left_join(C_gig_apop_LFC, IAP_domain_structure_XM_filter)
+
+# combine into one table
+C_vir_apop_LFC_domain_type$Species <- "Crassostrea_virginica"
+C_gig_apop_LFC_domain_type$Species <- "Crassostrea_gigas"
+
+C_vir_C_gig_apop_LFC_domain_type <- rbind(C_vir_apop_LFC_domain_type, C_gig_apop_LFC_domain_type)
+
+### Create Comb_domains for those groups that hit to multiple domains ###
+# make the comb_domains for the group_by_sim groups rather than experiment. 
+C_vir_C_gig_apop_LFC_domain_type_comb_domain <- C_vir_C_gig_apop_LFC_domain_type %>% 
+  distinct(Domain_Name, group_by_sim, Species, experiment) %>% 
+  # filter out NAs (which are non IAP transcripts) 
+  filter(!is.na(Domain_Name)) %>% 
+  #  create comb domain if multiple for an experiment
+  group_by(group_by_sim, Species, experiment) %>% dplyr::mutate(comb_domain = paste(Domain_Name, collapse = ",")) %>% 
+  distinct(group_by_sim, comb_domain, Species, experiment) 
+
+## Join with challenge type 
+## Join experiments with challenge type: viral, bacterial, parasitic
+levels(factor(C_vir_C_gig_apop_LFC_domain_type_comb_domain$experiment))
+challenge_type <- data.frame(experiment =c(
+  "deLorgeril",
+  "Dermo",
+  "He",
+  "Pro_RE22",
+  "Probiotic",
+  "ROD",
+  "Rubio",
+  "Zhang"),  
+  challenge_type = c(
+    "viral" ,
+    "parasite",
+    "viral",
+    "bacterial",
+    "bacterial",
+    "bacterial",
+    "bacterial",
+    "bacterial"))
+
+C_vir_C_gig_apop_LFC_domain_type_comb_domain <- left_join(C_vir_C_gig_apop_LFC_domain_type_comb_domain, challenge_type)
+
+# Classify domain type as combo versus unique
+C_vir_C_gig_apop_LFC_domain_type_comb_domain_type <- C_vir_C_gig_apop_LFC_domain_type_comb_domain %>% filter(grepl(",",comb_domain)) %>% mutate(comb_domain_type = "combo")
+C_vir_C_gig_apop_LFC_domain_type_comb_domain_type_unique <- C_vir_C_gig_apop_LFC_domain_type_comb_domain %>% filter(!grepl(",",comb_domain)) %>% mutate(comb_domain_type = "unique")
+
+C_vir_C_gig_apop_LFC_domain_type_comb_domain_type <- rbind(C_vir_C_gig_apop_LFC_domain_type_comb_domain_type, C_vir_C_gig_apop_LFC_domain_type_comb_domain_type_unique)
+
+### Upset (kinda) plot of combo_domain types used across experiments
+C_vir_C_gig_apop_LFC_domain_type_comb_domain_type_upset <- C_vir_C_gig_apop_LFC_domain_type_comb_domain_type %>% mutate(count = 1)
+  
+C_vir_C_gig_apop_LFC_domain_type_comb_domain_type_upset_plot <- ggplot(C_vir_C_gig_apop_LFC_domain_type_comb_domain_type_upset, aes(y=comb_domain, x=group_by_sim, fill= count)) + geom_tile() +
+  facet_grid(.~challenge_type, scales = "free", space = "free") + 
+  theme(axis.text.x = element_text(angle = 90, hjust =1, size = 14),
+        axis.text.y = element_text(size=14),
+        plot.title = element_text(size = 16))+
+  labs(x = "Experiment", y = "Domain Name or Combination", title = "Domain Structure Combinations Across DEG Groups in Experiments", fill = "Modules\n Per Exp.") 
+
+ggsave(plot = C_vir_C_gig_apop_LFC_domain_type_comb_domain_type_upset_plot, filename = "C_vir_C_gig_apop_LFC_domain_type_comb_domain_type_upset_plot.tiff", device = "tiff",
+       width = 20, height = 10,
+       path = "/Users/erinroberts/Documents/PhD_Research/Chapter_1_Apoptosis Paper/Chapter1_Apoptosis_Transcriptome_Analyses_2019/DATA ANALYSIS/apoptosis_data_pipeline/DESeq2/2020_Transcriptome_ANALYSIS/")
+
+### Upset (kinda) plot of domain types (split up) used across groups within experiments
+
+# How common are the individual domain name types across groups within experiments if you split up the combo domains within the actual data 
+C_vir_C_gig_apop_LFC_domain_type_comb_domain_type_separate_GROUP <- C_vir_C_gig_apop_LFC_domain_type_comb_domain_type %>%
+  # separate into rows
+  separate_rows(comb_domain, sep = ",") %>% 
+  # count up the numbers for each type  
+  group_by(comb_domain, Species, experiment, group_by_sim) %>% dplyr::summarize(total_times_across_exp_groups = n())
+
+# Join with experiment type
+C_vir_C_gig_apop_LFC_domain_type_comb_domain_type_separate_GROUP_upset <-  left_join(C_vir_C_gig_apop_LFC_domain_type_comb_domain_type_separate_GROUP, challenge_type)
+
+C_vir_C_gig_apop_LFC_domain_type_comb_domain_type_separate_GROUP_upset_plot <- ggplot(C_vir_C_gig_apop_LFC_domain_type_comb_domain_type_separate_GROUP_upset , 
+                                                                                    aes(y=comb_domain, x=group_by_sim,
+                                                                                        fill= total_times_across_exp_groups)) + 
+  geom_tile() + facet_grid(.~challenge_type+experiment, scales = "free", space = "free") + 
+  theme(axis.text.x = element_text(angle = 90, hjust = 1, size = 16),
+        axis.text.y = element_text(size=16),
+        axis.title = element_text(size = 18),
+        plot.title = element_text(size = 20),
+        strip.text.x = element_text(size = 18)) +
+  scale_fill_viridis_c(option="plasma") +
+  labs(x = "Experiment", y = "Domain Name or Combination", title = "Occurence of Domain Types Across DEG Experiments")
+
+ggsave(plot = C_vir_C_gig_apop_LFC_domain_type_comb_domain_type_separate_GROUP_upset_plot, filename = "C_vir_C_gig_apop_LFC_domain_type_comb_domain_type_separate_GROUP_upset_plot.tiff", device = "tiff",
+       width = 20, height = 10,
+       path = "/Users/erinroberts/Documents/PhD_Research/Chapter_1_Apoptosis Paper/Chapter1_Apoptosis_Transcriptome_Analyses_2019/DATA ANALYSIS/apoptosis_data_pipeline/DESeq2/2020_Transcriptome_ANALYSIS/")
+
+
+### Upset (kinda) plot of domain types (split up) used across experiments (not just group_by_sim)
+# Assessing if there are patterns in the experiment types where the domains are used
+# this table has the number of times each domain type is found in each experiment
+# How common are the individual domain name types across experiments if you split up the combo domains within the actual data 
+C_vir_C_gig_apop_LFC_domain_type_comb_domain_type_separate_EXP <- C_vir_C_gig_apop_LFC_domain_type_comb_domain_type %>%
+  # separate into rows
+  separate_rows(comb_domain, sep = ",") %>% 
+  # count up the numbers for each type  
+  group_by(comb_domain, Species, experiment) %>% dplyr::summarize(total_times_across_exp_groups = n())
+
+# Join with experiment type
+C_vir_C_gig_apop_LFC_domain_type_comb_domain_type_separate_EXP_upset <-  left_join(C_vir_C_gig_apop_LFC_domain_type_comb_domain_type_separate_EXP, challenge_type)
+
+C_vir_C_gig_apop_LFC_domain_type_comb_domain_type_separate_EXP_upset_plot <- ggplot(C_vir_C_gig_apop_LFC_domain_type_comb_domain_type_separate_EXP_upset , 
+        aes(y=comb_domain, x=experiment,
+        fill= total_times_across_exp_groups)) + 
+  geom_tile() + facet_grid(.~challenge_type, scales = "free", space = "free") + 
+  theme(axis.text.x = element_text(angle = 90, hjust = 1, size = 16),
+        axis.text.y = element_text(size=16),
+        axis.title = element_text(size = 18),
+        plot.title = element_text(size = 20),
+        strip.text.x = element_text(size = 18)) +
+  scale_fill_viridis_c(option="plasma") +
+  labs(x = "Experiment", y = "Domain Name or Combination", title = "Occurence of Domain Types Across DEG Experiments")
+
+ggsave(plot = C_vir_C_gig_apop_LFC_domain_type_comb_domain_type_separate_EXP_upset_plot, filename = "C_vir_C_gig_apop_LFC_domain_type_comb_domain_type_separate_EXP_upset_plot.tiff", device = "tiff",
+       width = 20, height = 10,
+       path = "/Users/erinroberts/Documents/PhD_Research/Chapter_1_Apoptosis Paper/Chapter1_Apoptosis_Transcriptome_Analyses_2019/DATA ANALYSIS/apoptosis_data_pipeline/DESeq2/2020_Transcriptome_ANALYSIS/")
+
+
+#### IAP LFC DOMAIN TYPE AND APOPTOTIC PATHWAY ANALYSIS ####
+### Join Apoptosis data frames with the pathway information after removing transcript variant info
+
+
+
 
 
 #### EXPORT DATA FRAMES FOR WGCNA ANALYSIS ####
