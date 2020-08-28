@@ -35,7 +35,7 @@ library(pheatmap)
 Apoptosis_frames <- load(file="/Volumes/My Passport for Mac/Chapter1_Apoptosis_Paper_Saved_DESeq_WGCNA_Data/C_gig_C_vir_apoptosis_products.RData")
 annotations <- load(file="/Volumes/My Passport for Mac/Chapter1_Apoptosis_Paper_Saved_DESeq_WGCNA_Data/C_gig_C_vir_annotations.RData")
 Apop_LFC <- load(file="/Volumes/My Passport for Mac/Chapter1_Apoptosis_Paper_Saved_DESeq_WGCNA_Data/apop_LFC.RData")
-# IAP lists
+# IAP lists with domain type 
 load(file = "/Users/erinroberts/Documents/PhD_Research/Chapter_1_Apoptosis Paper/Chapter_1_Apoptosis_Annotation_Data_Analyses_2019/DATA/Apoptosis_Pathway_Annotation_Comparative_Genomics/Comparative_Analysis_Apoptosis_Gene_Families_Data/IAP_domain_structure_XM_CG.RData")
 load(file = "/Users/erinroberts/Documents/PhD_Research/Chapter_1_Apoptosis Paper/Chapter_1_Apoptosis_Annotation_Data_Analyses_2019/DATA/Apoptosis_Pathway_Annotation_Comparative_Genomics/Comparative_Analysis_Apoptosis_Gene_Families_Data/IAP_domain_structure_XM_CV.RData")
 
@@ -7337,7 +7337,7 @@ levels(factor(C_vir_C_gig_full_all_exp_mod_sig_apop$exp)) # all except ROD_Sus
 #[15] "Zhang_Vibrio"  
 
 ### Investigating apoptosis interaction partners for each domain structure type
-# Ue dataframes for domain structure loaded at top of whole script 
+# Use dataframes for domain structure loaded at top of whole script 
 IAP_domain_structure_XM_CG
 IAP_domain_structure_XM_CV
 
@@ -7351,7 +7351,6 @@ IAP_domain_structure_XM_filter <- rbind(IAP_domain_structure_XM_CG[,c("transcrip
   mutate(Domain_Name = case_when(is.na(Domain_Name) ~ "not_classified",
                                        TRUE ~ Domain_Name))
   
-
 # create search lists for each domain structure
 IAP_domain_structure_df <- IAP_domain_structure_XM_filter %>%
   group_by(Domain_Name) %>%
@@ -7444,10 +7443,33 @@ comb_domain_unique <- comb_domain %>% filter(!grepl(",",comb_domain)) # 12 of th
 comb_domain_unique$comb_domain_type <- "unique"
 
 # are the domain combos common across experiments?
-IAP_domain_structure_WGCNA_hits_df_modules_domain_hit_common_exp_species <-IAP_domain_structure_WGCNA_hits_df_modules_domain_hits %>% group_by(comb_domain, Species) %>% 
+IAP_domain_structure_WGCNA_hits_df_modules_domain_hit_common_exp_species <-IAP_domain_structure_WGCNA_hits_df_modules_domain_hits %>% group_by(comb_domain, Species, exp) %>% 
   dplyr::count() %>% arrange(desc(n))
 IAP_domain_structure_WGCNA_hits_df_modules_domain_hit_common_exp <-IAP_domain_structure_WGCNA_hits_df_modules_domain_hits %>% group_by(comb_domain) %>% 
   dplyr::count() %>% arrange(desc(n))
+# which are only found once: 
+IAP_domain_structure_WGCNA_hits_df_modules_domain_hit_common_exp %>% filter(n ==1)
+# A tibble: 17 x 2
+# Groups:   comb_domain [17]
+#comb_domain                                                                    n
+#<chr>                                                                      <int>
+#  1 BIR*,BIR*-DD-RING                                                              1
+#2 BIR*,BIR*-DD-RING,not_classified,TI-TII-DD-RING,TII-DD-RING,TII-TII,TX-TII     1
+#3 BIR*,BIR*-DD-RING,not_classified,TI-TII-DD-RING,TII-TII,TX-TII                 1
+#4 BIR*,TII-BIR6-E2                                                               1
+#5 BIR*,TII-DD-RING                                                               1
+#6 not_classified,TI-TII-DD-RING,TI-TII-TII-UBA-RING,TII-RING                     1
+#7 not_classified,TI-TII-DD-RING,TII-DD,TII-DD-RING                               1
+#8 not_classified,TI-TII-DD-RING,TII-TII-RING                                     1
+#9 not_classified,TI-TII-DD-RING,TX-TII                                           1
+#10 not_classified,TI-TII-TII-UBA-RING,TII-BIR6-E2                                 1
+#11 not_classified,TII-DD-RING                                                     1
+#12 not_classified,TII-RING,TX-TII                                                 1
+#13 not_classified,TII-TII,TII-TII-RING                                            1
+#14 TI-TII-DD-RING,TII-DD-RING                                                     1
+#15 TII-BIR6-E2,TII-TII-RING                                                       1
+#16 TII-TII-RING,TX-TII                                                            1
+#17 TII,TII-DD-RING                                                                1
 
 # How common are the individual domain name types across experiments if you split up the combo domains within the actual data 
 IAP_domain_structure_WGCNA_hits_df_modules_domain_hit_common_exp_separate <- IAP_domain_structure_WGCNA_hits_df_modules_domain_hit_common_exp_species %>%
@@ -7455,6 +7477,14 @@ IAP_domain_structure_WGCNA_hits_df_modules_domain_hit_common_exp_separate <- IAP
   separate_rows(comb_domain, sep = ",") %>% 
   # add together the numbers for each type 
   group_by(comb_domain, Species) %>% dplyr::summarize(total_times_across_exp_modules = sum(n))
+
+# Which experiments have the most different domain types overall 
+IAP_domain_structure_WGCNA_hits_df_modules_domain_hit_common_separate_EXP <- IAP_domain_structure_WGCNA_hits_df_modules_domain_hit_common_exp_species %>%
+  # separate into rows
+  separate_rows(comb_domain, sep = ",") %>% 
+  # add find all the different comb_domains associated with each experiment and add them up
+   dplyr::distinct(Species,exp, comb_domain) %>% dplyr::count(exp) %>%
+  arrange(desc(n))
 
 # how common are the individual domain types within just the names (including both combo and unique)? Are some more specific than others?
 comb_domain_freq <- as.data.frame(str_split(comb_domain$comb_domain, ",") %>% unlist(.))
@@ -7573,7 +7603,61 @@ ggsave(plot = IAP_domain_structure_WGCNA_hits_exp_upset_plot, filename = "IAP_do
        width = 20, height = 10,
        path = "/Users/erinroberts/Documents/PhD_Research/Chapter_1_Apoptosis Paper/Chapter1_Apoptosis_Transcriptome_Analyses_2019/DATA ANALYSIS/apoptosis_data_pipeline/WGCNA/")
 
+### Upset (kinda) plot of domain types (split up) used across experiments
+# Assessing if there are patterns in the experiment types where the domains are used
+# this table has the number of times each domain type is found in each experiment
+# How common are the individual domain name types across experiments if you split up the combo domains within the actual data 
+IAP_domain_structure_WGCNA_hits_df_modules_domain_hit_common_exp_separate_EXP <- IAP_domain_structure_WGCNA_hits_df_modules_domain_hit_common_exp_species %>%
+  # separate into rows
+  separate_rows(comb_domain, sep = ",") %>% 
+  # add together the numbers for each type 
+  group_by(comb_domain, Species, exp) %>% dplyr::summarize(total_times_across_exp_modules = sum(n))
+
+# Join with experiment type
+IAP_domain_structure_WGCNA_hits_df_modules_domain_hit_common_exp_separate_EXP_upset <-  left_join(IAP_domain_structure_WGCNA_hits_df_modules_domain_hit_common_exp_separate_EXP, challenge_type)
+# export table to compare with LFC domain usage 
+save(IAP_domain_structure_WGCNA_hits_df_modules_domain_hit_common_exp_separate_EXP_upset, file = "/Users/erinroberts/Documents/PhD_Research/Chapter_1_Apoptosis Paper/Chapter1_Apoptosis_Transcriptome_Analyses_2019/DATA ANALYSIS/apoptosis_data_pipeline/WGCNA/IAP_domain_structure_WGCNA_hits_df_modules_domain_hit_common_exp_separate_EXP_upset.RData")
+
+IAP_domain_structure_WGCNA_hits_df_modules_domain_hit_common_exp_separate_EXP_upset_plot <- ggplot(IAP_domain_structure_WGCNA_hits_df_modules_domain_hit_common_exp_separate_EXP_upset , aes(y=comb_domain, x=exp, fill= total_times_across_exp_modules)) + 
+  geom_tile() + facet_grid(.~challenge_type, scales = "free", space = "free") + 
+  theme(axis.text.x = element_text(angle = 90, hjust = 1, size = 16),
+        axis.text.y = element_text(size=16),
+        axis.title = element_text(size = 18),
+        plot.title = element_text(size = 20),
+        strip.text.x = element_text(size = 18)) +
+  scale_fill_viridis_c(option="plasma") +
+  labs(x = "Experiment", y = "Domain Name or Combination", title = "Occurence of Domain Types Across Experiments")
+
+ggsave(plot = IAP_domain_structure_WGCNA_hits_df_modules_domain_hit_common_exp_separate_EXP_upset_plot, filename = "IAP_domain_structure_WGCNA_hits_df_modules_domain_hit_common_exp_separate_EXP_upset_plot.tiff", device = "tiff",
+       width = 20, height = 10,
+       path = "/Users/erinroberts/Documents/PhD_Research/Chapter_1_Apoptosis Paper/Chapter1_Apoptosis_Transcriptome_Analyses_2019/DATA ANALYSIS/apoptosis_data_pipeline/WGCNA/")
+
+
+#### Combined table with module stats, apoptosis transcript stats, distinct IAP types #### 
+
+
+
 #### Investigation of Interaction Partners ####
+## How many apoptosis transcripts are found total across all modules in each experiment
+IAP_domain_structure_WGCNA_hits_df_condensed_type %>% ungroup() %>% dplyr::count(exp)
+## A tibble: 14 x 2
+#exp                    n
+#<chr>              <int>
+#  1 deLorg_Res           131
+#2 deLorg_Sus            95
+#3 Dermo_Sus              5
+#4 Dermo_Tol             74
+#5 He                   160
+#6 Pro_RE22_Pro_RI      192
+#7 Pro_RE22_Pro_S4      128
+#8 Pro_RE22_RE22_full   100
+#9 Probiotic             53
+#10 ROD_Res                8
+#11 Rubio_NV             210
+#12 Rubio_V              219
+#13 Zhang_LPS            109
+#14 Zhang_Vibrio          23
+
 ## Number of shared transcripts across particular experiment combos and domain types in all domains - 
 IAP_domain_structure_WGCNA_hits_PATHWAY_shared_between_exp_comb_domain <- IAP_domain_structure_WGCNA_hits_df_condensed_type %>% ungroup() %>% 
   dplyr::group_by(transcript_id, comb_domain) %>% dplyr::mutate(exp_combined = paste(exp, collapse = "_")) %>% 
@@ -7747,7 +7831,6 @@ IAP_domain_structure_WGCNA_hits_freq_heatmap_prod_exp_like_plot <- pheatmap(IAP_
 ggsave(plot = IAP_domain_structure_WGCNA_hits_freq_heatmap_prod_exp_like_plot, filename = "IAP_domain_structure_WGCNA_hits_freq_heatmap_prod_exp_like_pheatmap.tiff", device = "tiff",
        width = 30, height = 60, limitsize = FALSE,
        path = "/Users/erinroberts/Documents/PhD_Research/Chapter_1_Apoptosis Paper/Chapter1_Apoptosis_Transcriptome_Analyses_2019/DATA ANALYSIS/apoptosis_data_pipeline/WGCNA/")
-
 
 ## Repeat heatmap but with individual transcript_ids not the common names
 # Transform the data so that there is one row per transcript, and the columns are the experiment and comb_domain type 
@@ -8047,11 +8130,13 @@ IAP_domain_structure_WGCNA_hits_df_condensed_type_IAP_count <- IAP_domain_struct
 IAP_domain_structure_WGCNA_hits_df_condensed_type_IAP_plot <- 
   ggplot(IAP_domain_structure_WGCNA_hits_df_condensed_type_IAP_count, aes(y=comb_domain, x=exp, fill= IAP_count)) + geom_tile() +
   facet_grid(.~challenge_type, scales = "free", space = "free") + 
-  theme(axis.text.x = element_text(angle = 90, hjust =1, size = 14),
-        axis.text.y = element_text(size=14),
-        plot.title = element_text(size = 16)) +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1, size = 16),
+        axis.text.y = element_text(size=16),
+        axis.title = element_text(size = 18),
+        plot.title = element_text(size = 20),
+        strip.text.x = element_text(size = 18)) +
   scale_fill_viridis_c(option="plasma") + 
-  labs(x = "Experiment", y = "Domain Name or Combination", title = "IAP Counts for Domain Structure Combinations Across Experiments", fill = "IAP transcripts\n Per Exp.") 
+  labs(x = "Experiment", y = "Module Classification", title = "IAP Counts Modules Across Experiments", fill = "IAP transcripts\nPer Exp.") 
 
 ggsave(plot = IAP_domain_structure_WGCNA_hits_df_condensed_type_IAP_plot, filename = "IAP_domain_structure_WGCNA_hits_df_condensed_type_IAP_plot.tiff", device = "tiff",
        width = 20, height = 10,
