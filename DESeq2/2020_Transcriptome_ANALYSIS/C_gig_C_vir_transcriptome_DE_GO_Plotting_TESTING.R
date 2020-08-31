@@ -5637,9 +5637,12 @@ ggsave(plot = C_vir_C_gig_apop_LFC_domain_type_comb_domain_type_separate_EXP_ups
 
 #### IAP LFC DOMAIN TYPE AND APOPTOTIC PATHWAY ANALYSIS ####
 ### Join Apoptosis data frames with the pathway information after removing transcript variant info
+# join with domain type and experiment type
+C_vir_C_gig_apop_LFC_domain_type_joined <- left_join(C_vir_C_gig_apop_LFC_domain_type, C_vir_C_gig_apop_LFC_domain_type_comb_domain)
 
-
-
+# remove transcript variant info and join with subpathway
+C_vir_C_gig_apop_LFC_domain_type_joined_separate_subpathway <- C_vir_C_gig_apop_LFC_domain_type_joined %>%
+  
 
 
 #### EXPORT DATA FRAMES FOR WGCNA ANALYSIS ####
