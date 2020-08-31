@@ -7852,10 +7852,19 @@ ggsave(plot = IAP_domain_structure_WGCNA_hits_freq_heatmap_prod_exp_plot, filena
 ## Repeat heatmap above but remove "-like" from product names
 # create table where presence of a product is a 1
 IAP_domain_structure_WGCNA_hits_freq_heatmap_prod_exp_like <- IAP_domain_structure_WGCNA_hits_df_condensed_type %>% ungroup() %>%
+  filter(!grepl("toll-like", product)) %>% # filter out then add back in so it isn't accidentally removed
   separate(product, into = c("product","transcript_variant"), sep = ", transcript") %>% separate(product, into = c("product","like"), sep = "-like") %>% dplyr::mutate(dom_exp = paste(exp,comb_domain, sep = ":")) %>%
   dplyr::distinct(dom_exp, product) %>% mutate(count = 1)
+IAP_domain_structure_WGCNA_hits_freq_heatmap_prod_exp_like_toll <- IAP_domain_structure_WGCNA_hits_df_condensed_type %>% ungroup() %>%
+  filter(grepl("toll-like", product)) %>% # filter out then add back in so it isn't accidentally removed
+  separate(product, into = c("product","transcript_variant"), sep = ", transcript") %>% 
+  dplyr::mutate(dom_exp = paste(exp,comb_domain, sep = ":")) %>%
+  dplyr::distinct(dom_exp, product) %>% mutate(count = 1) 
+#combine back
+IAP_domain_structure_WGCNA_hits_freq_heatmap_prod_exp_like <- rbind(IAP_domain_structure_WGCNA_hits_freq_heatmap_prod_exp_like, IAP_domain_structure_WGCNA_hits_freq_heatmap_prod_exp_like_toll )
+
 IAP_domain_structure_WGCNA_hits_freq_heatmap_prod_exp_like <- spread(IAP_domain_structure_WGCNA_hits_freq_heatmap_prod_exp_like, dom_exp, count, fill = 0)
-nrow(IAP_domain_structure_WGCNA_hits_freq_heatmap_prod_exp_like) # 222
+nrow(IAP_domain_structure_WGCNA_hits_freq_heatmap_prod_exp_like) # 234
 IAP_domain_structure_WGCNA_hits_freq_heatmap_prod_exp_like <-  column_to_rownames(IAP_domain_structure_WGCNA_hits_freq_heatmap_prod_exp_like, var = "product") 
 IAP_domain_structure_WGCNA_hits_freq_heatmap_prod_exp_like_mat <- as.matrix(IAP_domain_structure_WGCNA_hits_freq_heatmap_prod_exp_like)
 # make column annotation dataframe 
@@ -7882,10 +7891,11 @@ IAP_domain_structure_WGCNA_hits_freq_heatmap_prod_exp_mat_annot_row_like <- colu
 # generate heatmap
 IAP_domain_structure_WGCNA_hits_freq_heatmap_prod_exp_like_plot <- pheatmap(IAP_domain_structure_WGCNA_hits_freq_heatmap_prod_exp_like_mat, 
                                                                        annotation_col = IAP_domain_structure_WGCNA_hits_freq_heatmap_prod_exp_mat_annot_like,
-                                                                       annotation_row = IAP_domain_structure_WGCNA_hits_freq_heatmap_prod_exp_mat_annot_row_like)
+                                                                       annotation_row = IAP_domain_structure_WGCNA_hits_freq_heatmap_prod_exp_mat_annot_row_like,
+                                                                       fontsize = 20)
 
 ggsave(plot = IAP_domain_structure_WGCNA_hits_freq_heatmap_prod_exp_like_plot, filename = "IAP_domain_structure_WGCNA_hits_freq_heatmap_prod_exp_like_pheatmap.tiff", device = "tiff",
-       width = 30, height = 60, limitsize = FALSE,
+       width = 43, height = 60, limitsize = FALSE,
        path = "/Users/erinroberts/Documents/PhD_Research/Chapter_1_Apoptosis Paper/Chapter1_Apoptosis_Transcriptome_Analyses_2019/DATA ANALYSIS/apoptosis_data_pipeline/WGCNA/")
 
 ## Repeat heatmap but with individual transcript_ids not the common names
