@@ -24,6 +24,7 @@ library(cowplot)
 library(VennDiagram)
 library(ComplexHeatmap)
 library(pheatmap)
+library(gt)
 # Using R version 3.6.1
 
 
@@ -7400,6 +7401,47 @@ IAP_domain_structure_WGCNA_hits_df <- dplyr::semi_join(IAP_domain_structure_WGCN
 distinct(IAP_domain_structure_WGCNA_hits_df, mod_names, exp) # 69 total without any module repeats
 View(distinct(IAP_domain_structure_WGCNA_hits_df, Domain_Name, mod_names, exp))
 
+## Count IAPs of each type in each experiment and make table
+IAP_domain_structure_WGCNA_hits_df_IAP_count_exp_table <- IAP_domain_structure_WGCNA_hits_df_IAP %>%
+  ungroup() %>% group_by(exp, Species, Domain_Name) %>% dplyr::summarise(IAP_count = n())
+
+# Make table for paper (Table 4)
+# Generate WGCNA IAP table across modules similar to the LFC table
+IAP_domain_structure_WGCNA_hits_df_IAP_count_exp_TABLE <- IAP_domain_structure_WGCNA_hits_df_IAP_count_exp_table %>%
+  # mutate experiment level names so I can change and add markdown formatting below
+  # spread table into wide format
+  ungroup() %>% dplyr::select(exp,IAP_count,Domain_Name) %>%
+  spread(exp, IAP_count, fill = 0) %>%
+  gt::gt(rowname_col = "Domain_Name") %>%
+  tab_header(title = gt::md("**Domain Structure of IAPs in all Significant WGCNA Modules Per Experiment**")) %>%
+  cols_label( Domain_Name = md("**Domain Structure Type**"),
+    "deLorg_Res" = "de Lorgeril OsHv-1 Resistant",
+    "deLorg_Sus" = "de Lorgeril OsHv-1 Susceptible",
+    "Dermo_Sus"  = "Dermo Susceptible",
+    "Dermo_Tol" = "Dermo Tolerant",
+    "He"  = "He OsHV-1",
+    "Pro_RE22_Pro_RI" = "Lab Pro. RI",
+    "Pro_RE22_Pro_S4" = "Lab Pro. S4",
+    "Pro_RE22_RE22_full" = "Lab RE22",
+    "Probiotic"          = "Hatchery Pro. RI",
+    "ROD_Res" = "ROD Resistant",
+    "Rubio_NV" = md("Rubio. Non-virulent\n*Vibrio* spp."),
+    "Rubio_V" =  md("Rubio. Virulent\n*Vibrio* spp."),
+    "Zhang_LPS" = md("Zhang LPS, *M. Lut*"),
+    "Zhang_Vibrio"   = md("Zhang *Vibrio* spp.")) %>%
+  #add total column
+  grand_summary_rows(fns = list(Total="sum"), formatter = fmt_number, decimals = 0) %>%
+  # add spanner over experiments for each species
+  tab_spanner(
+    label = md("*Crassostrea gigas*"),
+    columns = vars(deLorg_Res,deLorg_Sus,He, Rubio_NV, Rubio_V,Zhang_LPS, Zhang_Vibrio)) %>%
+  tab_spanner(
+    label = md("*Crassostrea virginica*"),
+    columns = vars(Dermo_Sus, Dermo_Tol,Pro_RE22_Pro_RI,Pro_RE22_Pro_S4,Pro_RE22_RE22_full,Probiotic,ROD_Res)) %>%
+  tab_source_note(source_note = md("\\* = *IAP Domain identified by Interproscan and not CDD search*"))
+# save as png
+gtsave(IAP_domain_structure_WGCNA_hits_df_IAP_count_exp_TABLE, "/Users/erinroberts/Documents/PhD_Research/Chapter_1_Apoptosis Paper/Chapter_1_Apoptosis_Annotation_Data_Analyses_2019/DATA/ANNOTATION_DATA_FIGURES/TABLES/IAP_domain_structure_WGCNA_hits_df_IAP_count_exp_TABLE.png")
+
 ### FIND DOMAIN STRUCTURE SHARED ACROSS CHALLENGE TYPES 
 # Goal is see if there is a response that might be specific to the IAP domain structure rather than a challenge specific response
 levels(factor(IAP_domain_structure_WGCNA_hits_df$Domain_Name))
@@ -7417,7 +7459,6 @@ IAP_domain_structure_WGCNA_hits_df_modules_domain_hits <- IAP_domain_structure_W
   distinct(mod_names, exp, count, comb_domain) %>% arrange(exp)
 # join back with species for grouping in the code below
 IAP_domain_structure_WGCNA_hits_df_modules_domain_hits <- left_join(IAP_domain_structure_WGCNA_hits_df_modules_domain_hits,   unique(IAP_domain_structure_WGCNA_hits_df[,c("exp","Species")]))
-
 
 # how many domains are there with the comb_domains
 comb_domain <-  as.data.frame(levels(factor(IAP_domain_structure_WGCNA_hits_df_modules_domain_hits$comb_domain)))
@@ -7471,12 +7512,27 @@ IAP_domain_structure_WGCNA_hits_df_modules_domain_hit_common_exp %>% filter(n ==
 #16 TII-TII-RING,TX-TII                                                            1
 #17 TII,TII-DD-RING                                                                1
 
-# How common are the individual domain name types across experiments if you split up the combo domains within the actual data 
+## How common are the individual domain name types across experiments if you split up the combo domains within the actual data 
 IAP_domain_structure_WGCNA_hits_df_modules_domain_hit_common_exp_separate <- IAP_domain_structure_WGCNA_hits_df_modules_domain_hit_common_exp_species %>%
   # separate into rows
   separate_rows(comb_domain, sep = ",") %>% 
   # add together the numbers for each type 
   group_by(comb_domain, Species) %>% dplyr::summarize(total_times_across_exp_modules = sum(n))
+
+# Export as formatted table 
+IAP_domain_structure_WGCNA_hits_df_modules_domain_hit_common_exp_separate_TABLE <- IAP_domain_structure_WGCNA_hits_df_modules_domain_hit_common_exp_separate %>%
+  # mutate experiment level names so I can change and add markdown formatting below
+  # spread table into wide format
+  ungroup() %>% 
+  spread(Species, total_times_across_exp_modules, fill = 0) %>%
+  gt::gt(rowname_col = "comb_domain") %>%
+  tab_header(title = gt::md("**Number of Modules Including Domain Structure Per Experiment**")) %>%
+  cols_label(Crassostrea_gigas = md("*Crassostrea gigas*"),
+        Crassostrea_virginica = md("*Crassostrea virginica*")) %>%
+    tab_source_note(source_note = md("\\* = *IAP Domain identified by Interproscan and not CDD search*"))
+# save as png
+gtsave(IAP_domain_structure_WGCNA_hits_df_modules_domain_hit_common_exp_separate_TABLE, "/Users/erinroberts/Documents/PhD_Research/Chapter_1_Apoptosis Paper/Chapter_1_Apoptosis_Annotation_Data_Analyses_2019/DATA/ANNOTATION_DATA_FIGURES/TABLES/IAP_domain_structure_WGCNA_hits_df_modules_domain_hit_common_exp_separate_TABLE.png")
+
 
 # Which experiments have the most different domain types overall 
 IAP_domain_structure_WGCNA_hits_df_modules_domain_hit_common_separate_EXP <- IAP_domain_structure_WGCNA_hits_df_modules_domain_hit_common_exp_species %>%
