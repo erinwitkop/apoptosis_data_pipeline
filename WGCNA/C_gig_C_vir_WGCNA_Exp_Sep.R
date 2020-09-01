@@ -8487,13 +8487,20 @@ LFC_comb_domain_type_XM_exp_hits_df_Zhang_IAP %>% distinct(exp, mod_names) # MEb
 # Code is in the TOMsim_cluster.R
 # Export full Matrices as tables for each experiment so that I can export the matrices in bluewaves 
 # Dermo_tol matrix was already exported don't need to repeat this. Then move this data to bluewaves
-write.table(Pro_RE22_dds_rlog_matrix_RE22, file="/Volumes/My Passport for Mac/Chapter1_Apoptosis_Paper_Saved_DESeq_WGCNA_Data/Pro_RE22_dds_rlog_matrix_RE22.table")
 write.table(Pro_RE22_dds_rlog_matrix_Pro, file="/Volumes/My Passport for Mac/Chapter1_Apoptosis_Paper_Saved_DESeq_WGCNA_Data/Pro_RE22_dds_rlog_matrix_Pro.table")
 write.table(Zhang_dds_rlog_matrix, file="/Volumes/My Passport for Mac/Chapter1_Apoptosis_Paper_Saved_DESeq_WGCNA_Data/Zhang_dds_rlog_matrix.table")
 write.table(Rubio_dds_rlog_matrix, file="/Volumes/My Passport for Mac/Chapter1_Apoptosis_Paper_Saved_DESeq_WGCNA_Data/Rubio_dds_rlog_matrix.table")
 write.table(deLorgeril_Resistant_dds_vst_matrix, file="/Volumes/My Passport for Mac/Chapter1_Apoptosis_Paper_Saved_DESeq_WGCNA_Data/deLorgeril_Resistant_dds_vst_matrix.table")
 write.table(deLorgeril_Susceptible_dds_vst_matrix,file="/Volumes/My Passport for Mac/Chapter1_Apoptosis_Paper_Saved_DESeq_WGCNA_Data/deLorgeril_Susceptible_dds_vst_matrix.table")
 write.table(He_dds_vst_matrix,file="/Volumes/My Passport for Mac/Chapter1_Apoptosis_Paper_Saved_DESeq_WGCNA_Data/He_dds_vst_matrix.table")
+
+# Export moduleColors file for each 
+save(Pro_RE22_Pro_full_moduleColors, file = "/Volumes/My Passport for Mac/Chapter1_Apoptosis_Paper_Saved_DESeq_WGCNA_Data/Pro_RE22_Pro_full_moduleColors.RData")
+save(deLorg_Res_full_moduleColors, file = "/Volumes/My Passport for Mac/Chapter1_Apoptosis_Paper_Saved_DESeq_WGCNA_Data/deLorg_Res_full_moduleColors.RData")
+save(deLorg_Sus_full_moduleColors, file = "/Volumes/My Passport for Mac/Chapter1_Apoptosis_Paper_Saved_DESeq_WGCNA_Data/deLorg_Sus_full_moduleColors.RData")
+save(He_full_moduleColors, file = "/Volumes/My Passport for Mac/Chapter1_Apoptosis_Paper_Saved_DESeq_WGCNA_Data/He_full_moduleColors.RData")
+save(Rubio_full_moduleColors, file = "/Volumes/My Passport for Mac/Chapter1_Apoptosis_Paper_Saved_DESeq_WGCNA_Data/Rubio_full_moduleColors.RData")
+save(Zhang_full_moduleColors, file= "/Volumes/My Passport for Mac/Chapter1_Apoptosis_Paper_Saved_DESeq_WGCNA_Data/Zhang_full_moduleColors.RData") 
 
 #### COMPARE CONSENSUS AND FULL IAP AND GIMAP ACROSS ALL DATASETS, NOT JUST THOSE IN SIGNIFICANT MODULES ####
 
