@@ -7438,7 +7438,8 @@ IAP_domain_structure_WGCNA_hits_df_IAP_count_exp_TABLE <- IAP_domain_structure_W
   tab_spanner(
     label = md("*Crassostrea virginica*"),
     columns = vars(Dermo_Sus, Dermo_Tol,Pro_RE22_Pro_RI,Pro_RE22_Pro_S4,Pro_RE22_RE22_full,Probiotic,ROD_Res)) %>%
-  tab_source_note(source_note = md("\\* = *IAP Domain identified by Interproscan and not CDD search*"))
+  tab_source_note(source_note = md("\\* = *IAP Domain identified by Interproscan and not CDD search*")) %>%
+  tab_options(table.font.color = "black")
 # save as png
 gtsave(IAP_domain_structure_WGCNA_hits_df_IAP_count_exp_TABLE, "/Users/erinroberts/Documents/PhD_Research/Chapter_1_Apoptosis Paper/Chapter_1_Apoptosis_Annotation_Data_Analyses_2019/DATA/ANNOTATION_DATA_FIGURES/TABLES/IAP_domain_structure_WGCNA_hits_df_IAP_count_exp_TABLE.png")
 
