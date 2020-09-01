@@ -22,13 +22,8 @@ cor <- WGCNA::cor
 
 #### LOAD SAVED MATRICES ####
 # Load C. virginica matrices
-
 #Dermo_Tolerant_dds_vst_matrix <- read.table(file="/data3/marine_diseases_lab/erin/2017_2020_Transcriptome_Analysis/WGCNA/Dermo_Tolerant_dds_vst_matrix.table")
 Pro_RE22_dds_rlog_matrix_Pro <- read.table(file="/data3/marine_diseases_lab/erin/2017_2020_Transcriptome_Analysis/WGCNA/Pro_RE22_dds_rlog_matrix_Pro.table")
-
-
-#print(class(Dermo_Tolerant_dds_vst_matrix))
-#print(head(Dermo_Tolerant_dds_vst_matrix))
 
 # Load C. gigas matrices
 Zhang_dds_rlog_matrix <- read.table(file="/data3/marine_diseases_lab/erin/2017_2020_Transcriptome_Analysis/WGCNA/Zhang_dds_rlog_matrix.table")
@@ -36,8 +31,6 @@ Rubio_dds_rlog_matrix <- read.table(file="/data3/marine_diseases_lab/erin/2017_2
 deLorgeril_Resistant_dds_vst_matrix <- read.table(file="/data3/marine_diseases_lab/erin/2017_2020_Transcriptome_Analysis/WGCNA/deLorgeril_Resistant_dds_vst_matrix.table")
 deLorgeril_Susceptible_dds_vst_matrix <- read.table(file="/data3/marine_diseases_lab/erin/2017_2020_Transcriptome_Analysis/WGCNA/deLorgeril_Susceptible_dds_vst_matrix.table")
 He_dds_vst_matrix <- read.table(file="/data3/marine_diseases_lab/erin/2017_2020_Transcriptome_Analysis/WGCNA/He_dds_vst_matrix.table")
-
-
 
 #### CALCULATE TOM ####
 #Dermo_Tol_full_TOM = TOMsimilarityFromExpr(Dermo_Tolerant_dds_vst_matrix, power = 3, TOMType = "signed", networkType= "signed hybrid", corType = "bicor") 
@@ -62,7 +55,6 @@ save(deLorg_Sus_full_TOM, file = "/data3/marine_diseases_lab/erin/2017_2020_Tran
 He_full_TOM = TOMsimilarityFromExpr(He_dds_vst_matrix, power = 5,TOMType = "signed", networkType= "signed hybrid", corType = "bicor") 
 save(He_full_TOM, file = "/data3/marine_diseases_lab/erin/2017_2020_Transcriptome_Analysis/WGCNA/He_full_TOM.RData")
 
-
 ###### CAN RUN BELOW EITHER INTERACTIVE OR AS A SCRIPT ####
 
 ## EXPORTING EACH AS SEPARATE NETWORKS BECAUSE THE INDIVIDUAL NETWORKS ARE TOO LARGE 
@@ -74,71 +66,151 @@ save(He_full_TOM, file = "/data3/marine_diseases_lab/erin/2017_2020_Transcriptom
 
 library(WGCNA)
 
-# Read in the annotation files 
-load(file="/data3/marine_diseases_lab/erin/2017_2020_Transcriptome_Analysis/WGCNA/C_gig_C_vir_annotations.RData")
-
-# Check they loaded
-# nrow(C_vir_rtracklayer)
-
 # Read in the TOM files as tables
-load(file = "/data3/marine_diseases_lab/erin/2017_2020_Transcriptome_Analysis/WGCNA/Dermo_Tol_full_TOM.RData")
-load(file="/data3/marine_diseases_lab/erin/2017_2020_Transcriptome_Analysis/WGCNA/Pro_RE22_RE22_full_TOM.RData")
+# load(file = "/data3/marine_diseases_lab/erin/2017_2020_Transcriptome_Analysis/WGCNA/Dermo_Tol_full_TOM.RData") # already done
+load(file = "/data3/marine_diseases_lab/erin/2017_2020_Transcriptome_Analysis/WGCNA/Pro_RE22_Pro_full_TOM.RData")
+load(file = "/data3/marine_diseases_lab/erin/2017_2020_Transcriptome_Analysis/WGCNA/Zhang_full_TOM.RData")
+load(file = "/data3/marine_diseases_lab/erin/2017_2020_Transcriptome_Analysis/WGCNA/Rubio_full_TOM.RData")
+load(file = "/data3/marine_diseases_lab/erin/2017_2020_Transcriptome_Analysis/WGCNA/deLorg_Res_full_TOM.RData")
+load(file = "/data3/marine_diseases_lab/erin/2017_2020_Transcriptome_Analysis/WGCNA/deLorg_Sus_full_TOM.RData")
+load(file = "/data3/marine_diseases_lab/erin/2017_2020_Transcriptome_Analysis/WGCNA/He_full_TOM.RData")
 
 # Read in the matrix files
-Pro_RE22_dds_rlog_matrix_RE22 <- read.table(file="/data3/marine_diseases_lab/erin/2017_2020_Transcriptome_Analysis/WGCNA/Pro_RE22_dds_rlog_matrix_RE22.table")
-Dermo_Tolerant_dds_vst_matrix <- read.table(file="/data3/marine_diseases_lab/erin/2017_2020_Transcriptome_Analysis/WGCNA/Dermo_Tolerant_dds_vst_matrix.table")
+Pro_RE22_dds_rlog_matrix_Pro <- read.table(file="/data3/marine_diseases_lab/erin/2017_2020_Transcriptome_Analysis/WGCNA/Pro_RE22_dds_rlog_matrix_Pro.table")
+Zhang_dds_rlog_matrix <- read.table(file="/data3/marine_diseases_lab/erin/2017_2020_Transcriptome_Analysis/WGCNA/Zhang_dds_rlog_matrix.table")
+Rubio_dds_rlog_matrix <- read.table(file="/data3/marine_diseases_lab/erin/2017_2020_Transcriptome_Analysis/WGCNA/Rubio_dds_rlog_matrix.table")
+deLorgeril_Resistant_dds_vst_matrix <- read.table(file="/data3/marine_diseases_lab/erin/2017_2020_Transcriptome_Analysis/WGCNA/deLorgeril_Resistant_dds_vst_matrix.table")
+deLorgeril_Susceptible_dds_vst_matrix <- read.table(file="/data3/marine_diseases_lab/erin/2017_2020_Transcriptome_Analysis/WGCNA/deLorgeril_Susceptible_dds_vst_matrix.table")
+He_dds_vst_matrix <- read.table(file="/data3/marine_diseases_lab/erin/2017_2020_Transcriptome_Analysis/WGCNA/He_dds_vst_matrix.table")
 
 # Read in the module colors files
 # export moduleColors file for use in cluster
-load(file="/data3/marine_diseases_lab/erin/2017_2020_Transcriptome_Analysis/WGCNA/Dermo_Tol_full_moduleColors.RData")
-load(file="/data3/marine_diseases_lab/erin/2017_2020_Transcriptome_Analysis/WGCNA/Pro_RE22_RE22_full_net_moduleColors.RData")
+#load(file="/data3/marine_diseases_lab/erin/2017_2020_Transcriptome_Analysis/WGCNA/Dermo_Tol_full_moduleColors.RData")
+# Export moduleColors file for each 
+load(file = "/data3/marine_diseases_lab/erin/2017_2020_Transcriptome_Analysis/WGCNA/Pro_RE22_Pro_full_moduleColors.RData")
+load(file = "/data3/marine_diseases_lab/erin/2017_2020_Transcriptome_Analysis/WGCNA/deLorg_Res_full_moduleColors.RData")
+load(file = "/data3/marine_diseases_lab/erin/2017_2020_Transcriptome_Analysis/WGCNA/deLorg_Sus_full_moduleColors.RData")
+load(file = "/data3/marine_diseases_lab/erin/2017_2020_Transcriptome_Analysis/WGCNA/He_full_moduleColors.RData")
+load(file = "/data3/marine_diseases_lab/erin/2017_2020_Transcriptome_Analysis/WGCNA/Rubio_full_moduleColors.RData")
+load(file=  "/data3/marine_diseases_lab/erin/2017_2020_Transcriptome_Analysis/WGCNA/Zhang_full_moduleColors.RData") 
 
-class(Dermo_Tol_full_moduleColors) # character
+# Read in the annotation files 
+load(file="/data3/marine_diseases_lab/erin/2017_2020_Transcriptome_Analysis/WGCNA/C_gig_C_vir_annotations.RData")
 
-## Dermo_Tol modules (already done in bluewaves)
+#### Dermo_Tol modules ####
+#(already done in bluewaves)
+
 # TURQUOISE 
-Dermo_Tol_full_modules = "turquoise"
-# Select module probes
-Dermo_Tol_full_probes = colnames(Dermo_Tolerant_dds_vst_matrix)
-Dermo_Tol_full_inModule = is.finite(match(Dermo_Tol_full_moduleColors, Dermo_Tol_full_modules))
-Dermo_Tol_full_modProbes = Dermo_Tol_full_probes[Dermo_Tol_full_inModule]
-Dermo_Tol_full_modGenes = C_vir_rtracklayer$ID[match(Dermo_Tol_full_modProbes, C_vir_rtracklayer$ID)]
-# Select the corresponding Topological Overlap
-Dermo_Tol_full_modTOM = Dermo_Tol_full_TOM[Dermo_Tol_full_inModule, Dermo_Tol_full_inModule]
-dimnames(Dermo_Tol_full_modTOM) = list(Dermo_Tol_full_modProbes, Dermo_Tol_full_modProbes)
-# Export the network into edge and node list files Cytoscape can read
-Dermo_Tol_full_cyt = exportNetworkToCytoscape(Dermo_Tol_full_modTOM,
-                                              edgeFile = paste("CytoscapeInput-edges-Dermo_Tol_full", paste(Dermo_Tol_full_modules, collapse="-"), ".txt", sep=""),
-                                              nodeFile = paste("CytoscapeInput-nodes-Dermo_Tol_full", paste(Dermo_Tol_full_modules, collapse="-"), ".txt", sep=""),
-                                              weighted = TRUE,
-                                              threshold = 0.00, # using 0 threshold so no genes are subset out 
-                                              nodeNames = Dermo_Tol_full_modProbes,
-                                              altNodeNames = Dermo_Tol_full_modGenes,
-                                              nodeAttr = Dermo_Tol_full_moduleColors[Dermo_Tol_full_inModule])
+#Dermo_Tol_full_modules = "turquoise"
+## Select module probes
+#Dermo_Tol_full_probes = colnames(Dermo_Tolerant_dds_vst_matrix)
+#Dermo_Tol_full_inModule = is.finite(match(Dermo_Tol_full_moduleColors, Dermo_Tol_full_modules))
+#Dermo_Tol_full_modProbes = Dermo_Tol_full_probes[Dermo_Tol_full_inModule]
+#Dermo_Tol_full_modGenes = C_vir_rtracklayer$ID[match(Dermo_Tol_full_modProbes, C_vir_rtracklayer$ID)]
+## Select the corresponding Topological Overlap
+#Dermo_Tol_full_modTOM = Dermo_Tol_full_TOM[Dermo_Tol_full_inModule, Dermo_Tol_full_inModule]
+#dimnames(Dermo_Tol_full_modTOM) = list(Dermo_Tol_full_modProbes, Dermo_Tol_full_modProbes)
+## Export the network into edge and node list files Cytoscape can read
+#Dermo_Tol_full_cyt = exportNetworkToCytoscape(Dermo_Tol_full_modTOM,
+#                                              edgeFile = paste("CytoscapeInput-edges-Dermo_Tol_full", paste(Dermo_Tol_full_modules, collapse="-"), ".txt", sep=""),
+#                                              nodeFile = paste("CytoscapeInput-nodes-Dermo_Tol_full", paste(Dermo_Tol_full_modules, collapse="-"), ".txt", sep=""),
+#                                              weighted = TRUE,
+#                                              threshold = 0.00, # using 0 threshold so no genes are subset out 
+#                                              nodeNames = Dermo_Tol_full_modProbes,
+#                                              altNodeNames = Dermo_Tol_full_modGenes,
+#                                              nodeAttr = Dermo_Tol_full_moduleColors[Dermo_Tol_full_inModule])
 
-
-#### Pro_RE22_RE22 modules ####
+#### Pro_RE22_Pro modules ####
+# Pro_RE22_Pro_RI:MEturquoise    , MEdarkslateblue, MEsteelblue    
+# Pro_RE22_Pro_S4: MEroyalblue, MEturquoise, MEsteelblue
 
 # TURQUOISE
-Pro_RE22_RE22_full_modules = "turquoise"
+Pro_RE22_Pro_full_modules = "turquoise"
 # Select module probes
-Pro_RE22_RE22_full_probes = colnames(Pro_RE22_dds_rlog_matrix_RE22)
-Pro_RE22_RE22_full_inModule = is.finite(match(Pro_RE22_RE22_full_net_moduleColors, Pro_RE22_RE22_full_modules))
-Pro_RE22_RE22_full_modProbes = Pro_RE22_RE22_full_probes[Pro_RE22_RE22_full_inModule]
-Pro_RE22_RE22_full_modGenes = C_vir_rtracklayer$ID[match(Pro_RE22_RE22_full_modProbes, C_vir_rtracklayer$ID)]
+Pro_RE22_Pro_full_probes = colnames(Pro_RE22_dds_rlog_matrix_Pro)
+Pro_RE22_Pro_full_inModule = is.finite(match(Pro_RE22_Pro_full_net_moduleColors, Pro_RE22_Pro_full_modules))
+Pro_RE22_Pro_full_modProbes = Pro_RE22_Pro_full_probes[Pro_RE22_Pro_full_inModule]
+Pro_RE22_Pro_full_modGenes = C_vir_rtracklayer$ID[match(Pro_RE22_Pro_full_modProbes, C_vir_rtracklayer$ID)]
 # Select the corresponding Topological Overlap
-Pro_RE22_RE22_full_modTOM = Pro_RE22_RE22_full_TOM[Pro_RE22_RE22_full_inModule, Pro_RE22_RE22_full_inModule]
-dimnames(Pro_RE22_RE22_full_modTOM ) = list(Pro_RE22_RE22_full_modProbes, Pro_RE22_RE22_full_modProbes)
+Pro_RE22_Pro_full_modTOM = Pro_RE22_Pro_full_TOM[Pro_RE22_Pro_full_inModule, Pro_RE22_Pro_full_inModule]
+dimnames(Pro_RE22_Pro_full_modTOM ) = list(Pro_RE22_Pro_full_modProbes, Pro_RE22_Pro_full_modProbes)
 # Export the network into edge and node list files Cytoscape can read
-Pro_RE22_RE22_full_cyt = exportNetworkToCytoscape(Pro_RE22_RE22_full_modTOM,
-                                                  edgeFile = paste("CytoscapeInput-edges-Pro_RE22_RE22_full", paste(Pro_RE22_RE22_full_modules, collapse="-"), ".txt", sep=""),
-                                                  nodeFile = paste("CytoscapeInput-nodes-Pro_RE22_RE22_full", paste(Pro_RE22_RE22_full_modules, collapse="-"), ".txt", sep=""),
+Pro_RE22_Pro_full_cyt = exportNetworkToCytoscape(Pro_RE22_Pro_full_modTOM,
+                                                  edgeFile = paste("CytoscapeInput-edges-Pro_RE22_Pro_full", paste(Pro_RE22_Pro_full_modules, collapse="-"), ".txt", sep=""),
+                                                  nodeFile = paste("CytoscapeInput-nodes-Pro_RE22_Pro_full", paste(Pro_RE22_Pro_full_modules, collapse="-"), ".txt", sep=""),
                                                   weighted = TRUE,
                                                   threshold = 0.00, # use zero threshold so no genes are subset out 
-                                                  nodeNames = Pro_RE22_RE22_full_modProbes,
-                                                  altNodeNames = Pro_RE22_RE22_full_modGenes,
-                                                  nodeAttr = Pro_RE22_RE22_full_net_moduleColors[Pro_RE22_RE22_full_inModule])
+                                                  nodeNames = Pro_RE22_Pro_full_modProbes,
+                                                  altNodeNames = Pro_RE22_Pro_full_modGenes,
+                                                  nodeAttr = Pro_RE22_Pro_full_net_moduleColors[v_full_inModule])
 
+# darkslateblue
+Pro_RE22_Pro_full_modules = "darkslateblue"
+# Select module probes
+Pro_RE22_Pro_full_probes = colnames(Pro_RE22_dds_rlog_matrix_Pro)
+Pro_RE22_Pro_full_inModule = is.finite(match(Pro_RE22_Pro_full_net_moduleColors, Pro_RE22_Pro_full_modules))
+Pro_RE22_Pro_full_modProbes = Pro_RE22_Pro_full_probes[Pro_RE22_Pro_full_inModule]
+Pro_RE22_Pro_full_modGenes = C_vir_rtracklayer$ID[match(Pro_RE22_Pro_full_modProbes, C_vir_rtracklayer$ID)]
+# Select the corresponding Topological Overlap
+Pro_RE22_Pro_full_modTOM = Pro_RE22_Pro_full_TOM[Pro_RE22_Pro_full_inModule, Pro_RE22_Pro_full_inModule]
+dimnames(Pro_RE22_Pro_full_modTOM ) = list(Pro_RE22_Pro_full_modProbes, Pro_RE22_Pro_full_modProbes)
+# Export the network into edge and node list files Cytoscape can read
+Pro_RE22_Pro_full_cyt = exportNetworkToCytoscape(Pro_RE22_Pro_full_modTOM,
+                                                 edgeFile = paste("CytoscapeInput-edges-Pro_RE22_Pro_full", paste(Pro_RE22_Pro_full_modules, collapse="-"), ".txt", sep=""),
+                                                 nodeFile = paste("CytoscapeInput-nodes-Pro_RE22_Pro_full", paste(Pro_RE22_Pro_full_modules, collapse="-"), ".txt", sep=""),
+                                                 weighted = TRUE,
+                                                 threshold = 0.00, # use zero threshold so no genes are subset out 
+                                                 nodeNames = Pro_RE22_Pro_full_modProbes,
+                                                 altNodeNames = Pro_RE22_Pro_full_modGenes,
+                                                 nodeAttr = Pro_RE22_Pro_full_net_moduleColors[v_full_inModule])
+# steelblue 
+Pro_RE22_Pro_full_modules = "steelblue"
+# Select module probes
+Pro_RE22_Pro_full_probes = colnames(Pro_RE22_dds_rlog_matrix_Pro)
+Pro_RE22_Pro_full_inModule = is.finite(match(Pro_RE22_Pro_full_net_moduleColors, Pro_RE22_Pro_full_modules))
+Pro_RE22_Pro_full_modProbes = Pro_RE22_Pro_full_probes[Pro_RE22_Pro_full_inModule]
+Pro_RE22_Pro_full_modGenes = C_vir_rtracklayer$ID[match(Pro_RE22_Pro_full_modProbes, C_vir_rtracklayer$ID)]
+# Select the corresponding Topological Overlap
+Pro_RE22_Pro_full_modTOM = Pro_RE22_Pro_full_TOM[Pro_RE22_Pro_full_inModule, Pro_RE22_Pro_full_inModule]
+dimnames(Pro_RE22_Pro_full_modTOM ) = list(Pro_RE22_Pro_full_modProbes, Pro_RE22_Pro_full_modProbes)
+# Export the network into edge and node list files Cytoscape can read
+Pro_RE22_Pro_full_cyt = exportNetworkToCytoscape(Pro_RE22_Pro_full_modTOM,
+                                                 edgeFile = paste("CytoscapeInput-edges-Pro_RE22_Pro_full", paste(Pro_RE22_Pro_full_modules, collapse="-"), ".txt", sep=""),
+                                                 nodeFile = paste("CytoscapeInput-nodes-Pro_RE22_Pro_full", paste(Pro_RE22_Pro_full_modules, collapse="-"), ".txt", sep=""),
+                                                 weighted = TRUE,
+                                                 threshold = 0.00, # use zero threshold so no genes are subset out 
+                                                 nodeNames = Pro_RE22_Pro_full_modProbes,
+                                                 altNodeNames = Pro_RE22_Pro_full_modGenes,
+                                                 nodeAttr = Pro_RE22_Pro_full_net_moduleColors[v_full_inModule])
+# royalblue
+Pro_RE22_Pro_full_modules = "royalblue"
+# Select module probes
+Pro_RE22_Pro_full_probes = colnames(Pro_RE22_dds_rlog_matrix_Pro)
+Pro_RE22_Pro_full_inModule = is.finite(match(Pro_RE22_Pro_full_net_moduleColors, Pro_RE22_Pro_full_modules))
+Pro_RE22_Pro_full_modProbes = Pro_RE22_Pro_full_probes[Pro_RE22_Pro_full_inModule]
+Pro_RE22_Pro_full_modGenes = C_vir_rtracklayer$ID[match(Pro_RE22_Pro_full_modProbes, C_vir_rtracklayer$ID)]
+# Select the corresponding Topological Overlap
+Pro_RE22_Pro_full_modTOM = Pro_RE22_Pro_full_TOM[Pro_RE22_Pro_full_inModule, Pro_RE22_Pro_full_inModule]
+dimnames(Pro_RE22_Pro_full_modTOM ) = list(Pro_RE22_Pro_full_modProbes, Pro_RE22_Pro_full_modProbes)
+# Export the network into edge and node list files Cytoscape can read
+Pro_RE22_Pro_full_cyt = exportNetworkToCytoscape(Pro_RE22_Pro_full_modTOM,
+                                                 edgeFile = paste("CytoscapeInput-edges-Pro_RE22_Pro_full", paste(Pro_RE22_Pro_full_modules, collapse="-"), ".txt", sep=""),
+                                                 nodeFile = paste("CytoscapeInput-nodes-Pro_RE22_Pro_full", paste(Pro_RE22_Pro_full_modules, collapse="-"), ".txt", sep=""),
+                                                 weighted = TRUE,
+                                                 threshold = 0.00, # use zero threshold so no genes are subset out 
+                                                 nodeNames = Pro_RE22_Pro_full_modProbes,
+                                                 altNodeNames = Pro_RE22_Pro_full_modGenes,
+                                                 nodeAttr = Pro_RE22_Pro_full_net_moduleColors[v_full_inModule])
+
+#### ZHANG ####
+
+#### RUBIO ####
+
+#### DELORG RES ####
+
+#### DELORG SUS ####
+
+#### HE ####
 
 sessionInfo()
 #sessionInfo()
