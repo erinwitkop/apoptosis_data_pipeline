@@ -7530,10 +7530,10 @@ IAP_domain_structure_WGCNA_hits_df_modules_domain_hit_common_exp_separate_TABLE 
   tab_header(title = gt::md("**Number of Modules Including Domain Structure Per Experiment**")) %>%
   cols_label(Crassostrea_gigas = md("*Crassostrea gigas*"),
         Crassostrea_virginica = md("*Crassostrea virginica*")) %>%
-    tab_source_note(source_note = md("\\* = *IAP Domain identified by Interproscan and not CDD search*"))
+    tab_source_note(source_note = md("\\* = *IAP Domain identified by Interproscan and not CDD search*")) %>%
+  tab_options(table.font.color = "black")
 # save as png
 gtsave(IAP_domain_structure_WGCNA_hits_df_modules_domain_hit_common_exp_separate_TABLE, "/Users/erinroberts/Documents/PhD_Research/Chapter_1_Apoptosis Paper/Chapter_1_Apoptosis_Annotation_Data_Analyses_2019/DATA/ANNOTATION_DATA_FIGURES/TABLES/IAP_domain_structure_WGCNA_hits_df_modules_domain_hit_common_exp_separate_TABLE.png")
-
 
 # Which experiments have the most different domain types overall 
 IAP_domain_structure_WGCNA_hits_df_modules_domain_hit_common_separate_EXP <- IAP_domain_structure_WGCNA_hits_df_modules_domain_hit_common_exp_species %>%
