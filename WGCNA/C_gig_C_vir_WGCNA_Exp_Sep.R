@@ -7326,7 +7326,7 @@ C_gig_full_all_exp_mod_sig_apop <- rbind(Zhang_LPS_full_module_apop_df,
 nrow(C_gig_full_all_exp_mod_sig_apop) # 1235
 C_gig_full_all_exp_mod_sig_apop_positive <- C_gig_full_all_exp_mod_sig_apop %>% filter(mod_signif >0)
 
-#### ANALYSIS OF IAP INTERACTIONS WITH FULL WGCNA DATA RUN FOR EACH EXPERIMENT SEPARATELY #### 
+#### ANALYSIS OF ALL IAP INTERACTIONS WITH FULL WGCNA DATA RUN FOR EACH EXPERIMENT SEPARATELY #### 
 # create combined sig apop modules list 
 C_vir_full_all_exp_mod_sig_apop$Species <- "Crassostrea_virginica"
 C_gig_full_all_exp_mod_sig_apop$Species <- "Crassostrea_gigas"
@@ -8371,82 +8371,129 @@ nrow(IAP_domain_structure_WGCNA_hits_PATHWAY_unique) # 65 are unique
 ## List of only the IAP transcripts in full table based on combined IAP list IAP_domain_structure_XM_CV_XM
 IAP_domain_structure_WGCNA_hits_PATHWAY_IAP_only <-IAP_domain_structure_WGCNA_hits_PATHWAY[(IAP_domain_structure_WGCNA_hits_PATHWAY$transcript_id %in% IAP_domain_structure_XM_CV_XM$transcript_id),]
 
-#### EXPORT MODULES TO CYTOSCAPE ####
+#### ANALYSIS OF SIGNIFICANT IAP INTERACTIONS WITH FULL WGCNA DATA RUN FOR EACH EXPERIMENT SEPARATELY #### 
+C_vir_C_gig_full_all_exp_mod_sig_apop 
+  
+# Find modules for each experiment that are also significant in their DEG experiments
+# Load DESeq2 dataframe that was recoded for collapsed haplotigs in the IAP_GIMAP_Gene_Expansion.R script
+load(file = "/Users/erinroberts/Documents/PhD_Research/Chapter_1_Apoptosis Paper/Chapter1_Apoptosis_Transcriptome_Analyses_2019/DATA ANALYSIS/apoptosis_data_pipeline/WGCNA/LFC_cont_comb_domain_type.RData")
 
-# Which modules? (35 modules to export)
-IAP_domain_structure_WGCNA_hits_df_modsize %>% arrange(exp) %>% View()
+LFC_comb_domain_type <- LFC_cont_comb_domain_type %>% filter(Data_Type == "LFC")
 
-deLorg_Res: MEturquoise, MEblack  
-Dermo_Sus: MElightpink4
-#Dermo_Tol:MEturquoise (previously done)
-Pro_RE22_Pro_RI  : MEturquoise  ,MEred        ,MEtan        ,MElightgreen ,MElightyellow,MEskyblue3  
-Pro_RE22_Pro_S4: MEturquoise, MEtan, MEwhite
-#Pro_RE22_RE22_full: MEturquoise, MEdarkorange (previously done)
-ROD_Sus: MEturquoise
-Rubio_NV: MEturquoise,MEblue,MEblack,MEmagenta,MEbrown,MEred
-Rubio_V: MEturquoise,MEblue,MEblack,MEmagenta,MEbrown,MEred
-Zhang_LPS: MEturquoise, MEblack,MEdarkseagreen3,MEcoral2,MEcoral4
-Zhang_Vibrio:MEdarkgreen, MEblue4
+# join with transcript info 
+LFC_comb_domain_type_CV_XM <- LFC_comb_domain_type %>% filter(Species == "Crassostrea_virginica") %>% left_join(., IAP_domain_structure_XM_CV_XM[,c("protein_id","transcript_id")])
+LFC_comb_domain_type_CG_XM <- LFC_comb_domain_type %>% filter(Species == "Crassostrea_gigas") %>% left_join(., IAP_domain_structure_XM_CG[,c("protein_id","transcript_id")], by ="protein_id")
+LFC_comb_domain_type_XM <- rbind(LFC_comb_domain_type_CV_XM, LFC_comb_domain_type_CG_XM) 
 
-## Plan: calculate the TOM for each of the experiments above. Export data, matrix file and module colors to bluewaves. 
-## In bluewaves run script to export modules to nodes and edges to cytoscape
-## The Dermo_Tol_full and Pro_RE22_RE22_full were already completed
+# check for non matched XMs
+is.na(LFC_comb_domain_type_XM$transcript_id) # none
+# create search lists for Experiment
+LFC_comb_domain_type_XM_df <- LFC_comb_domain_type_XM %>%
+  group_by(experiment) %>%
+  # put all proteins into a string
+  dplyr::summarise(transcript_id = paste0(transcript_id, collapse = ",")) %>%
+  # set column names
+  column_to_rownames(., var= "experiment")
 
+# split strings into vector for grepping
+LFC_comb_domain_type_XM_df$transcript_id <- strsplit(LFC_comb_domain_type_XM_df$transcript_id, ",")
 
-## Export modules to cytoscape for visualization ###
-# Recalculate topological overlap if needed
-#Dermo_Tol_full_TOM = TOMsimilarityFromExpr(Dermo_Tolerant_dds_vst_matrix,
-#                                           power = 3, # picked suitable power in the code above 
-#                                           TOMType = "signed", # use signed TOM type
-#                                           networkType= "signed hybrid", # use signed hybrid network type
-#                                           corType = "bicor") # use suggested bicor
-#
-#save(Dermo_Tol_full_TOM, file="/Volumes/My Passport for Mac/Chapter1_Apoptosis_Paper_Saved_DESeq_WGCNA_Data/Dermo_Tol_full_TOM.RData" )
+# create list of lists
+LFC_comb_domain_type_XM_df_list <- as.list(as.data.frame(t(LFC_comb_domain_type_XM_df)))
 
-# Select modules
-Dermo_Tol_full_modules = c("darkslateblue", "turquoise", "greenyellow",   "skyblue3" , "cyan"  ,"red"  , "tan" )
-# Select module probes
-Dermo_Tol_full_probes = colnames(Dermo_Tolerant_dds_vst_matrix)
-# export moduleColors file for use in cluster
-write.table(Dermo_Tol_full_moduleColors, file="/Volumes/My Passport for Mac/Chapter1_Apoptosis_Paper_Saved_DESeq_WGCNA_Data/Dermo_Tol_full_moduleColors.table")
+# loop through to get list of module hits for each group of transcripts
+LFC_comb_domain_type_XM_exp_hits <- vector('list', length(LFC_comb_domain_type_XM_df_list))
+names(LFC_comb_domain_type_XM_exp_hits) <- names(LFC_comb_domain_type_XM_df_list) # set names
+for(i in seq_along(LFC_comb_domain_type_XM_df_list)){
+  for(j in seq_along(LFC_comb_domain_type_XM_df_list[[i]])){
+    LFC_comb_domain_type_XM_exp_hits[[i]][[j]]<- C_vir_C_gig_full_all_exp_mod_sig_apop %>% 
+      group_by(mod_names, exp) %>%
+      filter(any(grepl(paste(LFC_comb_domain_type_XM_df_list[[i]][[j]], collapse="|"), transcript_id)))
+  }
+}
+# put in dataframe (using purrr yay!)
+LFC_comb_domain_type_XM_exp_hits_df <- map_df(LFC_comb_domain_type_XM_exp_hits, ~bind_rows(., .id="DESeq_experiment"), .id="DESeq_experiment") 
 
-Dermo_Tol_full_inModule = is.finite(match(Dermo_Tol_full_moduleColors, Dermo_Tol_full_modules))
-Dermo_Tol_full_modProbes = Dermo_Tol_full_probes[Dermo_Tol_full_inModule]
-Dermo_Tol_full_modGenes = C_vir_rtracklayer$ID[match(Dermo_Tol_full_modProbes, C_vir_rtracklayer$ID)]
-# Select the corresponding Topological Overlap
-Dermo_Tol_full_modTOM = Dermo_Tol_full_TOM[Dermo_Tol_full_inModule, Dermo_Tol_full_inModule]
+# subset for each experiments
+levels(factor(LFC_comb_domain_type_XM_exp_hits_df$DESeq_experiment))
+#[1] "de Lorgeril<br>Res. OsHV-1" "de Lorgeril<br>Sus. OsHV-1" "Dermo"                      "Hatchery\nPro. RI"          "He OsHV-1"                  "Lab Pro. S4, RI\n or RE22" 
+#[7] "ROD"                        "Rubio<br>*Vibrio* spp."     "Zhang<br>*Vibrio* spp." 
 
-dimnames(Dermo_Tol_full_modTOM) = list(Dermo_Tol_full_modProbes, Dermo_Tol_full_modProbes)
-# Export the network into edge and node list files Cytoscape can read
-#Dermo_Tol_full_cyt = exportNetworkToCytoscape(Dermo_Tol_full_modTOM,
-#                               edgeFile = paste("CytoscapeInput-edges-", paste(Dermo_Tol_full_modules, collapse="-"), ".txt", sep=""),
-#                               nodeFile = paste("CytoscapeInput-nodes-", paste(Dermo_Tol_full_modules, collapse="-"), ".txt", sep=""),
-#                               weighted = TRUE,
-#                               threshold = 0.02,
-#                               nodeNames = Dermo_Tol_full_modProbes,
-#                               altNodeNames = Dermo_Tol_full_modGenes,
-#                               nodeAttr = Dermo_Tol_full_moduleColors[Dermo_Tol_full_inModule])
-#
+# Subset for rows where the DESeq experiment is the same as the WGCNA experiment - meaning shared IAPs
+LFC_comb_domain_type_XM_exp_hits_df_deLorg_Res <- LFC_comb_domain_type_XM_exp_hits_df %>% filter(grepl("de Lorgeril<br>Res. OsHV-1", DESeq_experiment)) %>% filter(grepl("deLorg_Res", exp))
+LFC_comb_domain_type_XM_exp_hits_df_deLorg_Sus <- LFC_comb_domain_type_XM_exp_hits_df %>% filter(grepl("de Lorgeril<br>Sus. OsHV-1", DESeq_experiment)) %>% filter(grepl("deLorg_Sus", exp))
+LFC_comb_domain_type_XM_exp_hits_df_Dermo <- LFC_comb_domain_type_XM_exp_hits_df %>% filter(grepl("Dermo", DESeq_experiment)) %>% filter(grepl("Dermo", exp))
+LFC_comb_domain_type_XM_exp_hits_df_Probiotic <- LFC_comb_domain_type_XM_exp_hits_df %>% filter(grepl("Hatchery\nPro. RI", DESeq_experiment)) %>% filter(grepl("Probiotic", exp))
+LFC_comb_domain_type_XM_exp_hits_df_Pro_RE22 <- LFC_comb_domain_type_XM_exp_hits_df %>% filter(grepl("Lab Pro. S4, RI\n or RE22", DESeq_experiment)) %>% filter(grepl("Pro_", exp))
+LFC_comb_domain_type_XM_exp_hits_df_He <- LFC_comb_domain_type_XM_exp_hits_df %>% filter(grepl("He OsHV-1", DESeq_experiment)) %>% filter(grepl("He", exp))
+LFC_comb_domain_type_XM_exp_hits_df_ROD <- LFC_comb_domain_type_XM_exp_hits_df %>% filter(grepl("ROD", DESeq_experiment)) %>% filter(grepl("ROD", exp))
+LFC_comb_domain_type_XM_exp_hits_df_Rubio <- LFC_comb_domain_type_XM_exp_hits_df %>% filter(grepl("Rubio", DESeq_experiment)) %>% filter(grepl("Rubio", exp))
+LFC_comb_domain_type_XM_exp_hits_df_Zhang <- LFC_comb_domain_type_XM_exp_hits_df %>% filter(grepl("Zhang", DESeq_experiment)) %>% filter(grepl("Zhang", exp))
 
-## Upload finished cytoscape network node file so that annotation information can be added
+# Find Shared IAPs between the two experiments
+LFC_comb_domain_type_XM_exp_hits_df_deLorg_Res_IAP <- left_join(LFC_comb_domain_type_XM_exp_hits_df_deLorg_Res, LFC_comb_domain_type_XM[,c("Domain_Name","transcript_id")]) %>% filter(!is.na(Domain_Name))
+LFC_comb_domain_type_XM_exp_hits_df_deLorg_Sus_IAP <- left_join(LFC_comb_domain_type_XM_exp_hits_df_deLorg_Sus, LFC_comb_domain_type_XM[,c("Domain_Name","transcript_id")]) %>% filter(!is.na(Domain_Name))
+LFC_comb_domain_type_XM_exp_hits_df_Dermo_IAP <- left_join(LFC_comb_domain_type_XM_exp_hits_df_Dermo, LFC_comb_domain_type_XM[,c("Domain_Name","transcript_id")]) %>% filter(!is.na(Domain_Name))
+#LFC_comb_domain_type_XM_exp_hits_df_Probiotic_IAP  <- left_join(LFC_comb_domain_type_XM_exp_hits_df_Probiotic, LFC_comb_domain_type_XM[,c("Domain_Name","transcript_id")]) %>% filter(!is.na(Domain_Name))
+LFC_comb_domain_type_XM_exp_hits_df_Pro_RE22_IAP <- left_join(LFC_comb_domain_type_XM_exp_hits_df_Pro_RE22, LFC_comb_domain_type_XM[,c("Domain_Name","transcript_id")]) %>% filter(!is.na(Domain_Name))
+LFC_comb_domain_type_XM_exp_hits_df_He_IAP <- left_join(LFC_comb_domain_type_XM_exp_hits_df_He, LFC_comb_domain_type_XM[,c("Domain_Name","transcript_id")]) %>% filter(!is.na(Domain_Name))
+#LFC_comb_domain_type_XM_exp_hits_df_ROD_IAP <- left_join(LFC_comb_domain_type_XM_exp_hits_df_ROD, LFC_comb_domain_type_XM[,c("Domain_Name","transcript_id")]) %>% filter(!is.na(Domain_Name))
+LFC_comb_domain_type_XM_exp_hits_df_Rubio_IAP <- left_join(LFC_comb_domain_type_XM_exp_hits_df_Rubio, LFC_comb_domain_type_XM[,c("Domain_Name","transcript_id")]) %>% filter(!is.na(Domain_Name))
+LFC_comb_domain_type_XM_exp_hits_df_Zhang_IAP <- left_join(LFC_comb_domain_type_XM_exp_hits_df_Zhang, LFC_comb_domain_type_XM[,c("Domain_Name","transcript_id")]) %>% filter(!is.na(Domain_Name))
 
-# The below code may not be necessary because I can add the apoptosis data table as a separate data table cytoscape will automatically attach 
-# it to the network 
-#Dermo_Tol_full_cyt_node <- read.table(file="/Volumes/My Passport for Mac/Chapter1_Apoptosis_Paper_Saved_DESeq_WGCNA_Data/CytoscapeInput-nodes-Dermo_Tull_fulldarkslateblue-turquoise-greenyellow-skyblue3-cyan-red-tan.txt",
-#                                      sep="\t", skip=1) # skip the first line because it has the original column names
-#
-## original col names were : nodeName  altName nodeAttr[nodesPresent, ]
-#
-#colnames(Dermo_Tol_full_cyt_node)[c(1:3)] <- c("ID","altName","nodesPresent")
-#Dermo_Tol_full_cyt_node <- left_join(Dermo_Tol_full_cyt_node, C_vir_rtracklayer_apop_product_final[,c("product","gene","ID","transcript_id")], by ="ID")
-#
-#write.table(Dermo_Tol_full_cyt_node, sep = " ", quote= FALSE, row.names=FALSE, file="/Volumes/My Passport for Mac/Chapter1_Apoptosis_Paper_Saved_DESeq_WGCNA_Data/CytoscapeInput-nodes-Dermo_Tull_fulldarkslateblue-turquoise-greenyellow-skyblue3-cyan-red-tan_ANNOT.txt")
-## Compare IAPs and GIMAPs between Consensus set and Full set
+# Find list of modules to export
+LFC_comb_domain_type_XM_exp_hits_df_deLorg_Res_IAP %>% distinct(exp, mod_names) # MEturquoise deLorg_Res
+LFC_comb_domain_type_XM_exp_hits_df_deLorg_Sus_IAP %>% distinct(exp, mod_names) # MEturquoise deLorg_Sus
+LFC_comb_domain_type_XM_exp_hits_df_Dermo_IAP %>% distinct(exp, mod_names) # MEturquoise Dermo_Tol
+LFC_comb_domain_type_XM_exp_hits_df_Pro_RE22_IAP %>% distinct(exp, mod_names) # MEroyalblue, MEturquoise, MEsteelblue,  MEdarkslateblue
+# are the modules the same between experiments, yes so only need to export these four above
+#mod_names       exp            
+#<chr>           <chr>          
+#1 MEroyalblue     Pro_RE22_Pro_S4
+#2 MEturquoise     Pro_RE22_Pro_S4
+#3 MEsteelblue     Pro_RE22_Pro_S4
+#4 MEturquoise     Pro_RE22_Pro_RI
+#5 MEdarkslateblue Pro_RE22_Pro_RI
+#6 MEsteelblue     Pro_RE22_Pro_RI
 
+LFC_comb_domain_type_XM_exp_hits_df_He_IAP %>% distinct(exp, mod_names)
+#mod_names exp  
+#<chr>     <chr>
+#  1 MEpurple  He   
+#2 MEyellow  He 
 
+LFC_comb_domain_type_XM_exp_hits_df_Rubio_IAP %>% distinct(exp, mod_names) # only export 4 because they are the same
+#mod_names   exp     
+#<chr>       <chr>   
+#1 MEmagenta   Rubio_NV
+#2 MEturquoise Rubio_NV
+#3 MEblue      Rubio_NV
+#4 MEbrown     Rubio_NV
 
+LFC_comb_domain_type_XM_exp_hits_df_Zhang_IAP %>% distinct(exp, mod_names) # MEblack  
 
+#### EXPORT WGCNA MODULES TO CYTOSCAPE ####
 
+# Which modules? 
+# deLorg_Res: MEturquoise
+# deLorg_Sus: MEturquoise
+# Dermo: MEturquoise
+# Pro_RE22_Pro_RI:MEturquoise    , MEdarkslateblue, MEsteelblue    
+# Pro_RE22_Pro_S4: MEroyalblue, MEturquoise, MEsteelblue
+# He:  MEpurple, MEyellow
+# Rubio: MEmagenta, MEturquoise, MEblue, MEbrown    
+# Zhang: MEblack
+
+# Code is in the TOMsim_cluster.R
+# Export full Matrices as tables for each experiment so that I can export the matrices in bluewaves 
+# Dermo_tol matrix was already exported don't need to repeat this. Then move this data to bluewaves
+write.table(Pro_RE22_dds_rlog_matrix_RE22, file="/Volumes/My Passport for Mac/Chapter1_Apoptosis_Paper_Saved_DESeq_WGCNA_Data/Pro_RE22_dds_rlog_matrix_RE22.table")
+write.table(Pro_RE22_dds_rlog_matrix_Pro, file="/Volumes/My Passport for Mac/Chapter1_Apoptosis_Paper_Saved_DESeq_WGCNA_Data/Pro_RE22_dds_rlog_matrix_Pro.table")
+write.table(Zhang_dds_rlog_matrix, file="/Volumes/My Passport for Mac/Chapter1_Apoptosis_Paper_Saved_DESeq_WGCNA_Data/Zhang_dds_rlog_matrix.table")
+write.table(Rubio_dds_rlog_matrix, file="/Volumes/My Passport for Mac/Chapter1_Apoptosis_Paper_Saved_DESeq_WGCNA_Data/Rubio_dds_rlog_matrix.table")
+write.table(deLorgeril_Resistant_dds_vst_matrix, file="/Volumes/My Passport for Mac/Chapter1_Apoptosis_Paper_Saved_DESeq_WGCNA_Data/deLorgeril_Resistant_dds_vst_matrix.table")
+write.table(deLorgeril_Susceptible_dds_vst_matrix,file="/Volumes/My Passport for Mac/Chapter1_Apoptosis_Paper_Saved_DESeq_WGCNA_Data/deLorgeril_Susceptible_dds_vst_matrix.table")
+write.table(He_dds_vst_matrix,file="/Volumes/My Passport for Mac/Chapter1_Apoptosis_Paper_Saved_DESeq_WGCNA_Data/He_dds_vst_matrix.table")
 
 #### COMPARE CONSENSUS AND FULL IAP AND GIMAP ACROSS ALL DATASETS, NOT JUST THOSE IN SIGNIFICANT MODULES ####
 
