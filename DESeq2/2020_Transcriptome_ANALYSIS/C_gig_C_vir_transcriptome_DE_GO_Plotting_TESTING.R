@@ -5180,7 +5180,6 @@ C_vir_apop_LFC_core <- Reduce(intersect, split(C_vir_apop_LFC$transcript_id, C_v
 C_vir_apop_LFC_core_product <- Reduce(intersect, split(C_vir_apop_LFC$product, C_vir_apop_LFC$experiment))
 C_gig_apop_LFC_core <- Reduce(intersect, split(C_gig_apop_LFC$Name, C_gig_apop_LFC$experiment))
 C_gig_apop_LFC_product <- Reduce(intersect, split(C_gig_apop_LFC$product, C_gig_apop_LFC$experiment))
-    
 
 # Investigate C_vir bacterial response
 C_vir_apop_LFC_bac <- C_vir_apop_LFC %>% filter(experiment == "Probiotic" | experiment == "Pro_RE22" | experiment == "ROD" )
@@ -5215,7 +5214,6 @@ C_vir_apop_LFC_BAC_pro_S4_core_name <- left_join(C_vir_apop_LFC_BAC_pro_S4_core,
 View(unique(C_vir_apop_LFC_BAC_pro_S4_core_name$product))
 
 C_vir_apop_LFC_BAC_pro_S4_core_product <- Reduce(intersect, split(C_vir_apop_LFC_BAC_pro_S4$product,C_vir_apop_LFC_BAC_pro_S4$group_by_sim))
-
 
 # Investigate C_gig bacterial response
 C_gig_apop_LFC_bac <- C_gig_apop_LFC %>% filter(experiment == "Zhang" | experiment == "Rubio" )
@@ -5642,8 +5640,69 @@ C_vir_C_gig_apop_LFC_domain_type_joined <- left_join(C_vir_C_gig_apop_LFC_domain
 
 # remove transcript variant info and join with subpathway
 C_vir_C_gig_apop_LFC_domain_type_joined_separate_subpathway <- C_vir_C_gig_apop_LFC_domain_type_joined %>%
-  
+  separate(product, into = c("product","transcript_variant"), sep = ", transcript") %>% 
+  left_join(., combined_gene_name_org_yes_no_table_unique_pathway_joined_edited) %>%
+  select(-transcript_variant)
 
+# check for subpathway NAs
+C_vir_C_gig_apop_LFC_domain_type_joined_separate_subpathway %>% filter(is.na(Sub_pathway)) #0 NAs, all joined correctectly
+
+## Which subpathways are used in each experiment
+C_vir_C_gig_apop_LFC_domain_type_joined_separate_subpathway %>% 
+  distinct(Sub_pathway, experiment)
+
+## Which are unique to one experiment
+C_vir_C_gig_apop_LFC_domain_type_joined_separate_subpathway %>% 
+  distinct(Sub_pathway, experiment) %>% group_by(Sub_pathway) %>% filter(n() ==1)
+
+## Make pheatmap of the different products and compare with WGCNA heatmap
+## remove "-like" from product names so I can better compare between species to see the patterns
+# create table where presence of a product is a 1
+C_vir_C_gig_apop_LFC_domain_type_joined_separate_subpathway_like <- C_vir_C_gig_apop_LFC_domain_type_joined_separate_subpathway %>% ungroup() %>% 
+  filter(!grepl("toll-like", product)) %>% # filter out then add back in so it isn't accidentally removed
+   separate(product, into = c("product","like"), sep = "-like") %>% dplyr::mutate(dom_exp = paste(experiment,comb_domain, sep = ":")) %>%
+  dplyr::distinct(dom_exp, product) %>% mutate(count = 1) 
+C_vir_C_gig_apop_LFC_domain_type_joined_separate_subpathway_toll <- C_vir_C_gig_apop_LFC_domain_type_joined_separate_subpathway %>% filter(grepl("toll",product)) %>% dplyr::mutate(dom_exp = paste(experiment,comb_domain, sep = ":")) %>%
+  dplyr::distinct(dom_exp, product) %>% mutate(count = 1) 
+C_vir_C_gig_apop_LFC_domain_type_joined_separate_subpathway_like <- rbind(C_vir_C_gig_apop_LFC_domain_type_joined_separate_subpathway_like, C_vir_C_gig_apop_LFC_domain_type_joined_separate_subpathway_toll)
+C_vir_C_gig_apop_LFC_domain_type_joined_separate_subpathway_like <- spread(C_vir_C_gig_apop_LFC_domain_type_joined_separate_subpathway_like, dom_exp, count, fill = 0)
+nrow(C_vir_C_gig_apop_LFC_domain_type_joined_separate_subpathway_like) # 199
+C_vir_C_gig_apop_LFC_domain_type_joined_separate_subpathway_like <-  column_to_rownames(C_vir_C_gig_apop_LFC_domain_type_joined_separate_subpathway_like, var = "product") 
+C_vir_C_gig_apop_LFC_domain_type_joined_separate_subpathway_like_mat <- as.matrix(C_vir_C_gig_apop_LFC_domain_type_joined_separate_subpathway_like)
+
+# make column annotation dataframe 
+C_vir_C_gig_apop_LFC_domain_type_joined_separate_subpathway_like_mat_annot_like <- data.frame(colnames(C_vir_C_gig_apop_LFC_domain_type_joined_separate_subpathway_like)) 
+colnames(C_vir_C_gig_apop_LFC_domain_type_joined_separate_subpathway_like_mat_annot_like)[1] <- "dom_exp"
+C_vir_C_gig_apop_LFC_domain_type_joined_separate_subpathway_like_mat_annot_like$key <- C_vir_C_gig_apop_LFC_domain_type_joined_separate_subpathway_like_mat_annot_like$dom_exp
+C_vir_C_gig_apop_LFC_domain_type_joined_separate_subpathway_like_mat_annot_like <- separate(C_vir_C_gig_apop_LFC_domain_type_joined_separate_subpathway_like_mat_annot_like,key, into = c("experiment", "comb_domain"),sep = ":") %>% 
+  mutate(species = case_when(
+    experiment =="deLorgeril" | experiment =="He" | experiment ==  "Rubio" | experiment =="Zhang" ~ "C_gigas",    
+    experiment == "Dermo"| experiment == "Pro_RE22"| experiment =="Probiotic"| experiment =="ROD"  ~ "C_virginica",
+    TRUE ~ NA_character_))
+C_vir_C_gig_apop_LFC_domain_type_joined_separate_subpathway_like_mat_annot_like <- column_to_rownames(C_vir_C_gig_apop_LFC_domain_type_joined_separate_subpathway_like_mat_annot_like, var = "dom_exp")
+
+# make row annotation dataframe to look at subpathway, join with subpathway
+combined_gene_name_org_yes_no_table_unique_pathway_joined_edited_like <- combined_gene_name_org_yes_no_table_unique_pathway_joined_edited %>% separate(product, into = c("product","like"), sep = "-like") %>%
+  distinct(product, Sub_pathway)
+# join with frequence table by experiment
+C_vir_C_gig_apop_LFC_domain_type_joined_separate_subpathway_like_mat_annot_row_like <- as.data.frame(rownames(C_vir_C_gig_apop_LFC_domain_type_joined_separate_subpathway_like))
+colnames(C_vir_C_gig_apop_LFC_domain_type_joined_separate_subpathway_like_mat_annot_row_like)[1] <- "product"
+C_vir_C_gig_apop_LFC_domain_type_joined_separate_subpathway_like_mat_annot_row_like <- left_join(C_vir_C_gig_apop_LFC_domain_type_joined_separate_subpathway_like_mat_annot_row_like, combined_gene_name_org_yes_no_table_unique_pathway_joined_edited_like[,c("product","Sub_pathway")])
+C_vir_C_gig_apop_LFC_domain_type_joined_separate_subpathway_like_mat_annot_row_like[is.na(C_vir_C_gig_apop_LFC_domain_type_joined_separate_subpathway_like_mat_annot_row_like),] # check for NAs
+C_vir_C_gig_apop_LFC_domain_type_joined_separate_subpathway_like_mat_annot_row_like <- column_to_rownames(C_vir_C_gig_apop_LFC_domain_type_joined_separate_subpathway_like_mat_annot_row_like, var = "product") # make product the rownames 
+
+# generate heatmap
+C_vir_C_gig_apop_LFC_domain_type_joined_separate_subpathway_like_plot <- pheatmap(C_vir_C_gig_apop_LFC_domain_type_joined_separate_subpathway_like_mat, 
+                                                                            annotation_col = C_vir_C_gig_apop_LFC_domain_type_joined_separate_subpathway_like_mat_annot_like,
+                                                                            annotation_row = C_vir_C_gig_apop_LFC_domain_type_joined_separate_subpathway_like_mat_annot_row_like,
+                                                                            fontsize = 20)
+
+## Use this plot for supplementary figure 4
+ggsave(plot = C_vir_C_gig_apop_LFC_domain_type_joined_separate_subpathway_like_plot, filename = "C_vir_C_gig_apop_LFC_domain_type_joined_separate_subpathway_like_pheatmap.tiff", device = "tiff",
+       width = 40, height = 60, limitsize = FALSE,
+       path = "/Users/erinroberts/Documents/PhD_Research/Chapter_1_Apoptosis Paper/Chapter1_Apoptosis_Transcriptome_Analyses_2019/DATA ANALYSIS/apoptosis_data_pipeline/DESeq2/2020_Transcriptome_ANALYSIS/")
+
+## What are the most commonly shared interaction partners? - may not be an important point to make in the paper 
 
 #### EXPORT DATA FRAMES FOR WGCNA ANALYSIS ####
 
