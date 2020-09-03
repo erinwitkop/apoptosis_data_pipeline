@@ -34,42 +34,42 @@ cor <- WGCNA::cor
 # power taken from original WGCNA run 
 
 # C. virginica experiments
-Pro_RE22_dds_rlog_matrix_Pro <- read.table(file="/data3/marine_diseases_lab/erin/2017_2020_Transcriptome_Analysis/WGCNA/Pro_RE22_dds_rlog_matrix_Pro.table")
-Pro_RE22_Pro_full_TOM = TOMsimilarityFromExpr(Pro_RE22_dds_rlog_matrix_Pro, power = 4, TOMType = "signed", networkType= "signed hybrid", corType = "bicor") 
-save(Pro_RE22_Pro_full_TOM , file = "/data3/marine_diseases_lab/erin/2017_2020_Transcriptome_Analysis/WGCNA/Pro_RE22_Pro_full_TOM.RData")
-rm(Pro_RE22_Pro_full_TOM) # remove from workspace to free up memory
-rm(Pro_RE22_dds_rlog_matrix_Pro)
-
-# C. gigas experiments
-Zhang_dds_rlog_matrix <- read.table(file="/data3/marine_diseases_lab/erin/2017_2020_Transcriptome_Analysis/WGCNA/Zhang_dds_rlog_matrix.table")
-Zhang_full_TOM = TOMsimilarityFromExpr(Zhang_dds_rlog_matrix, power = 4, TOMType = "signed", networkType= "signed hybrid", corType = "bicor") 
-save(Zhang_full_TOM , file = "/data3/marine_diseases_lab/erin/2017_2020_Transcriptome_Analysis/WGCNA/Zhang_full_TOM.RData")
-rm(Zhang_full_TOM)
-rm(Zhang_dds_rlog_matrix)
-
-Rubio_dds_rlog_matrix <- read.table(file="/data3/marine_diseases_lab/erin/2017_2020_Transcriptome_Analysis/WGCNA/Rubio_dds_rlog_matrix.table")
-Rubio_full_TOM = TOMsimilarityFromExpr(Rubio_dds_rlog_matrix, power = 7, TOMType = "signed", networkType= "signed hybrid", corType = "bicor") 
-save(Rubio_full_TOM, file = "/data3/marine_diseases_lab/erin/2017_2020_Transcriptome_Analysis/WGCNA/Rubio_full_TOM.RData")
-rm(Rubio_full_TOM)
-rm(Rubio_dds_rlog_matrix)
-
-deLorgeril_Resistant_dds_vst_matrix <- read.table(file="/data3/marine_diseases_lab/erin/2017_2020_Transcriptome_Analysis/WGCNA/deLorgeril_Resistant_dds_vst_matrix.table")
-deLorg_Res_full_TOM = TOMsimilarityFromExpr(deLorgeril_Resistant_dds_vst_matrix, power = 8,TOMType = "signed", networkType= "signed hybrid", corType = "bicor") 
-save(deLorg_Res_full_TOM, file = "/data3/marine_diseases_lab/erin/2017_2020_Transcriptome_Analysis/WGCNA/deLorg_Res_full_TOM.RData")
-rm(deLorgeril_Resistant_dds_vst_matrix)
-rm(deLorg_Res_full_TOM)
-
-deLorgeril_Susceptible_dds_vst_matrix <- read.table(file="/data3/marine_diseases_lab/erin/2017_2020_Transcriptome_Analysis/WGCNA/deLorgeril_Susceptible_dds_vst_matrix.table")
-deLorg_Sus_full_TOM = TOMsimilarityFromExpr(deLorgeril_Susceptible_dds_vst_matrix, power = 3, TOMType = "signed", networkType= "signed hybrid", corType = "bicor") 
-save(deLorg_Sus_full_TOM, file = "/data3/marine_diseases_lab/erin/2017_2020_Transcriptome_Analysis/WGCNA/deLorg_Sus_full_TOM.RData")
-rm(deLorgeril_Susceptible_dds_vst_matrix)
-rm(deLorg_Sus_full_TOM)
-
-He_dds_vst_matrix <- read.table(file="/data3/marine_diseases_lab/erin/2017_2020_Transcriptome_Analysis/WGCNA/He_dds_vst_matrix.table")
-He_full_TOM = TOMsimilarityFromExpr(He_dds_vst_matrix, power = 5,TOMType = "signed", networkType= "signed hybrid", corType = "bicor") 
-save(He_full_TOM, file = "/data3/marine_diseases_lab/erin/2017_2020_Transcriptome_Analysis/WGCNA/He_full_TOM.RData")
-rm(He_dds_vst_matrix)
-rm(He_full_TOM)
+#Pro_RE22_dds_rlog_matrix_Pro <- read.table(file="/data3/marine_diseases_lab/erin/2017_2020_Transcriptome_Analysis/WGCNA/Pro_RE22_dds_rlog_matrix_Pro.table")
+#Pro_RE22_Pro_full_TOM = TOMsimilarityFromExpr(Pro_RE22_dds_rlog_matrix_Pro, power = 4, TOMType = "signed", networkType= "signed hybrid", corType = "bicor") 
+#save(Pro_RE22_Pro_full_TOM , file = "/data3/marine_diseases_lab/erin/2017_2020_Transcriptome_Analysis/WGCNA/Pro_RE22_Pro_full_TOM.RData")
+#rm(Pro_RE22_Pro_full_TOM) # remove from workspace to free up memory
+#rm(Pro_RE22_dds_rlog_matrix_Pro)
+#
+## C. gigas experiments
+#Zhang_dds_rlog_matrix <- read.table(file="/data3/marine_diseases_lab/erin/2017_2020_Transcriptome_Analysis/WGCNA/Zhang_dds_rlog_matrix.table")
+#Zhang_full_TOM = TOMsimilarityFromExpr(Zhang_dds_rlog_matrix, power = 4, TOMType = "signed", networkType= "signed hybrid", corType = "bicor") 
+#save(Zhang_full_TOM , file = "/data3/marine_diseases_lab/erin/2017_2020_Transcriptome_Analysis/WGCNA/Zhang_full_TOM.RData")
+#rm(Zhang_full_TOM)
+#rm(Zhang_dds_rlog_matrix)
+#
+#Rubio_dds_rlog_matrix <- read.table(file="/data3/marine_diseases_lab/erin/2017_2020_Transcriptome_Analysis/WGCNA/Rubio_dds_rlog_matrix.table")
+#Rubio_full_TOM = TOMsimilarityFromExpr(Rubio_dds_rlog_matrix, power = 7, TOMType = "signed", networkType= "signed hybrid", corType = "bicor") 
+#save(Rubio_full_TOM, file = "/data3/marine_diseases_lab/erin/2017_2020_Transcriptome_Analysis/WGCNA/Rubio_full_TOM.RData")
+#rm(Rubio_full_TOM)
+#rm(Rubio_dds_rlog_matrix)
+#
+#deLorgeril_Resistant_dds_vst_matrix <- read.table(file="/data3/marine_diseases_lab/erin/2017_2020_Transcriptome_Analysis/WGCNA/deLorgeril_Resistant_dds_vst_matrix.table")
+#deLorg_Res_full_TOM = TOMsimilarityFromExpr(deLorgeril_Resistant_dds_vst_matrix, power = 8,TOMType = "signed", networkType= "signed hybrid", corType = "bicor") 
+#save(deLorg_Res_full_TOM, file = "/data3/marine_diseases_lab/erin/2017_2020_Transcriptome_Analysis/WGCNA/deLorg_Res_full_TOM.RData")
+#rm(deLorgeril_Resistant_dds_vst_matrix)
+#rm(deLorg_Res_full_TOM)
+#
+#deLorgeril_Susceptible_dds_vst_matrix <- read.table(file="/data3/marine_diseases_lab/erin/2017_2020_Transcriptome_Analysis/WGCNA/deLorgeril_Susceptible_dds_vst_matrix.table")
+#deLorg_Sus_full_TOM = TOMsimilarityFromExpr(deLorgeril_Susceptible_dds_vst_matrix, power = 3, TOMType = "signed", networkType= "signed hybrid", corType = "bicor") 
+#save(deLorg_Sus_full_TOM, file = "/data3/marine_diseases_lab/erin/2017_2020_Transcriptome_Analysis/WGCNA/deLorg_Sus_full_TOM.RData")
+#rm(deLorgeril_Susceptible_dds_vst_matrix)
+#rm(deLorg_Sus_full_TOM)
+#
+#He_dds_vst_matrix <- read.table(file="/data3/marine_diseases_lab/erin/2017_2020_Transcriptome_Analysis/WGCNA/He_dds_vst_matrix.table")
+#He_full_TOM = TOMsimilarityFromExpr(He_dds_vst_matrix, power = 5,TOMType = "signed", networkType= "signed hybrid", corType = "bicor") 
+#save(He_full_TOM, file = "/data3/marine_diseases_lab/erin/2017_2020_Transcriptome_Analysis/WGCNA/He_full_TOM.RData")
+#rm(He_dds_vst_matrix)
+#rm(He_full_TOM)
 
 ###### CAN RUN BELOW EITHER INTERACTIVE OR AS A SCRIPT ####
 ## EXPORTING EACH AS SEPARATE MODULES BECAUSE THE INDIVIDUAL NETWORKS ARE TOO LARGE 
@@ -115,7 +115,7 @@ Pro_RE22_dds_rlog_matrix_Pro <- read.table(file="/data3/marine_diseases_lab/erin
 Pro_RE22_Pro_full_modules = "turquoise"
 # Select module probes
 Pro_RE22_Pro_full_probes = colnames(Pro_RE22_dds_rlog_matrix_Pro)
-Pro_RE22_Pro_full_inModule = is.finite(match(Pro_RE22_Pro_full_net_moduleColors, Pro_RE22_Pro_full_modules))
+Pro_RE22_Pro_full_inModule = is.finite(match(Pro_RE22_Pro_full_moduleColors, Pro_RE22_Pro_full_modules))
 Pro_RE22_Pro_full_modProbes = Pro_RE22_Pro_full_probes[Pro_RE22_Pro_full_inModule]
 Pro_RE22_Pro_full_modGenes = C_vir_rtracklayer$ID[match(Pro_RE22_Pro_full_modProbes, C_vir_rtracklayer$ID)]
 # Select the corresponding Topological Overlap
@@ -129,13 +129,13 @@ Pro_RE22_Pro_full_cyt = exportNetworkToCytoscape(Pro_RE22_Pro_full_modTOM,
                                                   threshold = 0.00, # use zero threshold so no genes are subset out 
                                                   nodeNames = Pro_RE22_Pro_full_modProbes,
                                                   altNodeNames = Pro_RE22_Pro_full_modGenes,
-                                                  nodeAttr = Pro_RE22_Pro_full_net_moduleColors[Pro_RE22_Pro_full_inModule])
+                                                  nodeAttr = Pro_RE22_Pro_full_moduleColors[Pro_RE22_Pro_full_inModule])
 
 # darkslateblue
 Pro_RE22_Pro_full_modules = "darkslateblue"
 # Select module probes
 Pro_RE22_Pro_full_probes = colnames(Pro_RE22_dds_rlog_matrix_Pro)
-Pro_RE22_Pro_full_inModule = is.finite(match(Pro_RE22_Pro_full_net_moduleColors, Pro_RE22_Pro_full_modules))
+Pro_RE22_Pro_full_inModule = is.finite(match(Pro_RE22_Pro_full_moduleColors, Pro_RE22_Pro_full_modules))
 Pro_RE22_Pro_full_modProbes = Pro_RE22_Pro_full_probes[Pro_RE22_Pro_full_inModule]
 Pro_RE22_Pro_full_modGenes = C_vir_rtracklayer$ID[match(Pro_RE22_Pro_full_modProbes, C_vir_rtracklayer$ID)]
 # Select the corresponding Topological Overlap
@@ -149,12 +149,11 @@ Pro_RE22_Pro_full_cyt = exportNetworkToCytoscape(Pro_RE22_Pro_full_modTOM,
                                                  threshold = 0.00, # use zero threshold so no genes are subset out 
                                                  nodeNames = Pro_RE22_Pro_full_modProbes,
                                                  altNodeNames = Pro_RE22_Pro_full_modGenes,
-                                                 nodeAttr = Pro_RE22_Pro_full_net_moduleColors[Pro_RE22_Pro_full_inModule])
-# steelblue 
+                                                 nodeAttr = Pro_RE22_Pro_full_moduleColors[Pro_RE22_Pro_full_inModule])# steelblue 
 Pro_RE22_Pro_full_modules = "steelblue"
 # Select module probes
 Pro_RE22_Pro_full_probes = colnames(Pro_RE22_dds_rlog_matrix_Pro)
-Pro_RE22_Pro_full_inModule = is.finite(match(Pro_RE22_Pro_full_net_moduleColors, Pro_RE22_Pro_full_modules))
+Pro_RE22_Pro_full_inModule = is.finite(match(Pro_RE22_Pro_full_moduleColors, Pro_RE22_Pro_full_modules))
 Pro_RE22_Pro_full_modProbes = Pro_RE22_Pro_full_probes[Pro_RE22_Pro_full_inModule]
 Pro_RE22_Pro_full_modGenes = C_vir_rtracklayer$ID[match(Pro_RE22_Pro_full_modProbes, C_vir_rtracklayer$ID)]
 # Select the corresponding Topological Overlap
@@ -168,12 +167,11 @@ Pro_RE22_Pro_full_cyt = exportNetworkToCytoscape(Pro_RE22_Pro_full_modTOM,
                                                  threshold = 0.00, # use zero threshold so no genes are subset out 
                                                  nodeNames = Pro_RE22_Pro_full_modProbes,
                                                  altNodeNames = Pro_RE22_Pro_full_modGenes,
-                                                 nodeAttr = Pro_RE22_Pro_full_net_moduleColors[Pro_RE22_Pro_full_inModule])
-# royalblue
+                                                 nodeAttr = Pro_RE22_Pro_full_moduleColors[Pro_RE22_Pro_full_inModule])# royalblue
 Pro_RE22_Pro_full_modules = "royalblue"
 # Select module probes
 Pro_RE22_Pro_full_probes = colnames(Pro_RE22_dds_rlog_matrix_Pro)
-Pro_RE22_Pro_full_inModule = is.finite(match(Pro_RE22_Pro_full_net_moduleColors, Pro_RE22_Pro_full_modules))
+Pro_RE22_Pro_full_inModule = is.finite(match(Pro_RE22_Pro_full_moduleColors, Pro_RE22_Pro_full_modules))
 Pro_RE22_Pro_full_modProbes = Pro_RE22_Pro_full_probes[Pro_RE22_Pro_full_inModule]
 Pro_RE22_Pro_full_modGenes = C_vir_rtracklayer$ID[match(Pro_RE22_Pro_full_modProbes, C_vir_rtracklayer$ID)]
 # Select the corresponding Topological Overlap
@@ -187,7 +185,7 @@ Pro_RE22_Pro_full_cyt = exportNetworkToCytoscape(Pro_RE22_Pro_full_modTOM,
                                                  threshold = 0.00, # use zero threshold so no genes are subset out 
                                                  nodeNames = Pro_RE22_Pro_full_modProbes,
                                                  altNodeNames = Pro_RE22_Pro_full_modGenes,
-                                                 nodeAttr = Pro_RE22_Pro_full_net_moduleColors[Pro_RE22_Pro_full_inModule])
+                                                 nodeAttr = Pro_RE22_Pro_full_moduleColors[Pro_RE22_Pro_full_inModule])
 rm(Pro_RE22_Pro_full_TOM)
 rm(Pro_RE22_Pro_full_moduleColors)
 rm(Pro_RE22_dds_rlog_matrix_Pro)
@@ -215,7 +213,7 @@ Zhang_full_cyt = exportNetworkToCytoscape(Zhang_full_modTOM,
                                           threshold = 0.00, # use zero threshold so no genes are subset out 
                                           nodeNames = Zhang_full_modProbes,
                                           altNodeNames = Zhang_full_modGenes,
-                                          nodeAttr = Zhang_full_net_moduleColors[Zhang_full_inModule])
+                                          nodeAttr = Zhang_full_moduleColors[Zhang_full_inModule])
 
 rm(Zhang_full_TOM)
 rm(Zhang_dds_rlog_matrix)
@@ -244,7 +242,7 @@ Rubio_full_cyt = exportNetworkToCytoscape(Rubio_full_modTOM,
                                                threshold = 0.00, # use zero threshold so no genes are subset out 
                                                nodeNames = Rubio_full_modProbes,
                                                altNodeNames = Rubio_full_modGenes,
-                                               nodeAttr = Rubio_full_net_moduleColors[Rubio_full_inModule])
+                                               nodeAttr = Rubio_full_moduleColors[Rubio_full_inModule])
 
 Rubio_full_modules = "turquoise"
 # Select module probes
@@ -263,7 +261,7 @@ Rubio_full_cyt = exportNetworkToCytoscape(Rubio_full_modTOM,
                                           threshold = 0.00, # use zero threshold so no genes are subset out 
                                           nodeNames = Rubio_full_modProbes,
                                           altNodeNames = Rubio_full_modGenes,
-                                          nodeAttr = Rubio_full_net_moduleColors[Rubio_full_inModule])
+                                          nodeAttr = Rubio_full_moduleColors[Rubio_full_inModule])
 
 Rubio_full_modules = "blue"
 # Select module probes
@@ -282,7 +280,7 @@ Rubio_full_cyt = exportNetworkToCytoscape(Rubio_full_modTOM,
                                           threshold = 0.00, # use zero threshold so no genes are subset out 
                                           nodeNames = Rubio_full_modProbes,
                                           altNodeNames = Rubio_full_modGenes,
-                                          nodeAttr = Rubio_full_net_moduleColors[Rubio_full_inModule])
+                                          nodeAttr = Rubio_full_moduleColors[Rubio_full_inModule])
 
 Rubio_full_modules = "brown"
 # Select module probes
@@ -301,7 +299,7 @@ Rubio_full_cyt = exportNetworkToCytoscape(Rubio_full_modTOM,
                                           threshold = 0.00, # use zero threshold so no genes are subset out 
                                           nodeNames = Rubio_full_modProbes,
                                           altNodeNames = Rubio_full_modGenes,
-                                          nodeAttr = Rubio_full_net_moduleColors[Rubio_full_inModule])
+                                          nodeAttr = Rubio_full_moduleColors[Rubio_full_inModule])
 
 rm(Rubio_full_TOM)
 rm(Rubio_dds_rlog_matrix)
@@ -330,7 +328,7 @@ deLorg_Res_full_cyt = exportNetworkToCytoscape(deLorg_Res_full_modTOM,
                                                  threshold = 0.00, # use zero threshold so no genes are subset out 
                                                  nodeNames = deLorg_Res_full_modProbes,
                                                  altNodeNames = deLorg_Res_full_modGenes,
-                                                 nodeAttr = deLorg_Res_full_net_moduleColors[deLorg_Res_full_inModule])
+                                                 nodeAttr = deLorg_Res_full_moduleColors[deLorg_Res_full_inModule])
 
 rm(deLorg_Res_full_TOM)
 rm(deLorg_Res_full_moduleColors)
@@ -359,7 +357,7 @@ deLorg_Sus_full_cyt = exportNetworkToCytoscape(deLorg_Res_full_modTOM,
                                                threshold = 0.00, # use zero threshold so no genes are subset out 
                                                nodeNames = deLorg_Sus_full_modProbes,
                                                altNodeNames = deLorg_Sus_full_modGenes,
-                                               nodeAttr = deLorg_Sus_full_net_moduleColors[deLorg_Sus_full_inModule])
+                                               nodeAttr = deLorg_Sus_full_moduleColors[deLorg_Sus_full_inModule])
 
 rm(deLorg_Sus_full_TOM)
 rm(deLorgeril_Susceptible_dds_vst_matrix)
@@ -388,7 +386,7 @@ He_full_cyt = exportNetworkToCytoscape(He_full_modTOM,
                                                threshold = 0.00, # use zero threshold so no genes are subset out 
                                                nodeNames = He_full_modProbes,
                                                altNodeNames = He_full_modGenes,
-                                               nodeAttr = He_full_net_moduleColors[He_full_inModule])
+                                               nodeAttr = He_full_moduleColors[He_full_inModule])
 
 He_full_modules = "yellow"
 # Select module probes
@@ -407,7 +405,7 @@ He_full_cyt = exportNetworkToCytoscape(He_full_modTOM,
                                        threshold = 0.00, # use zero threshold so no genes are subset out 
                                        nodeNames = He_full_modProbes,
                                        altNodeNames = He_full_modGenes,
-                                       nodeAttr = He_full_net_moduleColors[He_full_inModule])
+                                       nodeAttr = He_full_moduleColors[He_full_inModule])
 rm(He_full_TOM)
 rm(He_dds_vst_matrix)
 rm(He_full_moduleColors)
