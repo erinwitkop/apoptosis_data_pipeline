@@ -1,6 +1,9 @@
 ## R script to run TOMsimilarityFromExpr on the bluewaves cluster 
 ## Erin Michele Roberts, PhD Candidate
 
+# Clear global workspace
+rm(list = ls())
+
 # Load libraries
 library(WGCNA)
 
@@ -79,7 +82,6 @@ load(file="/data3/marine_diseases_lab/erin/2017_2020_Transcriptome_Analysis/WGCN
 #(already done in bluewaves)
 # load(file = "/data3/marine_diseases_lab/erin/2017_2020_Transcriptome_Analysis/WGCNA/Dermo_Tol_full_TOM.RData") # already done
 #load(file="/data3/marine_diseases_lab/erin/2017_2020_Transcriptome_Analysis/WGCNA/Dermo_Tol_full_moduleColors.RData")
-
 
 # TURQUOISE 
 #Dermo_Tol_full_modules = "turquoise"
@@ -186,6 +188,9 @@ Pro_RE22_Pro_full_cyt = exportNetworkToCytoscape(Pro_RE22_Pro_full_modTOM,
                                                  nodeNames = Pro_RE22_Pro_full_modProbes,
                                                  altNodeNames = Pro_RE22_Pro_full_modGenes,
                                                  nodeAttr = Pro_RE22_Pro_full_net_moduleColors[Pro_RE22_Pro_full_inModule])
+rm(Pro_RE22_Pro_full_TOM)
+rm(Pro_RE22_Pro_full_moduleColors)
+rm(Pro_RE22_dds_rlog_matrix_Pro)
 
 #### ZHANG ####
 # Zhang: MEblack
@@ -212,12 +217,15 @@ Zhang_full_cyt = exportNetworkToCytoscape(Zhang_full_modTOM,
                                           altNodeNames = Zhang_full_modGenes,
                                           nodeAttr = Zhang_full_net_moduleColors[Zhang_full_inModule])
 
+rm(Zhang_full_TOM)
+rm(Zhang_dds_rlog_matrix)
+rm(Zhang_full_moduleColors)
+
 #### RUBIO ####
 # Rubio: MEmagenta, MEturquoise, MEblue, MEbrown    
 load(file = "/data3/marine_diseases_lab/erin/2017_2020_Transcriptome_Analysis/WGCNA/Rubio_full_TOM.RData")
 Rubio_dds_rlog_matrix <- read.table(file="/data3/marine_diseases_lab/erin/2017_2020_Transcriptome_Analysis/WGCNA/Rubio_dds_rlog_matrix.table")
 load(file = "/data3/marine_diseases_lab/erin/2017_2020_Transcriptome_Analysis/WGCNA/Rubio_full_moduleColors.RData")
-
 
 Rubio_full_modules = "magenta"
 # Select module probes
@@ -295,12 +303,15 @@ Rubio_full_cyt = exportNetworkToCytoscape(Rubio_full_modTOM,
                                           altNodeNames = Rubio_full_modGenes,
                                           nodeAttr = Rubio_full_net_moduleColors[Rubio_full_inModule])
 
+rm(Rubio_full_TOM)
+rm(Rubio_dds_rlog_matrix)
+rm(Rubio_full_moduleColors)
+
 #### DELORG RES ####
 # deLorg_Res: MEturquoise
 load(file = "/data3/marine_diseases_lab/erin/2017_2020_Transcriptome_Analysis/WGCNA/deLorg_Res_full_TOM.RData")
 load(file = "/data3/marine_diseases_lab/erin/2017_2020_Transcriptome_Analysis/WGCNA/deLorg_Res_full_moduleColors.RData")
 deLorgeril_Resistant_dds_vst_matrix <- read.table(file="/data3/marine_diseases_lab/erin/2017_2020_Transcriptome_Analysis/WGCNA/deLorgeril_Resistant_dds_vst_matrix.table")
-
 
 deLorg_Res_full_modules = "turquoise"
 # Select module probes
@@ -321,12 +332,15 @@ deLorg_Res_full_cyt = exportNetworkToCytoscape(deLorg_Res_full_modTOM,
                                                  altNodeNames = deLorg_Res_full_modGenes,
                                                  nodeAttr = deLorg_Res_full_net_moduleColors[deLorg_Res_full_inModule])
 
+rm(deLorg_Res_full_TOM)
+rm(deLorg_Res_full_moduleColors)
+rm(deLorgeril_Resistant_dds_vst_matrix)
+
 #### DELORG SUS ####
 # deLorg_Sus: MEturquoise
 load(file = "/data3/marine_diseases_lab/erin/2017_2020_Transcriptome_Analysis/WGCNA/deLorg_Sus_full_TOM.RData")
 deLorgeril_Susceptible_dds_vst_matrix <- read.table(file="/data3/marine_diseases_lab/erin/2017_2020_Transcriptome_Analysis/WGCNA/deLorgeril_Susceptible_dds_vst_matrix.table")
 load(file = "/data3/marine_diseases_lab/erin/2017_2020_Transcriptome_Analysis/WGCNA/deLorg_Sus_full_moduleColors.RData")
-
 
 deLorg_Sus_full_modules = "turquoise"
 # Select module probes
@@ -347,6 +361,9 @@ deLorg_Sus_full_cyt = exportNetworkToCytoscape(deLorg_Res_full_modTOM,
                                                altNodeNames = deLorg_Sus_full_modGenes,
                                                nodeAttr = deLorg_Sus_full_net_moduleColors[deLorg_Sus_full_inModule])
 
+rm(deLorg_Sus_full_TOM)
+rm(deLorgeril_Susceptible_dds_vst_matrix)
+rm(deLorg_Sus_full_moduleColors)
 
 #### HE ####
 # He:  MEpurple, MEyellow
@@ -391,8 +408,9 @@ He_full_cyt = exportNetworkToCytoscape(He_full_modTOM,
                                        nodeNames = He_full_modProbes,
                                        altNodeNames = He_full_modGenes,
                                        nodeAttr = He_full_net_moduleColors[He_full_inModule])
-                                               
-
+rm(He_full_TOM)
+rm(He_dds_vst_matrix)
+rm(He_full_moduleColors)
 
 sessionInfo()
 #sessionInfo()
