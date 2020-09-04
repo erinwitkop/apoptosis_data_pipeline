@@ -8502,6 +8502,54 @@ save(He_full_moduleColors, file = "/Volumes/My Passport for Mac/Chapter1_Apoptos
 save(Rubio_full_moduleColors, file = "/Volumes/My Passport for Mac/Chapter1_Apoptosis_Paper_Saved_DESeq_WGCNA_Data/Rubio_full_moduleColors.RData")
 save(Zhang_full_moduleColors, file= "/Volumes/My Passport for Mac/Chapter1_Apoptosis_Paper_Saved_DESeq_WGCNA_Data/Zhang_full_moduleColors.RData") 
 
+
+#### ANALYZE WGCNA NETWORK DIRECT IAP INTERACTIONS ####
+
+# First export lists of significant IAP transcripts in each experiment to search for in the edges files
+LFC_comb_domain_type_XM_exp_hits_df_deLorg_Res_IAP_unique <- LFC_comb_domain_type_XM_exp_hits_df_deLorg_Res_IAP %>% ungroup() %>% distinct(transcript_id)
+write.table(LFC_comb_domain_type_XM_exp_hits_df_deLorg_Res_IAP_unique, file="/Volumes/My Passport for Mac/Chapter1_Apoptosis_Paper_Saved_DESeq_WGCNA_Data/LFC_comb_domain_type_XM_exp_hits_df_deLorg_Res_IAP_unique.txt",
+            row.names = FALSE, col.names = FALSE, quote = FALSE)
+LFC_comb_domain_type_XM_exp_hits_df_deLorg_Sus_IAP_unique <- LFC_comb_domain_type_XM_exp_hits_df_deLorg_Sus_IAP %>% ungroup() %>% distinct(transcript_id) 
+write.table(LFC_comb_domain_type_XM_exp_hits_df_deLorg_Sus_IAP_unique, file="/Volumes/My Passport for Mac/Chapter1_Apoptosis_Paper_Saved_DESeq_WGCNA_Data/LFC_comb_domain_type_XM_exp_hits_df_deLorg_Sus_IAP_unique.txt",
+            row.names = FALSE, col.names = FALSE, quote = FALSE)
+
+LFC_comb_domain_type_XM_exp_hits_df_He_IAP_unique <- LFC_comb_domain_type_XM_exp_hits_df_He_IAP %>% ungroup() %>% distinct(transcript_id)
+write.table(LFC_comb_domain_type_XM_exp_hits_df_He_IAP_unique, file="/Volumes/My Passport for Mac/Chapter1_Apoptosis_Paper_Saved_DESeq_WGCNA_Data/LFC_comb_domain_type_XM_exp_hits_df_He_IAP_unique.txt",
+            row.names = FALSE, col.names = FALSE, quote = FALSE)
+
+LFC_comb_domain_type_XM_exp_hits_df_Rubio_IAP_unique <- LFC_comb_domain_type_XM_exp_hits_df_Rubio_IAP %>% ungroup() %>% distinct(transcript_id)
+write.table(LFC_comb_domain_type_XM_exp_hits_df_Rubio_IAP_unique, file="/Volumes/My Passport for Mac/Chapter1_Apoptosis_Paper_Saved_DESeq_WGCNA_Data/LFC_comb_domain_type_XM_exp_hits_df_Rubio_IAP_unique.txt",
+            row.names = FALSE, col.names = FALSE, quote = FALSE)
+
+LFC_comb_domain_type_XM_exp_hits_df_Zhang_IAP_unique <- LFC_comb_domain_type_XM_exp_hits_df_Zhang_IAP %>% ungroup() %>% distinct(transcript_id)
+write.table(LFC_comb_domain_type_XM_exp_hits_df_Zhang_IAP_unique, file="/Volumes/My Passport for Mac/Chapter1_Apoptosis_Paper_Saved_DESeq_WGCNA_Data/LFC_comb_domain_type_XM_exp_hits_df_Zhang_IAP_unique.txt",
+            row.names = FALSE, col.names = FALSE, quote = FALSE)
+
+# also need to add in the rnaID so I can match it with the rnaID that is in the edge files 
+LFC_comb_domain_type_XM_exp_hits_df_Dermo_IAP_unique <- LFC_comb_domain_type_XM_exp_hits_df_Dermo_IAP %>% ungroup() %>% distinct(transcript_id) %>% 
+  left_join(.,IAP_domain_structure_XM_CV_XM[,c("transcript_id","ID")]) %>% distinct(ID) 
+write.table(LFC_comb_domain_type_XM_exp_hits_df_Dermo_IAP_unique, file="/Volumes/My Passport for Mac/Chapter1_Apoptosis_Paper_Saved_DESeq_WGCNA_Data/LFC_comb_domain_type_XM_exp_hits_df_Dermo_IAP_unique.txt",
+            row.names = FALSE, col.names = FALSE, quote = FALSE)
+
+LFC_comb_domain_type_XM_exp_hits_df_Pro_RE22_IAP_unique <- LFC_comb_domain_type_XM_exp_hits_df_Pro_RE22_IAP %>% ungroup() %>% distinct(transcript_id) %>% 
+  left_join(.,IAP_domain_structure_XM_CV_XM[,c("transcript_id","ID")]) %>% distinct(ID) 
+write.table(LFC_comb_domain_type_XM_exp_hits_df_Pro_RE22_IAP_unique, file="/Volumes/My Passport for Mac/Chapter1_Apoptosis_Paper_Saved_DESeq_WGCNA_Data/LFC_comb_domain_type_XM_exp_hits_df_Pro_RE22_IAP_unique.txt",
+            row.names = FALSE, col.names = FALSE, quote = FALSE)
+
+# Search for these transcript interaction partners in the command line because the files are too large to load into R workspace
+# deLorg_Res: MEturquoise
+ls -l
+# deLorg_Sus: MEturquoise
+# Dermo: MEturquoise
+  # $ for i in LFC_comb_domain_type_XM_exp_hits_df_Dermo_IAP_unique.txt ; do grep "$i" CytoscapeInput-edges-Dermo_Tol_fullturquoise.txt | cat; done
+  # none found?
+
+# Pro_RE22_Pro_RI:MEturquoise    , MEdarkslateblue, MEsteelblue    
+# Pro_RE22_Pro_S4: MEroyalblue, MEturquoise, MEsteelblue
+# He:  MEpurple, MEyellow
+# Rubio: MEmagenta, MEturquoise, MEblue, MEbrown    
+# Zhang: MEblack
+
 #### COMPARE CONSENSUS AND FULL IAP AND GIMAP ACROSS ALL DATASETS, NOT JUST THOSE IN SIGNIFICANT MODULES ####
 
 # Number of GIMAPs and IAPs in consensus set 
