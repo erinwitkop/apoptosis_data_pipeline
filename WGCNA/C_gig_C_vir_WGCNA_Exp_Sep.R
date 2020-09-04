@@ -8585,61 +8585,92 @@ Pro_RE22_Pro_fullroyalblue_IAP_hits <- read.table(file = "/Volumes/My Passport f
 Pro_RE22_Pro_fullsteelblue_IAP_hits <- read.table(file = "/Volumes/My Passport for Mac/Chapter1_Apoptosis_Paper_Saved_DESeq_WGCNA_Data/Pro_RE22_Pro_fullsteelblue_IAP_hits.txt", col.names = c("fromNode",	"toNode",	"weight",	"direction",	"fromAltName",	"toAltName"))
 Pro_RE22_Pro_fullturquoise_IAP_hits <- read.table(file = "/Volumes/My Passport for Mac/Chapter1_Apoptosis_Paper_Saved_DESeq_WGCNA_Data/Pro_RE22_Pro_fullturquoise_IAP_hits.txt", col.names = c("fromNode",	"toNode",	"weight",	"direction",	"fromAltName",	"toAltName"))
 
-## Annotate fromNode and toNodes by joining with apoptosis data frame (we only care about IAP interactions with other apoptosis pathway proteins, NAs will be non apoptosis transcripts)
+## Annotate fromNode and toNodes by joining with apoptosis data frame and annotate BIR domain type (we only care about IAP interactions with other apoptosis pathway proteins, NAs will be non apoptosis transcripts)
 deLorg_Res_fullturquoise_IAP_hits_annot <- deLorg_Res_fullturquoise_IAP_hits %>% dplyr::select(fromNode, toNode, weight, direction) %>% dplyr::rename(transcript_id = fromNode) %>% left_join(., C_gig_rtracklayer_apop_product_final[,c("gene","product", "transcript_id")]) %>%
+  left_join(., LFC_comb_domain_type_XM_exp_hits_df_deLorg_Res_IAP[,c("transcript_id","Domain_Name")]) %>% dplyr::rename (fromNodeDomain_Name = Domain_Name) %>% 
   dplyr::rename (fromNodetranscript = transcript_id) %>% dplyr::rename(fromNodeproduct = product) %>% dplyr::rename(fromNodegene = gene) %>% dplyr::rename(transcript_id = toNode) %>% left_join(., C_gig_rtracklayer_apop_product_final[,c("gene","product", "transcript_id")]) %>%
-  dplyr::rename (toNodetranscript = transcript_id) %>% dplyr::rename(toNodeproduct = product) %>% dplyr::rename(toNodegene = gene) %>% filter(!is.na(fromNodeproduct)) %>% filter(!is.na(toNodeproduct))
+  left_join(., LFC_comb_domain_type_XM_exp_hits_df_deLorg_Res_IAP[,c("transcript_id","Domain_Name")]) %>% dplyr::rename (toNodeDomain_Name = Domain_Name) %>% 
+  dplyr::rename (toNodetranscript = transcript_id) %>% dplyr::rename(toNodeproduct = product) %>% dplyr::rename(toNodegene = gene) %>% filter(!is.na(fromNodeproduct)) %>% filter(!is.na(toNodeproduct)) %>% distinct()
 
 deLorg_Sus_fullturquoise_IAP_hits_annot <- deLorg_Sus_fullturquoise_IAP_hits  %>% dplyr::select(fromNode, toNode, weight, direction) %>% dplyr::rename(transcript_id = fromNode) %>% left_join(., C_gig_rtracklayer_apop_product_final[,c("gene","product", "transcript_id")]) %>%
+  left_join(., LFC_comb_domain_type_XM_exp_hits_df_deLorg_Sus_IAP[,c("transcript_id","Domain_Name")]) %>% dplyr::rename (fromNodeDomain_Name = Domain_Name) %>% 
   dplyr::rename (fromNodetranscript = transcript_id) %>% dplyr::rename(fromNodeproduct = product) %>% dplyr::rename(fromNodegene = gene) %>% dplyr::rename(transcript_id = toNode) %>% left_join(., C_gig_rtracklayer_apop_product_final[,c("gene","product", "transcript_id")]) %>%
-  dplyr::rename (toNodetranscript = transcript_id) %>% dplyr::rename(toNodeproduct = product) %>% dplyr::rename(toNodegene = gene) %>% filter(!is.na(fromNodeproduct)) %>% filter(!is.na(toNodeproduct))
+  left_join(., LFC_comb_domain_type_XM_exp_hits_df_deLorg_Sus_IAP[,c("transcript_id","Domain_Name")]) %>% dplyr::rename (toNodeDomain_Name = Domain_Name) %>% 
+  dplyr::rename (toNodetranscript = transcript_id) %>% dplyr::rename(toNodeproduct = product) %>% dplyr::rename(toNodegene = gene) %>% filter(!is.na(fromNodeproduct)) %>% filter(!is.na(toNodeproduct)) %>% distinct()
 
 He_fullpurple_IAP_hits_annot <- He_fullpurple_IAP_hits  %>% dplyr::select(fromNode, toNode, weight, direction) %>% dplyr::rename(transcript_id = fromNode) %>% left_join(., C_gig_rtracklayer_apop_product_final[,c("gene","product", "transcript_id")]) %>%
+  left_join(., LFC_comb_domain_type_XM_exp_hits_df_He_IAP[,c("transcript_id","Domain_Name")]) %>% dplyr::rename (fromNodeDomain_Name = Domain_Name) %>% 
   dplyr::rename (fromNodetranscript = transcript_id) %>% dplyr::rename(fromNodeproduct = product) %>% dplyr::rename(fromNodegene = gene) %>% dplyr::rename(transcript_id = toNode) %>% left_join(., C_gig_rtracklayer_apop_product_final[,c("gene","product", "transcript_id")]) %>%
-  dplyr::rename (toNodetranscript = transcript_id) %>% dplyr::rename(toNodeproduct = product) %>% dplyr::rename(toNodegene = gene) %>% filter(!is.na(fromNodeproduct)) %>% filter(!is.na(toNodeproduct))
+  left_join(., LFC_comb_domain_type_XM_exp_hits_df_He_IAP[,c("transcript_id","Domain_Name")]) %>% dplyr::rename (toNodeDomain_Name = Domain_Name) %>% 
+  dplyr::rename (toNodetranscript = transcript_id) %>% dplyr::rename(toNodeproduct = product) %>% dplyr::rename(toNodegene = gene) %>% filter(!is.na(fromNodeproduct)) %>% filter(!is.na(toNodeproduct)) %>% distinct()
 
 He_fullyellow_IAP_hits_annot <- He_fullyellow_IAP_hits  %>% dplyr::select(fromNode, toNode, weight, direction) %>% dplyr::rename(transcript_id = fromNode) %>% left_join(., C_gig_rtracklayer_apop_product_final[,c("gene","product", "transcript_id")]) %>%
+  left_join(., LFC_comb_domain_type_XM_exp_hits_df_He_IAP[,c("transcript_id","Domain_Name")]) %>% dplyr::rename (fromNodeDomain_Name = Domain_Name) %>% 
   dplyr::rename (fromNodetranscript = transcript_id) %>% dplyr::rename(fromNodeproduct = product) %>% dplyr::rename(fromNodegene = gene) %>% dplyr::rename(transcript_id = toNode) %>% left_join(., C_gig_rtracklayer_apop_product_final[,c("gene","product", "transcript_id")]) %>%
-  dplyr::rename (toNodetranscript = transcript_id) %>% dplyr::rename(toNodeproduct = product) %>% dplyr::rename(toNodegene = gene) %>% filter(!is.na(fromNodeproduct)) %>% filter(!is.na(toNodeproduct))
+  left_join(., LFC_comb_domain_type_XM_exp_hits_df_He_IAP[,c("transcript_id","Domain_Name")]) %>% dplyr::rename (toNodeDomain_Name = Domain_Name) %>% 
+  dplyr::rename (toNodetranscript = transcript_id) %>% dplyr::rename(toNodeproduct = product) %>% dplyr::rename(toNodegene = gene) %>% filter(!is.na(fromNodeproduct)) %>% filter(!is.na(toNodeproduct)) %>% distinct()
 
 Zhang_fullblack_IAP_hits_annot <- Zhang_fullblack_IAP_hits  %>% dplyr::select(fromNode, toNode, weight, direction) %>% dplyr::rename(transcript_id = fromNode) %>% left_join(., C_gig_rtracklayer_apop_product_final[,c("gene","product", "transcript_id")]) %>%
+  left_join(., LFC_comb_domain_type_XM_exp_hits_df_Zhang_IAP[,c("transcript_id","Domain_Name")]) %>% dplyr::rename (fromNodeDomain_Name = Domain_Name) %>% 
   dplyr::rename (fromNodetranscript = transcript_id) %>% dplyr::rename(fromNodeproduct = product) %>% dplyr::rename(fromNodegene = gene) %>% dplyr::rename(transcript_id = toNode) %>% left_join(., C_gig_rtracklayer_apop_product_final[,c("gene","product", "transcript_id")]) %>%
-  dplyr::rename (toNodetranscript = transcript_id) %>% dplyr::rename(toNodeproduct = product) %>% dplyr::rename(toNodegene = gene) %>% filter(!is.na(fromNodeproduct)) %>% filter(!is.na(toNodeproduct))
+  left_join(., LFC_comb_domain_type_XM_exp_hits_df_Zhang_IAP[,c("transcript_id","Domain_Name")]) %>% dplyr::rename (toNodeDomain_Name = Domain_Name) %>% 
+  dplyr::rename (toNodetranscript = transcript_id) %>% dplyr::rename(toNodeproduct = product) %>% dplyr::rename(toNodegene = gene) %>% filter(!is.na(fromNodeproduct)) %>% filter(!is.na(toNodeproduct)) %>% distinct()
 
 Rubio_fullblue_IAP_hits_annot <- Rubio_fullblue_IAP_hits  %>% dplyr::select(fromNode, toNode, weight, direction) %>% dplyr::rename(transcript_id = fromNode) %>% left_join(., C_gig_rtracklayer_apop_product_final[,c("gene","product", "transcript_id")]) %>%
+  left_join(., LFC_comb_domain_type_XM_exp_hits_df_Rubio_IAP[,c("transcript_id","Domain_Name")]) %>% dplyr::rename (fromNodeDomain_Name = Domain_Name) %>% 
   dplyr::rename (fromNodetranscript = transcript_id) %>% dplyr::rename(fromNodeproduct = product) %>% dplyr::rename(fromNodegene = gene) %>% dplyr::rename(transcript_id = toNode) %>% left_join(., C_gig_rtracklayer_apop_product_final[,c("gene","product", "transcript_id")]) %>%
-  dplyr::rename (toNodetranscript = transcript_id) %>% dplyr::rename(toNodeproduct = product) %>% dplyr::rename(toNodegene = gene) %>% filter(!is.na(fromNodeproduct)) %>% filter(!is.na(toNodeproduct))
+  left_join(., LFC_comb_domain_type_XM_exp_hits_df_Rubio_IAP[,c("transcript_id","Domain_Name")]) %>% dplyr::rename (toNodeDomain_Name = Domain_Name) %>% 
+  dplyr::rename (toNodetranscript = transcript_id) %>% dplyr::rename(toNodeproduct = product) %>% dplyr::rename(toNodegene = gene) %>% filter(!is.na(fromNodeproduct)) %>% filter(!is.na(toNodeproduct)) %>% distinct()
 
 Rubio_fullmagenta_IAP_hits_annot <- Rubio_fullmagenta_IAP_hits  %>% dplyr::select(fromNode, toNode, weight, direction) %>% dplyr::rename(transcript_id = fromNode) %>% left_join(., C_gig_rtracklayer_apop_product_final[,c("gene","product", "transcript_id")]) %>%
+  left_join(., LFC_comb_domain_type_XM_exp_hits_df_Rubio_IAP[,c("transcript_id","Domain_Name")]) %>% dplyr::rename (fromNodeDomain_Name = Domain_Name) %>% 
   dplyr::rename (fromNodetranscript = transcript_id) %>% dplyr::rename(fromNodeproduct = product) %>% dplyr::rename(fromNodegene = gene) %>% dplyr::rename(transcript_id = toNode) %>% left_join(., C_gig_rtracklayer_apop_product_final[,c("gene","product", "transcript_id")]) %>%
-  dplyr::rename (toNodetranscript = transcript_id) %>% dplyr::rename(toNodeproduct = product) %>% dplyr::rename(toNodegene = gene) %>% filter(!is.na(fromNodeproduct)) %>% filter(!is.na(toNodeproduct))
+  left_join(., LFC_comb_domain_type_XM_exp_hits_df_Rubio_IAP[,c("transcript_id","Domain_Name")]) %>% dplyr::rename (toNodeDomain_Name = Domain_Name) %>% 
+  dplyr::rename (toNodetranscript = transcript_id) %>% dplyr::rename(toNodeproduct = product) %>% dplyr::rename(toNodegene = gene) %>% filter(!is.na(fromNodeproduct)) %>% filter(!is.na(toNodeproduct)) %>% distinct()
 
-Rubio_fullmagenta_IAP_hits_annot <- Rubio_fullmagenta_IAP_hits  %>% dplyr::select(fromNode, toNode, weight, direction) %>% dplyr::rename(transcript_id = fromNode) %>% left_join(., C_gig_rtracklayer_apop_product_final[,c("gene","product", "transcript_id")]) %>%
+Rubio_fullmagenta_IAP_hits_annot <- Rubio_fullmagenta_IAP_hits %>% dplyr::select(fromNode, toNode, weight, direction) %>% dplyr::rename(transcript_id = fromNode) %>% left_join(., C_gig_rtracklayer_apop_product_final[,c("gene","product", "transcript_id")]) %>%
+  left_join(., LFC_comb_domain_type_XM_exp_hits_df_Rubio_IAP[,c("transcript_id","Domain_Name")]) %>% dplyr::rename (fromNodeDomain_Name = Domain_Name) %>% 
   dplyr::rename (fromNodetranscript = transcript_id) %>% dplyr::rename(fromNodeproduct = product) %>% dplyr::rename(fromNodegene = gene) %>% dplyr::rename(transcript_id = toNode) %>% left_join(., C_gig_rtracklayer_apop_product_final[,c("gene","product", "transcript_id")]) %>%
-  dplyr::rename (toNodetranscript = transcript_id) %>% dplyr::rename(toNodeproduct = product) %>% dplyr::rename(toNodegene = gene) %>% filter(!is.na(fromNodeproduct)) %>% filter(!is.na(toNodeproduct))
+  left_join(., LFC_comb_domain_type_XM_exp_hits_df_Rubio_IAP[,c("transcript_id","Domain_Name")]) %>% dplyr::rename (toNodeDomain_Name = Domain_Name) %>% 
+  dplyr::rename (toNodetranscript = transcript_id) %>% dplyr::rename(toNodeproduct = product) %>% dplyr::rename(toNodegene = gene) %>% filter(!is.na(fromNodeproduct)) %>% filter(!is.na(toNodeproduct)) %>% distinct()
 
 Rubio_fullturquoise_IAP_hits_annot <- Rubio_fullturquoise_IAP_hits  %>% dplyr::select(fromNode, toNode, weight, direction) %>% dplyr::rename(transcript_id = fromNode) %>% left_join(., C_gig_rtracklayer_apop_product_final[,c("gene","product", "transcript_id")]) %>%
+  left_join(., LFC_comb_domain_type_XM_exp_hits_df_Rubio_IAP[,c("transcript_id","Domain_Name")]) %>% dplyr::rename (fromNodeDomain_Name = Domain_Name) %>% 
   dplyr::rename (fromNodetranscript = transcript_id) %>% dplyr::rename(fromNodeproduct = product) %>% dplyr::rename(fromNodegene = gene) %>% dplyr::rename(transcript_id = toNode) %>% left_join(., C_gig_rtracklayer_apop_product_final[,c("gene","product", "transcript_id")]) %>%
-  dplyr::rename (toNodetranscript = transcript_id) %>% dplyr::rename(toNodeproduct = product) %>% dplyr::rename(toNodegene = gene) %>% filter(!is.na(fromNodeproduct)) %>% filter(!is.na(toNodeproduct))
+  left_join(., LFC_comb_domain_type_XM_exp_hits_df_Rubio_IAP[,c("transcript_id","Domain_Name")]) %>% dplyr::rename (toNodeDomain_Name = Domain_Name) %>% 
+  dplyr::rename (toNodetranscript = transcript_id) %>% dplyr::rename(toNodeproduct = product) %>% dplyr::rename(toNodegene = gene) %>% filter(!is.na(fromNodeproduct)) %>% filter(!is.na(toNodeproduct)) %>% distinct()
 
 # annot C. virginica modules 
 Pro_RE22_Pro_fulldarkslateblue_IAP_hits_annot <- Pro_RE22_Pro_fulldarkslateblue_IAP_hits %>% dplyr::select(fromNode, toNode, weight, direction) %>% dplyr::rename(ID = fromNode) %>% left_join(., C_vir_rtracklayer_apop_product_final[,c("gene","product", "ID")]) %>%
+  left_join(., IAP_domain_structure_XM_CV_XM[,c("ID","Domain_Name")]) %>% dplyr::rename (fromNodeDomain_Name = Domain_Name) %>% 
   dplyr::rename (fromNodetranscript = ID) %>% dplyr::rename(fromNodeproduct = product) %>% dplyr::rename(fromNodegene = gene) %>% dplyr::rename(ID = toNode) %>% left_join(., C_vir_rtracklayer_apop_product_final[,c("gene","product", "ID")]) %>%
-  dplyr::rename (toNodetranscript = ID) %>% dplyr::rename(toNodeproduct = product) %>% dplyr::rename(toNodegene = gene) %>% filter(!is.na(fromNodeproduct)) %>% filter(!is.na(toNodeproduct))
+  left_join(., IAP_domain_structure_XM_CV_XM[,c("ID","Domain_Name")]) %>% dplyr::rename (toNodeDomain_Name = Domain_Name) %>% 
+  dplyr::rename (toNodetranscript = ID) %>% dplyr::rename(toNodeproduct = product) %>% dplyr::rename(toNodegene = gene) %>% filter(!is.na(fromNodeproduct)) %>% filter(!is.na(toNodeproduct)) %>% distinct()
 
 Pro_RE22_Pro_fullroyalblue_IAP_hits_annot <- Pro_RE22_Pro_fullroyalblue_IAP_hits %>% dplyr::select(fromNode, toNode, weight, direction) %>% dplyr::rename(ID = fromNode) %>% left_join(., C_vir_rtracklayer_apop_product_final[,c("gene","product", "ID")]) %>%
+  left_join(., IAP_domain_structure_XM_CV_XM[,c("ID","Domain_Name")]) %>% dplyr::rename (fromNodeDomain_Name = Domain_Name) %>% 
   dplyr::rename (fromNodetranscript = ID) %>% dplyr::rename(fromNodeproduct = product) %>% dplyr::rename(fromNodegene = gene) %>% dplyr::rename(ID = toNode) %>% left_join(., C_vir_rtracklayer_apop_product_final[,c("gene","product", "ID")]) %>%
-  dplyr::rename (toNodetranscript = ID) %>% dplyr::rename(toNodeproduct = product) %>% dplyr::rename(toNodegene = gene) %>% filter(!is.na(fromNodeproduct)) %>% filter(!is.na(toNodeproduct))
+  left_join(., IAP_domain_structure_XM_CV_XM[,c("ID","Domain_Name")]) %>% dplyr::rename (toNodeDomain_Name = Domain_Name) %>% 
+  dplyr::rename (toNodetranscript = ID) %>% dplyr::rename(toNodeproduct = product) %>% dplyr::rename(toNodegene = gene) %>% filter(!is.na(fromNodeproduct)) %>% filter(!is.na(toNodeproduct)) %>% distinct()
 
 Pro_RE22_Pro_fullsteelblue_IAP_hits_annot <- Pro_RE22_Pro_fullsteelblue_IAP_hits %>% dplyr::select(fromNode, toNode, weight, direction) %>% dplyr::rename(ID = fromNode) %>% left_join(., C_vir_rtracklayer_apop_product_final[,c("gene","product", "ID")]) %>%
+  left_join(., IAP_domain_structure_XM_CV_XM[,c("ID","Domain_Name")]) %>% dplyr::rename (fromNodeDomain_Name = Domain_Name) %>% 
   dplyr::rename (fromNodetranscript = ID) %>% dplyr::rename(fromNodeproduct = product) %>% dplyr::rename(fromNodegene = gene) %>% dplyr::rename(ID = toNode) %>% left_join(., C_vir_rtracklayer_apop_product_final[,c("gene","product", "ID")]) %>%
-  dplyr::rename (toNodetranscript = ID) %>% dplyr::rename(toNodeproduct = product) %>% dplyr::rename(toNodegene = gene) %>% filter(!is.na(fromNodeproduct)) %>% filter(!is.na(toNodeproduct))
+  left_join(., IAP_domain_structure_XM_CV_XM[,c("ID","Domain_Name")]) %>% dplyr::rename (toNodeDomain_Name = Domain_Name) %>% 
+  dplyr::rename (toNodetranscript = ID) %>% dplyr::rename(toNodeproduct = product) %>% dplyr::rename(toNodegene = gene) %>% filter(!is.na(fromNodeproduct)) %>% filter(!is.na(toNodeproduct)) %>% distinct()
 
 Pro_RE22_Pro_fullturquoise_IAP_hits_annot <- Pro_RE22_Pro_fullturquoise_IAP_hits %>% dplyr::select(fromNode, toNode, weight, direction) %>% dplyr::rename(ID = fromNode) %>% left_join(., C_vir_rtracklayer_apop_product_final[,c("gene","product", "ID")]) %>%
+  left_join(., IAP_domain_structure_XM_CV_XM[,c("ID","Domain_Name")]) %>% dplyr::rename (fromNodeDomain_Name = Domain_Name) %>% 
   dplyr::rename (fromNodetranscript = ID) %>% dplyr::rename(fromNodeproduct = product) %>% dplyr::rename(fromNodegene = gene) %>% dplyr::rename(ID = toNode) %>% left_join(., C_vir_rtracklayer_apop_product_final[,c("gene","product", "ID")]) %>%
-  dplyr::rename (toNodetranscript = ID) %>% dplyr::rename(toNodeproduct = product) %>% dplyr::rename(toNodegene = gene) %>% filter(!is.na(fromNodeproduct)) %>% filter(!is.na(toNodeproduct))
+  left_join(., IAP_domain_structure_XM_CV_XM[,c("ID","Domain_Name")]) %>% dplyr::rename (toNodeDomain_Name = Domain_Name) %>% 
+  dplyr::rename (toNodetranscript = ID) %>% dplyr::rename(toNodeproduct = product) %>% dplyr::rename(toNodegene = gene) %>% filter(!is.na(fromNodeproduct)) %>% filter(!is.na(toNodeproduct)) %>% distinct()
 
-
+### GOALS OF THIS SECTION 
+#1. Identify any specific important interactions of IAPs with molecules of interes 
+    #a. caspases
+    #b. TLRs, TRAFs, RIPK
+    #c. Bcl-2 family members 
+#2. Identify patterns between which domain types are interacting with which group of molecules 
 
 #### COMPARE CONSENSUS AND FULL IAP AND GIMAP ACROSS ALL DATASETS, NOT JUST THOSE IN SIGNIFICANT MODULES ####
 
