@@ -8577,7 +8577,7 @@ He_fullpurple_IAP_hits <- read.table(file = "/Volumes/My Passport for Mac/Chapte
 He_fullyellow_IAP_hits <- read.table(file = "/Volumes/My Passport for Mac/Chapter1_Apoptosis_Paper_Saved_DESeq_WGCNA_Data/He_fullyellow_IAP_hits.txt", col.names = c("fromNode",	"toNode",	"weight",	"direction",	"fromAltName",	"toAltName"))
 Zhang_fullblack_IAP_hits <- read.table(file = "/Volumes/My Passport for Mac/Chapter1_Apoptosis_Paper_Saved_DESeq_WGCNA_Data/Zhang_fullblack_IAP_hits.txt", col.names = c("fromNode",	"toNode",	"weight",	"direction",	"fromAltName",	"toAltName"))
 Rubio_fullblue_IAP_hits <- read.table(file = "/Volumes/My Passport for Mac/Chapter1_Apoptosis_Paper_Saved_DESeq_WGCNA_Data/Rubio_fullblue_IAP_hits.txt", col.names = c("fromNode",	"toNode",	"weight",	"direction",	"fromAltName",	"toAltName"))
-Rubio_fullmagenta_IAP_hits <- read.table(file = "/Volumes/My Passport for Mac/Chapter1_Apoptosis_Paper_Saved_DESeq_WGCNA_Data/Rubio_fullbrown_IAP_hits.txt", col.names = c("fromNode",	"toNode",	"weight",	"direction",	"fromAltName",	"toAltName"))
+Rubio_fullbrown_IAP_hits <- read.table(file = "/Volumes/My Passport for Mac/Chapter1_Apoptosis_Paper_Saved_DESeq_WGCNA_Data/Rubio_fullbrown_IAP_hits.txt", col.names = c("fromNode",	"toNode",	"weight",	"direction",	"fromAltName",	"toAltName"))
 Rubio_fullmagenta_IAP_hits <- read.table(file = "/Volumes/My Passport for Mac/Chapter1_Apoptosis_Paper_Saved_DESeq_WGCNA_Data/Rubio_fullmagenta_IAP_hits.txt", col.names = c("fromNode",	"toNode",	"weight",	"direction",	"fromAltName",	"toAltName"))
 Rubio_fullturquoise_IAP_hits <- read.table(file = "/Volumes/My Passport for Mac/Chapter1_Apoptosis_Paper_Saved_DESeq_WGCNA_Data/Rubio_fullturquoise_IAP_hits.txt", col.names = c("fromNode",	"toNode",	"weight",	"direction",	"fromAltName",	"toAltName"))
 Pro_RE22_Pro_fulldarkslateblue_IAP_hits <- read.table(file = "/Volumes/My Passport for Mac/Chapter1_Apoptosis_Paper_Saved_DESeq_WGCNA_Data/Pro_RE22_Pro_fulldarkslateblue_IAP_hits.txt", col.names = c("fromNode",	"toNode",	"weight",	"direction",	"fromAltName",	"toAltName"))
@@ -8622,7 +8622,7 @@ Rubio_fullblue_IAP_hits_annot <- Rubio_fullblue_IAP_hits  %>% dplyr::select(from
   left_join(., LFC_comb_domain_type_XM_exp_hits_df_Rubio_IAP[,c("transcript_id","Domain_Name")]) %>% dplyr::rename (toNodeDomain_Name = Domain_Name) %>% 
   dplyr::rename (toNodetranscript = transcript_id) %>% dplyr::rename(toNodeproduct = product) %>% dplyr::rename(toNodegene = gene) %>% filter(!is.na(fromNodeproduct)) %>% filter(!is.na(toNodeproduct)) %>% distinct()
 
-Rubio_fullmagenta_IAP_hits_annot <- Rubio_fullmagenta_IAP_hits  %>% dplyr::select(fromNode, toNode, weight, direction) %>% dplyr::rename(transcript_id = fromNode) %>% left_join(., C_gig_rtracklayer_apop_product_final[,c("gene","product", "transcript_id")]) %>%
+Rubio_fullbrown_IAP_hits_annot <- Rubio_fullbrown_IAP_hits  %>% dplyr::select(fromNode, toNode, weight, direction) %>% dplyr::rename(transcript_id = fromNode) %>% left_join(., C_gig_rtracklayer_apop_product_final[,c("gene","product", "transcript_id")]) %>%
   left_join(., LFC_comb_domain_type_XM_exp_hits_df_Rubio_IAP[,c("transcript_id","Domain_Name")]) %>% dplyr::rename (fromNodeDomain_Name = Domain_Name) %>% 
   dplyr::rename (fromNodetranscript = transcript_id) %>% dplyr::rename(fromNodeproduct = product) %>% dplyr::rename(fromNodegene = gene) %>% dplyr::rename(transcript_id = toNode) %>% left_join(., C_gig_rtracklayer_apop_product_final[,c("gene","product", "transcript_id")]) %>%
   left_join(., LFC_comb_domain_type_XM_exp_hits_df_Rubio_IAP[,c("transcript_id","Domain_Name")]) %>% dplyr::rename (toNodeDomain_Name = Domain_Name) %>% 
@@ -8639,6 +8639,37 @@ Rubio_fullturquoise_IAP_hits_annot <- Rubio_fullturquoise_IAP_hits  %>% dplyr::s
   dplyr::rename (fromNodetranscript = transcript_id) %>% dplyr::rename(fromNodeproduct = product) %>% dplyr::rename(fromNodegene = gene) %>% dplyr::rename(transcript_id = toNode) %>% left_join(., C_gig_rtracklayer_apop_product_final[,c("gene","product", "transcript_id")]) %>%
   left_join(., LFC_comb_domain_type_XM_exp_hits_df_Rubio_IAP[,c("transcript_id","Domain_Name")]) %>% dplyr::rename (toNodeDomain_Name = Domain_Name) %>% 
   dplyr::rename (toNodetranscript = transcript_id) %>% dplyr::rename(toNodeproduct = product) %>% dplyr::rename(toNodegene = gene) %>% filter(!is.na(fromNodeproduct)) %>% filter(!is.na(toNodeproduct)) %>% distinct()
+
+# Join together C. gigas data frames, add together module name and experiment
+deLorg_Res_fullturquoise_IAP_hits_annot$experiment <- "deLorg_Res"
+deLorg_Sus_fullturquoise_IAP_hits_annot$experiment <- "deLorg_Sus"
+He_fullpurple_IAP_hits_annot$experiment <- "He"
+He_fullyellow_IAP_hits_annot$experiment <- "He"
+Zhang_fullblack_IAP_hits_annot$experiment <- "Zhang"
+Rubio_fullblue_IAP_hits_annot$experiment <- "Rubio"
+Rubio_fullbrown_IAP_hits_annot$experiment <- "Rubio"
+Rubio_fullmagenta_IAP_hits_annot$experiment <- "Rubio"
+Rubio_fullturquoise_IAP_hits_annot$experiment <- "Rubio"
+
+deLorg_Res_fullturquoise_IAP_hits_annot$mod_name <- "MEturquoise"
+deLorg_Sus_fullturquoise_IAP_hits_annot$mod_name <- "MEturquoise"
+He_fullpurple_IAP_hits_annot$mod_name <- "MEpurple"
+He_fullyellow_IAP_hits_annot$mod_name <- "MEyellow"
+Zhang_fullblack_IAP_hits_annot$mod_name <- "MEblack"
+Rubio_fullblue_IAP_hits_annot$mod_name <- "MEblue"
+Rubio_fullbrown_IAP_hits_annot$mod_name <- "MEbrown"
+Rubio_fullmagenta_IAP_hits_annot$mod_name <- "MEmagenta"
+Rubio_fullturquoise_IAP_hits_annot$mod_name <- "MEturquoise"
+
+deLorg_Res_fullturquoise_IAP_hits_annot$species <- "C_gigas"
+deLorg_Sus_fullturquoise_IAP_hits_annot$species <- "C_gigas"
+He_fullpurple_IAP_hits_annot$species <- "C_gigas"
+He_fullyellow_IAP_hits_annot$species <- "C_gigas"
+Zhang_fullblack_IAP_hits_annot$species <- "C_gigas"
+Rubio_fullblue_IAP_hits_annot$species <- "C_gigas"
+Rubio_fullbrown_IAP_hits_annot$species <- "C_gigas"
+Rubio_fullmagenta_IAP_hits_annot$species <- "C_gigas"
+Rubio_fullturquoise_IAP_hits_annot$species <- "C_gigas"
 
 # annot C. virginica modules 
 Pro_RE22_Pro_fulldarkslateblue_IAP_hits_annot <- Pro_RE22_Pro_fulldarkslateblue_IAP_hits %>% dplyr::select(fromNode, toNode, weight, direction) %>% dplyr::rename(ID = fromNode) %>% left_join(., C_vir_rtracklayer_apop_product_final[,c("gene","product", "ID")]) %>%
@@ -8665,12 +8696,107 @@ Pro_RE22_Pro_fullturquoise_IAP_hits_annot <- Pro_RE22_Pro_fullturquoise_IAP_hits
   left_join(., IAP_domain_structure_XM_CV_XM[,c("ID","Domain_Name")]) %>% dplyr::rename (toNodeDomain_Name = Domain_Name) %>% 
   dplyr::rename (toNodetranscript = ID) %>% dplyr::rename(toNodeproduct = product) %>% dplyr::rename(toNodegene = gene) %>% filter(!is.na(fromNodeproduct)) %>% filter(!is.na(toNodeproduct)) %>% distinct()
 
-### GOALS OF THIS SECTION 
-#1. Identify any specific important interactions of IAPs with molecules of interes 
-    #a. caspases
-    #b. TLRs, TRAFs, RIPK
-    #c. Bcl-2 family members 
-#2. Identify patterns between which domain types are interacting with which group of molecules 
+# Join together data frames
+Pro_RE22_Pro_fulldarkslateblue_IAP_hits_annot$mod_name <- "MEdarkslateblue"
+Pro_RE22_Pro_fullroyalblue_IAP_hits_annot$mod_name <- "MEroyalblue"
+Pro_RE22_Pro_fullsteelblue_IAP_hits_annot$mod_name <- "MEsteelblue"
+Pro_RE22_Pro_fullturquoise_IAP_hits_annot$mod_name <- "MEturquoise"
+
+Pro_RE22_Pro_hits_annot <- rbind(Pro_RE22_Pro_fulldarkslateblue_IAP_hits_annot,Pro_RE22_Pro_fullroyalblue_IAP_hits_annot,Pro_RE22_Pro_fullsteelblue_IAP_hits_annot,Pro_RE22_Pro_fullturquoise_IAP_hits_annot)
+Pro_RE22_Pro_hits_annot$experiment <- "Pro_RE22_Pro"
+Pro_RE22_Pro_hits_annot$species <- "C_virginica"
+
+#rbind all together
+C_vir_C_gig_IAP_interaction_partners <- rbind(deLorg_Res_fullturquoise_IAP_hits_annot,deLorg_Sus_fullturquoise_IAP_hits_annot,He_fullpurple_IAP_hits_annot,He_fullyellow_IAP_hits_annot,Zhang_fullblack_IAP_hits_annot,
+                                          Rubio_fullblue_IAP_hits_annot, Rubio_fullbrown_IAP_hits_annot, Rubio_fullmagenta_IAP_hits_annot, Rubio_fullturquoise_IAP_hits_annot,Pro_RE22_Pro_hits_annot)
+
+
+## Stats regarding IAP interaction partners
+# total IAP interacting partners
+C_vir_C_gig_IAP_interaction_partners %>% filter(!is.na(fromNodeDomain_Name)) %>% nrow() # 525 IAP interaction partners 
+C_vir_C_gig_IAP_interaction_partners %>% filter(!is.na(fromNodeDomain_Name)) %>% dplyr::distinct(fromNodetranscript) # 19 total unique IAPs 
+C_vir_C_gig_IAP_interaction_partners %>% filter(!is.na(fromNodeDomain_Name)) %>% dplyr::distinct(fromNodeDomain_Name) # 12 IAP domain types out of 14 have direct apoptosis interaction partners 
+      # 1          TII-DD-RING
+      # 2       TI-TII-DD-RING
+      # 3              TII-TII
+      # 4               TX-TII
+      # 5                 BIR*
+      # 6          TII-BIR6-E2
+      # 7             TII-RING
+      # 8  TI-TII-TII-UBA-RING
+      # 9               TII-DD
+      # 10         TI-TII-RING
+      # 11        TII-TII-RING
+      # 12        BIR*-DD-RING
+
+## Stats regarding where IAP is the "to" node
+C_vir_C_gig_IAP_interaction_partners %>% filter(!is.na(toNodeDomain_Name)) %>% dplyr::distinct(toNodeDomain_Name) # 12 IAP domain types out of 14 have direct apoptosis interaction partners 
+  #toNodeDomain_Name
+  #1         TII-DD-RING
+  #2      TI-TII-DD-RING
+  #3             TII-TII
+  #4              TX-TII
+  #5                BIR*
+  #6         TII-BIR6-E2
+  #7            TII-RING
+  #8 TI-TII-TII-UBA-RING
+  #9              TII-DD
+
+## Plot heatmap with interaction partners where the IAP is in the FROMNODE
+# create table where presence of a product is a 1
+C_vir_C_gig_IAP_interaction_partners_heatmap <- C_vir_C_gig_IAP_interaction_partners %>% ungroup() %>% 
+  # filter where there is not NA in fromNodeDomainName
+  filter(!is.na(fromNodeDomain_Name)) %>% 
+  # separate the toNode product
+  separate(toNodeproduct, into = c("toNodeproduct","transcript_variant"), sep = ", transcript") %>% dplyr::distinct(fromNodeDomain_Name, toNodeproduct) %>% mutate(count = 1)
+C_vir_C_gig_IAP_interaction_partners_heatmap_prod <- spread(C_vir_C_gig_IAP_interaction_partners_heatmap, toNodeproduct, count, fill = 0)
+nrow(C_vir_C_gig_IAP_interaction_partners_heatmap_prod ) # 23
+C_vir_C_gig_IAP_interaction_partners_heatmap_prod <-  column_to_rownames(C_vir_C_gig_IAP_interaction_partners_heatmap_prod, var = "fromNodeDomain_Name") 
+C_vir_C_gig_IAP_interaction_partners_heatmap_prod_mat <- as.matrix(C_vir_C_gig_IAP_interaction_partners_heatmap_prod)
+C_vir_C_gig_IAP_interaction_partners_heatmap_prod_plot <- pheatmap(C_vir_C_gig_IAP_interaction_partners_heatmap_prod_mat, fontsize = 20)
+
+ggsave(plot = C_vir_C_gig_IAP_interaction_partners_heatmap_prod_plot, filename = "C_vir_C_gig_IAP_interaction_partners_prod_pheatmap.tiff", device = "tiff",
+       width = 30, height = 20, limitsize = FALSE,
+       path = "/Users/erinroberts/Documents/PhD_Research/Chapter_1_Apoptosis Paper/Chapter1_Apoptosis_Transcriptome_Analyses_2019/DATA ANALYSIS/apoptosis_data_pipeline/WGCNA/")
+
+## Which IAPS are interacting with Other IAPS? any patterns in their domains
+C_vir_C_gig_IAP_interaction_partners_IAP_direct <- C_vir_C_gig_IAP_interaction_partners %>% 
+  filter(!is.na(fromNodeDomain_Name) & !is.na(toNodeDomain_Name)) %>% arrange(toNodetranscript, fromNodetranscript) 
+unique(C_vir_C_gig_IAP_interaction_partners_IAP_direct$fromNodeDomain_Name)
+
+# do any IAPs have the exact same interaction across experiments?
+C_vir_C_gig_IAP_interaction_partners_IAP_direct %>% group_by(toNodetranscript, fromNodetranscript) %>% filter(n() >1)
+    #fromNodetranscr… toNodetranscript  weight direction fromNodegene fromNodeproduct fromNodeDomain_… toNodegene toNodeproduct toNodeDomain_Na… experiment mod_name
+    #<chr>            <chr>              <dbl> <fct>     <chr>        <chr>           <chr>            <chr>      <chr>         <chr>            <chr>      <chr>   
+    #  1 XM_011428814.2   XM_011418121.2   0.0345  undirect… LOC105328063 baculoviral IA… TII-TII          LOC105320… baculoviral … TX-TII           deLorg_Res MEturqu…
+    #2 XM_011428814.2   XM_011418121.2   0.00446 undirect… LOC105328063 baculoviral IA… TII-TII          LOC105320… baculoviral … TX-TII           Rubio      MEmagen…
+
+# do any IAPs have same types of domain types interacting across experiments but different exact IAPs?
+C_vir_C_gig_IAP_interaction_partners_IAP_direct %>% group_by(toNodeDomain_Name, fromNodeDomain_Name) %>% filter(n() >1) %>% arrange()
+
+# which interact together
+C_vir_C_gig_IAP_interaction_partners_IAP_direct %>% dplyr::distinct(fromNodeDomain_Name,toNodeDomain_Name)
+
+# which transcripts interact with multiple other domain types
+C_vir_C_gig_IAP_interaction_partners_IAP_direct %>% dplyr::distinct(toNodetranscript, fromNodetranscript, fromNodeDomain_Name,toNodeDomain_Name) %>% 
+  arrange(toNodetranscript, fromNodetranscript) %>% View()
+
+## Which IAPs interact with caspases
+C_vir_C_gig_IAP_interaction_partners_casp <- C_vir_C_gig_IAP_interaction_partners %>% filter(!is.na(fromNodeDomain_Name) & grepl("caspase", toNodeproduct)) 
+    # casp 8 specifically has most diversity of IAPs that interact with it 
+    C_vir_C_gig_IAP_interaction_partners_casp %>% filter(grepl("8", toNodeproduct)) %>% distinct(fromNodeDomain_Name)
+    #1          TII-DD-RING
+    #2      TI-TII-DD-RING
+    #3             TII-TII
+    #4              TX-TII
+    #5                BIR*
+
+## Which IAPs interact with BCL2 family members 
+C_vir_C_gig_IAP_interaction_partners_bcl2_family <- C_vir_C_gig_IAP_interaction_partners %>% filter(!is.na(fromNodeDomain_Name)) %>% filter(grepl("bcl", toNodeproduct) | grepl("BAX", toNodeproduct) |
+                                                                                           grepl("A1", toNodeproduct) )
+
+## Which IAPs interact with TLR family members 
+C_vir_C_gig_IAP_interaction_partners_TLR_family <- C_vir_C_gig_IAP_interaction_partners %>% filter(!is.na(fromNodeDomain_Name)) %>% filter(grepl("toll", toNodeproduct) )
 
 #### COMPARE CONSENSUS AND FULL IAP AND GIMAP ACROSS ALL DATASETS, NOT JUST THOSE IN SIGNIFICANT MODULES ####
 
