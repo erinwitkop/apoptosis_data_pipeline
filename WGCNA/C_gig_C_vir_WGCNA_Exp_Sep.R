@@ -8504,6 +8504,18 @@ save(He_full_moduleColors, file = "/Volumes/My Passport for Mac/Chapter1_Apoptos
 save(Rubio_full_moduleColors, file = "/Volumes/My Passport for Mac/Chapter1_Apoptosis_Paper_Saved_DESeq_WGCNA_Data/Rubio_full_moduleColors.RData")
 save(Zhang_full_moduleColors, file= "/Volumes/My Passport for Mac/Chapter1_Apoptosis_Paper_Saved_DESeq_WGCNA_Data/Zhang_full_moduleColors.RData") 
 
+### VIEW APOPTOSIS MOLECULES IN CYTOSCAPE 
+
+# export apoptosis transcript list first 
+write.table(C_vir_rtracklayer_apop_product_final$ID, file = "/Volumes/My Passport for Mac/Chapter1_Apoptosis_Paper_Saved_DESeq_WGCNA_Data/C_vir_rtracklayer_apop_product_final_rnaID.txt",
+            col.names = FALSE, row.names = FALSE, quote = FALSE)
+write.table(C_gig_rtracklayer_apop_product_final$transcript_id, file = "/Volumes/My Passport for Mac/Chapter1_Apoptosis_Paper_Saved_DESeq_WGCNA_Data/C_gig_rtracklayer_apop_product_final_transcript_ID.txt",
+            col.names = FALSE, row.names = FALSE, quote = FALSE)
+
+#export lines containing any of these apoptosis transcripts in bluewaves
+# ssh WGCNA_module_apop_grep.sh
+# Load into R to add on alternative names for plotting in cytoscape
+
 #### ANALYZE WGCNA NETWORK DIRECT IAP INTERACTIONS ####
 
 # First export lists of significant IAP transcripts in each experiment to search for in the edges files
@@ -8711,11 +8723,27 @@ C_vir_C_gig_IAP_interaction_partners <- rbind(deLorg_Res_fullturquoise_IAP_hits_
                                           Rubio_fullblue_IAP_hits_annot, Rubio_fullbrown_IAP_hits_annot, Rubio_fullmagenta_IAP_hits_annot, Rubio_fullturquoise_IAP_hits_annot,Pro_RE22_Pro_hits_annot)
 
 
+# because the network is UNDIRECTED, I'm going to have all the IAPs in the same column
+C_vir_C_gig_IAP_interaction_partners_switched <- C_vir_C_gig_IAP_interaction_partners %>% filter(is.na(fromNodeDomain_Name))
+C_vir_C_gig_IAP_interaction_partners_switched <- C_vir_C_gig_IAP_interaction_partners_switched[,c("toNodetranscript" ,"fromNodetranscript","weight","direction",
+"toNodegene", "toNodeproduct", "toNodeDomain_Name" ,"fromNodegene","fromNodeproduct","fromNodeDomain_Name","experiment","mod_name","species")] # switch the to and from
+colnames(C_vir_C_gig_IAP_interaction_partners_switched) <- c("fromNodetranscript", "toNodetranscript","weight","direction","fromNodegene","fromNodeproduct","fromNodeDomain_Name", "toNodegene",         
+"toNodeproduct","toNodeDomain_Name","experiment","mod_name","species")
+  
+C_vir_C_gig_IAP_interaction_partners_IAP_from <- C_vir_C_gig_IAP_interaction_partners %>% filter(!is.na(fromNodeDomain_Name)) 
+colnames(C_vir_C_gig_IAP_interaction_partners_IAP_from)  
+  #[1] "fromNodetranscript"  "toNodetranscript"    "weight"              "direction"           "fromNodegene"        "fromNodeproduct"     "fromNodeDomain_Name" "toNodegene"         
+  #[9] "toNodeproduct"       "toNodeDomain_Name"   "experiment"          "mod_name"            "species" 
+
+C_vir_C_gig_IAP_interaction_partners_undirected <- rbind(C_vir_C_gig_IAP_interaction_partners_switched, C_vir_C_gig_IAP_interaction_partners_IAP_from)
+# check were switched
+C_vir_C_gig_IAP_interaction_partners_undirected[is.na(C_vir_C_gig_IAP_interaction_partners_undirected$fromNodeDomain_Name),] #0 all switched for comparison
+
 ## Stats regarding IAP interaction partners
 # total IAP interacting partners
-C_vir_C_gig_IAP_interaction_partners %>% filter(!is.na(fromNodeDomain_Name)) %>% nrow() # 525 IAP interaction partners 
-C_vir_C_gig_IAP_interaction_partners %>% filter(!is.na(fromNodeDomain_Name)) %>% dplyr::distinct(fromNodetranscript) # 19 total unique IAPs 
-C_vir_C_gig_IAP_interaction_partners %>% filter(!is.na(fromNodeDomain_Name)) %>% dplyr::distinct(fromNodeDomain_Name) # 12 IAP domain types out of 14 have direct apoptosis interaction partners 
+C_vir_C_gig_IAP_interaction_partners_undirected %>% nrow() # 1201 IAP interaction partners 
+C_vir_C_gig_IAP_interaction_partners_undirected %>% dplyr::distinct(fromNodetranscript) # 20 total unique IAPs 
+C_vir_C_gig_IAP_interaction_partners_undirected %>% dplyr::distinct(fromNodeDomain_Name) # 12 IAP domain types out of 14 have direct apoptosis interaction partners 
       # 1          TII-DD-RING
       # 2       TI-TII-DD-RING
       # 3              TII-TII
@@ -8729,40 +8757,32 @@ C_vir_C_gig_IAP_interaction_partners %>% filter(!is.na(fromNodeDomain_Name)) %>%
       # 11        TII-TII-RING
       # 12        BIR*-DD-RING
 
-## Stats regarding where IAP is the "to" node
-C_vir_C_gig_IAP_interaction_partners %>% filter(!is.na(toNodeDomain_Name)) %>% dplyr::distinct(toNodeDomain_Name) # 12 IAP domain types out of 14 have direct apoptosis interaction partners 
-  #toNodeDomain_Name
-  #1         TII-DD-RING
-  #2      TI-TII-DD-RING
-  #3             TII-TII
-  #4              TX-TII
-  #5                BIR*
-  #6         TII-BIR6-E2
-  #7            TII-RING
-  #8 TI-TII-TII-UBA-RING
-  #9              TII-DD
 
 ## Plot heatmap with interaction partners where the IAP is in the FROMNODE
 # create table where presence of a product is a 1
-C_vir_C_gig_IAP_interaction_partners_heatmap <- C_vir_C_gig_IAP_interaction_partners %>% ungroup() %>% 
-  # filter where there is not NA in fromNodeDomainName
-  filter(!is.na(fromNodeDomain_Name)) %>% 
+C_vir_C_gig_IAP_interaction_partners_heatmap <- C_vir_C_gig_IAP_interaction_partners_undirected %>% ungroup() %>% 
   # separate the toNode product
-  separate(toNodeproduct, into = c("toNodeproduct","transcript_variant"), sep = ", transcript") %>% dplyr::distinct(fromNodeDomain_Name, toNodeproduct) %>% mutate(count = 1)
+  separate(toNodeproduct, into = c("toNodeproduct","transcript_variant"), sep = ", transcript") %>% 
+  group_by(experiment, fromNodeDomain_Name) %>% mutate(comb_domain = paste(experiment, fromNodeDomain_Name, sep = "_")) %>% ungroup() %>%
+  dplyr::distinct(comb_domain, toNodeproduct) %>% mutate(count = 1)
 C_vir_C_gig_IAP_interaction_partners_heatmap_prod <- spread(C_vir_C_gig_IAP_interaction_partners_heatmap, toNodeproduct, count, fill = 0)
-nrow(C_vir_C_gig_IAP_interaction_partners_heatmap_prod ) # 23
-C_vir_C_gig_IAP_interaction_partners_heatmap_prod <-  column_to_rownames(C_vir_C_gig_IAP_interaction_partners_heatmap_prod, var = "fromNodeDomain_Name") 
+nrow(C_vir_C_gig_IAP_interaction_partners_heatmap_prod ) # 24
+C_vir_C_gig_IAP_interaction_partners_heatmap_prod <-  column_to_rownames(C_vir_C_gig_IAP_interaction_partners_heatmap_prod, var = "comb_domain") 
 C_vir_C_gig_IAP_interaction_partners_heatmap_prod_mat <- as.matrix(C_vir_C_gig_IAP_interaction_partners_heatmap_prod)
 C_vir_C_gig_IAP_interaction_partners_heatmap_prod_plot <- pheatmap(C_vir_C_gig_IAP_interaction_partners_heatmap_prod_mat, fontsize = 20)
 
+
 ggsave(plot = C_vir_C_gig_IAP_interaction_partners_heatmap_prod_plot, filename = "C_vir_C_gig_IAP_interaction_partners_prod_pheatmap.tiff", device = "tiff",
-       width = 30, height = 20, limitsize = FALSE,
+       width = 40, height = 20, limitsize = FALSE,
        path = "/Users/erinroberts/Documents/PhD_Research/Chapter_1_Apoptosis Paper/Chapter1_Apoptosis_Transcriptome_Analyses_2019/DATA ANALYSIS/apoptosis_data_pipeline/WGCNA/")
 
+
+
 ## Which IAPS are interacting with Other IAPS? any patterns in their domains
-C_vir_C_gig_IAP_interaction_partners_IAP_direct <- C_vir_C_gig_IAP_interaction_partners %>% 
-  filter(!is.na(fromNodeDomain_Name) & !is.na(toNodeDomain_Name)) %>% arrange(toNodetranscript, fromNodetranscript) 
+C_vir_C_gig_IAP_interaction_partners_IAP_direct <- C_vir_C_gig_IAP_interaction_partners_undirected %>% 
+  filter(!is.na(toNodeDomain_Name)) %>% arrange(toNodetranscript, fromNodetranscript) 
 unique(C_vir_C_gig_IAP_interaction_partners_IAP_direct$fromNodeDomain_Name)
+# "TII-DD-RING"    "BIR*-DD-RING"   "TII-TII-RING"   "TI-TII-DD-RING" "TII-TII"        "TII-DD"         "BIR*"           "TX-TII" 
 
 # do any IAPs have the exact same interaction across experiments?
 C_vir_C_gig_IAP_interaction_partners_IAP_direct %>% group_by(toNodetranscript, fromNodetranscript) %>% filter(n() >1)
@@ -8772,7 +8792,9 @@ C_vir_C_gig_IAP_interaction_partners_IAP_direct %>% group_by(toNodetranscript, f
     #2 XM_011428814.2   XM_011418121.2   0.00446 undirect… LOC105328063 baculoviral IA… TII-TII          LOC105320… baculoviral … TX-TII           Rubio      MEmagen…
 
 # do any IAPs have same types of domain types interacting across experiments but different exact IAPs?
-C_vir_C_gig_IAP_interaction_partners_IAP_direct %>% group_by(toNodeDomain_Name, fromNodeDomain_Name) %>% filter(n() >1) %>% arrange()
+C_vir_C_gig_IAP_interaction_partners_IAP_direct %>% group_by(toNodeDomain_Name, fromNodeDomain_Name) %>% filter(n() >1) %>% 
+  arrange(toNodeDomain_Name, fromNodeDomain_Name, experiment) %>% dplyr::distinct(toNodeDomain_Name, fromNodeDomain_Name, experiment) %>%
+  View()
 
 # which interact together
 C_vir_C_gig_IAP_interaction_partners_IAP_direct %>% dplyr::distinct(fromNodeDomain_Name,toNodeDomain_Name)
@@ -8782,21 +8804,119 @@ C_vir_C_gig_IAP_interaction_partners_IAP_direct %>% dplyr::distinct(toNodetransc
   arrange(toNodetranscript, fromNodetranscript) %>% View()
 
 ## Which IAPs interact with caspases
-C_vir_C_gig_IAP_interaction_partners_casp <- C_vir_C_gig_IAP_interaction_partners %>% filter(!is.na(fromNodeDomain_Name) & grepl("caspase", toNodeproduct)) 
+C_vir_C_gig_IAP_interaction_partners_casp <- C_vir_C_gig_IAP_interaction_partners_undirected %>% filter(grepl("caspase", toNodeproduct)) 
     # casp 8 specifically has most diversity of IAPs that interact with it 
     C_vir_C_gig_IAP_interaction_partners_casp %>% filter(grepl("8", toNodeproduct)) %>% distinct(fromNodeDomain_Name)
-    #1          TII-DD-RING
+    fromNodeDomain_Name
+    #1              TII-DD
     #2      TI-TII-DD-RING
-    #3             TII-TII
-    #4              TX-TII
-    #5                BIR*
+    #3         TII-DD-RING
+    #4             TII-TII
+    #5              TX-TII
+    #6                BIR*
 
+# are there patterns in the domain types correlated with executioner caspases
+    C_vir_C_gig_IAP_interaction_partners_casp %>% filter(grepl("3", toNodeproduct) | grepl("7", toNodeproduct) | grepl("6", toNodeproduct) ) %>% distinct(fromNodeDomain_Name)
+   # fromNodeDomain_Name
+   # 1      TI-TII-DD-RING
+   # 2         TII-DD-RING
+   # 3             TII-TII
+   # 4              TX-TII
+   # 5                BIR*
+   # 6            TII-RING
+   # 7              TII-DD
+    C_vir_C_gig_IAP_interaction_partners_casp %>% filter(grepl("3", toNodeproduct) | grepl("7", toNodeproduct) | grepl("6", toNodeproduct) ) %>% View()
+
+# which are involved with caspase 2
+C_vir_C_gig_IAP_interaction_partners_casp %>% filter(grepl("2", toNodeproduct)) %>% distinct(fromNodeDomain_Name)
+   # fromNodeDomain_Name
+   # 1         TII-DD-RING
+   # 2      TI-TII-DD-RING
+   # 3             TII-TII
+   # 4              TX-TII
+   # 5                BIR*
+   # 6            TII-RING
+   # 7 TI-TII-TII-UBA-RING
+    
+# are individual transcripts interacting with multiple caspases
+    # XM_011428813.2 (TII-DD-RING) interacts with casp6 and casp7
+    # XM_020066136.1 (TI-TII-DD-RING) interacts with caspase 3 and caspase 7
+    # XM_020068541.1 (TI-TII-DD-RING) interacts with caspase 7 and caspase 6 
+    
+    
 ## Which IAPs interact with BCL2 family members 
-C_vir_C_gig_IAP_interaction_partners_bcl2_family <- C_vir_C_gig_IAP_interaction_partners %>% filter(!is.na(fromNodeDomain_Name)) %>% filter(grepl("bcl", toNodeproduct) | grepl("BAX", toNodeproduct) |
+C_vir_C_gig_IAP_interaction_partners_bcl2_family <- C_vir_C_gig_IAP_interaction_partners_undirected %>% filter(grepl("bcl", toNodeproduct) | grepl("BAX", toNodeproduct) |
                                                                                            grepl("A1", toNodeproduct) )
-
 ## Which IAPs interact with TLR family members 
-C_vir_C_gig_IAP_interaction_partners_TLR_family <- C_vir_C_gig_IAP_interaction_partners %>% filter(!is.na(fromNodeDomain_Name)) %>% filter(grepl("toll", toNodeproduct) )
+C_vir_C_gig_IAP_interaction_partners_TLR_family <- C_vir_C_gig_IAP_interaction_partners_undirected %>% filter(!is.na(fromNodeDomain_Name)) %>% filter(grepl("toll", toNodeproduct) )
+
+
+#### ASSESSING INDIVIDUAL INTERACTION PARTNERS COMMON ACROSS DIFFERENT EXPERIMENTS ###
+
+# which toNodetranscript and fromNodetranscripts are the same 
+C_vir_C_gig_IAP_interaction_partners_common_transcript <- C_vir_C_gig_IAP_interaction_partners_undirected  %>% 
+  group_by(toNodetranscript, fromNodetranscript) %>% filter(n()>1) %>% arrange(toNodetranscript, fromNodetranscript)
+  # 102 different cases where the same IAP transcripts and products are associated, shared by either deLorg Res and He or deLorg Res and Rubio 
+  # Looking through this data set may allow me to target particularly interesting IAPs to suggest as targets for further study 
+
+# analyze the groups of molecules specifically associated with each one to see if they are involved in same general pathways in two specific stressors
+unique(C_vir_C_gig_IAP_interaction_partners_common_transcript$fromNodetranscript)
+  # [1] "XM_011428813.2" "XM_020068541.1" "XM_011428814.2" "XM_011418121.2" "XM_011451064.2"
+
+# XM_011428813.2, TII-DD-RING, used in deLorg Res and He
+C_vir_C_gig_IAP_interaction_partners_common_transcript %>% filter(fromNodetranscript == "XM_011428813.2") %>% distinct(toNodeproduct)
+  
+# XM_020068541.1, TI-TII-DD-RING, used in deLorg Res and He - associated with the same exact transcripts as above!
+C_vir_C_gig_IAP_interaction_partners_common_transcript %>% filter(fromNodetranscript == "XM_020068541.1") %>% distinct(toNodeproduct)
+
+# XM_011428814.2, TII-TII, used in deLorg Res and Rubio 
+C_vir_C_gig_IAP_interaction_partners_common_transcript %>% filter(fromNodetranscript == "XM_011428814.2") %>% distinct(toNodeproduct) 
+
+# XM_011418121.2, TX-TII, used in deLorg Res and Rubio
+C_vir_C_gig_IAP_interaction_partners_common_transcript %>% filter(fromNodetranscript == "XM_011418121.2") %>% distinct(toNodeproduct) 
+
+# XM_011451064.2, BIR*, used in deLorg Res and He
+C_vir_C_gig_IAP_interaction_partners_common_transcript %>% filter(fromNodetranscript == "XM_011451064.2") %>% distinct(toNodeproduct) 
+
+
+# which fromNodeDomain_Name and toNodeproduct  are the same - goal is to see if there are trends in the molecules shared and associated with particular groups 
+C_vir_C_gig_IAP_interaction_partners_common_domain <- C_vir_C_gig_IAP_interaction_partners_undirected %>% 
+  group_by(fromNodeDomain_Name, toNodeproduct) %>% filter(n()>1) %>% 
+  # get each distinct one per experiment
+  dplyr::distinct(toNodeDomain_Name, fromNodeDomain_Name, experiment, .keep_all=TRUE) %>% 
+  arrange(fromNodeDomain_Name, toNodeproduct)
+    # 346 entries 
+
+# which fromNodeDomain_Name and toNodeproduct (name only)  are the same - goal is to see if there are trends in the molecules shared and associated with particular groups 
+C_vir_C_gig_IAP_interaction_partners_common_domain_name <- C_vir_C_gig_IAP_interaction_partners_undirected %>% 
+  separate(toNodeproduct, into = c("toNodeproduct","transcript_variant"), sep = ", transcript") %>%
+  group_by(fromNodeDomain_Name, toNodeproduct) %>% filter(n()>1) %>% 
+  # get each distinct one per experiment
+  dplyr::distinct(toNodeDomain_Name, fromNodeDomain_Name, experiment, .keep_all=TRUE) %>% 
+  arrange(fromNodeDomain_Name, toNodeproduct)
+nrow(C_vir_C_gig_IAP_interaction_partners_common_domain_name) # 415 entries 
+
+
+# plot as heatmap - shows that overall TI-TII-DD-RING and TII-DD-RING are most similar and have the most shared molecules across experiments. This could just be biased by lack of strong 
+    # sampling which stimulates the other experiments 
+# create table where presence of a product is a 1 and the columns are the experiment_fromNodeDomain_Name
+C_vir_C_gig_IAP_interaction_partners_common_domain_heatmap <- C_vir_C_gig_IAP_interaction_partners_common_domain_name %>% ungroup() %>% 
+  group_by(experiment, fromNodeDomain_Name) %>% mutate(comb_domain = paste(experiment, fromNodeDomain_Name, sep = "_")) %>% ungroup() %>%
+  dplyr::distinct(comb_domain, toNodeproduct) %>% mutate(count = 1)
+C_vir_C_gig_IAP_interaction_partners_common_domain_heatmap_prod <- spread(C_vir_C_gig_IAP_interaction_partners_common_domain_heatmap, toNodeproduct, count, fill = 0)
+nrow(C_vir_C_gig_IAP_interaction_partners_common_domain_heatmap_prod ) # 18
+C_vir_C_gig_IAP_interaction_partners_common_domain_heatmap_prod <-  column_to_rownames(C_vir_C_gig_IAP_interaction_partners_common_domain_heatmap_prod, var = "comb_domain") 
+C_vir_C_gig_IAP_interaction_partners_common_domain_heatmap_prod_mat <- as.matrix(C_vir_C_gig_IAP_interaction_partners_common_domain_heatmap_prod)
+C_vir_C_gig_IAP_interaction_partners_common_domain_heatmap_prod_plot <- pheatmap(C_vir_C_gig_IAP_interaction_partners_common_domain_heatmap_prod_mat, fontsize = 20)
+
+ggsave(plot = C_vir_C_gig_IAP_interaction_partners_common_domain_heatmap_prod_plot, filename = "C_vir_C_gig_IAP_interaction_partners_common_domain_pheatmap.tiff", device = "tiff",
+       width = 35, height = 20, limitsize = FALSE,
+       path = "/Users/erinroberts/Documents/PhD_Research/Chapter_1_Apoptosis Paper/Chapter1_Apoptosis_Transcriptome_Analyses_2019/DATA ANALYSIS/apoptosis_data_pipeline/WGCNA/")
+
+## compare products between the three bacterial groups, Rubio, Zhang, and Pro- are there similar IAP-interaction partners in bacterial challenge
+C_vir_C_gig_IAP_interaction_partners_undirected_bacteria <- C_vir_C_gig_IAP_interaction_partners_undirected %>% filter(experiment == "Rubio" | experiment == "Zhang" | experiment == "Pro_RE22_Pro") 
+
+
 
 #### COMPARE CONSENSUS AND FULL IAP AND GIMAP ACROSS ALL DATASETS, NOT JUST THOSE IN SIGNIFICANT MODULES ####
 
