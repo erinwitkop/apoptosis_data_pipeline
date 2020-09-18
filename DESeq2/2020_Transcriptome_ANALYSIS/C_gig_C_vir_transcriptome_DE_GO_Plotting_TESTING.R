@@ -50,7 +50,6 @@ library(data.table)
 # the results section of this is particularly useful
 
 #### LOADING SAVED GENOME, APOPTOSIS NAMES, GIMAP and IAP XP LISTS ####
-
 Apoptosis_frames <- load(file="/Volumes/My Passport for Mac/Chapter1_Apoptosis_Paper_Saved_DESeq_WGCNA_Data/C_gig_C_vir_apoptosis_products.RData")
 annotations <- load(file="/Volumes/My Passport for Mac/Chapter1_Apoptosis_Paper_Saved_DESeq_WGCNA_Data/C_gig_C_vir_annotations.RData")
 # IAP lists with domain type
@@ -1161,7 +1160,7 @@ deLorgeril_Susceptible_dds_res_60_LFC_sig_APOP <- arrange(deLorgeril_Susceptible
 deLorgeril_Susceptible_dds_res_72_LFC_sig_APOP <- arrange(deLorgeril_Susceptible_dds_res_72_LFC_sig_APOP, -log2FoldChange)
 
 nrow(deLorgeril_Resistant_dds_res_6_LFC_sig_APOP) #31
-nrow(deLorgeril_Resistant_dds_res_12_LFC_sig_APOP) #68
+nrow(deLorgeril_Resistant_dds_res_12_LFC_sig_APOP) #69
 nrow(deLorgeril_Resistant_dds_res_24_LFC_sig_APOP) #101
 nrow(deLorgeril_Resistant_dds_res_48_LFC_sig_APOP) #31
 nrow(deLorgeril_Resistant_dds_res_60_LFC_sig_APOP) # 77
@@ -2710,7 +2709,7 @@ autoplot(pcDermo_Susceptible,
 autoplot(pcDermo_Susceptible,
          data = Dermo_Susceptible_coldata, 
          colour="LogConc", 
-         size=5) # the sample with no ROD signs is a strong outlier, could use disease stage as the basis for comparison here, day 15 and 30 cluster closely together
+         size=5) 
 autoplot(pcDermo_Tolerant,
          data = Dermo_Tolerant_coldata, 
          colour="Time", 
@@ -3137,12 +3136,12 @@ Dermo_Susceptible_7d_dds <- Dermo_Susceptible_7d_dds [rowSums(counts(Dermo_Susce
 Dermo_Susceptible_28d_dds <- Dermo_Susceptible_28d_dds [rowSums(counts(Dermo_Susceptible_28d_dds ))>10,]
 
 ### DIFFERENTIAL EXPRESSION ANALYSIS
-Dermo_Tolerant_36hr_dds_deseq <- DESeq(Dermo_Tolerant_36hr_dds )
-Dermo_Tolerant_7d_dds_deseq <- DESeq(Dermo_Tolerant_7d_dds)
-Dermo_Tolerant_28d_dds_deseq <- DESeq(Dermo_Tolerant_28d_dds )
-Dermo_Susceptible_36hr_dds_deseq <- DESeq(Dermo_Susceptible_36hr_dds)
-Dermo_Susceptible_7d_dds_deseq <- DESeq(Dermo_Susceptible_7d_dds )
-Dermo_Susceptible_28d_dds_deseq <- DESeq(Dermo_Susceptible_28d_dds )
+Dermo_Tolerant_36hr_dds_deseq <- DESeq(Dermo_Tolerant_36hr_dds ) # 10 samples
+Dermo_Tolerant_7d_dds_deseq <- DESeq(Dermo_Tolerant_7d_dds) # 10 
+Dermo_Tolerant_28d_dds_deseq <- DESeq(Dermo_Tolerant_28d_dds ) # 10
+Dermo_Susceptible_36hr_dds_deseq <- DESeq(Dermo_Susceptible_36hr_dds) # 10
+Dermo_Susceptible_7d_dds_deseq <- DESeq(Dermo_Susceptible_7d_dds ) # 11
+Dermo_Susceptible_28d_dds_deseq <- DESeq(Dermo_Susceptible_28d_dds ) # 11
 
 ## Check the resultsNames object of each to look at the available coefficients for use in lfcShrink command
 resultsNames(Dermo_Tolerant_36hr_dds_deseq)
@@ -3737,7 +3736,6 @@ C_gig_nsig_apop_collapsed <- C_gig_nsig_apop %>% distinct(group_by_sim, experime
 C_gig_sig_table <- left_join(C_gig_nsig_apop_collapsed, C_gig_all_sig_count)
 C_gig_sig_table <- C_gig_sig_table %>% group_by(group_by_sim) %>% mutate(apop_percent = (num_sig_apop/sig_total)*100)  
 
-
 # assign to gene families 
 Apoptosis_names_df_CG <- data.frame(product=c(     # removing this because duplicated with bcl-2 'bcl-2-related protein A1',
   '^apoptosis-inducing factor 1',
@@ -3932,6 +3930,7 @@ C_gig_apop_APOP_plot <- ggplot(C_gig_apop_LFC  , aes(x=product,y=log2FoldChange,
 
 ## Combine tables with percentage of apoptosis genes 
 C_vir_gig_sig_table  <- rbind(C_gig_sig_table, C_vir_sig_table)
+nrow(C_vir_gig_sig_table ) # 37
 # export to look at statistics with IAP genes in the Comparative analysis data frame
 save(C_vir_gig_sig_table, file = "/Users/erinroberts/Documents/PhD_Research/Chapter_1_Apoptosis Paper/Chapter1_Apoptosis_Transcriptome_Analyses_2019/DATA ANALYSIS/apoptosis_data_pipeline/DESeq2/2020_Transcriptome_ANALYSIS/C_vir_gig_sig_table.RData")
 
@@ -4420,7 +4419,9 @@ C_gig_apop_LFC_GIMAP_tile_plot <- ggplot(C_gig_apop_LFC_GIMAP, aes(x=group_by_si
 # Export DESeq information with IAP and GIMAP transcripts and place on the tree from ggtree 
 
 
-
+#### IAP GENE AND TRANSCRIPT STATS ####
+C_gig_apop_LFC_IAP
+C_vir_apop_LFC_IAP
 
 
 #### COMPARING APOPTOSIS TRANSCRIPT EXPRESSION BETWEEN EXPERIMENTS PCA HEATMAPS VST ON FULL THEN SUBSET ####
@@ -5750,6 +5751,7 @@ save(Zhang_coldata,Rubio_coldata,deLorgeril_Resistant_coldata,deLorgeril_Suscept
 
 # Export LFC information
 save(C_gig_apop_LFC, C_vir_apop_LFC, file="/Volumes/My Passport for Mac/Chapter1_Apoptosis_Paper_Saved_DESeq_WGCNA_Data/apop_LFC.RData")
+nrow(C_vir_apop_LFC) #440
 
 #### SESSION INFO FOR RUNNING SCRIPTS Spring 2020 ####
 
