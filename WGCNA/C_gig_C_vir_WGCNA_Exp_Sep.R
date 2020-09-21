@@ -8375,18 +8375,19 @@ IAP_domain_structure_WGCNA_hits_PATHWAY_IAP_only <-IAP_domain_structure_WGCNA_hi
 C_vir_C_gig_full_all_exp_mod_sig_apop 
   
 # Find modules for each experiment that are also significant in their DEG experiments
-# Load DESeq2 dataframe that was recoded for collapsed haplotigs in the IAP_GIMAP_Gene_Expansion.R script
-load(file = "/Users/erinroberts/Documents/PhD_Research/Chapter_1_Apoptosis Paper/Chapter1_Apoptosis_Transcriptome_Analyses_2019/DATA ANALYSIS/apoptosis_data_pipeline/WGCNA/LFC_cont_comb_domain_type.RData")
+# Load DESeq2 dataframe with IAP domain structures that was recoded for collapsed haplotigs in the IAP_GIMAP_Gene_Expansion.R script
+load(file = "/Users/erinroberts/Documents/PhD_Research/Chapter_1_Apoptosis Paper/Chapter_1_Apoptosis_Annotation_Data_Analyses_2019/DATA/Apoptosis_Pathway_Annotation_Comparative_Genomics/Comparative_Analysis_Apoptosis_Gene_Families_Data/C_vir_C_gig_apop_LFC_IAP_OG_domain_structure.RData")
+C_vir_C_gig_apop_LFC_IAP_OG_domain_structure
 
-LFC_comb_domain_type <- LFC_cont_comb_domain_type %>% filter(Data_Type == "LFC")
+# Join XM info for C virginica
+C_vir_apop_LFC_IAP_OG_domain_structure <- C_vir_C_gig_apop_LFC_IAP_OG_domain_structure %>% filter(Species == "Crassostrea_virginica") %>% dplyr::rename (ID = transcript_id) %>%
+  left_join(., unique(C_vir_rtracklayer[,c("transcript_id","ID")])) %>% dplyr::select("product","group_by_sim","log2FoldChange", "experiment","gene","padj","protein_id","Species",
+                                                                                 "Domain_Name","Number","transcript_id")
+C_gig_apop_LFC_IAP_OG_domain_structure <- C_vir_C_gig_apop_LFC_IAP_OG_domain_structure %>% filter(Species == "Crassostrea_gigas")
 
-# join with transcript info 
-LFC_comb_domain_type_CV_XM <- LFC_comb_domain_type %>% filter(Species == "Crassostrea_virginica") %>% left_join(., IAP_domain_structure_XM_CV_XM[,c("protein_id","transcript_id")])
-LFC_comb_domain_type_CG_XM <- LFC_comb_domain_type %>% filter(Species == "Crassostrea_gigas") %>% left_join(., IAP_domain_structure_XM_CG[,c("protein_id","transcript_id")], by ="protein_id")
-LFC_comb_domain_type_XM <- rbind(LFC_comb_domain_type_CV_XM, LFC_comb_domain_type_CG_XM) 
+# rename to match code below for when old and incorrect input data frame was being used 
+LFC_comb_domain_type_XM <- rbind(C_vir_apop_LFC_IAP_OG_domain_structure,C_gig_apop_LFC_IAP_OG_domain_structure)
 
-# check for non matched XMs
-is.na(LFC_comb_domain_type_XM$transcript_id) # none
 # create search lists for Experiment
 LFC_comb_domain_type_XM_df <- LFC_comb_domain_type_XM %>%
   group_by(experiment) %>%
@@ -8416,17 +8417,20 @@ LFC_comb_domain_type_XM_exp_hits_df <- map_df(LFC_comb_domain_type_XM_exp_hits, 
 
 # subset for each experiments
 levels(factor(LFC_comb_domain_type_XM_exp_hits_df$DESeq_experiment))
-#[1] "de Lorgeril<br>Res. OsHV-1" "de Lorgeril<br>Sus. OsHV-1" "Dermo"                      "Hatchery\nPro. RI"          "He OsHV-1"                  "Lab Pro. S4, RI\n or RE22" 
-#[7] "ROD"                        "Rubio<br>*Vibrio* spp."     "Zhang<br>*Vibrio* spp." 
+#[1] "deLorgeril_res"        "deLorgeril_sus"        "Dermo"                 "Hatchery_Probiotic_RI" "He"                    "Lab_Pro_RE22"          "ROD"                  
+#[8] "Rubio"                 "Zhang"   
+levels(factor(LFC_comb_domain_type_XM_exp_hits_df$exp)) # these were the levels from WGCNA
+#[1] "deLorg_Res"         "deLorg_Sus"         "Dermo_Sus"          "Dermo_Tol"          "He"                 "Pro_RE22_Pro_RI"    "Pro_RE22_Pro_S4"    "Pro_RE22_RE22_full" "Probiotic"         
+#[10] "Rubio_NV"           "Rubio_V"            "Zhang_LPS"          "Zhang_Vibrio"    
 
 # Subset for rows where the DESeq experiment is the same as the WGCNA experiment - meaning shared IAPs
-LFC_comb_domain_type_XM_exp_hits_df_deLorg_Res <- LFC_comb_domain_type_XM_exp_hits_df %>% filter(grepl("de Lorgeril<br>Res. OsHV-1", DESeq_experiment)) %>% filter(grepl("deLorg_Res", exp))
-LFC_comb_domain_type_XM_exp_hits_df_deLorg_Sus <- LFC_comb_domain_type_XM_exp_hits_df %>% filter(grepl("de Lorgeril<br>Sus. OsHV-1", DESeq_experiment)) %>% filter(grepl("deLorg_Sus", exp))
+LFC_comb_domain_type_XM_exp_hits_df_deLorg_Res <- LFC_comb_domain_type_XM_exp_hits_df %>% filter(grepl("deLorgeril_res", DESeq_experiment)) %>% filter(grepl("deLorg_Res", exp))
+LFC_comb_domain_type_XM_exp_hits_df_deLorg_Sus <- LFC_comb_domain_type_XM_exp_hits_df %>% filter(grepl("deLorgeril_sus", DESeq_experiment)) %>% filter(grepl("deLorg_Sus", exp))
 LFC_comb_domain_type_XM_exp_hits_df_Dermo <- LFC_comb_domain_type_XM_exp_hits_df %>% filter(grepl("Dermo", DESeq_experiment)) %>% filter(grepl("Dermo", exp))
-LFC_comb_domain_type_XM_exp_hits_df_Probiotic <- LFC_comb_domain_type_XM_exp_hits_df %>% filter(grepl("Hatchery\nPro. RI", DESeq_experiment)) %>% filter(grepl("Probiotic", exp))
-LFC_comb_domain_type_XM_exp_hits_df_Pro_RE22 <- LFC_comb_domain_type_XM_exp_hits_df %>% filter(grepl("Lab Pro. S4, RI\n or RE22", DESeq_experiment)) %>% filter(grepl("Pro_", exp))
-LFC_comb_domain_type_XM_exp_hits_df_He <- LFC_comb_domain_type_XM_exp_hits_df %>% filter(grepl("He OsHV-1", DESeq_experiment)) %>% filter(grepl("He", exp))
-LFC_comb_domain_type_XM_exp_hits_df_ROD <- LFC_comb_domain_type_XM_exp_hits_df %>% filter(grepl("ROD", DESeq_experiment)) %>% filter(grepl("ROD", exp))
+LFC_comb_domain_type_XM_exp_hits_df_Probiotic <- LFC_comb_domain_type_XM_exp_hits_df %>% filter(grepl("Hatchery_Probiotic_RI", DESeq_experiment)) %>% filter(grepl("Probiotic", exp))
+LFC_comb_domain_type_XM_exp_hits_df_Pro_RE22 <- LFC_comb_domain_type_XM_exp_hits_df %>% filter(grepl("Lab_Pro_RE22", DESeq_experiment)) %>% filter(grepl("Pro_", exp))
+LFC_comb_domain_type_XM_exp_hits_df_He <- LFC_comb_domain_type_XM_exp_hits_df %>% filter(grepl("He", DESeq_experiment)) %>% filter(grepl("He", exp))
+#LFC_comb_domain_type_XM_exp_hits_df_ROD <- LFC_comb_domain_type_XM_exp_hits_df %>% filter(grepl("ROD", DESeq_experiment)) %>% filter(grepl("ROD", exp))
 LFC_comb_domain_type_XM_exp_hits_df_Rubio <- LFC_comb_domain_type_XM_exp_hits_df %>% filter(grepl("Rubio", DESeq_experiment)) %>% filter(grepl("Rubio", exp))
 LFC_comb_domain_type_XM_exp_hits_df_Zhang <- LFC_comb_domain_type_XM_exp_hits_df %>% filter(grepl("Zhang", DESeq_experiment)) %>% filter(grepl("Zhang", exp))
 
@@ -8442,75 +8446,78 @@ LFC_comb_domain_type_XM_exp_hits_df_Rubio_IAP <- left_join(LFC_comb_domain_type_
 LFC_comb_domain_type_XM_exp_hits_df_Zhang_IAP <- left_join(LFC_comb_domain_type_XM_exp_hits_df_Zhang, LFC_comb_domain_type_XM[,c("Domain_Name","transcript_id")]) %>% filter(!is.na(Domain_Name))
 
 # Find list of modules to export
-LFC_comb_domain_type_XM_exp_hits_df_deLorg_Res_IAP %>% distinct(exp, mod_names) # MEturquoise deLorg_Res
-LFC_comb_domain_type_XM_exp_hits_df_deLorg_Sus_IAP %>% distinct(exp, mod_names) # MEturquoise deLorg_Sus
-LFC_comb_domain_type_XM_exp_hits_df_Dermo_IAP %>% distinct(exp, mod_names) # MEturquoise Dermo_Tol
+LFC_comb_domain_type_XM_exp_hits_df_deLorg_Res_IAP %>% distinct(exp, mod_names) # MEturquoise deLorg_Res, SAME
+LFC_comb_domain_type_XM_exp_hits_df_deLorg_Sus_IAP %>% distinct(exp, mod_names) # MEturquoise deLorg_Sus, SAME
+LFC_comb_domain_type_XM_exp_hits_df_Dermo_IAP %>% distinct(exp, mod_names) # MEturquoise Dermo_Tol, MElightpink4 Dermo_Sus (added once more transcripts found)
 LFC_comb_domain_type_XM_exp_hits_df_Pro_RE22_IAP %>% distinct(exp, mod_names) # MEroyalblue, MEturquoise, MEsteelblue,  MEdarkslateblue
-# are the modules the same between experiments, yes so only need to export these four above
-#mod_names       exp            
-#<chr>           <chr>          
-#1 MEroyalblue     Pro_RE22_Pro_S4
-#2 MEturquoise     Pro_RE22_Pro_S4
-#3 MEsteelblue     Pro_RE22_Pro_S4
-#4 MEturquoise     Pro_RE22_Pro_RI
-#5 MEdarkslateblue Pro_RE22_Pro_RI
-#6 MEsteelblue     Pro_RE22_Pro_RI
+# module membership is the same between experiments, only need to export these four above
+#MEroyalblue Pro_RE22_Pro_S4 # already done 
+#2 MEwhite     Pro_RE22_Pro_S4 # need to do 
+#3 MEsteelblue Pro_RE22_Pro_S4 # already done 
+#4 MEskyblue3  Pro_RE22_Pro_RI # need to do
+#5 MEsteelblue Pro_RE22_Pro_RI # already done
 
-LFC_comb_domain_type_XM_exp_hits_df_He_IAP %>% distinct(exp, mod_names)
+LFC_comb_domain_type_XM_exp_hits_df_He_IAP %>% distinct(exp, mod_names) # same as before code fix 
 #mod_names exp  
 #<chr>     <chr>
 #  1 MEpurple  He   
 #2 MEyellow  He 
 
-LFC_comb_domain_type_XM_exp_hits_df_Rubio_IAP %>% distinct(exp, mod_names) # only export 4 because they are the same
-#mod_names   exp     
-#<chr>       <chr>   
-#1 MEmagenta   Rubio_NV
-#2 MEturquoise Rubio_NV
-#3 MEblue      Rubio_NV
-#4 MEbrown     Rubio_NV
+LFC_comb_domain_type_XM_exp_hits_df_Rubio_IAP %>% distinct(exp, mod_names) # black module added from before
+# module membership is the same between experiments, only need to export these five below
+# mod_names - the black module was
+#1 MEmagenta   Rubio_NV # already done 
+#2 MEblack     Rubio_NV # need to add
+#3 MEturquoise Rubio_NV # already done
+#4 MEblue      Rubio_NV # already done
+#5 MEbrown     Rubio_NV # already done
 
-LFC_comb_domain_type_XM_exp_hits_df_Zhang_IAP %>% distinct(exp, mod_names) # MEblack  
+LFC_comb_domain_type_XM_exp_hits_df_Zhang_IAP %>% distinct(exp, mod_names) # MEblack  Zhang LPS
+
+#### STOPPED UPDATING CODE HERE SEPT 18TH ####
 
 #### EXPORT WGCNA MODULES TO CYTOSCAPE ####
 
-# Which modules? 
+# Which modules? - adding a total of 4 modules from the first time I ran this (Dermo Sus MElightpink4, Rubio MEblack, Pro_RE22_Pro_RI MEskyblue3, Pro_RE22_Pro_S4 MEwhite)
 # deLorg_Res: MEturquoise
 # deLorg_Sus: MEturquoise
-# Dermo: MEturquoise
-# Pro_RE22_Pro_RI:MEturquoise    , MEdarkslateblue, MEsteelblue    
-# Pro_RE22_Pro_S4: MEroyalblue, MEturquoise, MEsteelblue
+# Dermo_Tol: MEturquoise
+# Dermo_Sus: MElightpink4 
+# Pro_RE22_Pro_RI:  MEskyblue3,  MEsteelblue
+# Pro_RE22_Pro_S4:  MEwhite, MEsteelblue
 # He:  MEpurple, MEyellow
-# Rubio: MEmagenta, MEturquoise, MEblue, MEbrown    
+# Rubio: MEmagenta, MEturquoise, MEblue, MEbrown, MEblack   
 # Zhang: MEblack
 
-# Code is in the TOMsim_cluster.R
+# Code is in the TOMsim_WGCNA_DESeq_cluster.R file 
 # Export full Matrices as tables for each experiment so that I can export the matrices in bluewaves 
 # Repeating Dermo_tol_modules. Then move this data to bluewaves
-write.table(Dermo_Tolerant_dds_vst_matrix, file="/Volumes/My Passport for Mac/Chapter1_Apoptosis_Paper_Saved_DESeq_WGCNA_Data/Dermo_Tolerant_dds_vst_matrix.table")
-write.table(Pro_RE22_dds_rlog_matrix_Pro, file="/Volumes/My Passport for Mac/Chapter1_Apoptosis_Paper_Saved_DESeq_WGCNA_Data/Pro_RE22_dds_rlog_matrix_Pro.table")
-write.table(Zhang_dds_rlog_matrix, file="/Volumes/My Passport for Mac/Chapter1_Apoptosis_Paper_Saved_DESeq_WGCNA_Data/Zhang_dds_rlog_matrix.table")
-write.table(Rubio_dds_rlog_matrix, file="/Volumes/My Passport for Mac/Chapter1_Apoptosis_Paper_Saved_DESeq_WGCNA_Data/Rubio_dds_rlog_matrix.table")
-write.table(deLorgeril_Resistant_dds_vst_matrix, file="/Volumes/My Passport for Mac/Chapter1_Apoptosis_Paper_Saved_DESeq_WGCNA_Data/deLorgeril_Resistant_dds_vst_matrix.table")
-write.table(deLorgeril_Susceptible_dds_vst_matrix,file="/Volumes/My Passport for Mac/Chapter1_Apoptosis_Paper_Saved_DESeq_WGCNA_Data/deLorgeril_Susceptible_dds_vst_matrix.table")
-write.table(He_dds_vst_matrix,file="/Volumes/My Passport for Mac/Chapter1_Apoptosis_Paper_Saved_DESeq_WGCNA_Data/He_dds_vst_matrix.table")
+write.table(Dermo_Susceptible_dds_vst_matrix, file="/Volumes/My Passport for Mac/Chapter1_Apoptosis_Paper_Saved_DESeq_WGCNA_Data/Dermo_Susceptible_dds_vst_matrix.table")
+#write.table(Dermo_Tolerant_dds_vst_matrix, file="/Volumes/My Passport for Mac/Chapter1_Apoptosis_Paper_Saved_DESeq_WGCNA_Data/Dermo_Tolerant_dds_vst_matrix.table")
+#write.table(Pro_RE22_dds_rlog_matrix_Pro, file="/Volumes/My Passport for Mac/Chapter1_Apoptosis_Paper_Saved_DESeq_WGCNA_Data/Pro_RE22_dds_rlog_matrix_Pro.table")
+#write.table(Zhang_dds_rlog_matrix, file="/Volumes/My Passport for Mac/Chapter1_Apoptosis_Paper_Saved_DESeq_WGCNA_Data/Zhang_dds_rlog_matrix.table")
+#write.table(Rubio_dds_rlog_matrix, file="/Volumes/My Passport for Mac/Chapter1_Apoptosis_Paper_Saved_DESeq_WGCNA_Data/Rubio_dds_rlog_matrix.table")
+#write.table(deLorgeril_Resistant_dds_vst_matrix, file="/Volumes/My Passport for Mac/Chapter1_Apoptosis_Paper_Saved_DESeq_WGCNA_Data/deLorgeril_Resistant_dds_vst_matrix.table")
+#write.table(deLorgeril_Susceptible_dds_vst_matrix,file="/Volumes/My Passport for Mac/Chapter1_Apoptosis_Paper_Saved_DESeq_WGCNA_Data/deLorgeril_Susceptible_dds_vst_matrix.table")
+#write.table(He_dds_vst_matrix,file="/Volumes/My Passport for Mac/Chapter1_Apoptosis_Paper_Saved_DESeq_WGCNA_Data/He_dds_vst_matrix.table")
 
-# Export moduleColors file for each 
-save(Dermo_Tol_full_moduleColors, file = "/Volumes/My Passport for Mac/Chapter1_Apoptosis_Paper_Saved_DESeq_WGCNA_Data/Dermo_Tol_full_moduleColors.RData")
-save(Pro_RE22_Pro_full_moduleColors, file = "/Volumes/My Passport for Mac/Chapter1_Apoptosis_Paper_Saved_DESeq_WGCNA_Data/Pro_RE22_Pro_full_moduleColors.RData")
-save(deLorg_Res_full_moduleColors, file = "/Volumes/My Passport for Mac/Chapter1_Apoptosis_Paper_Saved_DESeq_WGCNA_Data/deLorg_Res_full_moduleColors.RData")
-save(deLorg_Sus_full_moduleColors, file = "/Volumes/My Passport for Mac/Chapter1_Apoptosis_Paper_Saved_DESeq_WGCNA_Data/deLorg_Sus_full_moduleColors.RData")
-save(He_full_moduleColors, file = "/Volumes/My Passport for Mac/Chapter1_Apoptosis_Paper_Saved_DESeq_WGCNA_Data/He_full_moduleColors.RData")
-save(Rubio_full_moduleColors, file = "/Volumes/My Passport for Mac/Chapter1_Apoptosis_Paper_Saved_DESeq_WGCNA_Data/Rubio_full_moduleColors.RData")
-save(Zhang_full_moduleColors, file= "/Volumes/My Passport for Mac/Chapter1_Apoptosis_Paper_Saved_DESeq_WGCNA_Data/Zhang_full_moduleColors.RData") 
+# Export moduleColors file for each
+save(Dermo_Sus_full_moduleColors, file = "/Volumes/My Passport for Mac/Chapter1_Apoptosis_Paper_Saved_DESeq_WGCNA_Data/Dermo_Sus_full_moduleColors.RData")
+#save(Dermo_Tol_full_moduleColors, file = "/Volumes/My Passport for Mac/Chapter1_Apoptosis_Paper_Saved_DESeq_WGCNA_Data/Dermo_Tol_full_moduleColors.RData")
+#save(Pro_RE22_Pro_full_moduleColors, file = "/Volumes/My Passport for Mac/Chapter1_Apoptosis_Paper_Saved_DESeq_WGCNA_Data/Pro_RE22_Pro_full_moduleColors.RData")
+#save(deLorg_Res_full_moduleColors, file = "/Volumes/My Passport for Mac/Chapter1_Apoptosis_Paper_Saved_DESeq_WGCNA_Data/deLorg_Res_full_moduleColors.RData")
+#save(deLorg_Sus_full_moduleColors, file = "/Volumes/My Passport for Mac/Chapter1_Apoptosis_Paper_Saved_DESeq_WGCNA_Data/deLorg_Sus_full_moduleColors.RData")
+#save(He_full_moduleColors, file = "/Volumes/My Passport for Mac/Chapter1_Apoptosis_Paper_Saved_DESeq_WGCNA_Data/He_full_moduleColors.RData")
+#save(Rubio_full_moduleColors, file = "/Volumes/My Passport for Mac/Chapter1_Apoptosis_Paper_Saved_DESeq_WGCNA_Data/Rubio_full_moduleColors.RData")
+#save(Zhang_full_moduleColors, file= "/Volumes/My Passport for Mac/Chapter1_Apoptosis_Paper_Saved_DESeq_WGCNA_Data/Zhang_full_moduleColors.RData") 
 
 ### VIEW APOPTOSIS MOLECULES IN CYTOSCAPE 
 
 # export apoptosis transcript list first 
-write.table(C_vir_rtracklayer_apop_product_final$ID, file = "/Volumes/My Passport for Mac/Chapter1_Apoptosis_Paper_Saved_DESeq_WGCNA_Data/C_vir_rtracklayer_apop_product_final_rnaID.txt",
-            col.names = FALSE, row.names = FALSE, quote = FALSE)
-write.table(C_gig_rtracklayer_apop_product_final$transcript_id, file = "/Volumes/My Passport for Mac/Chapter1_Apoptosis_Paper_Saved_DESeq_WGCNA_Data/C_gig_rtracklayer_apop_product_final_transcript_ID.txt",
-            col.names = FALSE, row.names = FALSE, quote = FALSE)
+#write.table(C_vir_rtracklayer_apop_product_final$ID, file = "/Volumes/My Passport for Mac/Chapter1_Apoptosis_Paper_Saved_DESeq_WGCNA_Data/C_vir_rtracklayer_apop_product_final_rnaID.txt",
+            # col.names = FALSE, row.names = FALSE, quote = FALSE)
+#write.table(C_gig_rtracklayer_apop_product_final$transcript_id, file = "/Volumes/My Passport for Mac/Chapter1_Apoptosis_Paper_Saved_DESeq_WGCNA_Data/C_gig_rtracklayer_apop_product_final_transcript_ID.txt",
+            # col.names = FALSE, row.names = FALSE, quote = FALSE)
 
 #export lines containing any of these apoptosis transcripts in bluewaves
 # ssh WGCNA_module_apop_grep.sh
@@ -8549,10 +8556,13 @@ LFC_comb_domain_type_XM_exp_hits_df_Pro_RE22_IAP_unique <- LFC_comb_domain_type_
 write.table(LFC_comb_domain_type_XM_exp_hits_df_Pro_RE22_IAP_unique, file="/Volumes/My Passport for Mac/Chapter1_Apoptosis_Paper_Saved_DESeq_WGCNA_Data/LFC_comb_domain_type_XM_exp_hits_df_Pro_RE22_IAP_unique.txt",
             row.names = FALSE, col.names = FALSE, quote = FALSE)
 
+## In bluewaves: Export TOM, export specific modules, grep apoptotis lines, and annotate all modules 
+# Download edges and node files after annotating in bluewaves and search for IAP interaction partners locally using script below
 # Search for these transcript interaction partners in the command line because the files are too large to load into R workspace (see September 4th code in notes)
-# Dermo: MEturquoise
+# Dermo_Tol: MEturquoise
 #$ grep -f LFC_comb_domain_type_XM_exp_hits_df_Dermo_IAP_unique.txt CytoscapeInput-edges-Dermo_Tol_fullturquoise.txt > Dermo_Tol_fullturquoise_IAP_hits.txt
-# this transcript was not found in the edges file for some reason... not sure why. May need to rerun this to assess. Going to continue by checking the other sheets
+# Dermo_Sus: MElightpink4
+#$ grep -f LFC_comb_domain_type_XM_exp_hits_df_Dermo_IAP_unique.txt CytoscapeInput-edges-Dermo_Sus_fulllightpink4.txt > Dermo_Sus_fulllightpink4_IAP_hits.txt
 
 # deLorg Res
 #$ grep -f LFC_comb_domain_type_XM_exp_hits_df_deLorg_Res_IAP_unique.txt CytoscapeInput-edges-deLorg_Res_fullturquoise.txt > deLorg_Res_fullturquoise_IAP_hits.txt
@@ -8567,22 +8577,22 @@ write.table(LFC_comb_domain_type_XM_exp_hits_df_Pro_RE22_IAP_unique, file="/Volu
 # Zhang: MEblack
 #grep -f LFC_comb_domain_type_XM_exp_hits_df_Zhang_IAP_unique.txt CytoscapeInput-edges-Zhang_fullblack.txt > Zhang_fullblack_IAP_hits.txt
 
-# Rubio: MEmagenta, MEturquoise, MEblue, MEbrown
+# Rubio: MEmagenta, MEturquoise, MEblue, MEbrown, MEblack
 #grep -f LFC_comb_domain_type_XM_exp_hits_df_Rubio_IAP_unique.txt CytoscapeInput-edges-Rubio_fullblue.txt > Rubio_fullblue_IAP_hits.txt
 #grep -f LFC_comb_domain_type_XM_exp_hits_df_Rubio_IAP_unique.txt CytoscapeInput-edges-Rubio_fullbrown.txt > Rubio_fullbrown_IAP_hits.txt
 #grep -f LFC_comb_domain_type_XM_exp_hits_df_Rubio_IAP_unique.txt CytoscapeInput-edges-Rubio_fullmagenta.txt > Rubio_fullmagenta_IAP_hits.txt
 #grep -f LFC_comb_domain_type_XM_exp_hits_df_Rubio_IAP_unique.txt CytoscapeInput-edges-Rubio_fullturquoise.txt > Rubio_fullturquoise_IAP_hits.txt
+#grep -f LFC_comb_domain_type_XM_exp_hits_df_Rubio_IAP_unique.txt CytoscapeInput-edges-Rubio_fullblack.txt > Rubio_fullblack_IAP_hits.txt
 
-## Pro_RE22_Pro_RI:MEturquoise    , MEdarkslateblue, MEsteelblue , MEroyalblue
-#grep -f LFC_comb_domain_type_XM_exp_hits_df_Pro_RE22_IAP_unique.txt CytoscapeInput-edges-Pro_RE22_Pro_fulldarkslateblue.txt > Pro_RE22_Pro_fulldarkslateblue_IAP_hits.txt
-#grep -f LFC_comb_domain_type_XM_exp_hits_df_Pro_RE22_IAP_unique.txt CytoscapeInput-edges-Pro_RE22_Pro_fullroyalblue.txt > Pro_RE22_Pro_fullroyalblue_IAP_hits.txt
+## Pro_RE22_Pro_RI:  MEsteelblue , MEskyblue3,  MEwhite
 #grep -f LFC_comb_domain_type_XM_exp_hits_df_Pro_RE22_IAP_unique.txt CytoscapeInput-edges-Pro_RE22_Pro_fullsteelblue.txt > Pro_RE22_Pro_fullsteelblue_IAP_hits.txt
-#grep -f LFC_comb_domain_type_XM_exp_hits_df_Pro_RE22_IAP_unique.txt CytoscapeInput-edges-Pro_RE22_Pro_fullturquoise.txt > Pro_RE22_Pro_fullturquoise_IAP_hits.txt
-
-# Check that all the edge files were searched
-# $ ls *IAP_hits.txt | wc -l # 14 this is the same as the the number of modules to go through
+#grep -f LFC_comb_domain_type_XM_exp_hits_df_Pro_RE22_IAP_unique.txt CytoscapeInput-edges-Pro_RE22_Pro_fullskyblue3.txt > Pro_RE22_Pro_fullskyblue3_IAP_hits.txt
+#grep -f LFC_comb_domain_type_XM_exp_hits_df_Pro_RE22_IAP_unique.txt CytoscapeInput-edges-Pro_RE22_Pro_fullwhite.txt > Pro_RE22_Pro_fullwhite_IAP_hits.txt
 
 ## Import IAP interaction hits into R
+Dermo_Tol_fullturquoise_IAP_hits <- read.table(file = "/Volumes/My Passport for Mac/Chapter1_Apoptosis_Paper_Saved_DESeq_WGCNA_Data/Dermo_Tol_fullturquoise_IAP_hits.txt", col.names = c("fromNode",	"toNode",	"weight",	"direction",	"fromAltName",	"toAltName"))
+Dermo_Sus_fulllightpink4_IAP_hits <- read.table(file = "/Volumes/My Passport for Mac/Chapter1_Apoptosis_Paper_Saved_DESeq_WGCNA_Data/Dermo_Sus_fulllightpink4_IAP_hits.txt", col.names = c("fromNode",	"toNode",	"weight",	"direction",	"fromAltName",	"toAltName"))
+
 deLorg_Res_fullturquoise_IAP_hits <- read.table(file = "/Volumes/My Passport for Mac/Chapter1_Apoptosis_Paper_Saved_DESeq_WGCNA_Data/deLorg_Res_fullturquoise_IAP_hits.txt", col.names = c("fromNode",	"toNode",	"weight",	"direction",	"fromAltName",	"toAltName"))
 deLorg_Sus_fullturquoise_IAP_hits <- read.table(file = "/Volumes/My Passport for Mac/Chapter1_Apoptosis_Paper_Saved_DESeq_WGCNA_Data/deLorg_Sus_fullturquoise_IAP_hits.txt", col.names = c("fromNode",	"toNode",	"weight",	"direction",	"fromAltName",	"toAltName"))
 He_fullpurple_IAP_hits <- read.table(file = "/Volumes/My Passport for Mac/Chapter1_Apoptosis_Paper_Saved_DESeq_WGCNA_Data/He_fullpurple_IAP_hits.txt", col.names = c("fromNode",	"toNode",	"weight",	"direction",	"fromAltName",	"toAltName"))
@@ -8592,10 +8602,10 @@ Rubio_fullblue_IAP_hits <- read.table(file = "/Volumes/My Passport for Mac/Chapt
 Rubio_fullbrown_IAP_hits <- read.table(file = "/Volumes/My Passport for Mac/Chapter1_Apoptosis_Paper_Saved_DESeq_WGCNA_Data/Rubio_fullbrown_IAP_hits.txt", col.names = c("fromNode",	"toNode",	"weight",	"direction",	"fromAltName",	"toAltName"))
 Rubio_fullmagenta_IAP_hits <- read.table(file = "/Volumes/My Passport for Mac/Chapter1_Apoptosis_Paper_Saved_DESeq_WGCNA_Data/Rubio_fullmagenta_IAP_hits.txt", col.names = c("fromNode",	"toNode",	"weight",	"direction",	"fromAltName",	"toAltName"))
 Rubio_fullturquoise_IAP_hits <- read.table(file = "/Volumes/My Passport for Mac/Chapter1_Apoptosis_Paper_Saved_DESeq_WGCNA_Data/Rubio_fullturquoise_IAP_hits.txt", col.names = c("fromNode",	"toNode",	"weight",	"direction",	"fromAltName",	"toAltName"))
-Pro_RE22_Pro_fulldarkslateblue_IAP_hits <- read.table(file = "/Volumes/My Passport for Mac/Chapter1_Apoptosis_Paper_Saved_DESeq_WGCNA_Data/Pro_RE22_Pro_fulldarkslateblue_IAP_hits.txt", col.names = c("fromNode",	"toNode",	"weight",	"direction",	"fromAltName",	"toAltName"))
-Pro_RE22_Pro_fullroyalblue_IAP_hits <- read.table(file = "/Volumes/My Passport for Mac/Chapter1_Apoptosis_Paper_Saved_DESeq_WGCNA_Data/Pro_RE22_Pro_fullroyalblue_IAP_hits.txt", col.names = c("fromNode",	"toNode",	"weight",	"direction",	"fromAltName",	"toAltName"))
+Rubio_fullblack_IAP_hits <- read.table(file = "/Volumes/My Passport for Mac/Chapter1_Apoptosis_Paper_Saved_DESeq_WGCNA_Data/Rubio_fullblack_IAP_hits.txt", col.names = c("fromNode",	"toNode",	"weight",	"direction",	"fromAltName",	"toAltName"))
 Pro_RE22_Pro_fullsteelblue_IAP_hits <- read.table(file = "/Volumes/My Passport for Mac/Chapter1_Apoptosis_Paper_Saved_DESeq_WGCNA_Data/Pro_RE22_Pro_fullsteelblue_IAP_hits.txt", col.names = c("fromNode",	"toNode",	"weight",	"direction",	"fromAltName",	"toAltName"))
-Pro_RE22_Pro_fullturquoise_IAP_hits <- read.table(file = "/Volumes/My Passport for Mac/Chapter1_Apoptosis_Paper_Saved_DESeq_WGCNA_Data/Pro_RE22_Pro_fullturquoise_IAP_hits.txt", col.names = c("fromNode",	"toNode",	"weight",	"direction",	"fromAltName",	"toAltName"))
+Pro_RE22_Pro_fullskyblue3_IAP_hits <- read.table(file = "/Volumes/My Passport for Mac/Chapter1_Apoptosis_Paper_Saved_DESeq_WGCNA_Data/Pro_RE22_Pro_fullturquoise_IAP_hits.txt", col.names = c("fromNode",	"toNode",	"weight",	"direction",	"fromAltName",	"toAltName"))
+Pro_RE22_Pro_fullwhite_IAP_hits <- read.table(file = "/Volumes/My Passport for Mac/Chapter1_Apoptosis_Paper_Saved_DESeq_WGCNA_Data/Pro_RE22_Pro_fullwhite_IAP_hits.txt", col.names = c("fromNode",	"toNode",	"weight",	"direction",	"fromAltName",	"toAltName"))
 
 ## Annotate fromNode and toNodes by joining with apoptosis data frame and annotate BIR domain type (we only care about IAP interactions with other apoptosis pathway proteins, NAs will be non apoptosis transcripts)
 deLorg_Res_fullturquoise_IAP_hits_annot <- deLorg_Res_fullturquoise_IAP_hits %>% dplyr::select(fromNode, toNode, weight, direction) %>% dplyr::rename(transcript_id = fromNode) %>% left_join(., C_gig_rtracklayer_apop_product_final[,c("gene","product", "transcript_id")]) %>%
@@ -8652,6 +8662,12 @@ Rubio_fullturquoise_IAP_hits_annot <- Rubio_fullturquoise_IAP_hits  %>% dplyr::s
   left_join(., LFC_comb_domain_type_XM_exp_hits_df_Rubio_IAP[,c("transcript_id","Domain_Name")]) %>% dplyr::rename (toNodeDomain_Name = Domain_Name) %>% 
   dplyr::rename (toNodetranscript = transcript_id) %>% dplyr::rename(toNodeproduct = product) %>% dplyr::rename(toNodegene = gene) %>% filter(!is.na(fromNodeproduct)) %>% filter(!is.na(toNodeproduct)) %>% distinct()
 
+Rubio_fullblack_IAP_hits_annot <- Rubio_fullblack_IAP_hits  %>% dplyr::select(fromNode, toNode, weight, direction) %>% dplyr::rename(transcript_id = fromNode) %>% left_join(., C_gig_rtracklayer_apop_product_final[,c("gene","product", "transcript_id")]) %>%
+  left_join(., LFC_comb_domain_type_XM_exp_hits_df_Rubio_IAP[,c("transcript_id","Domain_Name")]) %>% dplyr::rename (fromNodeDomain_Name = Domain_Name) %>% 
+  dplyr::rename (fromNodetranscript = transcript_id) %>% dplyr::rename(fromNodeproduct = product) %>% dplyr::rename(fromNodegene = gene) %>% dplyr::rename(transcript_id = toNode) %>% left_join(., C_gig_rtracklayer_apop_product_final[,c("gene","product", "transcript_id")]) %>%
+  left_join(., LFC_comb_domain_type_XM_exp_hits_df_Rubio_IAP[,c("transcript_id","Domain_Name")]) %>% dplyr::rename (toNodeDomain_Name = Domain_Name) %>% 
+  dplyr::rename (toNodetranscript = transcript_id) %>% dplyr::rename(toNodeproduct = product) %>% dplyr::rename(toNodegene = gene) %>% filter(!is.na(fromNodeproduct)) %>% filter(!is.na(toNodeproduct)) %>% distinct()
+
 # Join together C. gigas data frames, add together module name and experiment
 deLorg_Res_fullturquoise_IAP_hits_annot$experiment <- "deLorg_Res"
 deLorg_Sus_fullturquoise_IAP_hits_annot$experiment <- "deLorg_Sus"
@@ -8662,6 +8678,7 @@ Rubio_fullblue_IAP_hits_annot$experiment <- "Rubio"
 Rubio_fullbrown_IAP_hits_annot$experiment <- "Rubio"
 Rubio_fullmagenta_IAP_hits_annot$experiment <- "Rubio"
 Rubio_fullturquoise_IAP_hits_annot$experiment <- "Rubio"
+Rubio_fullblack_IAP_hits_annot$experiment <- "Rubio"
 
 deLorg_Res_fullturquoise_IAP_hits_annot$mod_name <- "MEturquoise"
 deLorg_Sus_fullturquoise_IAP_hits_annot$mod_name <- "MEturquoise"
@@ -8672,6 +8689,7 @@ Rubio_fullblue_IAP_hits_annot$mod_name <- "MEblue"
 Rubio_fullbrown_IAP_hits_annot$mod_name <- "MEbrown"
 Rubio_fullmagenta_IAP_hits_annot$mod_name <- "MEmagenta"
 Rubio_fullturquoise_IAP_hits_annot$mod_name <- "MEturquoise"
+Rubio_fullblack_IAP_hits_annot$mod_name <- "MEblack"
 
 deLorg_Res_fullturquoise_IAP_hits_annot$species <- "C_gigas"
 deLorg_Sus_fullturquoise_IAP_hits_annot$species <- "C_gigas"
@@ -8682,15 +8700,16 @@ Rubio_fullblue_IAP_hits_annot$species <- "C_gigas"
 Rubio_fullbrown_IAP_hits_annot$species <- "C_gigas"
 Rubio_fullmagenta_IAP_hits_annot$species <- "C_gigas"
 Rubio_fullturquoise_IAP_hits_annot$species <- "C_gigas"
+Rubio_fullblack_IAP_hits_annot$species <- "C_gigas"
 
 # annot C. virginica modules 
-Pro_RE22_Pro_fulldarkslateblue_IAP_hits_annot <- Pro_RE22_Pro_fulldarkslateblue_IAP_hits %>% dplyr::select(fromNode, toNode, weight, direction) %>% dplyr::rename(ID = fromNode) %>% left_join(., C_vir_rtracklayer_apop_product_final[,c("gene","product", "ID")]) %>%
+Dermo_Sus_fulllightpink4_IAP_hits_annot <- Dermo_Sus_fulllightpink4_IAP_hits %>% dplyr::select(fromNode, toNode, weight, direction) %>% dplyr::rename(ID = fromNode) %>% left_join(., C_vir_rtracklayer_apop_product_final[,c("gene","product", "ID")]) %>%
   left_join(., IAP_domain_structure_XM_CV_XM[,c("ID","Domain_Name")]) %>% dplyr::rename (fromNodeDomain_Name = Domain_Name) %>% 
   dplyr::rename (fromNodetranscript = ID) %>% dplyr::rename(fromNodeproduct = product) %>% dplyr::rename(fromNodegene = gene) %>% dplyr::rename(ID = toNode) %>% left_join(., C_vir_rtracklayer_apop_product_final[,c("gene","product", "ID")]) %>%
   left_join(., IAP_domain_structure_XM_CV_XM[,c("ID","Domain_Name")]) %>% dplyr::rename (toNodeDomain_Name = Domain_Name) %>% 
   dplyr::rename (toNodetranscript = ID) %>% dplyr::rename(toNodeproduct = product) %>% dplyr::rename(toNodegene = gene) %>% filter(!is.na(fromNodeproduct)) %>% filter(!is.na(toNodeproduct)) %>% distinct()
 
-Pro_RE22_Pro_fullroyalblue_IAP_hits_annot <- Pro_RE22_Pro_fullroyalblue_IAP_hits %>% dplyr::select(fromNode, toNode, weight, direction) %>% dplyr::rename(ID = fromNode) %>% left_join(., C_vir_rtracklayer_apop_product_final[,c("gene","product", "ID")]) %>%
+Dermo_Tol_fullturquoise_IAP_hits_annot <- Dermo_Tol_fullturquoise_IAP_hits %>% dplyr::select(fromNode, toNode, weight, direction) %>% dplyr::rename(ID = fromNode) %>% left_join(., C_vir_rtracklayer_apop_product_final[,c("gene","product", "ID")]) %>%
   left_join(., IAP_domain_structure_XM_CV_XM[,c("ID","Domain_Name")]) %>% dplyr::rename (fromNodeDomain_Name = Domain_Name) %>% 
   dplyr::rename (fromNodetranscript = ID) %>% dplyr::rename(fromNodeproduct = product) %>% dplyr::rename(fromNodegene = gene) %>% dplyr::rename(ID = toNode) %>% left_join(., C_vir_rtracklayer_apop_product_final[,c("gene","product", "ID")]) %>%
   left_join(., IAP_domain_structure_XM_CV_XM[,c("ID","Domain_Name")]) %>% dplyr::rename (toNodeDomain_Name = Domain_Name) %>% 
@@ -8702,26 +8721,41 @@ Pro_RE22_Pro_fullsteelblue_IAP_hits_annot <- Pro_RE22_Pro_fullsteelblue_IAP_hits
   left_join(., IAP_domain_structure_XM_CV_XM[,c("ID","Domain_Name")]) %>% dplyr::rename (toNodeDomain_Name = Domain_Name) %>% 
   dplyr::rename (toNodetranscript = ID) %>% dplyr::rename(toNodeproduct = product) %>% dplyr::rename(toNodegene = gene) %>% filter(!is.na(fromNodeproduct)) %>% filter(!is.na(toNodeproduct)) %>% distinct()
 
-Pro_RE22_Pro_fullturquoise_IAP_hits_annot <- Pro_RE22_Pro_fullturquoise_IAP_hits %>% dplyr::select(fromNode, toNode, weight, direction) %>% dplyr::rename(ID = fromNode) %>% left_join(., C_vir_rtracklayer_apop_product_final[,c("gene","product", "ID")]) %>%
+Pro_RE22_Pro_fullskyblue3_IAP_hits_annot <- Pro_RE22_Pro_fullskyblue3_IAP_hits %>% dplyr::select(fromNode, toNode, weight, direction) %>% dplyr::rename(ID = fromNode) %>% left_join(., C_vir_rtracklayer_apop_product_final[,c("gene","product", "ID")]) %>%
   left_join(., IAP_domain_structure_XM_CV_XM[,c("ID","Domain_Name")]) %>% dplyr::rename (fromNodeDomain_Name = Domain_Name) %>% 
   dplyr::rename (fromNodetranscript = ID) %>% dplyr::rename(fromNodeproduct = product) %>% dplyr::rename(fromNodegene = gene) %>% dplyr::rename(ID = toNode) %>% left_join(., C_vir_rtracklayer_apop_product_final[,c("gene","product", "ID")]) %>%
   left_join(., IAP_domain_structure_XM_CV_XM[,c("ID","Domain_Name")]) %>% dplyr::rename (toNodeDomain_Name = Domain_Name) %>% 
   dplyr::rename (toNodetranscript = ID) %>% dplyr::rename(toNodeproduct = product) %>% dplyr::rename(toNodegene = gene) %>% filter(!is.na(fromNodeproduct)) %>% filter(!is.na(toNodeproduct)) %>% distinct()
 
-# Join together data frames
-Pro_RE22_Pro_fulldarkslateblue_IAP_hits_annot$mod_name <- "MEdarkslateblue"
-Pro_RE22_Pro_fullroyalblue_IAP_hits_annot$mod_name <- "MEroyalblue"
-Pro_RE22_Pro_fullsteelblue_IAP_hits_annot$mod_name <- "MEsteelblue"
-Pro_RE22_Pro_fullturquoise_IAP_hits_annot$mod_name <- "MEturquoise"
+Pro_RE22_Pro_fullwhite_IAP_hits_annot <- Pro_RE22_Pro_fullwhite_IAP_hits %>% dplyr::select(fromNode, toNode, weight, direction) %>% dplyr::rename(ID = fromNode) %>% left_join(., C_vir_rtracklayer_apop_product_final[,c("gene","product", "ID")]) %>%
+  left_join(., IAP_domain_structure_XM_CV_XM[,c("ID","Domain_Name")]) %>% dplyr::rename (fromNodeDomain_Name = Domain_Name) %>% 
+  dplyr::rename (fromNodetranscript = ID) %>% dplyr::rename(fromNodeproduct = product) %>% dplyr::rename(fromNodegene = gene) %>% dplyr::rename(ID = toNode) %>% left_join(., C_vir_rtracklayer_apop_product_final[,c("gene","product", "ID")]) %>%
+  left_join(., IAP_domain_structure_XM_CV_XM[,c("ID","Domain_Name")]) %>% dplyr::rename (toNodeDomain_Name = Domain_Name) %>% 
+  dplyr::rename (toNodetranscript = ID) %>% dplyr::rename(toNodeproduct = product) %>% dplyr::rename(toNodegene = gene) %>% filter(!is.na(fromNodeproduct)) %>% filter(!is.na(toNodeproduct)) %>% distinct()
 
-Pro_RE22_Pro_hits_annot <- rbind(Pro_RE22_Pro_fulldarkslateblue_IAP_hits_annot,Pro_RE22_Pro_fullroyalblue_IAP_hits_annot,Pro_RE22_Pro_fullsteelblue_IAP_hits_annot,Pro_RE22_Pro_fullturquoise_IAP_hits_annot)
+
+# Join together data frames
+Pro_RE22_Pro_fullsteelblue_IAP_hits_annot$mod_name <- "MEsteelblue"
+Pro_RE22_Pro_fullskyblue3_IAP_hits_annot$mod_name <- "MEskyblue3"
+Pro_RE22_Pro_fullwhite_IAP_hits_annot$mod_name <- "MEwhite"
+
+Dermo_Sus_fulllightpink4_IAP_hits_annot$mod_name <- "MElightpink4"
+Dermo_Tol_fullturquoise_IAP_hits_annot$mod_name <- "MEturquoise"
+Dermo_Sus_fulllightpink4_IAP_hits_annot$experiment <- "Dermo"
+Dermo_Tol_fullturquoise_IAP_hits_annot$experiment <- "Dermo"
+Dermo_Sus_fulllightpink4_IAP_hits_annot$species <- "C_virginica"
+Dermo_Tol_fullturquoise_IAP_hits_annot$species <- "C_virginica"
+
+Pro_RE22_Pro_hits_annot <- rbind( Pro_RE22_Pro_fullsteelblue_IAP_hits_annot,Pro_RE22_Pro_fullskyblue3_IAP_hits_annot,Pro_RE22_Pro_fullwhite_IAP_hits_annot)
 Pro_RE22_Pro_hits_annot$experiment <- "Pro_RE22_Pro"
 Pro_RE22_Pro_hits_annot$species <- "C_virginica"
 
 #rbind all together
-C_vir_C_gig_IAP_interaction_partners <- rbind(deLorg_Res_fullturquoise_IAP_hits_annot,deLorg_Sus_fullturquoise_IAP_hits_annot,He_fullpurple_IAP_hits_annot,He_fullyellow_IAP_hits_annot,Zhang_fullblack_IAP_hits_annot,
-                                          Rubio_fullblue_IAP_hits_annot, Rubio_fullbrown_IAP_hits_annot, Rubio_fullmagenta_IAP_hits_annot, Rubio_fullturquoise_IAP_hits_annot,Pro_RE22_Pro_hits_annot)
-
+C_vir_C_gig_IAP_interaction_partners <- rbind(deLorg_Res_fullturquoise_IAP_hits_annot,deLorg_Sus_fullturquoise_IAP_hits_annot,
+                                              He_fullpurple_IAP_hits_annot,He_fullyellow_IAP_hits_annot,
+                                              Zhang_fullblack_IAP_hits_annot,
+                                          Rubio_fullblue_IAP_hits_annot, Rubio_fullbrown_IAP_hits_annot, Rubio_fullmagenta_IAP_hits_annot, Rubio_fullturquoise_IAP_hits_annot, Rubio_fullblack_IAP_hits_annot,
+                                          Pro_RE22_Pro_hits_annot, Dermo_Sus_fulllightpink4_IAP_hits_annot, Dermo_Tol_fullturquoise_IAP_hits_annot)
 
 # because the network is UNDIRECTED, I'm going to have all the IAPs in the same column
 C_vir_C_gig_IAP_interaction_partners_switched <- C_vir_C_gig_IAP_interaction_partners %>% filter(is.na(fromNodeDomain_Name))
@@ -8757,6 +8791,15 @@ C_vir_C_gig_IAP_interaction_partners_undirected %>% dplyr::distinct(fromNodeDoma
       # 11        TII-TII-RING
       # 12        BIR*-DD-RING
 
+# How many in each experiment?
+C_vir_C_gig_IAP_interaction_partners_undirected %>% distinct(fromNodetranscript, toNodetranscript, experiment) %>% dplyr::count(experiment)
+#experiment   n
+#1   deLorg_Res 711
+#2   deLorg_Sus  69
+#3           He  98
+#4 Pro_RE22_Pro  67
+#5        Rubio 242
+#6        Zhang  14
 
 ## Plot heatmap with interaction partners where the IAP is in the FROMNODE
 # create table where presence of a product is a 1, remove like and transcript variant info for better comparison between species
