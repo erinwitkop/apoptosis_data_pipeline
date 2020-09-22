@@ -5487,9 +5487,23 @@ C_gig_apop_LFC_ApopI <- C_gig_apop_LFC[grepl("apoptosis inhibitor", C_gig_apop_L
 
 #### LFC IAP DOMAIN TYPE ANALYSIS ####
 ### Import pathway information and IAP domain type list at the very top of script
-IAP_domain_structure_no_dup_rm.RData
+IAP_domain_structure_no_dup_rm
 # load DEG apop list joined with type from IAP script
 C_vir_C_gig_apop_LFC_IAP_OG_domain_structure
+
+
+# join XM onto IAP_domain_structure_no_dup_rm using C_vir_rtracklayer
+C_vir_apop_LFC_IAP_OG_domain_structure_XM <- C_vir_C_gig_apop_LFC_IAP_OG_domain_structure %>% filter(Species == "Crassostrea_virginica") %>% dplyr::rename(ID = transcript_id) %>%
+  left_join(., unique(C_vir_rtracklayer[,c("transcript_id","ID")])) 
+C_vir_apop_LFC_IAP_OG_domain_structure_XM <- C_vir_apop_LFC_IAP_OG_domain_structure_XM[,-6]
+
+C_gig_apop_LFC_IAP_OG_domain_structure_XM <- C_vir_C_gig_apop_LFC_IAP_OG_domain_structure %>% filter(Species == "Crassostrea_gigas") 
+
+# combine data IAP_domain_name data frames, put columns in correct order and remove NA domain names
+C_vir_C_gig_apop_LFC_IAP_OG_domain_structure <- rbind(C_vir_apop_LFC_IAP_OG_domain_structure_XM[,c("transcript_id","Domain_Name")], C_gig_apop_LFC_IAP_OG_domain_structure_XM[,c("transcript_id","Domain_Name")]) %>%
+  # change NA to be "not classified"
+  mutate(Domain_Name = case_when(is.na(Domain_Name) ~ "not_classified",
+                                 TRUE ~ Domain_Name))
 
 # edit column name of pathway table for proper joining
 # Note that in my orignal script to create this table I got rid of transcript variant information for products so I could better compare which might be truly missing from one or the other
@@ -5497,8 +5511,15 @@ combined_gene_name_org_yes_no_table_unique_pathway_joined_edited <- combined_gen
 # change gene_name to product
 colnames(combined_gene_name_org_yes_no_table_unique_pathway_joined_edited)[2] <- "product"
 
-# Rename C_vir_C_gig_apop_LFC_IAP_OG_domain_structure to match previous code and facilitate easy running below
-C_vir_C_gig_apop_LFC_domain_type <- C_vir_C_gig_apop_LFC_IAP_OG_domain_structure
+### Join domain type information to the apop_LFC data frames
+C_vir_apop_LFC_domain_type <- left_join(C_vir_apop_LFC, C_vir_C_gig_apop_LFC_IAP_OG_domain_structure)
+C_gig_apop_LFC_domain_type <- left_join(C_gig_apop_LFC, C_vir_C_gig_apop_LFC_IAP_OG_domain_structure)
+
+# combine into one table
+C_vir_apop_LFC_domain_type$Species <- "Crassostrea_virginica"
+C_gig_apop_LFC_domain_type$Species <- "Crassostrea_gigas"
+
+C_vir_C_gig_apop_LFC_domain_type <- rbind(C_vir_apop_LFC_domain_type, C_gig_apop_LFC_domain_type)
 
 ### Create Comb_domains for those groups that hit to multiple domains ###
 # make the comb_domains for the group_by_sim groups rather than experiment. 
@@ -5514,17 +5535,15 @@ C_vir_C_gig_apop_LFC_domain_type_comb_domain <- C_vir_C_gig_apop_LFC_domain_type
 ## Join experiments with challenge type: viral, bacterial, parasitic
 levels(factor(C_vir_C_gig_apop_LFC_domain_type_comb_domain$experiment))
 challenge_type <- data.frame(experiment =c(
-  "deLorgeril_res",
-  "deLorgeril_sus",
+  "deLorgeril",
   "Dermo",
   "He",
-  "Lab_Pro_RE22",
-  "Hatchery_Probiotic_RI",
+  "Pro_RE22",
+  "Probiotic",
   "ROD",
   "Rubio",
   "Zhang"),  
   challenge_type = c(
-    "viral" ,
     "viral" ,
     "parasite",
     "viral",
@@ -5636,6 +5655,21 @@ C_vir_C_gig_apop_LFC_domain_type_joined_separate_subpathway %>%
 ## Which are unique to one experiment
 C_vir_C_gig_apop_LFC_domain_type_joined_separate_subpathway %>% 
   distinct(Sub_pathway, experiment) %>% group_by(Sub_pathway) %>% filter(n() ==1)
+#
+#Groups:   Sub_pathway [11]
+#experiment Sub_pathway                                                          
+#<chr>      <fct>                                                                
+#  1 Probiotic  "p53 pathway, ER stress, TNFR pathway, Bcl2 pathway, NFkB pathway"   
+#2 Pro_RE22   "pyroptosis, inflammation, Bcl2 pathway"                             
+#3 Rubio      "parthanatos, execution"                                             
+#4 He         "p53 pathway, NFkB pathway"                                          
+#5 He         "NETosis"                                                            
+#6 He         "growth factor receptor pathway"                                     
+#7 deLorgeril "TNFR pathway, Bcl2 pathway"                                         
+#8 deLorgeril "chaperone, Bcl2 pathway, TNFR pathway"                              
+#9 deLorgeril "GPCR signaling pathway, p53 pathway, growth factor receptor pathway"
+#10 deLorgeril "p53 pathway, Bcl2 pathway"                                          
+#11 deLorgeril "p53 pathway "   
 
 ## Make pheatmap of the different products and compare with WGCNA heatmap
 ## remove "-like" from product names so I can better compare between species to see the patterns
@@ -5679,7 +5713,7 @@ C_vir_C_gig_apop_LFC_domain_type_joined_separate_subpathway_like_plot <- pheatma
                                                                             annotation_row = C_vir_C_gig_apop_LFC_domain_type_joined_separate_subpathway_like_mat_annot_row_like,
                                                                             fontsize = 20)
 
-## Use this plot for supplementary figure 4
+## Use this plot for supplementary figure 3
 ggsave(plot = C_vir_C_gig_apop_LFC_domain_type_joined_separate_subpathway_like_plot, filename = "C_vir_C_gig_apop_LFC_domain_type_joined_separate_subpathway_like_pheatmap.tiff", device = "tiff",
        width = 40, height = 60, limitsize = FALSE,
        path = "/Users/erinroberts/Documents/PhD_Research/Chapter_1_Apoptosis Paper/Chapter1_Apoptosis_Transcriptome_Analyses_2019/DATA ANALYSIS/apoptosis_data_pipeline/DESeq2/2020_Transcriptome_ANALYSIS/")
