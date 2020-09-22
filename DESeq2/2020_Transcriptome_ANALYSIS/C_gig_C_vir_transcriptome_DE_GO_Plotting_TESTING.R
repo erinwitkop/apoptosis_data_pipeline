@@ -52,10 +52,12 @@ library(data.table)
 #### LOADING SAVED GENOME, APOPTOSIS NAMES, GIMAP and IAP XP LISTS ####
 Apoptosis_frames <- load(file="/Volumes/My Passport for Mac/Chapter1_Apoptosis_Paper_Saved_DESeq_WGCNA_Data/C_gig_C_vir_apoptosis_products.RData")
 annotations <- load(file="/Volumes/My Passport for Mac/Chapter1_Apoptosis_Paper_Saved_DESeq_WGCNA_Data/C_gig_C_vir_annotations.RData")
-# IAP lists with domain type
-load(file = "/Users/erinroberts/Documents/PhD_Research/Chapter_1_Apoptosis Paper/Chapter_1_Apoptosis_Annotation_Data_Analyses_2019/DATA/Apoptosis_Pathway_Annotation_Comparative_Genomics/Comparative_Analysis_Apoptosis_Gene_Families_Data/IAP_domain_structure_XM_CG.RData")
-load(file = "/Users/erinroberts/Documents/PhD_Research/Chapter_1_Apoptosis Paper/Chapter_1_Apoptosis_Annotation_Data_Analyses_2019/DATA/Apoptosis_Pathway_Annotation_Comparative_Genomics/Comparative_Analysis_Apoptosis_Gene_Families_Data/IAP_domain_structure_XM_CV.RData")
-# Load IAP pathway list (remove once I have my external hardrive and can reload from there)
+
+# Full IAP list with domain type
+load(file = "/Users/erinroberts/Documents/PhD_Research/Chapter_1_Apoptosis Paper/Chapter1_Apoptosis_Transcriptome_Analyses_2019/DATA ANALYSIS/apoptosis_data_pipeline/DESeq2/2020_Transcriptome_ANALYSIS/IAP_domain_structure_no_dup_rm.RData")
+# load DEG apop list joined with type from IAP script
+load(file = "/Users/erinroberts/Documents/PhD_Research/Chapter_1_Apoptosis Paper/Chapter_1_Apoptosis_Annotation_Data_Analyses_2019/DATA/Apoptosis_Pathway_Annotation_Comparative_Genomics/Comparative_Analysis_Apoptosis_Gene_Families_Data/C_vir_C_gig_apop_LFC_IAP_OG_domain_structure")
+# Load IAP pathway list 
 load(file="/Users/erinroberts/Documents/PhD_Research/Chapter_1_Apoptosis Paper/Chapter1_Apoptosis_Transcriptome_Analyses_2019/DATA ANALYSIS/apoptosis_data_pipeline/DESeq2/2020_Transcriptome_ANALYSIS/combined_gene_name_org_yes_no_table_unique_pathway_joined.RData")
 
 # load data frames with IAP and GIMAP XM and XP information with haplotigs already collapsed (no domain information)
@@ -5485,25 +5487,9 @@ C_gig_apop_LFC_ApopI <- C_gig_apop_LFC[grepl("apoptosis inhibitor", C_gig_apop_L
 
 #### LFC IAP DOMAIN TYPE ANALYSIS ####
 ### Import pathway information and IAP domain type list at the very top of script
-load(file = "/Users/erinroberts/Documents/PhD_Research/Chapter_1_Apoptosis Paper/Chapter_1_Apoptosis_Annotation_Data_Analyses_2019/DATA/Apoptosis_Pathway_Annotation_Comparative_Genomics/Comparative_Analysis_Apoptosis_Gene_Families_Data/IAP_domain_structure_XM_CG.RData")
-load(file = "/Users/erinroberts/Documents/PhD_Research/Chapter_1_Apoptosis Paper/Chapter_1_Apoptosis_Annotation_Data_Analyses_2019/DATA/Apoptosis_Pathway_Annotation_Comparative_Genomics/Comparative_Analysis_Apoptosis_Gene_Families_Data/IAP_domain_structure_XM_CV.RData")
-# Load IAP pathway list (remove once I have my external hardrive and can reload from there)
-load(file="/Users/erinroberts/Documents/PhD_Research/Chapter_1_Apoptosis Paper/Chapter1_Apoptosis_Transcriptome_Analyses_2019/DATA ANALYSIS/apoptosis_data_pipeline/DESeq2/2020_Transcriptome_ANALYSIS/combined_gene_name_org_yes_no_table_unique_pathway_joined.RData")
-
-# (script for putting together data frames was originally in the WGCNA script)
-# Use dataframes for domain structure loaded at top of whole script 
-IAP_domain_structure_XM_CG
-IAP_domain_structure_XM_CV
-
-# join XM onto IAP_domain_structure_XM_CV using C_vir_rtracklayer_apop_product_final
-IAP_domain_structure_XM_CV_XM <- left_join(IAP_domain_structure_XM_CV[,-26], C_vir_rtracklayer_apop_product_final[,c("ID","transcript_id")], by = "ID") 
-#get rid of IAP_domain_structure_XM_CV empty transcript_id column before joining
-
-# combine data IAP_domain_name data frames, put columns in correct order and remove NA domain names
-IAP_domain_structure_XM_filter <- rbind(IAP_domain_structure_XM_CG[,c("transcript_id","Domain_Name")], IAP_domain_structure_XM_CV_XM[,c("transcript_id","Domain_Name")]) %>%
-  # change NA to be "not classified"
-  mutate(Domain_Name = case_when(is.na(Domain_Name) ~ "not_classified",
-                                 TRUE ~ Domain_Name))
+IAP_domain_structure_no_dup_rm.RData
+# load DEG apop list joined with type from IAP script
+C_vir_C_gig_apop_LFC_IAP_OG_domain_structure
 
 # edit column name of pathway table for proper joining
 # Note that in my orignal script to create this table I got rid of transcript variant information for products so I could better compare which might be truly missing from one or the other
@@ -5511,15 +5497,8 @@ combined_gene_name_org_yes_no_table_unique_pathway_joined_edited <- combined_gen
 # change gene_name to product
 colnames(combined_gene_name_org_yes_no_table_unique_pathway_joined_edited)[2] <- "product"
 
-### Join domain type information to the apop_LFC data frames
-C_vir_apop_LFC_domain_type <- left_join(C_vir_apop_LFC, IAP_domain_structure_XM_filter)
-C_gig_apop_LFC_domain_type <- left_join(C_gig_apop_LFC, IAP_domain_structure_XM_filter)
-
-# combine into one table
-C_vir_apop_LFC_domain_type$Species <- "Crassostrea_virginica"
-C_gig_apop_LFC_domain_type$Species <- "Crassostrea_gigas"
-
-C_vir_C_gig_apop_LFC_domain_type <- rbind(C_vir_apop_LFC_domain_type, C_gig_apop_LFC_domain_type)
+# Rename C_vir_C_gig_apop_LFC_IAP_OG_domain_structure to match previous code and facilitate easy running below
+C_vir_C_gig_apop_LFC_domain_type <- C_vir_C_gig_apop_LFC_IAP_OG_domain_structure
 
 ### Create Comb_domains for those groups that hit to multiple domains ###
 # make the comb_domains for the group_by_sim groups rather than experiment. 
@@ -5535,15 +5514,17 @@ C_vir_C_gig_apop_LFC_domain_type_comb_domain <- C_vir_C_gig_apop_LFC_domain_type
 ## Join experiments with challenge type: viral, bacterial, parasitic
 levels(factor(C_vir_C_gig_apop_LFC_domain_type_comb_domain$experiment))
 challenge_type <- data.frame(experiment =c(
-  "deLorgeril",
+  "deLorgeril_res",
+  "deLorgeril_sus",
   "Dermo",
   "He",
-  "Pro_RE22",
-  "Probiotic",
+  "Lab_Pro_RE22",
+  "Hatchery_Probiotic_RI",
   "ROD",
   "Rubio",
   "Zhang"),  
   challenge_type = c(
+    "viral" ,
     "viral" ,
     "parasite",
     "viral",
