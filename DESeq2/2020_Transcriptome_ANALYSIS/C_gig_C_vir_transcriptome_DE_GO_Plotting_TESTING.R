@@ -5604,6 +5604,79 @@ ggsave(plot = C_vir_C_gig_apop_LFC_domain_type_comb_domain_type_separate_GROUP_u
        path = "/Users/erinroberts/Documents/PhD_Research/Chapter_1_Apoptosis Paper/Chapter1_Apoptosis_Transcriptome_Analyses_2019/DATA ANALYSIS/apoptosis_data_pipeline/DESeq2/2020_Transcriptome_ANALYSIS/")
 
 
+### Apoptosis product heatmaps plotting Log2Fold Change with absolute value greater than 1 
+C_vir_apop_LFC_domain_type_gene_label <- C_vir_apop_LFC_domain_type %>% distinct() %>% mutate(transcript_product = paste(transcript_id, product)) %>% 
+  # add in plot only LFC greater with absolute value of greater than 1 
+  filter(abs(log2FoldChange) > 1) %>%
+  select(transcript_product, group_by_sim, log2FoldChange) %>% distinct(transcript_product, group_by_sim, log2FoldChange)
+C_vir_apop_LFC_domain_type_spread <-  spread(C_vir_apop_LFC_domain_type_gene_label, group_by_sim, log2FoldChange, fill = 0)
+C_vir_apop_LFC_domain_type_spread  <-  column_to_rownames(C_vir_apop_LFC_domain_type_spread , var = "transcript_product") 
+C_vir_apop_LFC_domain_type_spread_mat <- as.matrix(C_vir_apop_LFC_domain_type_spread)
+
+C_vir_apop_LFC_domain_type_heatmap <- pheatmap(C_vir_apop_LFC_domain_type_spread_mat)
+
+ggsave(plot = C_vir_apop_LFC_domain_type_heatmap, filename = "C_vir_apop_LFC_domain_type_pheatmap.tiff", device = "tiff",
+       width = 20, height = 25, limitsize = FALSE,
+       path = "/Users/erinroberts/Documents/PhD_Research/Chapter_1_Apoptosis Paper/Chapter1_Apoptosis_Transcriptome_Analyses_2019/DATA ANALYSIS/apoptosis_data_pipeline/DESeq2/2020_Transcriptome_ANALYSIS/")
+
+C_gig_apop_LFC_domain_type_gene_label <- C_gig_apop_LFC_domain_type %>% distinct() %>% mutate(transcript_product = paste(transcript_id, product)) %>% 
+  # add in plot only LFC greater with absolute value of greater than 1 
+  filter(abs(log2FoldChange) > 1) %>%
+  select(transcript_product, group_by_sim, log2FoldChange) %>% distinct(transcript_product, group_by_sim, log2FoldChange)
+C_gig_apop_LFC_domain_type_spread <-  spread(C_gig_apop_LFC_domain_type_gene_label, group_by_sim, log2FoldChange, fill = 0)
+C_gig_apop_LFC_domain_type_spread  <-  column_to_rownames(C_gig_apop_LFC_domain_type_spread , var = "transcript_product") 
+C_gig_apop_LFC_domain_type_spread_mat <- as.matrix(C_gig_apop_LFC_domain_type_spread)
+
+C_gig_apop_LFC_domain_type_heatmap <- pheatmap(C_gig_apop_LFC_domain_type_spread_mat)
+
+ggsave(plot = C_gig_apop_LFC_domain_type_heatmap, filename = "C_gig_apop_LFC_domain_type_pheatmap.tiff", device = "tiff",
+       width = 20, height = 25, limitsize = FALSE,
+       path = "/Users/erinroberts/Documents/PhD_Research/Chapter_1_Apoptosis Paper/Chapter1_Apoptosis_Transcriptome_Analyses_2019/DATA ANALYSIS/apoptosis_data_pipeline/DESeq2/2020_Transcriptome_ANALYSIS/")
+
+## Heatmaps of apoptosis LFC using Complex heatmap
+# extremely helpful manual and tutorial on complex heatmap
+# https://jokergoo.github.io/ComplexHeatmap-reference/book/a-single-heatmap.html
+
+# set column labels
+C_gig_labels =c("He 120hr", "He 12hr",  "He 24hr",  "He 48hr",  "He 6hr","Rubio J2-8 Non-Vir." ,            
+          "Rubio J2-9 Vir.","Rubio LGP32 Vir.","Rubio LMG20012T Non-Vir.", "Zhang LPS, M. lut", "de Lorgeril Resistant 12hr","de Lorgeril Resistant 24hr",     
+           "de Lorgeril Resistant 48hr","de Lorgeril Resistant 6hr","de Lorgeril Resistant 60hr","de Lorgeril Resistant 72hr","de Lorgeril Susceptible 12hr","de Lorgeril Susceptible 24hr",   
+           "de Lorgeril Susceptible 48hr", "de Lorgeril Susceptible 60hr", "de Lorgeril Susceptible 72hr" ,   "Zhang V.aes, V. alg1, V. alg2", "Zhang V.tub, V. ang")
+# create named vector to hold column names
+C_gig_column_labels = structure(paste0(C_gig_labels), names = paste0(colnames(C_gig_apop_LFC_domain_type_spread_mat)))
+
+C_vir_labels =c( "Hatchery Probiotic RI","Lab RE22", "Lab RI 24h", "ROD Resistant","ROD Susceptible","Lab S4 24h","Dermo Susceptible 28d",  "Dermo Susceptible 36hr",
+                 "Dermo Tolerant 28d","Dermo Tolerant 36hr" , "Dermo Tolerant 7d" )
+# create named vector to hold column names
+C_vir_column_labels = structure(paste0(C_vir_labels), names = paste0(colnames(C_vir_apop_LFC_domain_type_spread_mat)))
+
+# export PDFs as tiff
+pdf("C_gig_apop_LFC_domain_type_spread_mat_complex.pdf", width = 8, height = 10)
+ComplexHeatmap::Heatmap(C_gig_apop_LFC_domain_type_spread_mat, border = TRUE, column_title = "Experimental Group", 
+                                                                         column_title_side = "bottom", column_title_gp = gpar(fontsize = 12, fontface = "bold"),
+                                                                         row_title = "Apoptosis Transcript and Product Name", row_title_gp = gpar(fontsize = 12, fontface = "bold"),
+                                                                         row_dend_width = unit(2, "cm"),
+                                                                         column_labels = C_gig_column_labels[colnames(C_gig_apop_LFC_domain_type_spread_mat)],
+                                                                         # apply split by k-meams clustering to highlight groups
+                                                                         row_km = 3, column_km = 4, row_names_gp = gpar(fontsize = 3),
+                                                                         column_names_gp = gpar(fontsize = 8),
+                                                                         heatmap_legend_param = list(title = "Log2 Fold Change"))
+dev.off()
+
+pdf("C_vir_apop_LFC_domain_type_spread_mat_complex.pdf", width = 8, height = 8)
+ComplexHeatmap::Heatmap(C_vir_apop_LFC_domain_type_spread_mat, border = TRUE, column_title = "Experimental Group", 
+                                                                         column_title_side = "bottom", column_title_gp = gpar(fontsize = 12, fontface = "bold"),
+                                                                         row_title = "Apoptosis Transcript and Product Name", row_title_gp = gpar(fontsize = 12, fontface = "bold"),
+                                                                         row_dend_width = unit(2, "cm"),
+                                                                         column_labels = C_vir_column_labels[colnames(C_vir_apop_LFC_domain_type_spread_mat)],
+                                                                         # apply split by k-meams clustering to highlight groups
+                                                                         row_km = 3, column_km = 2, row_names_gp = gpar(fontsize = 4),
+                                                                         column_names_gp = gpar(fontsize = 8),
+                                                                         heatmap_legend_param = list(title = "Log2 Fold Change"))
+dev.off()
+
+
+
 ### Upset (kinda) plot of domain types (split up) used across experiments (not just group_by_sim)
 # Assessing if there are patterns in the experiment types where the domains are used
 # this table has the number of times each domain type is found in each experiment
@@ -5632,7 +5705,6 @@ C_vir_C_gig_apop_LFC_domain_type_comb_domain_type_separate_EXP_upset_plot <- ggp
 ggsave(plot = C_vir_C_gig_apop_LFC_domain_type_comb_domain_type_separate_EXP_upset_plot, filename = "C_vir_C_gig_apop_LFC_domain_type_comb_domain_type_separate_EXP_upset_plot.tiff", device = "tiff",
        width = 20, height = 10,
        path = "/Users/erinroberts/Documents/PhD_Research/Chapter_1_Apoptosis Paper/Chapter1_Apoptosis_Transcriptome_Analyses_2019/DATA ANALYSIS/apoptosis_data_pipeline/DESeq2/2020_Transcriptome_ANALYSIS/")
-
 
 #### IAP LFC DOMAIN TYPE AND APOPTOTIC PATHWAY ANALYSIS ####
 ### Join Apoptosis data frames with the pathway information after removing transcript variant info
@@ -5718,7 +5790,6 @@ ggsave(plot = C_vir_C_gig_apop_LFC_domain_type_joined_separate_subpathway_like_p
        width = 40, height = 60, limitsize = FALSE,
        path = "/Users/erinroberts/Documents/PhD_Research/Chapter_1_Apoptosis Paper/Chapter1_Apoptosis_Transcriptome_Analyses_2019/DATA ANALYSIS/apoptosis_data_pipeline/DESeq2/2020_Transcriptome_ANALYSIS/")
 
-## What are the most commonly shared interaction partners? - may not be an important point to make in the paper 
 
 #### EXPORT DATA FRAMES FOR WGCNA ANALYSIS ####
 
@@ -5975,3 +6046,53 @@ top_Var_C_gigas_apop_assay_anno <- as.data.frame(colData(C_gigas_apop_counts_vst
 top_Var_C_gigas_apop_assay_heatmap <- pheatmap(top_Var_C_gigas_apop_assay_mat  , annotation_col = top_Var_C_gigas_apop_assay_anno)
 head(top_Var_C_gigas_apop_assay_mat ) # OsHV1 susceptible clusters well with HE susceptible
 
+#### Session Info ####
+sessionInfo()
+
+#R version 3.6.1 (2019-07-05)
+#Platform: x86_64-apple-darwin15.6.0 (64-bit)
+#Running under: macOS Mojave 10.14
+#
+#Matrix products: default
+#BLAS:   /System/Library/Frameworks/Accelerate.framework/Versions/A/Frameworks/vecLib.framework/Versions/A/libBLAS.dylib
+#LAPACK: /Library/Frameworks/R.framework/Versions/3.6/Resources/lib/libRlapack.dylib
+#
+#locale:
+#  [1] en_US.UTF-8/en_US.UTF-8/en_US.UTF-8/C/en_US.UTF-8/en_US.UTF-8
+#
+#attached base packages:
+#  [1] grid      parallel  stats4    stats     graphics  grDevices utils     datasets  methods   base     
+#
+#other attached packages:
+#  [1] data.table_1.12.8           limma_3.40.6                extrafont_0.17              viridis_0.5.1               viridisLite_0.3.0           ggpubr_0.3.0               
+#[7] ggfortify_0.4.10            tibble_3.0.1                purrr_0.3.4                 Repitools_1.30.0            plyr_1.8.6                  reshape2_1.4.4             
+#[13] ComplexHeatmap_2.0.0        UpSetR_1.4.0                rtracklayer_1.44.4          stringr_1.4.0               tidyr_1.1.0                 fission_1.4.0              
+#[19] genefilter_1.66.0           apeglm_1.6.0                questionr_0.7.1             RColorBrewer_1.1-2          pheatmap_1.0.12             dplyr_1.0.0                
+#[25] magrittr_1.5                ggplot2_3.3.2               DESeq2_1.24.0               SummarizedExperiment_1.14.1 DelayedArray_0.10.0         BiocParallel_1.18.1        
+#[31] matrixStats_0.56.0          Biobase_2.44.0              GenomicRanges_1.36.1        GenomeInfoDb_1.20.0         IRanges_2.18.3              S4Vectors_0.22.1           
+#[37] BiocGenerics_0.30.0        
+#
+#loaded via a namespace (and not attached):
+#  [1] utf8_1.1.4               R.utils_2.9.2            tidyselect_1.1.0         robust_0.5-0.0           RSQLite_2.2.0            AnnotationDbi_1.46.1     htmlwidgets_1.5.1       
+#[8] aroma.core_3.2.1         munsell_0.5.0            codetools_0.2-16         preprocessCore_1.46.0    future_1.17.0            miniUI_0.1.1.1           withr_2.2.0             
+#[15] colorspace_1.4-1         highr_0.8                knitr_1.29               rstudioapi_0.11          robustbase_0.93-6        ggsignif_0.6.0           Rttf2pt1_1.3.8          
+#[22] listenv_0.8.0            labeling_0.3             bbmle_1.0.23.1           GenomeInfoDbData_1.2.1   farver_2.0.3             bit64_0.9-7              coda_0.19-3             
+#[29] vctrs_0.3.1              generics_0.0.2           xfun_0.15                fastcluster_1.1.25       R6_2.4.1                 doParallel_1.0.15        clue_0.3-57             
+#[36] locfit_1.5-9.4           bitops_1.0-6             assertthat_0.2.1         Ringo_1.48.0             promises_1.1.1           scales_1.1.1             nnet_7.3-14             
+#[43] gtable_0.3.0.9000        affy_1.62.0              globals_0.12.5           WGCNA_1.68               rlang_0.4.6              GlobalOptions_0.1.2      splines_3.6.1           
+#[50] extrafontdb_1.0          rstatix_0.6.0            magicfor_0.1.0           acepack_1.4.1            impute_1.58.0            broom_0.5.6              checkmate_2.0.0         
+#[57] abind_1.4-5              BiocManager_1.30.10      yaml_2.2.1               backports_1.1.8          httpuv_1.5.4             Hmisc_4.4-0              tools_3.6.1             
+#[64] affyio_1.54.0            ellipsis_0.3.1           gplots_3.0.3             Rsolnp_1.16              DNAcopy_1.58.0           dynamicTreeCut_1.63-1    Rcpp_1.0.3              
+#[71] base64enc_0.1-3          zlibbioc_1.30.0          RCurl_1.98-1.2           rpart_4.1-15             GetoptLong_1.0.0         haven_2.3.1              cluster_2.1.0           
+#[78] openxlsx_4.1.5           circlize_0.4.10          truncnorm_1.0-8          mvtnorm_1.1-1            aroma.apd_0.6.0          R.cache_0.14.0           aroma.light_3.14.0      
+#[85] hms_0.5.3                mime_0.9                 xtable_1.8-4             XML_3.99-0.3             rio_0.5.16               emdbook_1.3.12           jpeg_0.1-8.1            
+#[92] readxl_1.3.1             gridExtra_2.3            shape_1.4.4              compiler_3.6.1           bdsmatrix_1.3-4          KernSmooth_2.23-17       crayon_1.3.4            
+#[99] R.filesets_2.13.0        R.oo_1.23.0              htmltools_0.5.0          pcaPP_1.9-73             later_1.1.0.1            Formula_1.2-3            geneplotter_1.62.0      
+#[106] rrcov_1.5-2              DBI_1.1.0                MASS_7.3-51.6            car_3.0-8                Matrix_1.2-18            cli_2.0.2                vsn_3.52.0              
+#[113] R.methodsS3_1.8.0        gdata_2.18.0             forcats_0.5.0            pkgconfig_2.0.3          fit.models_0.63          GenomicAlignments_1.20.1 numDeriv_2016.8-1.1     
+#[120] foreign_0.8-72           foreach_1.5.0            annotate_1.62.0          XVector_0.24.0           PSCBS_0.65.0             R.rsp_0.43.2             digest_0.6.25           
+#[127] Biostrings_2.52.0        cellranger_1.1.0         htmlTable_2.0.0          edgeR_3.26.8             curl_4.3                 shiny_1.5.0              Rsamtools_2.0.3         
+#[134] gtools_3.8.2             rjson_0.2.20             nlme_3.1-148             lifecycle_0.2.0          carData_3.0-4            BSgenome_1.52.0          fansi_0.4.1             
+#[141] labelled_2.5.0           pillar_1.4.4             lattice_0.20-41          R.devices_2.16.1         fastmap_1.0.1            DEoptimR_1.0-8           survival_3.2-3          
+#[148] GO.db_3.8.2              glue_1.4.1               zip_2.0.4                png_0.1-7                iterators_1.0.12         aroma.affymetrix_3.2.0   bit_1.1-15.2            
+#[155] stringi_1.4.6            blob_1.2.1               caTools_1.18.0           latticeExtra_0.6-29      memoise_1.1.0            gsmoothr_0.1.7           R.huge_0.9.0   
