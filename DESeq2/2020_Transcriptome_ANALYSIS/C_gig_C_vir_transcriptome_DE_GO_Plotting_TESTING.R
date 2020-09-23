@@ -3374,11 +3374,9 @@ C_vir_all_sig_count <- C_vir_all_sig_count %>% group_by(group_by_sim ) %>% mutat
 C_vir_all_sig_count <- C_vir_all_sig_count[!duplicated(C_vir_all_sig_count[,c("group_by_sim","sig_total")]),]
 C_vir_all_sig_count<- C_vir_all_sig_count[,c("group_by_sim","sig_total")]
 # Number significant transcripts for each 
-C_vir_nsig_apop <- C_vir_apop_LFC %>% group_by(group_by_sim, experiment) %>% mutate(num_sig_apop = n())
-C_vir_nsig_apop_collapsed <- C_vir_nsig_apop[!duplicated(C_vir_nsig_apop[,c("num_sig_apop")]),]
-C_vir_nsig_apop_collapsed <- C_vir_nsig_apop_collapsed[,c("group_by_sim","experiment","num_sig_apop")]  
+C_vir_nsig_apop <- C_vir_apop_LFC %>% group_by(group_by_sim, experiment) %>% mutate(num_sig_apop = n()) %>% distinct(group_by_sim, experiment,num_sig_apop)
 
-C_vir_sig_table <- left_join(C_vir_nsig_apop_collapsed, C_vir_all_sig_count)
+C_vir_sig_table <- left_join(C_vir_nsig_apop, C_vir_all_sig_count)
 C_vir_sig_table <- C_vir_sig_table %>% group_by(group_by_sim) %>% mutate(apop_percent = (num_sig_apop/sig_total)*100)  
 
 # assign to gene families (August 5th 2020 this needs to be fixed below)
@@ -3932,7 +3930,7 @@ C_gig_apop_APOP_plot <- ggplot(C_gig_apop_LFC  , aes(x=product,y=log2FoldChange,
 
 ## Combine tables with percentage of apoptosis genes 
 C_vir_gig_sig_table  <- rbind(C_gig_sig_table, C_vir_sig_table)
-nrow(C_vir_gig_sig_table ) # 37
+nrow(C_vir_gig_sig_table ) # 38
 # export to look at statistics with IAP genes in the Comparative analysis data frame
 save(C_vir_gig_sig_table, file = "/Users/erinroberts/Documents/PhD_Research/Chapter_1_Apoptosis Paper/Chapter1_Apoptosis_Transcriptome_Analyses_2019/DATA ANALYSIS/apoptosis_data_pipeline/DESeq2/2020_Transcriptome_ANALYSIS/C_vir_gig_sig_table.RData")
 
@@ -5652,19 +5650,19 @@ C_vir_column_labels = structure(paste0(C_vir_labels), names = paste0(colnames(C_
 
 # export PDFs as tiff
 pdf("C_gig_apop_LFC_domain_type_spread_mat_complex.pdf", width = 8, height = 10)
-ComplexHeatmap::Heatmap(C_gig_apop_LFC_domain_type_spread_mat, border = TRUE, column_title = "Experimental Group", 
+ComplexHeatmap::Heatmap(C_gig_apop_LFC_domain_type_spread_mat, border = TRUE, column_title = gt_render("*C. gigas* Experimental Group"), 
                                                                          column_title_side = "bottom", column_title_gp = gpar(fontsize = 12, fontface = "bold"),
                                                                          row_title = "Apoptosis Transcript and Product Name", row_title_gp = gpar(fontsize = 12, fontface = "bold"),
                                                                          row_dend_width = unit(2, "cm"),
                                                                          column_labels = C_gig_column_labels[colnames(C_gig_apop_LFC_domain_type_spread_mat)],
                                                                          # apply split by k-meams clustering to highlight groups
-                                                                         row_km = 3, column_km = 4, row_names_gp = gpar(fontsize = 3),
+                                                                         row_km = 3, column_km = 4, row_names_gp = gpar(fontsize = 4),
                                                                          column_names_gp = gpar(fontsize = 8),
                                                                          heatmap_legend_param = list(title = "Log2 Fold Change"))
 dev.off()
 
 pdf("C_vir_apop_LFC_domain_type_spread_mat_complex.pdf", width = 8, height = 8)
-ComplexHeatmap::Heatmap(C_vir_apop_LFC_domain_type_spread_mat, border = TRUE, column_title = "Experimental Group", 
+ComplexHeatmap::Heatmap(C_vir_apop_LFC_domain_type_spread_mat, border = TRUE, column_title = gt_render("*C. virginica* Experimental Group"), 
                                                                          column_title_side = "bottom", column_title_gp = gpar(fontsize = 12, fontface = "bold"),
                                                                          row_title = "Apoptosis Transcript and Product Name", row_title_gp = gpar(fontsize = 12, fontface = "bold"),
                                                                          row_dend_width = unit(2, "cm"),
@@ -5674,8 +5672,6 @@ ComplexHeatmap::Heatmap(C_vir_apop_LFC_domain_type_spread_mat, border = TRUE, co
                                                                          column_names_gp = gpar(fontsize = 8),
                                                                          heatmap_legend_param = list(title = "Log2 Fold Change"))
 dev.off()
-
-
 
 ### Upset (kinda) plot of domain types (split up) used across experiments (not just group_by_sim)
 # Assessing if there are patterns in the experiment types where the domains are used
