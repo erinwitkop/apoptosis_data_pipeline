@@ -4,8 +4,8 @@
 #SBATCH --exclusive
 #SBATCH --mem=250GB
 #SBATCH --export=NONE
-#SBATCH -o /data3/marine_diseases_lab/erin/2017_2020_Transcriptome_Analysis/WGCNA/SCRIPTS/Script_out_error_files/module_export_9_2_2020_out
-#SBATCH -e /data3/marine_diseases_lab/erin/2017_2020_Transcriptome_Analysis/WGCNA/SCRIPTS/Script_out_error_files/module_export_9_2_2020_error
+#SBATCH -o /data3/marine_diseases_lab/erin/2017_2020_Transcriptome_Analysis/WGCNA/SCRIPTS/Script_out_error_files/module_export_module_new_9_21_2020_out
+#SBATCH -e /data3/marine_diseases_lab/erin/2017_2020_Transcriptome_Analysis/WGCNA/SCRIPTS/Script_out_error_files/module_export_module_new_9_21_2020_error
 
 echo "START $(date)"
 
