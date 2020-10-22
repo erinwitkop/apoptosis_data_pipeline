@@ -3,20 +3,20 @@
 #SBATCH --nodes=1
 #SBATCH --exclusive
 #SBATCH --export=NONE
-#SBATCH -o /data3/marine_diseases_lab/erin/2017_2020_Transcriptome_Analysis/WGCNA/SCRIPTS/Script_out_error_files/module_apop_9_21_2020_out
-#SBATCH -e /data3/marine_diseases_lab/erin/2017_2020_Transcriptome_Analysis/WGCNA/SCRIPTS/Script_out_error_files/module_apop_9_21_2020_error
+#SBATCH -o /data3/marine_diseases_lab/erin/2017_2020_Transcriptome_Analysis/WGCNA/SCRIPTS/Script_out_error_files/module_apop_10_22_2020_out
+#SBATCH -e /data3/marine_diseases_lab/erin/2017_2020_Transcriptome_Analysis/WGCNA/SCRIPTS/Script_out_error_files/module_apop_10_22_2020_error
 
 echo "START $(date)"
 
 cd /data3/marine_diseases_lab/erin/2017_2020_Transcriptome_Analysis/WGCNA
 
-# Modules that were already exported and searched for are commented out 
+# Modules that were already exported and searched for are commented out
 
 # Dermo_Tol: MEturquoise
 #grep -f C_vir_rtracklayer_apop_product_final_rnaID.txt CytoscapeInput-edges-Dermo_Tol_fullturquoise.txt > Dermo_Tol_fullturquoise_apop_hits.txt
 
 # Dermo_Sus: MElightpink4
-grep -f C_vir_rtracklayer_apop_product_final_rnaID.txt CytoscapeInput-edges-Dermo_Sus_lightpink4.txt > Dermo_Sus_fulllightpink4_apop_hits.txt
+grep -f C_vir_rtracklayer_apop_product_final_rnaID.txt CytoscapeInput-edges-Dermo_Sus_fulllightpink4.txt > Dermo_Sus_fulllightpink4_apop_hits.txt
 
 # deLorg Res
 #grep -f C_gig_rtracklayer_apop_product_final_transcript_ID.txt CytoscapeInput-edges-deLorg_Res_fullturquoise.txt > deLorg_Res_fullturquoise_apop_hits.txt
