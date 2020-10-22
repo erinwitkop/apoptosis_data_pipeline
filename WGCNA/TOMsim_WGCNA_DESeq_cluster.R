@@ -116,6 +116,8 @@ load(file="/data3/marine_diseases_lab/erin/2017_2020_Transcriptome_Analysis/WGCN
 #(already done in bluewaves)
 load(file = "/data3/marine_diseases_lab/erin/2017_2020_Transcriptome_Analysis/WGCNA/Dermo_Sus_full_TOM.RData") # already done
 load(file="/data3/marine_diseases_lab/erin/2017_2020_Transcriptome_Analysis/WGCNA/Dermo_Sus_full_moduleColors.RData")
+Dermo_Susceptible_dds_vst_matrix <- read.table(file="/data3/marine_diseases_lab/erin/2017_2020_Transcriptome_Analysis/WGCNA/Dermo_Susceptible_dds_vst_matrix.table")
+
 
 # TURQUOISE 
 Dermo_Sus_full_modules = "lightpink4"
@@ -138,6 +140,7 @@ Dermo_Sus_full_cyt = exportNetworkToCytoscape(Dermo_Sus_full_modTOM,
                                               nodeAttr = Dermo_Sus_full_moduleColors[Dermo_Sus_full_inModule])
 rm(Dermo_Sus_full_TOM)
 rm(Dermo_Sus_full_moduleColors)
+rm(Dermo_Susceptible_dds_vst_matrix)
 
 #### Pro_RE22_Pro modules ####
 # Pro_RE22_Pro_RI:MEturquoise    , MEdarkslateblue, MEsteelblue    
