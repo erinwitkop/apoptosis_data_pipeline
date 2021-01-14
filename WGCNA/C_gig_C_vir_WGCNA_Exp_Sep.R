@@ -7330,6 +7330,8 @@ C_gig_full_all_exp_mod_sig_apop <- rbind(Zhang_LPS_full_module_apop_df,
 nrow(C_gig_full_all_exp_mod_sig_apop) # 1235
 C_gig_full_all_exp_mod_sig_apop_positive <- C_gig_full_all_exp_mod_sig_apop %>% filter(mod_signif >0)
 
+
+
 #### ANALYSIS OF ALL IAP INTERACTIONS WITH FULL WGCNA DATA RUN FOR EACH EXPERIMENT SEPARATELY #### 
 # create combined sig apop modules list 
 C_vir_full_all_exp_mod_sig_apop$Species <- "Crassostrea_virginica"
@@ -7359,7 +7361,6 @@ IAP_domain_structure_XM_CV_XM <- IAP_domain_structure_no_dup_rm %>% filter(Speci
 IAP_domain_structure_XM_CV_XM <- left_join(IAP_domain_structure_XM_CV_XM, BIR_XP_gff_CV_uniq_XP_XM[,c("ID","protein_id")], by = "protein_id") 
 IAP_domain_structure_XM_CV_XM$ID <- as.character(IAP_domain_structure_XM_CV_XM$ID)
 IAP_domain_structure_XM_CV_XM <- left_join(IAP_domain_structure_XM_CV_XM, C_vir_rtracklayer_apop_product_final[,c("ID","transcript_id")])
-
 
 # combine data IAP_domain_name data frames, put columns in correct order and remove NA domain names
 IAP_domain_structure_XM_filter <- rbind(IAP_domain_structure_XM_CG[,c("transcript_id","Domain_Name")], IAP_domain_structure_XM_CV_XM[,c("transcript_id","Domain_Name")]) %>%
@@ -7414,15 +7415,74 @@ nrow(IAP_domain_structure_WGCNA_hits_df_modsize) # 69 modules with more than 1 t
 IAP_domain_structure_WGCNA_hits_df <- dplyr::semi_join(IAP_domain_structure_WGCNA_hits_df,  IAP_domain_structure_WGCNA_hits_df_modsize[,c("mod_names","exp")])
 # check
 distinct(IAP_domain_structure_WGCNA_hits_df, mod_names, exp) # 69 total without any module repeats
-View(distinct(IAP_domain_structure_WGCNA_hits_df, Domain_Name, mod_names, exp))
+distinct(IAP_domain_structure_WGCNA_hits_df, mod_names, exp) %>% ungroup() %>% dplyr::count(exp) %>% arrange(desc(n))#exp                    n
+#<chr>              <int>
+#  1 Pro_RE22_Pro_RI       10
+#2 Pro_RE22_Pro_S4       10
+#3 Zhang_LPS             10
+#4 Rubio_V                8
+#5 Rubio_NV               7
+#6 He                     5
+#7 Dermo_Tol              4
+#8 Probiotic              3
+#9 Zhang_Vibrio           3
+#10 deLorg_Res             2
+#11 deLorg_Sus             2
+#12 Dermo_Sus              2
+#13 Pro_RE22_RE22_full     2
+#14 ROD_Res                1
 
-## Count IAPs of each type in each experiment and make table
-IAP_domain_structure_WGCNA_hits_df_IAP_count_exp_table <- IAP_domain_structure_WGCNA_hits_df_IAP %>%
-  ungroup() %>% group_by(exp, Species, Domain_Name) %>% dplyr::summarise(IAP_count = n())
+## Count IAPs in each experiment and get the domain_names of each and make table 
+    # FIXED THIS CODE: remember the domain_name in this table is from when the modules were searched for, not necessary what each one is!
+IAP_domain_structure_WGCNA_hits_df_IAP_count_exp_table_no_domain <- IAP_domain_structure_WGCNA_hits_df_IAP %>%
+  ungroup() %>% distinct(exp, mod_names, transcript_id) %>% left_join(., IAP_domain_structure_XM_filter) %>% 
+  group_by(exp, Domain_Name) %>% dplyr::summarise(IAP_count = n())
 
-# Make table for paper (Table 4)
+# how many total IAPs found in each experiment across modules!
+IAP_domain_structure_WGCNA_hits_df_IAP %>%
+  ungroup() %>% distinct(exp, mod_names, transcript_id) %>% 
+  group_by(exp) %>% dplyr::summarise(IAP_count = n())
+    #exp                IAP_count
+    #<chr>                  <int>
+    #  1 deLorg_Res                 9
+    #2 deLorg_Sus                 3
+    #3 Dermo_Sus                  2
+    #4 Dermo_Tol                  8
+    #5 He                        15
+    #6 Pro_RE22_Pro_RI           26
+    #7 Pro_RE22_Pro_S4           20
+    #8 Pro_RE22_RE22_full        14
+    #9 Probiotic                  4
+    #10 ROD_Res                    2
+    #11 Rubio_NV                  17
+    #12 Rubio_V                   18
+    #13 Zhang_LPS                 17
+    #14 Zhang_Vibrio               5
+
+# how many total IAP structure types 
+IAP_domain_structure_WGCNA_hits_df_IAP %>%
+  ungroup() %>% distinct(exp, mod_names, transcript_id) %>% left_join(., IAP_domain_structure_XM_filter) %>% 
+  distinct(exp, Domain_Name) %>% dplyr::count(exp)
+#exp                    n
+#<chr>              <int>
+#  1 deLorg_Res             8
+#2 deLorg_Sus             3
+#3 Dermo_Sus              1
+#4 Dermo_Tol              7
+#5 He                     9
+#6 Pro_RE22_Pro_RI       12
+#7 Pro_RE22_Pro_S4       10
+#8 Pro_RE22_RE22_full     7
+#9 Probiotic              3
+#10 ROD_Res                1
+#11 Rubio_NV               9
+#12 Rubio_V                9
+#13 Zhang_LPS              8
+#14 Zhang_Vibrio           3
+
+# Make table for paper (Table 4) - redone with fixed code! 
 # Generate WGCNA IAP table across modules similar to the LFC table
-IAP_domain_structure_WGCNA_hits_df_IAP_count_exp_TABLE <- IAP_domain_structure_WGCNA_hits_df_IAP_count_exp_table %>%
+IAP_domain_structure_WGCNA_hits_df_IAP_count_exp_TABLE_domain_fixed <- IAP_domain_structure_WGCNA_hits_df_IAP_count_exp_table_no_domain %>%
   # mutate experiment level names so I can change and add markdown formatting below
   # spread table into wide format
   ungroup() %>% dplyr::select(exp,IAP_count,Domain_Name) %>%
@@ -7456,8 +7516,8 @@ IAP_domain_structure_WGCNA_hits_df_IAP_count_exp_TABLE <- IAP_domain_structure_W
   tab_source_note(source_note = md("\\* = *IAP Domain identified by Interproscan and not CDD search*")) %>%
   tab_options(table.font.color = "black")
 # save as png
-gtsave(IAP_domain_structure_WGCNA_hits_df_IAP_count_exp_TABLE, 
-       "/Users/erinroberts/Documents/PhD_Research/Chapter_1_Apoptosis Paper/Chapter_1_Apoptosis_Annotation_Data_Analyses_2019/DATA/ANNOTATION_DATA_FIGURES/TABLES/IAP_domain_structure_WGCNA_hits_df_IAP_count_exp_TABLE_10_22_2021.png")
+gtsave(IAP_domain_structure_WGCNA_hits_df_IAP_count_exp_TABLE_domain_fixed, 
+       "/Users/erinroberts/Documents/PhD_Research/Chapter_1_Apoptosis Paper/Chapter_1_Apoptosis_Annotation_Data_Analyses_2019/DATA/ANNOTATION_DATA_FIGURES/TABLES/IAP_domain_structure_WGCNA_hits_df_IAP_count_exp_TABLE_1_14_2021.png")
 
 ### FIND DOMAIN STRUCTURE SHARED ACROSS CHALLENGE TYPES 
 # Goal is see if there is a response that might be specific to the IAP domain structure rather than a challenge specific response
@@ -7728,6 +7788,24 @@ IAP_domain_structure_WGCNA_hits_df_condensed_type %>% ungroup() %>% dplyr::count
   # 13 Zhang_LPS            109
   # 14 Zhang_Vibrio          23
 
+# How many modules are significant for each experiment 
+IAP_domain_structure_WGCNA_hits_df_condensed_type %>% distinct(exp, mod_names) %>% ungroup() %>% dplyr::count(exp)
+  #exp                    n
+  #<chr>              <int>
+  #  1 deLorg_Res             2
+  #2 deLorg_Sus             2
+  #3 Dermo_Sus              2
+  #4 Dermo_Tol              4
+  #5 He                     5
+  #6 Pro_RE22_Pro_RI       10
+  #7 Pro_RE22_Pro_S4       10
+  #8 Pro_RE22_RE22_full     2
+  #9 Probiotic              3
+  #10 ROD_Res                1
+  #11 Rubio_NV               7
+  #12 Rubio_V                8
+  #13 Zhang_LPS             10
+  #14 Zhang_Vibrio           3
 
 ## Number of shared transcripts across particular experiment combos and domain types in all domains - 
 IAP_domain_structure_WGCNA_hits_PATHWAY_shared_between_exp_comb_domain <- IAP_domain_structure_WGCNA_hits_df_condensed_type %>% ungroup() %>% 
@@ -8307,8 +8385,8 @@ IAP_domain_structure_WGCNA_hits_PATHWAY %>% filter(is.na(Sub_pathway)) %>% View(
 IAP_domain_structure_WGCNA_hits_PATHWAY_unique_domain <- IAP_domain_structure_WGCNA_hits_PATHWAY %>% filter(comb_domain_type == "unique")
 IAP_domain_structure_WGCNA_hits_PATHWAY_comb_domain <- IAP_domain_structure_WGCNA_hits_PATHWAY %>% filter(comb_domain_type == "combo")
 unique(IAP_domain_structure_WGCNA_hits_PATHWAY_unique_domain$comb_domain) 
-[1] "TII-TII-RING"          "TII-BIR6-E2"           "BIR*"                  "TI-TII-DD-RING"        "TII-DD-RING"           "NZBIR-TII-UBA-DD-RING" "TI-TII-RING"           "TX-TII"               
-[9] "TII-DD"                "not_classified"        "BIR*-DD-RING"          "TI-TII-TII-UBA-RING"  
+#[1] "TII-TII-RING"          "TII-BIR6-E2"           "BIR*"                  "TI-TII-DD-RING"        "TII-DD-RING"           "NZBIR-TII-UBA-DD-RING" "TI-TII-RING"           "TX-TII"               
+#[9] "TII-DD"                "not_classified"        "BIR*-DD-RING"          "TI-TII-TII-UBA-RING"  
 
 # View types one at a time
 IAP_domain_structure_WGCNA_hits_PATHWAY_unique_domain %>% filter(comb_domain == "TII-TII-RING") %>% View()
@@ -8749,7 +8827,6 @@ Pro_RE22_Pro_fullwhite_IAP_hits_annot <- Pro_RE22_Pro_fullwhite_IAP_hits %>% dpl
   left_join(., IAP_domain_structure_XM_CV_XM[,c("ID","Domain_Name")]) %>% dplyr::rename (toNodeDomain_Name = Domain_Name) %>% 
   dplyr::rename (toNodetranscript = ID) %>% dplyr::rename(toNodeproduct = product) %>% dplyr::rename(toNodegene = gene) %>% filter(!is.na(fromNodeproduct)) %>% filter(!is.na(toNodeproduct)) %>% distinct()
 
-
 # Join together data frames
 Pro_RE22_Pro_fullsteelblue_IAP_hits_annot$mod_name <- "MEsteelblue"
 Pro_RE22_Pro_fullskyblue3_IAP_hits_annot$mod_name <- "MEskyblue3"
@@ -8795,7 +8872,16 @@ C_vir_C_gig_IAP_interaction_partners_undirected[is.na(C_vir_C_gig_IAP_interactio
 # total IAP interacting partners
 C_vir_C_gig_IAP_interaction_partners_undirected %>% nrow() # 1261 IAP interaction partners 
 C_vir_C_gig_IAP_interaction_partners_undirected %>% dplyr::distinct(fromNodetranscript) # 23 total unique IAPs 
-C_vir_C_gig_IAP_interaction_partners_undirected %>% dplyr::distinct(fromNodeDomain_Name) # 13 IAP domain types out of 14 have direct apoptosis interaction partners 
+C_vir_C_gig_IAP_interaction_partners_undirected %>% dplyr::distinct(fromNodetranscript, experiment) %>% dplyr::count(experiment) # number IAPs from each
+#experiment  n
+#1   deLorg_Res  7
+#2   deLorg_Sus  1
+#3        Dermo  1
+#4           He  6
+#5 Pro_RE22_Pro  6
+#6        Rubio 11
+#7        Zhang  1
+C_vir_C_gig_IAP_interaction_partners_undirected %>% dplyr::distinct(fromNodeDomain_Name) # 12 IAP domain types out of 14 have direct apoptosis interaction partners 
     #fromNodeDomain_Name
     #1          TII-DD-RING
     #2       TI-TII-DD-RING
@@ -8942,6 +9028,10 @@ nrow(unique(C_vir_C_gig_IAP_interaction_partners_common_transcript[,c("toNodetra
 # what are the distinct products here
 C_vir_C_gig_IAP_interaction_partners_common_transcript %>% ungroup () %>% dplyr::distinct(toNodeproduct) # 35 unique products
 
+# which are shared between deLorg and He? find the same toNode transcripts in deLorg and He
+C_vir_C_gig_IAP_interaction_partners_common_transcript %>% ungroup() %>% filter(experiment == "deLorg_Res" | experiment == "He") %>% distinct(experiment, toNodetranscript) %>% 
+  group_by(toNodetranscript) %>% count() %>% filter(n() >1)
+
 # plot to show differences after making combined column for transcript
 C_vir_C_gig_IAP_interaction_partners_common_transcript_plot <- 
   C_vir_C_gig_IAP_interaction_partners_common_transcript %>% mutate(combined_transcript = paste(fromNodetranscript, toNodeproduct, sep = "-")) %>% 
@@ -8951,9 +9041,15 @@ ggsave(plot = C_vir_C_gig_IAP_interaction_partners_common_transcript_plot , file
        width = 10, height = 8, limitsize = FALSE,
        path = "/Users/erinroberts/Documents/PhD_Research/Chapter_1_Apoptosis Paper/Chapter1_Apoptosis_Transcriptome_Analyses_2019/DATA ANALYSIS/apoptosis_data_pipeline/WGCNA/")
 
-# analyze the groups of molecules specifically associated with each one to see if they are involved in same general pathways in two specific stressors
-unique(C_vir_C_gig_IAP_interaction_partners_common_transcript$fromNodetranscript)
-  # [1] "XM_011428813.2" "XM_020068541.1" "XM_011428814.2" "XM_011418121.2" "XM_011451064.2"
+# analyze the groups of molecules specifically associated with each one to see if th"ey are involved in same general pathways in two specific stressors
+unique(C_vir_C_gig_IAP_interaction_partners_common_transcript[, c("fromNodetranscript","fromNodeDomain_Name")])
+    #fromNodetranscript f romNodeDomain_Name
+    #<chr>              <chr>              
+    #  1 XM_011428813.2      TII-DD-RING        
+    #2 XM_020068541.1     TI-TII-DD-RING     
+    #3 XM_011428814.2     TII-TII            
+    #4 XM_011418121.2     TX-TII             
+    #5 XM_011451064.2     BIR*      
 
 # XM_011428813.2, TII-DD-RING, used in deLorg Res and He
 C_vir_C_gig_IAP_interaction_partners_common_transcript %>% filter(fromNodetranscript == "XM_011428813.2") %>% distinct(toNodeproduct)
@@ -9045,6 +9141,8 @@ C_vir_C_gig_IAP_interaction_partners_common_domain_heatmap_prod_plot <- pheatmap
 ggsave(plot = C_vir_C_gig_IAP_interaction_partners_common_domain_heatmap_prod_plot, filename = "C_vir_C_gig_IAP_interaction_partners_common_domain_pheatmap_10_22_20.tiff", device = "tiff",
        width = 35, height = 20, limitsize = FALSE,
        path = "/Users/erinroberts/Documents/PhD_Research/Chapter_1_Apoptosis Paper/Chapter1_Apoptosis_Transcriptome_Analyses_2019/DATA ANALYSIS/apoptosis_data_pipeline/WGCNA/")
+
+
 
 #### COMPARE CONSENSUS AND FULL IAP AND GIMAP ACROSS ALL DATASETS, NOT JUST THOSE IN SIGNIFICANT MODULES ####
 
