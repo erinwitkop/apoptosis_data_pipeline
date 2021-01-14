@@ -8868,6 +8868,10 @@ C_vir_C_gig_IAP_interaction_partners_undirected <- rbind(C_vir_C_gig_IAP_interac
 # check were switched
 C_vir_C_gig_IAP_interaction_partners_undirected[is.na(C_vir_C_gig_IAP_interaction_partners_undirected$fromNodeDomain_Name),] #0 all switched for comparison
 
+## Summarizing families with direct interactions 
+
+
+
 ## Stats regarding IAP interaction partners
 # total IAP interacting partners
 C_vir_C_gig_IAP_interaction_partners_undirected %>% nrow() # 1261 IAP interaction partners 
@@ -8897,6 +8901,38 @@ C_vir_C_gig_IAP_interaction_partners_undirected %>% dplyr::distinct(fromNodeDoma
     #12        TII-TII-RING
     #13        BIR*-DD-RING
 
+## Which domain structures have tight apoptosis correlations in each experiment
+C_vir_C_gig_IAP_interaction_partners_undirected %>% dplyr::distinct(fromNodeDomain_Name, experiment) %>% arrange(experiment)
+#fromNodeDomain_Name   experiment
+#1          TII-DD-RING   deLorg_Res
+#2       TI-TII-DD-RING   deLorg_Res
+#3              TII-TII   deLorg_Res
+#4               TX-TII   deLorg_Res
+#5                 BIR*   deLorg_Res
+#6       not_classified   deLorg_Res
+#7       TI-TII-DD-RING   deLorg_Sus
+#8         TII-TII-RING        Dermo
+#9                 BIR*           He
+#10         TII-BIR6-E2           He
+#11         TII-DD-RING           He
+#12      TI-TII-DD-RING           He
+#13              TII-DD           He
+#14      not_classified           He
+#15              TII-DD Pro_RE22_Pro
+#16         TI-TII-RING Pro_RE22_Pro
+#17        TII-TII-RING Pro_RE22_Pro
+#18      not_classified Pro_RE22_Pro
+#19        BIR*-DD-RING Pro_RE22_Pro
+#20      TI-TII-DD-RING        Rubio
+#21            TII-RING        Rubio
+#22 TI-TII-TII-UBA-RING        Rubio
+#23             TII-TII        Rubio
+#24              TX-TII        Rubio
+#25              TII-DD        Rubio
+#26         TII-DD-RING        Rubio
+#27      not_classified        Rubio
+#28         TII-DD-RING        Zhang
+
 # How many in each experiment?
 C_vir_C_gig_IAP_interaction_partners_undirected %>% distinct(fromNodetranscript, toNodetranscript, experiment) %>% dplyr::count(experiment)
   #experiment   n
@@ -8907,6 +8943,9 @@ C_vir_C_gig_IAP_interaction_partners_undirected %>% distinct(fromNodetranscript,
   #5 Pro_RE22_Pro  54
   #6        Rubio 314
   #7        Zhang  14
+
+# Are the same IAP genes or different genes being used across experiments?
+C_vir_C_gig_IAP_interaction_partners_undirected %>% distinct(fromNodegene, experiment) %>% dplyr::count(experiment)
 
 ## Plot heatmap with interaction partners where the IAP is in the FROMNODE
 # create table where presence of a product is a 1, remove like and transcript variant info for better comparison between species
