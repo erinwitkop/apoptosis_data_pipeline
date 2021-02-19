@@ -7459,6 +7459,21 @@ IAP_domain_structure_WGCNA_hits_df_IAP %>%
     #13 Zhang_LPS                 17
     #14 Zhang_Vibrio               5
 
+# How many IAP genes in each 
+IAP_domain_structure_WGCNA_hits_df_IAP %>%
+  ungroup() %>% distinct(exp, mod_names, gene) %>% 
+  group_by(exp) %>% dplyr::summarise(IAP_count = n())
+
+# How many unique genes
+IAP_domain_structure_WGCNA_hits_df_IAP %>%
+  ungroup() %>% distinct(gene,Species) %>% 
+  dplyr::count(Species)
+
+# How many unique transcripts
+IAP_domain_structure_WGCNA_hits_df_IAP %>%
+  ungroup() %>% distinct(transcript_id,Species) %>% 
+  dplyr::count(Species)
+
 # how many total IAP structure types 
 IAP_domain_structure_WGCNA_hits_df_IAP %>%
   ungroup() %>% distinct(exp, mod_names, transcript_id) %>% left_join(., IAP_domain_structure_XM_filter) %>% 
@@ -8276,6 +8291,7 @@ setdiff(unique(IAP_domain_structure_WGCNA_hits_df_type$Domain_Name), IAP_domain_
 # How many IAPs hits in each of these modules
 IAP_domain_structure_WGCNA_hits_df_condensed_type_IAP <- IAP_domain_structure_WGCNA_hits_df_condensed_type[IAP_domain_structure_WGCNA_hits_df_condensed_type$transcript_id %in% IAP_domain_structure_XM_filter$transcript_id,]
 
+
 # how many IAPs identified total 
 nrow(IAP_domain_structure_WGCNA_hits_df_condensed_type_IAP) # 156 
 
@@ -8885,6 +8901,12 @@ C_vir_C_gig_IAP_interaction_partners_undirected %>% dplyr::distinct(fromNodetran
 #5 Pro_RE22_Pro  6
 #6        Rubio 11
 #7        Zhang  1
+
+# number of genes and domain types for each 
+ C_vir_C_gig_IAP_interaction_partners_undirected %>% dplyr::distinct(fromNodetranscript, fromNodeDomain_Name,fromNodegene, experiment) %>% View()
+ C_vir_C_gig_IAP_interaction_partners_undirected %>% dplyr::distinct(fromNodeDomain_Name, experiment) %>% View()
+ 
+ 
 C_vir_C_gig_IAP_interaction_partners_undirected %>% dplyr::distinct(fromNodeDomain_Name) # 12 IAP domain types out of 14 have direct apoptosis interaction partners 
     #fromNodeDomain_Name
     #1          TII-DD-RING
@@ -8944,6 +8966,18 @@ C_vir_C_gig_IAP_interaction_partners_undirected %>% distinct(fromNodetranscript,
   #6        Rubio 314
   #7        Zhang  14
 
+# how many unique apoptosis transcripts, unique toNodetranscripts
+C_vir_C_gig_IAP_interaction_partners_undirected %>% distinct(toNodetranscript, experiment) %>% dplyr::count(experiment)
+  #experiment   n 
+  #1   deLorg_Res 121
+  #2   deLorg_Sus  69
+  #3        Dermo   1
+  #4           He  50
+  #5 Pro_RE22_Pro  52
+  #6        Rubio 160
+  #7        Zhang  14
+
+
 # Are the same IAP genes or different genes being used across experiments?
 C_vir_C_gig_IAP_interaction_partners_undirected %>% distinct(fromNodegene, experiment) %>% dplyr::count(experiment)
 
@@ -8976,6 +9010,58 @@ C_vir_C_gig_IAP_interaction_partners_heatmap_prod_plot <- pheatmap(C_vir_C_gig_I
 ggsave(plot = C_vir_C_gig_IAP_interaction_partners_heatmap_prod_plot, filename = "C_vir_C_gig_IAP_interaction_partners_prod_pheatmap_10_22_20.tiff", device = "tiff",
        width = 40, height = 20, limitsize = FALSE,
        path = "/Users/erinroberts/Documents/PhD_Research/Chapter_1_Apoptosis Paper/Chapter1_Apoptosis_Transcriptome_Analyses_2019/DATA ANALYSIS/apoptosis_data_pipeline/WGCNA/")
+
+## Edit rowlabels to include the BIRC nomenclature 
+C_vir_C_gig_IAP_interaction_partners_heatmap_prod_BIRC <- C_vir_C_gig_IAP_interaction_partners_heatmap_prod
+row.names(C_vir_C_gig_IAP_interaction_partners_heatmap_prod_BIRC) <-  c("deLorg_Res_BIRC5" ,"deLorg_Res_not_classified","deLorg_Res_BIRC2/3","deLorg_Res_BIRC11",
+                                                                        "deLorg_Res_BIRC9_a"         ,"deLorg_Res_BIRC9_b" ,"deLorg_Sus_BIRC2/3","Dermo_BIRC12" ,
+                                                                        "He_BIRC5" ,"He_not_classified"          ,"He_BIRC2/3"           ,"He_BIRC6"              ,
+                                                                        "He_BIRC10"                   ,"He_BIRC11"              ,"Pro_RE22_Pro_BIRC11"  ,
+                                                                        "Pro_RE22_Pro_not_classified" ,"Pro_RE22_Pro_DIAP1"    ,"Pro_RE22_Pro_BIRC10"         ,
+                                                                        "Pro_RE22_Pro_BIRC12"   ,"Rubio_not_classified"       ,"Rubio_BIRC2/3"       ,
+                                                                        "Rubio_BIRC4/DIAP2"   ,"Rubio_BIRC10"                ,"Rubio_BIRC11"           ,
+                                                                        "Rubio_BIRC7"             ,"Rubio_BIRC9_a","Rubio_BIRC9_b" ,"Zhang_BIRC11")   
+
+C_vir_C_gig_IAP_interaction_partners_heatmap_prod_mat_BIRC <- as.matrix(C_vir_C_gig_IAP_interaction_partners_heatmap_prod_BIRC)
+C_vir_C_gig_IAP_interaction_partners_heatmap_prod_plot_BIRC <- pheatmap(C_vir_C_gig_IAP_interaction_partners_heatmap_prod_mat_BIRC, fontsize = 20)
+
+ggsave(plot = C_vir_C_gig_IAP_interaction_partners_heatmap_prod_plot_BIRC, filename = "C_vir_C_gig_IAP_interaction_partners_prod_pheatmap_BIRC_2_17_20.tiff", device = "tiff",
+       width = 40, height = 20, limitsize = FALSE,
+       path = "/Users/erinroberts/Documents/PhD_Research/Chapter_1_Apoptosis Paper/Chapter1_Apoptosis_Transcriptome_Analyses_2019/DATA ANALYSIS/apoptosis_data_pipeline/WGCNA/")
+
+
+## Make as Upset plot to view the interacting sets
+
+# use apoptosis transcripts from all experiments
+C_vir_C_gig_IAP_interaction_partners_upset <- C_vir_C_gig_IAP_interaction_partners_undirected %>% ungroup() %>% 
+  filter(!grepl("toll-like", toNodeproduct)) %>% # filter out then add back in so it isn't accidentally removed
+  # separate the toNode product
+  separate(toNodeproduct, into = c("toNodeproduct","transcript_variant"), sep = ", transcript") %>% 
+  #remove like
+  separate(toNodeproduct, into = c("toNodeproduct","like"), sep = "-like") %>%
+  ungroup() %>%
+  dplyr::distinct(experiment, toNodeproduct) %>% mutate(count = 1)
+
+C_vir_C_gig_IAP_interaction_partners_upset_toll <- C_vir_C_gig_IAP_interaction_partners_undirected %>% ungroup() %>% 
+  filter(grepl("toll-like", toNodeproduct)) %>% # filter out then add back in so it isn't accidentally removed
+  # separate the toNode product
+  separate(toNodeproduct, into = c("toNodeproduct","transcript_variant"), sep = ", transcript") %>% 
+ ungroup() %>%
+  dplyr::distinct(experiment, toNodeproduct) %>% mutate(count = 1)
+
+#combine back
+C_vir_C_gig_IAP_interaction_partners_upset <- rbind(C_vir_C_gig_IAP_interaction_partners_upset, C_vir_C_gig_IAP_interaction_partners_upset_toll)
+nrow(C_vir_C_gig_IAP_interaction_partners_upset ) # 309
+C_vir_C_gig_IAP_interaction_partners_upset_prod <- spread(C_vir_C_gig_IAP_interaction_partners_upset, toNodeproduct, count, fill = 0)
+C_vir_C_gig_IAP_interaction_partners_upset_prod <-  column_to_rownames(C_vir_C_gig_IAP_interaction_partners_upset_prod, var = "experiment")
+C_vir_C_gig_IAP_interaction_partners_upset_mat <- as.matrix(C_vir_C_gig_IAP_interaction_partners_upset_prod)
+
+# transpose so that sets are the columns and products are the rows
+C_vir_C_gig_IAP_interaction_partners_upset_mat_t <- t(C_vir_C_gig_IAP_interaction_partners_upset_mat)
+
+# use intersect mode to see overlaps 
+upset_mat <- make_comb_mat(C_vir_C_gig_IAP_interaction_partners_upset_mat_t, mode = "intersect" )
+UpSet(upset_mat)
 
 ## Which IAPS are interacting with Other IAPS? any patterns in their domains
 C_vir_C_gig_IAP_interaction_partners_IAP_direct <- C_vir_C_gig_IAP_interaction_partners_undirected %>% 
@@ -9180,6 +9266,7 @@ C_vir_C_gig_IAP_interaction_partners_common_domain_heatmap_prod_plot <- pheatmap
 ggsave(plot = C_vir_C_gig_IAP_interaction_partners_common_domain_heatmap_prod_plot, filename = "C_vir_C_gig_IAP_interaction_partners_common_domain_pheatmap_10_22_20.tiff", device = "tiff",
        width = 35, height = 20, limitsize = FALSE,
        path = "/Users/erinroberts/Documents/PhD_Research/Chapter_1_Apoptosis Paper/Chapter1_Apoptosis_Transcriptome_Analyses_2019/DATA ANALYSIS/apoptosis_data_pipeline/WGCNA/")
+
 
 
 
