@@ -3927,7 +3927,6 @@ C_gig_apop_APOP_upregulated_plot <- ggplot(C_gig_apop_APOP_upregulated , aes(x=p
 C_gig_apop_APOP_plot <- ggplot(C_gig_apop_LFC  , aes(x=product,y=log2FoldChange, fill=experiment )) + geom_col(position="dodge") + 
   theme(axis.text.x = element_text(angle = 75, hjust = 1)) + coord_flip()
 
-
 ## Combine tables with percentage of apoptosis genes 
 C_vir_gig_sig_table  <- rbind(C_gig_sig_table, C_vir_sig_table)
 nrow(C_vir_gig_sig_table ) # 38
@@ -5636,21 +5635,22 @@ ggsave(plot = C_gig_apop_LFC_domain_type_heatmap, filename = "C_gig_apop_LFC_dom
 # https://jokergoo.github.io/ComplexHeatmap-reference/book/a-single-heatmap.html
 
 # set column labels
-C_gig_labels =c("He 120hr", "He 12hr",  "He 24hr",  "He 48hr",  "He 6hr","Rubio J2-8 Non-Vir." ,            
-          "Rubio J2-9 Vir.","Rubio LGP32 Vir.","Rubio LMG20012T Non-Vir.", "Zhang LPS, M. lut", "de Lorgeril Resistant 12hr","de Lorgeril Resistant 24hr",     
-           "de Lorgeril Resistant 48hr","de Lorgeril Resistant 6hr","de Lorgeril Resistant 60hr","de Lorgeril Resistant 72hr","de Lorgeril Susceptible 12hr","de Lorgeril Susceptible 24hr",   
-           "de Lorgeril Susceptible 48hr", "de Lorgeril Susceptible 60hr", "de Lorgeril Susceptible 72hr" ,   "Zhang V.aes, V. alg1, V. alg2", "Zhang V.tub, V. ang")
+C_gig_labels =c("CGOSHV1-B 120hr", "CGOSHV1-B 12hr",  "CGOSHV1-B 24hr",  "CGOSHV1-B 48hr",  "CGOSHV1-B 6hr","Rubio J2-8 Non-Vir." ,            
+          "CGBAC-B J2-9 Vir.","CGBAC-B LGP32 Vir.","CGBAC-B LMG20012T Non-Vir.", "CGBAC-A LPS, M. lut", "CGOSHV1-A Res. 12hr","CGOSHV1-A Res. 24hr",     
+           "CGOSHV1-A Res. 48hr","CGOSHV1-A Res 6hr","CGOSHV1-A Res 60hr","CGOSHV1-A Res 72hr","CGOSHV1-A Sus. 12hr","CGOSHV1-A Sus. 24hr",   
+           "CGOSHV1-A Sus. 48hr", "CGOSHV1-A Sus. 60hr", "CGOSHV1-A Sus. 72hr" ,   "CGBAC-A V.aes, V. alg1, V. alg2", "CGBAC-A V.tub, V. ang")
 # create named vector to hold column names
 C_gig_column_labels = structure(paste0(C_gig_labels), names = paste0(colnames(C_gig_apop_LFC_domain_type_spread_mat)))
 
-C_vir_labels =c( "Hatchery Probiotic RI","Lab RE22", "Lab RI 24h", "ROD Resistant","ROD Susceptible","Lab S4 24h","Dermo Susceptible 28d",  "Dermo Susceptible 36hr",
-                 "Dermo Tolerant 28d","Dermo Tolerant 36hr" , "Dermo Tolerant 7d" )
+C_vir_labels =c( "CVBAC-B","CVBAC-A RE22", "CVBAC-A 24h", "CVBAC-C Res.","CVBAC-C Sus.","CVBAC-A S4 24h","CVPMA Sus. 28d",  "CVPMA Sus. 36hr",
+                 "CVPMA Tol. 28d","CVPMA Tol. 36hr" , "CVPMA Tol. 7d" )
 # create named vector to hold column names
 C_vir_column_labels = structure(paste0(C_vir_labels), names = paste0(colnames(C_vir_apop_LFC_domain_type_spread_mat)))
 
 # export PDFs as tiff
 pdf("C_gig_apop_LFC_domain_type_spread_mat_complex.pdf", width = 8, height = 10)
-ComplexHeatmap::Heatmap(C_gig_apop_LFC_domain_type_spread_mat, border = TRUE, column_title = gt_render("*C. gigas* Experimental Group"), 
+ComplexHeatmap::Heatmap(C_gig_apop_LFC_domain_type_spread_mat, border = TRUE, 
+                        #column_title = gt_render("*C. gigas* Experimental Group"), 
                                                                          column_title_side = "bottom", column_title_gp = gpar(fontsize = 12, fontface = "bold"),
                                                                          row_title = "Apoptosis Transcript and Product Name", row_title_gp = gpar(fontsize = 12, fontface = "bold"),
                                                                          row_dend_width = unit(2, "cm"),
@@ -5662,7 +5662,8 @@ ComplexHeatmap::Heatmap(C_gig_apop_LFC_domain_type_spread_mat, border = TRUE, co
 dev.off()
 
 pdf("C_vir_apop_LFC_domain_type_spread_mat_complex.pdf", width = 8, height = 8)
-ComplexHeatmap::Heatmap(C_vir_apop_LFC_domain_type_spread_mat, border = TRUE, column_title = gt_render("*C. virginica* Experimental Group"), 
+ComplexHeatmap::Heatmap(C_vir_apop_LFC_domain_type_spread_mat, border = TRUE, 
+                        #column_title = ComplexHeatmap::gt_render("*C. virginica* Experimental Group"), 
                                                                          column_title_side = "bottom", column_title_gp = gpar(fontsize = 12, fontface = "bold"),
                                                                          row_title = "Apoptosis Transcript and Product Name", row_title_gp = gpar(fontsize = 12, fontface = "bold"),
                                                                          row_dend_width = unit(2, "cm"),
