@@ -5635,7 +5635,7 @@ ggsave(plot = C_gig_apop_LFC_domain_type_heatmap, filename = "C_gig_apop_LFC_dom
 # https://jokergoo.github.io/ComplexHeatmap-reference/book/a-single-heatmap.html
 
 # set column labels
-C_gig_labels =c("CGOSHV1-B 120hr", "CGOSHV1-B 12hr",  "CGOSHV1-B 24hr",  "CGOSHV1-B 48hr",  "CGOSHV1-B 6hr","Rubio J2-8 Non-Vir." ,            
+C_gig_labels =c("CGOSHV1-B 120hr", "CGOSHV1-B 12hr",  "CGOSHV1-B 24hr",  "CGOSHV1-B 48hr",  "CGOSHV1-B 6hr","CGBAC-B J2-8 Non-Vir." ,            
           "CGBAC-B J2-9 Vir.","CGBAC-B LGP32 Vir.","CGBAC-B LMG20012T Non-Vir.", "CGBAC-A LPS, M. lut", "CGOSHV1-A Res. 12hr","CGOSHV1-A Res. 24hr",     
            "CGOSHV1-A Res. 48hr","CGOSHV1-A Res 6hr","CGOSHV1-A Res 60hr","CGOSHV1-A Res 72hr","CGOSHV1-A Sus. 12hr","CGOSHV1-A Sus. 24hr",   
            "CGOSHV1-A Sus. 48hr", "CGOSHV1-A Sus. 60hr", "CGOSHV1-A Sus. 72hr" ,   "CGBAC-A V.aes, V. alg1, V. alg2", "CGBAC-A V.tub, V. ang")
