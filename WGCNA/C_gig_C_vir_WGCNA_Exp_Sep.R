@@ -25,6 +25,7 @@ library(VennDiagram)
 library(ComplexHeatmap)
 library(pheatmap)
 library(gt)
+library(paletteer)
 # Using R version 3.6.1
 
 
@@ -7803,8 +7804,50 @@ IAP_domain_structure_WGCNA_hits_df_condensed_type %>% ungroup() %>% dplyr::count
   # 13 Zhang_LPS            109
   # 14 Zhang_Vibrio          23
 
-# How many modules are significant for each experiment 
+## How many apoptosis genes are found total across all modules in each experiment
+# first join with apoptosis gene info 
+IAP_domain_structure_WGCNA_hits_df_condensed_type_gene_Cvir <- IAP_domain_structure_WGCNA_hits_df_condensed_type %>% filter(Species == "Crassostrea_virginica") %>%
+  left_join(.,    C_vir_rtracklayer_apop_product_final[,c("transcript_id","gene")])
+IAP_domain_structure_WGCNA_hits_df_condensed_type_gene_Cvir_gene <- IAP_domain_structure_WGCNA_hits_df_condensed_type_gene_Cvir %>% ungroup() %>% distinct(gene)
+
+IAP_domain_structure_WGCNA_hits_df_condensed_type_gene_Cgig <- IAP_domain_structure_WGCNA_hits_df_condensed_type %>% filter(Species == "Crassostrea_gigas") %>%
+  dplyr::rename(Name = transcript_id) %>%
+  left_join(.,  C_gig_rtracklayer_apop_product_final[,c("Name","gene")]) %>% dplyr::rename(transcript_id = Name)
+IAP_domain_structure_WGCNA_hits_df_condensed_type_gene_Cgig_gene <- IAP_domain_structure_WGCNA_hits_df_condensed_type_gene_Cgig  %>% ungroup() %>% distinct(gene)
+
+# rbind back together
+IAP_domain_structure_WGCNA_hits_df_condensed_type_gene_all <- rbind(IAP_domain_structure_WGCNA_hits_df_condensed_type_gene_Cvir, IAP_domain_structure_WGCNA_hits_df_condensed_type_gene_Cgig)
+
+# how many genes in each experiment
+IAP_domain_structure_WGCNA_hits_df_condensed_type_gene_all %>% ungroup() %>% distinct(gene, exp) %>% dplyr::count(exp)
+
+# how many unique genes used, and the proportion of these out of the total apoptosis genes identified
+IAP_domain_structure_WGCNA_hits_df_condensed_type_gene_all %>% ungroup() %>% distinct(gene, Species) %>% dplyr::count(Species)
+  #Species                   n
+  #<chr>                 <int>
+  #  1 Crassostrea_gigas       375
+  #2 Crassostrea_virginica   319
+C_vir_rtracklayer_apop_product_final %>% ungroup() %>% distinct(gene) %>% nrow() # 676 319/676
+C_gig_rtracklayer_apop_product_final %>% ungroup() %>% distinct(gene) %>% nrow() # 511 375/511
+
+## Compare apoptosis genes between the DEG experiment and these WGCNA genes 
+C_gig_apop_LFC_gene <- C_gig_apop_LFC %>% ungroup() %>% distinct(gene) #345 total 
+C_vir_apop_LFC_gene <-   C_vir_apop_LFC %>% ungroup() %>% distinct(gene) # 199
+
+# compare gene list between WGCNA and DEG for each species
+setdiff(IAP_domain_structure_WGCNA_hits_df_condensed_type_gene_Cvir_gene$gene, C_vir_apop_LFC_gene$gene) # 187 different, 132 shared between WGCNA and DEG, 
+anti_join(IAP_domain_structure_WGCNA_hits_df_condensed_type_gene_Cvir_gene,C_vir_apop_LFC_gene) # 187 different
+anti_join(C_vir_apop_LFC_gene,IAP_domain_structure_WGCNA_hits_df_condensed_type_gene_Cvir_gene) # 67
+intersect(IAP_domain_structure_WGCNA_hits_df_condensed_type_gene_Cvir_gene,C_vir_apop_LFC_gene)
+
+setdiff(IAP_domain_structure_WGCNA_hits_df_condensed_type_gene_Cgig_gene$gene, C_gig_apop_LFC_gene$gene) # 85 different
+anti_join(IAP_domain_structure_WGCNA_hits_df_condensed_type_gene_Cgig_gene,C_gig_apop_LFC_gene) # 85 different
+anti_join(C_gig_apop_LFC_gene,IAP_domain_structure_WGCNA_hits_df_condensed_type_gene_Cgig_gene) # 55 different in DEG
+intersect(IAP_domain_structure_WGCNA_hits_df_condensed_type_gene_Cgig_gene,C_gig_apop_LFC_gene) # 290
+
+## How many modules are significant for each experiment 
 IAP_domain_structure_WGCNA_hits_df_condensed_type %>% distinct(exp, mod_names) %>% ungroup() %>% dplyr::count(exp)
+
   #exp                    n
   #<chr>              <int>
   #  1 deLorg_Res             2
@@ -9013,14 +9056,14 @@ ggsave(plot = C_vir_C_gig_IAP_interaction_partners_heatmap_prod_plot, filename =
 
 ## Edit rowlabels to include the BIRC nomenclature 
 C_vir_C_gig_IAP_interaction_partners_heatmap_prod_BIRC <- C_vir_C_gig_IAP_interaction_partners_heatmap_prod
-row.names(C_vir_C_gig_IAP_interaction_partners_heatmap_prod_BIRC) <-  c("deLorg_Res_BIRC5" ,"deLorg_Res_not_classified","deLorg_Res_BIRC2/3","deLorg_Res_BIRC11",
-                                                                        "deLorg_Res_BIRC9_a"         ,"deLorg_Res_BIRC9_b" ,"deLorg_Sus_BIRC2/3","Dermo_BIRC12" ,
-                                                                        "He_BIRC5" ,"He_not_classified"          ,"He_BIRC2/3"           ,"He_BIRC6"              ,
-                                                                        "He_BIRC10"                   ,"He_BIRC11"              ,"Pro_RE22_Pro_BIRC11"  ,
-                                                                        "Pro_RE22_Pro_not_classified" ,"Pro_RE22_Pro_DIAP1"    ,"Pro_RE22_Pro_BIRC10"         ,
-                                                                        "Pro_RE22_Pro_BIRC12"   ,"Rubio_not_classified"       ,"Rubio_BIRC2/3"       ,
-                                                                        "Rubio_BIRC4/DIAP2"   ,"Rubio_BIRC10"                ,"Rubio_BIRC11"           ,
-                                                                        "Rubio_BIRC7"             ,"Rubio_BIRC9_a","Rubio_BIRC9_b" ,"Zhang_BIRC11")   
+row.names(C_vir_C_gig_IAP_interaction_partners_heatmap_prod_BIRC) <-  c("CGOSHV1-A Res. BIRC5" ,"CGOSHV1-A Res. not classified","CGOSHV1-A Res. BIRC2/3","CGOSHV1-A Res. BIRC11",
+                                                                        "CGOSHV1-A Res. BIRC9a","CGOSHV1-A Res. BIRC9b" ,"CGOSHV1-A Sus. BIRC2/3","CVPMA BIRC12" ,
+                                                                        "CGOSHV1-B BIRC5" ,"CGOSHV1-B not classified","CGOSHV1-B BIRC2/3","CGOSHV1-B BIRC6",
+                                                                        "CGOSHV1-B BIRC10","CGOSHV1-B BIRC11","CVBAC-A Pro. BIRC11"  ,
+                                                                        "CVBAC-A Pro. not classified" ,"CVBAC-A Pro. DIAP1"    ,"CVBAC-A Pro. BIRC10",
+                                                                        "CVBAC-A Pro. BIRC12"   ,"CGBAC-B not classified"       ,"CGBAC-B BIRC2/3"       ,
+                                                                        "CGBAC-B BIRC4/DIAP2"   ,"CGBAC-B BIRC10"                ,"CGBAC-B BIRC11"           ,
+                                                                        "CGBAC-B BIRC7"             ,"CGBAC-B BIRC9a","CGBAC-B BIRC9b" ,"CGBAC-A BIRC11")   
 
 C_vir_C_gig_IAP_interaction_partners_heatmap_prod_mat_BIRC <- as.matrix(C_vir_C_gig_IAP_interaction_partners_heatmap_prod_BIRC)
 C_vir_C_gig_IAP_interaction_partners_heatmap_prod_plot_BIRC <- pheatmap(C_vir_C_gig_IAP_interaction_partners_heatmap_prod_mat_BIRC, fontsize = 20)
@@ -9059,9 +9102,19 @@ C_vir_C_gig_IAP_interaction_partners_upset_mat <- as.matrix(C_vir_C_gig_IAP_inte
 # transpose so that sets are the columns and products are the rows
 C_vir_C_gig_IAP_interaction_partners_upset_mat_t <- t(C_vir_C_gig_IAP_interaction_partners_upset_mat)
 
+# change column names to be the updated experiment codes 
+colnames(C_vir_C_gig_IAP_interaction_partners_upset_mat_t) <- c("CGOSHV1-A Res.", "CGOSHV1-A Sus.",
+"CVPMA Sus.","CGOSHV1-B","CVBAC-A RI/S4" ,"CGBAC-B-Non-virulent",  "CGBAC-A LPS, M. lut." )
+
 # use intersect mode to see overlaps 
 upset_mat <- make_comb_mat(C_vir_C_gig_IAP_interaction_partners_upset_mat_t, mode = "intersect" )
-UpSet(upset_mat)
+pdf(file="/Users/erinroberts/Documents/PhD_Research/Chapter_1_Apoptosis Paper/Chapter_1_Apoptosis_Annotation_Data_Analyses_2019/DATA/ANNOTATION_DATA_FIGURES/Apoptosis_pathway_figure/Tight_association_upset.pdf") # or other device
+UpSet(upset_mat[comb_size(upset_mat) >= 5], comb_order = rev(order(comb_size(upset_mat[comb_size(upset_mat) >= 5]))), 
+      right_annotation = upset_right_annotation(upset_mat[comb_size(upset_mat) >= 5], 
+                                                gp = gpar(fill = "#7aa444"),
+                                                annotation_name_side = "top",
+                                                axis_param = list(side = "top")))
+dev.off()
 
 ## Which IAPS are interacting with Other IAPS? any patterns in their domains
 C_vir_C_gig_IAP_interaction_partners_IAP_direct <- C_vir_C_gig_IAP_interaction_partners_undirected %>% 
@@ -9267,7 +9320,46 @@ ggsave(plot = C_vir_C_gig_IAP_interaction_partners_common_domain_heatmap_prod_pl
        width = 35, height = 20, limitsize = FALSE,
        path = "/Users/erinroberts/Documents/PhD_Research/Chapter_1_Apoptosis Paper/Chapter1_Apoptosis_Transcriptome_Analyses_2019/DATA ANALYSIS/apoptosis_data_pipeline/WGCNA/")
 
+### Plot number of tight correlations as a table with gt 
 
+# import table in as CVS
+WGCNA_tight_IAP_table <- read_csv("/Users/erinroberts/Documents/PhD_Research/Chapter_1_Apoptosis Paper/Chapter1_Apoptosis_Transcriptome_Analyses_2019/DATA ANALYSIS/apoptosis_data_pipeline/WGCNA/WGCNA_IAP_apop_tight_correlation_table.csv")
+
+# Make table with gt table
+WGCNA_tight_IAP_table_gt <- WGCNA_tight_IAP_table %>% 
+  dplyr::select(-Species) %>% 
+  gt() %>% 
+  data_color(
+    columns = 2:4, 
+    colors = scales::col_numeric(
+      palette = paletteer::paletteer_d(
+        palette = "ggsci::blue_material") %>% as.character(),
+      domain = NULL
+    )
+  ) %>% 
+  tab_style(
+    style = cell_text(color = "black", weight = "bold"),
+    locations = cells_column_labels(everything())) %>%  
+  cols_width(
+    1 ~ px(125),
+    2:4 ~ px(60)
+  ) %>% 
+  tab_options(
+    row_group.border.top.width = px(3),
+    row_group.border.top.color = "black",
+    row_group.border.bottom.color = "black",
+    table_body.hlines.color = "white",
+    table.border.top.color = "white",
+    table.border.top.width = px(3),
+    table.border.bottom.color = "white",
+    table.border.bottom.width = px(3),
+    column_labels.border.bottom.color = "black",
+    column_labels.border.bottom.width = px(2)) %>% 
+tab_source_note(source_note = md("\\** = *Unique = apoptosis transcripts significant across several experiment modules are only counted once.*"))
+  
+# save as png
+gtsave(WGCNA_tight_IAP_table_gt, 
+       "/Users/erinroberts/Documents/PhD_Research/Chapter_1_Apoptosis Paper/Chapter_1_Apoptosis_Annotation_Data_Analyses_2019/DATA/ANNOTATION_DATA_FIGURES/TABLES/WGCNA_tight_IAP_table_gt_3_10_2021.png")
 
 
 #### COMPARE CONSENSUS AND FULL IAP AND GIMAP ACROSS ALL DATASETS, NOT JUST THOSE IN SIGNIFICANT MODULES ####
