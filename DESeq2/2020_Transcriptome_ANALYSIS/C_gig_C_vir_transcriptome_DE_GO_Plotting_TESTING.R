@@ -5647,6 +5647,11 @@ C_vir_labels =c( "CVBAC-B","CVBAC-A RE22", "CVBAC-A 24h", "CVBAC-C Res.","CVBAC-
 # create named vector to hold column names
 C_vir_column_labels = structure(paste0(C_vir_labels), names = paste0(colnames(C_vir_apop_LFC_domain_type_spread_mat)))
 
+# create color mapping function 
+library(circlize)
+col_fun = colorRamp2(c(-2, 0, 2), c("blue", "white", "red"))
+col_fun(seq(-3, 3))
+
 # export PDFs as tiff
 pdf("C_gig_apop_LFC_domain_type_spread_mat_complex.pdf", width = 8, height = 10)
 ComplexHeatmap::Heatmap(C_gig_apop_LFC_domain_type_spread_mat, border = TRUE, 
@@ -5658,7 +5663,8 @@ ComplexHeatmap::Heatmap(C_gig_apop_LFC_domain_type_spread_mat, border = TRUE,
                                                                          # apply split by k-meams clustering to highlight groups
                                                                          row_km = 3, column_km = 4, row_names_gp = gpar(fontsize = 4),
                                                                          column_names_gp = gpar(fontsize = 8),
-                                                                         heatmap_legend_param = list(title = "Log2 Fold Change"))
+                                                                         heatmap_legend_param = list(title = "Log2 Fold Change"),
+                                                                         col= col_fun, rect_gp = gpar(col = "black", lwd = 0.2))
 dev.off()
 
 pdf("C_vir_apop_LFC_domain_type_spread_mat_complex.pdf", width = 8, height = 8)
@@ -5671,7 +5677,8 @@ ComplexHeatmap::Heatmap(C_vir_apop_LFC_domain_type_spread_mat, border = TRUE,
                                                                          # apply split by k-meams clustering to highlight groups
                                                                          row_km = 3, column_km = 2, row_names_gp = gpar(fontsize = 4),
                                                                          column_names_gp = gpar(fontsize = 8),
-                                                                         heatmap_legend_param = list(title = "Log2 Fold Change"))
+                                                                         heatmap_legend_param = list(title = "Log2 Fold Change"),
+                                                                         col= col_fun, rect_gp = gpar(col = "black", lwd = 0.2))
 dev.off()
 
 ### Upset (kinda) plot of domain types (split up) used across experiments (not just group_by_sim)
