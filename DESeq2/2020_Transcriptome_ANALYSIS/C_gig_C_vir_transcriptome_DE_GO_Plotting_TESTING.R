@@ -5653,7 +5653,7 @@ col_fun = colorRamp2(c(-2, 0, 2), c("blue", "white", "red"))
 col_fun(seq(-3, 3))
 
 # export PDFs as tiff
-pdf("C_gig_apop_LFC_domain_type_spread_mat_complex.pdf", width = 8, height = 10)
+pdf("C_gig_apop_LFC_domain_type_spread_mat_complex.pdf", width = 8, height = 12)
 ComplexHeatmap::Heatmap(C_gig_apop_LFC_domain_type_spread_mat, border = TRUE, 
                         #column_title = gt_render("*C. gigas* Experimental Group"), 
                                                                          column_title_side = "bottom", column_title_gp = gpar(fontsize = 12, fontface = "bold"),
@@ -5664,7 +5664,7 @@ ComplexHeatmap::Heatmap(C_gig_apop_LFC_domain_type_spread_mat, border = TRUE,
                                                                          row_km = 3, column_km = 4, row_names_gp = gpar(fontsize = 4),
                                                                          column_names_gp = gpar(fontsize = 8),
                                                                          heatmap_legend_param = list(title = "Log2 Fold Change"),
-                                                                         col= col_fun, rect_gp = gpar(col = "black", lwd = 0.1))
+                                                                         col= col_fun, rect_gp = gpar(col = "grey", lwd = 0.1))
 dev.off()
 
 pdf("C_vir_apop_LFC_domain_type_spread_mat_complex.pdf", width = 8, height = 8)
@@ -5678,7 +5678,7 @@ ComplexHeatmap::Heatmap(C_vir_apop_LFC_domain_type_spread_mat, border = TRUE,
                                                                          row_km = 3, column_km = 2, row_names_gp = gpar(fontsize = 4),
                                                                          column_names_gp = gpar(fontsize = 8),
                                                                          heatmap_legend_param = list(title = "Log2 Fold Change"),
-                                                                         col= col_fun, rect_gp = gpar(col = "black", lwd = 0.1))
+                                                                         col= col_fun, rect_gp = gpar(col = "grey", lwd = 0.1))
 dev.off()
 
 ### Upset (kinda) plot of domain types (split up) used across experiments (not just group_by_sim)
