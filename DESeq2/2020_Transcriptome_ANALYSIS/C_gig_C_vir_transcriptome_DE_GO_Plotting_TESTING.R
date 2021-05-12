@@ -5649,7 +5649,7 @@ C_vir_column_labels = structure(paste0(C_vir_labels), names = paste0(colnames(C_
 
 # create color mapping function 
 library(circlize)
-col_fun = colorRamp2(c(-15, 0, 15), c("blue", "white", "red"))
+col_fun = colorRamp2(c(-10, 0, 10), c("blue", "white", "red"))
 col_fun(seq(-3, 3))
 
 # export PDFs as tiff
