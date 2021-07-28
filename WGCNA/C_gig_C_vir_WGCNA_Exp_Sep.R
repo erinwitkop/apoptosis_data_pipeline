@@ -9104,7 +9104,7 @@ C_vir_C_gig_IAP_interaction_partners_upset_mat_t <- t(C_vir_C_gig_IAP_interactio
 
 # change column names to be the updated experiment codes 
 colnames(C_vir_C_gig_IAP_interaction_partners_upset_mat_t) <- c("CGOSHV1-A Res.", "CGOSHV1-A Sus.",
-"CVPMA Sus.","CGOSHV1-B","CVBAC-A RI/S4" ,"CGBAC-B-Non-virulent",  "CGBAC-A LPS, M. lut." )
+"CVPMA Sus.","CGOSHV1-B","CVBAC-A RI/S4" ,"CGBAC-B-Non-vir. Vibrio spp.",  "CGBAC-A LPS, M. lut." )
 
 # use intersect mode to see overlaps 
 upset_mat <- make_comb_mat(C_vir_C_gig_IAP_interaction_partners_upset_mat_t, mode = "intersect" )
