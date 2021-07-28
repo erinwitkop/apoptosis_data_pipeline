@@ -9020,9 +9020,53 @@ C_vir_C_gig_IAP_interaction_partners_undirected %>% distinct(toNodetranscript, e
   #6        Rubio 160
   #7        Zhang  14
 
-
 # Are the same IAP genes or different genes being used across experiments?
 C_vir_C_gig_IAP_interaction_partners_undirected %>% distinct(fromNodegene, experiment) %>% dplyr::count(experiment)
+
+#experiment  n
+#1   deLorg_Res  7
+#2   deLorg_Sus  1
+#3        Dermo  1
+#4           He  6
+#5 Pro_RE22_Pro  5
+#6        Rubio 10
+#7        Zhang  1
+
+# Which genes and domain architecutres are being used in each experiment
+C_vir_C_gig_IAP_interaction_partners_undirected %>% distinct(fromNodegene, fromNodeDomain_Name, experiment) %>% arrange(experiment)
+
+#fromNodegene fromNodeDomain_Name   experiment
+#1  LOC105317854         TII-DD-RING   deLorg_Res
+#2  LOC105331304      TI-TII-DD-RING   deLorg_Res
+#3  LOC105328062         TII-DD-RING   deLorg_Res
+#4  LOC105328063             TII-TII   deLorg_Res
+#5  LOC105320256              TX-TII   deLorg_Res
+#6  LOC105343630                BIR*   deLorg_Res
+#7  LOC105345826      not_classified   deLorg_Res
+#8  LOC105325768      TI-TII-DD-RING   deLorg_Sus
+#9  LOC111103790        TII-TII-RING        Dermo
+#10 LOC105343630                BIR*           He
+#11 LOC105334740         TII-BIR6-E2           He
+#12 LOC105328062         TII-DD-RING           He
+#13 LOC105331304      TI-TII-DD-RING           He
+#14 LOC105334899              TII-DD           He
+#15 LOC105345826      not_classified           He
+#16 LOC111103427              TII-DD Pro_RE22_Pro
+#17 LOC111100858         TI-TII-RING Pro_RE22_Pro
+#18 LOC111102858        TII-TII-RING Pro_RE22_Pro
+#19 LOC111100400      not_classified Pro_RE22_Pro
+#20 LOC111103392        BIR*-DD-RING Pro_RE22_Pro
+#21 LOC105334814      TI-TII-DD-RING        Rubio
+#22 LOC105318274            TII-RING        Rubio
+#23 LOC105331466 TI-TII-TII-UBA-RING        Rubio
+#24 LOC105328063             TII-TII        Rubio
+#25 LOC105320256              TX-TII        Rubio
+#26 LOC105334899              TII-DD        Rubio
+#27 LOC105323879      TI-TII-DD-RING        Rubio
+#28 LOC105328062         TII-DD-RING        Rubio
+#29 LOC105345826      not_classified        Rubio
+#30 LOC105340852              TII-DD        Rubio
+#31 LOC105317854         TII-DD-RING        Zhang
 
 ## Plot heatmap with interaction partners where the IAP is in the FROMNODE
 # create table where presence of a product is a 1, remove like and transcript variant info for better comparison between species
@@ -9355,16 +9399,16 @@ WGCNA_tight_IAP_table_gt <- WGCNA_tight_IAP_table %>%
     table.border.bottom.width = px(3),
     column_labels.border.bottom.color = "black",
     column_labels.border.bottom.width = px(2)) %>% 
-tab_source_note(source_note = md("\\** = *Unique = apoptosis transcripts significant across several experiment modules are only counted once.*"))
+tab_source_note(source_note = md("\\** = *Unique = only counted once if identified across several experiment modules.*"))
   
 # save as png
 gtsave(WGCNA_tight_IAP_table_gt, 
-       "/Users/erinroberts/Documents/PhD_Research/Chapter_1_Apoptosis Paper/Chapter_1_Apoptosis_Annotation_Data_Analyses_2019/DATA/ANNOTATION_DATA_FIGURES/TABLES/WGCNA_tight_IAP_table_gt_3_10_2021.png")
+       "/Users/erinroberts/Documents/PhD_Research/Chapter_1_Apoptosis Paper/Chapter_1_Apoptosis_Annotation_Data_Analyses_2019/DATA/ANNOTATION_DATA_FIGURES/TABLES/WGCNA_tight_IAP_table_gt_7_28_2021.png")
 
 
 #### COMPARE CONSENSUS AND FULL IAP AND GIMAP ACROSS ALL DATASETS, NOT JUST THOSE IN SIGNIFICANT MODULES ####
 
-### HAVENT REVIEWED THIS CODE YET - 10/22/20
+### GIMAP CODE NEEDS REVIEW - 10/22/20
 
 # Number of GIMAPs and IAPs in consensus set 
 C_vir_common_vst_transcripts_df <- as.data.frame(C_vir_common_vst_transcripts)
