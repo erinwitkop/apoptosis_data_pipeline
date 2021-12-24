@@ -1,4 +1,4 @@
-# Script to Analyze Differential Expression of Transcriptomes using DESeq2
+ Script to Analyze Differential Expression of Transcriptomes using DESeq2
 # Erin Roberts, PhD Candidate University of Rhode Island 
 # 2/13/2020
 
@@ -5653,21 +5653,22 @@ col_fun = colorRamp2(c(-10, 0, 10), c("blue", "white", "red"))
 col_fun(seq(-3, 3))
 
 # export PDFs as tiff
-pdf("C_gig_apop_LFC_domain_type_spread_mat_complex.pdf", width = 8, height = 12)
+pdf("C_gig_apop_LFC_domain_type_spread_mat_complex.pdf", width = 10, height = 14)
 ComplexHeatmap::Heatmap(C_gig_apop_LFC_domain_type_spread_mat, border = TRUE, 
                         #column_title = gt_render("*C. gigas* Experimental Group"), 
-                                                                         column_title_side = "bottom", column_title_gp = gpar(fontsize = 12, fontface = "bold"),
-                                                                         row_title = "Apoptosis Transcript and Product Name", row_title_gp = gpar(fontsize = 12, fontface = "bold"),
+                                                                         column_title_side = "bottom", column_title_gp = gpar(fontsize = 10, fontface = "bold"),
+                                                                         row_title = "Apoptosis Transcript and Product Name", row_title_gp = gpar(fontsize = 10, fontface = "bold"),
                                                                          row_dend_width = unit(2, "cm"),
                                                                          column_labels = C_gig_column_labels[colnames(C_gig_apop_LFC_domain_type_spread_mat)],
                                                                          # apply split by k-meams clustering to highlight groups
-                                                                         row_km = 3, column_km = 4, row_names_gp = gpar(fontsize = 4),
-                                                                         column_names_gp = gpar(fontsize = 8),
+                                                                         row_km = 3, column_km = 4, row_names_gp = gpar(fontsize = 6),
+                                                                         column_names_gp = gpar(fontsize = 7),
                                                                          heatmap_legend_param = list(title = "Log2 Fold Change"),
-                                                                         col= col_fun, rect_gp = gpar(col = "grey", lwd = 0.1))
+                                                                         col= col_fun, rect_gp = gpar(col = "grey", lwd = 0.1),  row_names_max_width = unit(13, "cm"))
 dev.off()
 
-pdf("C_vir_apop_LFC_domain_type_spread_mat_complex.pdf", width = 8, height = 8)
+pdf("C_vir_apop_LFC_domain_type_spread_mat_complex.pdf", width = 8.5, height = 10)
+C_vir_apop_LFC_domain_type_spread_mat_heatmap <- 
 ComplexHeatmap::Heatmap(C_vir_apop_LFC_domain_type_spread_mat, border = TRUE, 
                         #column_title = ComplexHeatmap::gt_render("*C. virginica* Experimental Group"), 
                                                                          column_title_side = "bottom", column_title_gp = gpar(fontsize = 12, fontface = "bold"),
@@ -5675,10 +5676,11 @@ ComplexHeatmap::Heatmap(C_vir_apop_LFC_domain_type_spread_mat, border = TRUE,
                                                                          row_dend_width = unit(2, "cm"),
                                                                          column_labels = C_vir_column_labels[colnames(C_vir_apop_LFC_domain_type_spread_mat)],
                                                                          # apply split by k-meams clustering to highlight groups
-                                                                         row_km = 3, column_km = 2, row_names_gp = gpar(fontsize = 4),
+                                                                         row_km = 3, column_km = 2, row_names_gp = gpar(fontsize = 8),
                                                                          column_names_gp = gpar(fontsize = 8),
-                                                                         heatmap_legend_param = list(title = "Log2 Fold Change"),
-                                                                         col= col_fun, rect_gp = gpar(col = "grey", lwd = 0.1))
+                                                                         heatmap_legend_param = list(title = "Log2 Fold Change", direction = "horizontal"),
+                                                                         col= col_fun, rect_gp = gpar(col = "grey", lwd = 0.1), row_names_max_width = unit(12, "cm"))
+draw(C_vir_apop_LFC_domain_type_spread_mat_heatmap, merge_legend = TRUE, heatmap_legend_side = "bottom")
 dev.off()
 
 ### Upset (kinda) plot of domain types (split up) used across experiments (not just group_by_sim)
